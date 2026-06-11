@@ -25,13 +25,15 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 | 4+ | 設問ビルダ / 掲載管理 | #11, #12 | ✅ merged |
 | 5a | 回答者フロー（実施中一覧→回答→保存） | #13 | ✅ merged |
 | 5b | 面談フロー（answers API + 面談記録 + API層認可） | #14 | ✅ merged |
-| 見た目1 | 見た目踏襲・基盤（テーマ3軸 + AppLayout シェル + ナビ + テーマ切替UI） | `feature/app-shell-theme` | 🟣 マージ承認待ち |
+| 見た目1 | 見た目踏襲・基盤（テーマ3軸 + AppLayout シェル + ナビ + テーマ切替UI） | #15 | ✅ merged |
 
 ### 次セッションの起点
 
-1. **見た目踏襲・基盤 PR をマージ** → 全ページがシェル(Header/SideNav/Footer + テーマ)配下に入る
-2. **見た目踏襲の続き**: 各ページを ui-catalog 定石へ（一覧=InteractiveTable/CardGrid、フォーム=ContentBlock/FormField/valibot）。基盤の上に増分 PR で進める
-3. 周辺: ダッシュボード / スケジュール / 委任、日時 tz、レートリミット、`.claude` の Gitea→GitHub 読み替え、実データ移行
+1. **見た目踏襲の続き**（基盤はマージ済み。全ページがシェル配下）: 各ページを ui-catalog 定石へ
+   - 管理3画面の一覧 → `InteractiveTable`/`CardGrid` + `StatisticPanel` + `LoadingZone`
+   - フォーム（user/survey/interview）→ `ContentBlock` + `FormField` + valibot
+   - 回答者フロー（/surveys, /surveys/[publishId]）の定石化
+2. 周辺: ダッシュボード / スケジュール / 委任、日時 tz、レートリミット、`.claude` の Gitea→GitHub 読み替え、実データ移行
 
 ### ローカル起動メモ
 
