@@ -308,6 +308,8 @@ External (HTTPS)
 | 2026-06-11 | apps/web は ui ソースを Next が型チェックするため `noUncheckedIndexedAccess:false`、base から `verbatimModuleSyntax` 撤去（ui は strict だが両者未使用）。自社 packages(domain/auth) は base のまま厳格 | ui ソース整合のため |
 | 2026-06-11 | Phase 1 インフラ PR（`feature/db-auth-stack`）: postgres15 自前 image（pgvector/pg_cron/pgtap/pgmq、pgmq はソースビルド）+ GoTrue `supabase/auth:v2.189.0` + 権限分離(app_user/supabase_auth_admin) + RLS context helper + `pnpm db:*`。起動検証 green。`packages/auth` ラッパ / Next middleware / provisioning は次 PR | スコープ分割（インフラ→アプリ層） |
 | 2026-06-11 | RLS の GUC 名は **`app.user_id`**（`app.current_user` は予約語 `current_user` と衝突し `SET LOCAL` で構文エラー）。API は `SET LOCAL app.user_id = '<gotrue sub>'` を注入、`app.current_user_id()` が参照（未設定→NULL で fail-closed）。pg_cron は preload 後に `db:migrate` で作成 | 実装で判明 |
+| 2026-06-11 | Phase 1 後半（アプリ層、`feature/auth-app-layer`）: `packages/auth`(GoTrue HTTP 薄ラッパ) + `apps/web` の lib/auth(jose 検証/httpOnly cookie) + `/api/v1/auth/{login,logout,refresh,me}` + `middleware`(未認証→/login) + /login ページ。**ログインループを実機検証**（未認証307→login 200+cookie→/me 200→保護トップ200→誤パス401）。access の `sub` が Phase 2 RLS の `app.user_id` 値 | 実装・検証 green |
+| 2026-06-11 | `users.gotrue_id` provisioning は Phase 2（users テーブル作成後）へ。env 検証は build 落ち回避のため import 時 throw をやめ実行時（production で secret 必須） | 依存順 / next build 都合 |
 
 ---
 
@@ -322,6 +324,8 @@ External (HTTPS)
 - ~~ui-catalog（`packages/ui`）の本配線~~ → **完了**（`feature/ui-catalog-wiring`）。「見た目踏襲」（Phase 5）の土台が立った。
   残: ① テーマ 3 軸（色/形/背景）の ThemeRoot 実装 ② MarkdownEditor/MathView 等を使う場合の追加 peer（codemirror/katex/marked）。
 - `.claude/rules/*` の `zod`→`valibot` 等、ai-education 由来の例の waoon スタックへの読み替え。
+- **認証エンドポイントのレートリミット**（`/api/v1/auth/login` 等）。nginx か API 層で（security.md 準拠、Phase 6 で）。
+- **`users.gotrue_id` provisioning**（管理者ユーザー作成 → GoTrue identity 発行 → users 紐付け）。Phase 2（users テーブル）以降。
 
 ---
 
