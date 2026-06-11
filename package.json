@@ -14,7 +14,13 @@
     "typecheck": "pnpm -r typecheck",
     "lint": "echo \"lint: 後続フェーズ(Phase 6 CI)で設定\"",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md,css}\"",
-    "ui:update": "git submodule update --remote packages/ui-catalog"
+    "db:build": "docker compose -f infra/docker-compose.yml build",
+    "db:up": "docker compose -f infra/docker-compose.yml up -d",
+    "db:down": "docker compose -f infra/docker-compose.yml down",
+    "db:reset": "docker compose -f infra/docker-compose.yml down -v",
+    "db:logs": "docker compose -f infra/docker-compose.yml logs -f",
+    "db:psql": "docker compose -f infra/docker-compose.yml exec postgres psql -U postgres -d waoon",
+    "db:migrate": "node scripts/db-migrate.mjs"
   },
   "devDependencies": {
     "prettier": "^3.4.2",

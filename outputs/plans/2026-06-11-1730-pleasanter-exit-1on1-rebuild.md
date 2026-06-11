@@ -306,6 +306,8 @@ External (HTTPS)
 | 2026-06-11 | ui-catalog 統合は Phase 0 から分離（**v3 preset⇔Tailwind v4 差・SCSS(sass)・peerDeps** の解消が必要なため専用ステップ化） | 統合リスク回避 |
 | 2026-06-11 | ui 本配線完了（`feature/ui-catalog-wiring`）。`tokens.css` は v4 `@theme` ネイティブ（v3 preset は未使用）、SCSS は `sass`、peer は旧 1on1 相当を導入、`transpilePackages` に `@ui-catalog/core`。`/ui-demo` で build green | 実装で確定 |
 | 2026-06-11 | apps/web は ui ソースを Next が型チェックするため `noUncheckedIndexedAccess:false`、base から `verbatimModuleSyntax` 撤去（ui は strict だが両者未使用）。自社 packages(domain/auth) は base のまま厳格 | ui ソース整合のため |
+| 2026-06-11 | Phase 1 インフラ PR（`feature/db-auth-stack`）: postgres15 自前 image（pgvector/pg_cron/pgtap/pgmq、pgmq はソースビルド）+ GoTrue `supabase/auth:v2.189.0` + 権限分離(app_user/supabase_auth_admin) + RLS context helper + `pnpm db:*`。起動検証 green。`packages/auth` ラッパ / Next middleware / provisioning は次 PR | スコープ分割（インフラ→アプリ層） |
+| 2026-06-11 | RLS の GUC 名は **`app.user_id`**（`app.current_user` は予約語 `current_user` と衝突し `SET LOCAL` で構文エラー）。API は `SET LOCAL app.user_id = '<gotrue sub>'` を注入、`app.current_user_id()` が参照（未設定→NULL で fail-closed）。pg_cron は preload 後に `db:migrate` で作成 | 実装で判明 |
 
 ---
 
