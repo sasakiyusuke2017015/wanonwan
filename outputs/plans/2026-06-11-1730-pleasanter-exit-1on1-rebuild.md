@@ -312,6 +312,8 @@ External (HTTPS)
 | 2026-06-11 | `users.gotrue_id` provisioning は Phase 2（users テーブル作成後）へ。env 検証は build 落ち回避のため import 時 throw をやめ実行時（production で secret 必須） | 依存順 / next build 都合 |
 | 2026-06-11 | Phase 2 データモデル+RLS（`feature/data-model-rls`）: 付録A に沿い org/users/surveys/questions/publications/answers/schedules + 中間テーブル(多値正規化)。RLS は本人/admin/viewer の最小ガード、組織階層は API 層。`app.is_admin()` を users×positions(役職コード990-999) に接続。db:seed/test:db 追加。pgTAP 全 PASS | 実装・検証 green |
 | 2026-06-11 | answers ⇄ answer_viewers の RLS 相互参照で**無限再帰**が出たため、横参照を **SECURITY DEFINER 関数**(app.is_answer_viewer / owns_or_interviews_answer / interviews_answer)で RLS バイパスして解消 | 実装で判明 |
+| 2026-06-11 | Phase 3 API 層（`feature/api-layer`）: DB クライアント(postgres.js, app_user) + `withUser(sub)` が `set_config('app.user_id', sub, true)` を注入＝**Phase1 認証 × Phase2 RLS を実コードで接続**。users API(一覧/詳細/作成/更新) + domain valibot。実機検証: admin は create 201、member(一般)は **403(RLS 42501)**、一覧は両者可、未認証 401 | 実装・検証 green |
+| 2026-06-11 | bigint PK は postgres.js が文字列で返す（JS 精度回避）。API レスポンスでは id が string。フロント/型側で吸収する（必要なら数値化） | postgres.js 仕様 |
 
 ---
 
