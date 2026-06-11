@@ -50,7 +50,11 @@
       "Bash(echo \"EXIT_TYPECHECK=$?\")",
       "Bash(pnpm --filter @waoon/web build)",
       "Bash(echo \"EXIT_BUILD=$?\")",
-      "Bash(git commit -q -m 'feat: Phase 0 モノレポ基盤（Next.js 16 + pnpm workspace） *)"
+      "Bash(git commit -q -m 'feat: Phase 0 モノレポ基盤（Next.js 16 + pnpm workspace） *)",
+      "Bash(gh pr *)"
+    ],
+    "additionalDirectories": [
+      "/tmp"
     ]
   }
 }

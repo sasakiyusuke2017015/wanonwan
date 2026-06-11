@@ -26,7 +26,7 @@ waoon は、旧 **1on1（アンケート／面談）アプリ**を技術選定�
 | 言語 / FW | TypeScript / **Next.js 16 (App Router)** / React 19 |
 | スタイル | Tailwind CSS v4 |
 | 状態・データ取得 | TanStack Query（+ 旧踏襲で Jotai） |
-| UI | ui-catalog（submodule + `link:`、Atomic Design / Radix + SCSS Modules 内部実装） |
+| UI | ui-catalog（`packages/ui` にベンダリング = `@ui-catalog/core`、Atomic Design / Radix + SCSS Modules 内部実装） |
 | 認証 | GoTrue（JWT + Cookie、自前薄ラッパ） |
 | DB | PostgreSQL 15 + 拡張（pgmq / pg_cron / pgvector / pgtap）。**RLS で認可** |
 | 非同期 | pgmq / pg_cron（通知は非同期） |

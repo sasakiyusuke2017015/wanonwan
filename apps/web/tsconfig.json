@@ -6,7 +6,11 @@
     "allowJs": true,
     "noEmit": true,
     "module": "ESNext",
-    "moduleResolution": "Bundler"
+    "moduleResolution": "Bundler",
+    // ベンダリングした ui-catalog(packages/ui) のソースを Next がトランスパイル時に
+    // 型チェックする。ui は strict だが noUncheckedIndexedAccess は未使用のため、
+    // apps/web 側でこのフラグを無効化して ui ソースの型エラーを避ける（自社 packages は base のまま厳格）。
+    "noUncheckedIndexedAccess": false
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]

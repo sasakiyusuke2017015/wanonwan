@@ -1,12 +1,10 @@
 @import "tailwindcss";
-
-/* テーマトークン（旧 1on1 の色/形/背景 3 軸を踏襲する土台。Phase 0 では最小定義） */
-:root {
-  --background: #ffffff;
-  --foreground: #111827;
-}
+/* ui-catalog のデザイントークン（Tailwind v4 @theme）を取り込む */
+@import "@ui-catalog/core/styles/tokens";
+/* ui-catalog のコンポーネントが使う Tailwind クラスを生成対象に含める */
+@source "../../../packages/ui/core";
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-white, #ffffff);
+  color: var(--color-black, #111827);
 }

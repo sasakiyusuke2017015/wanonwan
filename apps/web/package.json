@@ -10,13 +10,24 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@tanstack/react-query": "^5.101.0",
+    "@tanstack/react-virtual": "^3.13.19",
+    "@ui-catalog/core": "workspace:*",
     "@waoon/auth": "workspace:*",
     "@waoon/domain": "workspace:*",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "framer-motion": "^12.0.0",
     "jotai": "^2.20.1",
     "next": "^16.2.9",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "react-router-dom": "^7.13.1",
+    "recharts": "^3.0.0",
+    "tailwind-merge": "^3.5.0",
     "valibot": "^1.4.1"
   },
   "devDependencies": {
@@ -24,6 +35,7 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "sass": "^1.80.0",
     "tailwindcss": "^4.3.0",
     "typescript": "^5.9.0"
   }
