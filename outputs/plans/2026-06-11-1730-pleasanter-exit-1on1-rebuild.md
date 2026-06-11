@@ -317,6 +317,8 @@ External (HTTPS)
 | 2026-06-11 | Phase 4-a 管理者「ユーザー管理」画面（`feature/admin-users`）: 一覧/新規/編集 + admin ガード(/me に isAdmin 追加) + org マスタ API。TanStack Query + Tailwind。実機検証 green。アンケート管理 + surveys API は次 PR | タスク1 中心要件 |
 | 2026-06-11 | 管理画面 UI は当面 **Tailwind 機能 UI**（ui-catalog の organisms barrel は codemirror/marked peer 未導入のため）。InteractiveTable 等の ui-catalog 適用は Phase 5（見た目仕上げ）or organism-peer 導入後 | 統合コスト回避 |
 | 2026-06-11 | Phase 4-b 管理者「アンケート管理」画面（`feature/admin-surveys`）: 一覧/新規/編集 + surveys API(CRUD)。**タスク1の管理者2画面が両方完成**。設問ビルダ/掲載管理は後続 | タスク1 中心要件 |
+| 2026-06-11 | Phase 6 CI（`feature/ci`）: GitHub Actions で install/typecheck/build/pgTAP を自動化。CI green（~2分）。pnpm 版二重指定を packageManager 一本化で解消 | develop 保護の土台 |
+| 2026-06-11 | Phase 4-c 設問ビルダ（`feature/survey-questions`）: questions API(追加/編集/削除/並び替え) + QuestionsEditor を survey 編集に統合。choices は jsonb(`tx.json`)。実機で CRUD/reorder/RLS(member 403) green。掲載管理(publications)は次 | アンケート実用化 |
 
 ---
 
