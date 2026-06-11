@@ -1,0 +1,26 @@
+# waoon PostgreSQL 15 + 拡張同梱イメージ
+# 純正 postgres:15-bookworm をベースに、PGDG apt で pgvector / pg_cron / pgtap を入れ、
+# pgmq はソースビルドで同梱する（技術選定メモ M-0636）。
+FROM postgres:15-bookworm
+
+ARG PGMQ_VERSION=v1.4.4
+
+# PGDG 提供の拡張（apt 一発）
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      postgresql-15-pgvector \
+      postgresql-15-cron \
+      postgresql-15-pgtap \
+    && rm -rf /var/lib/apt/lists/*
+
+# pgmq はソースビルド
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      build-essential ca-certificates git postgresql-server-dev-15 \
+    && git clone --depth 1 --branch "${PGMQ_VERSION}" https://github.com/tembo-io/pgmq.git /tmp/pgmq \
+    && ( cd /tmp/pgmq/pgmq-extension && make && make install ) \
+    && rm -rf /tmp/pgmq \
+    && apt-get purge -y --auto-remove build-essential git postgresql-server-dev-15 \
+    && rm -rf /var/lib/apt/lists/*
+
+# pg_cron は shared_preload_libraries が必須。pgmq は CREATE EXTENSION で動的有効化。
+RUN echo "shared_preload_libraries='pg_cron'" >> /usr/share/postgresql/postgresql.conf.sample \
+    && echo "cron.database_name='waoon'" >> /usr/share/postgresql/postgresql.conf.sample
