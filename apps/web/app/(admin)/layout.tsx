@@ -38,6 +38,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/surveys" className="hover:underline">
             アンケート管理
           </Link>
+          <Link href="/admin/answers" className="hover:underline">
+            回答・面談
+          </Link>
         </nav>
         <span className="ml-auto text-sm text-gray-500">{data.name}</span>
       </header>

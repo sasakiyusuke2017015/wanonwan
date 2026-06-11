@@ -321,6 +321,7 @@ External (HTTPS)
 | 2026-06-11 | Phase 4-c 設問ビルダ（`feature/survey-questions`）: questions API(追加/編集/削除/並び替え) + QuestionsEditor を survey 編集に統合。choices は jsonb(`tx.json`)。実機で CRUD/reorder/RLS(member 403) green。掲載管理(publications)は次 | アンケート実用化 |
 | 2026-06-11 | Phase 4-d 掲載管理（`feature/survey-publications`）: publications API(CRUD) + PublicationsEditor を survey 編集に統合。状態(100-990)+期間。実機 green。これでアンケート→設問→掲載が揃い回答者フローが実データで動く | アンケート公開 |
 | 2026-06-11 | Phase 5-a 回答者フロー（`feature/respondent-flow`）: /me/surveys(実施中一覧) + /publications/[id]/detail + answer 提出 API、/surveys と /surveys/[publishId] ページ(設問7形式レンダリング)。実機で 一覧→回答→保存→見直し green、回答の respondent=本人(RLS)。面談/ダッシュボード/見た目踏襲(ui-catalog本格適用)は後続 | 旧 1on1 の核 |
+| 2026-06-11 | Phase 5-b 面談フロー（`feature/interview-flow`）: answers API(一覧/詳細/面談記録) + /admin/answers 一覧・詳細(回答内容 + InterviewForm: 日時/方式/健康状態/評価5項目/メモ/次回)。**RLS は本人にも UPDATE を許すため、面談記録は API 層で admin/面談者に限定**（回答者は 403）。実機検証で回答者の不正記録を阻止 = 主認可(API)/最終ガード(RLS) の二層を実証 | 1on1 のもう半分 |
 
 ---
 

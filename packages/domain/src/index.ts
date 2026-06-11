@@ -4,3 +4,4 @@ export * from "./user";
 export * from "./survey";
 export * from "./question";
 export * from "./publication";
+export * from "./interview";
