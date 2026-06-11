@@ -325,6 +325,7 @@ External (HTTPS)
 | 2026-06-12 | 見た目踏襲 第1増分（基盤のみ, `feature/app-shell-theme`）: テーマ3軸(色/形/背景)を @ui-catalog の theme atom で配線 + AppLayout シェル(Header/SubHeader/SideNav/Footer/BackgroundTexture + モバイル下部タブ) + useNavigationItems(isAdmin で admin 項目出し分け) + テーマ切替モーダル。AppFrame が /login・/ui-demo を bare に、他は全ページにシェルを被せる。SSR=既定テーマ→mount後に保存テーマの mounted ゲートで hydration mismatch 回避。実機: admin ログイン→home/surveys/admin が200でシェル描画、/login bare、code-reviewer APPROVE | 機能が揃ったので質(見た目)を上げる |
 | 2026-06-12 | **テーマ切替UI(色/形/背景パネル)を前倒し採用**（Plan 非ゴール「2テーマ切替＝将来検討」から繰り上げ） | ユーザー指示（基盤に含める） |
 | 2026-06-12 | ui-catalog の **organisms/templates barrel を import しない**方針を確立。barrel は MarkdownEditor(codemirror peer 未導入) や CalendarPage(SSR で window 参照) を巻き込みビルド不能になるため、ベンダリング package.json に必要分のみ deep export(Modal/BackgroundTexture/Header/SubHeader/SideNav/Footer) を追加して個別 import する | 実装で判明（barrel 回避） |
+| 2026-06-12 | 見た目踏襲 第2増分（管理一覧の定石化, `feature/admin-lists-uicatalog`）: 管理3一覧(users/surveys/answers)を素の table から @ui-catalog の InteractiveTable へ。再利用ラッパ AdminListTable(テーマ適用 + mounted ゲート + loading/empty/error + 行クリック遷移)を新設し、各ページは列定義(COLUMNS)+行データ map のみ。InteractiveTable も deep export 追加。実機: 200・SSRクラッシュ無し、code-reviewer APPROVE | 見た目踏襲の続き(一覧定石) |
 
 ---
 
