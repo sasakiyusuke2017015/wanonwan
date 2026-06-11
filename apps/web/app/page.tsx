@@ -18,9 +18,14 @@ export default async function Home() {
         </span>
         <LogoutButton />
       </div>
-      <Link href="/admin/users" className="text-sm text-blue-600 underline">
-        管理画面へ
-      </Link>
+      <div className="flex gap-4">
+        <Link href="/surveys" className="text-sm text-blue-600 underline">
+          アンケートに回答
+        </Link>
+        <Link href="/admin/users" className="text-sm text-blue-600 underline">
+          管理画面へ
+        </Link>
+      </div>
     </main>
   );
 }
