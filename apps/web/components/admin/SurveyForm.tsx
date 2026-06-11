@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SURVEY_STATUSES } from "@waoon/domain";
+import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
+import { FormField, Input, Select } from "@ui-catalog/core/molecules";
+import { Checkbox } from "@ui-catalog/core/atoms";
+import { useTheme } from "@ui-catalog/core/infra/theme";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
+import { FormActions } from "@/components/admin/FormActions";
 
 type SurveyDetail = {
   id: string;
@@ -21,9 +26,12 @@ const STATUS_LABEL: Record<string, string> = {
   closed: "終了",
 };
 
+const STATUS_OPTIONS = SURVEY_STATUSES.map((s) => ({ value: s, label: STATUS_LABEL[s] ?? s }));
+
 export function SurveyForm({ surveyId }: { surveyId?: string }) {
   const router = useRouter();
   const qc = useQueryClient();
+  const { shapes } = useTheme();
   const [form, setForm] = useState({
     title: "",
     status: "draft",
@@ -76,87 +84,69 @@ export function SurveyForm({ surveyId }: { surveyId?: string }) {
     <form
       onSubmit={(e) => {
         e.preventDefault();
+        if (!form.title.trim()) {
+          setError("タイトルは必須です");
+          return;
+        }
         setError(null);
         mutation.mutate();
       }}
-      className="max-w-lg space-y-4"
+      className="max-w-2xl space-y-4"
     >
-      <label className="block">
-        <span className="text-sm text-gray-600">
-          タイトル<span className="ml-1 text-red-500">*</span>
-        </span>
-        <input
-          className={inputCls}
-          value={form.title}
-          onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-          required
-        />
-      </label>
+      <ContentBlock title="アンケート設定">
+        <div className="space-y-4">
+          <FormField label="タイトル" required>
+            <Input
+              value={form.title}
+              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+              borderRadius={shapes.inputRadius}
+            />
+          </FormField>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <FormField label="状態">
+              <Select
+                options={STATUS_OPTIONS}
+                value={form.status}
+                onChange={(v) =>
+                  setForm((f) => ({ ...f, status: v == null ? "draft" : String(v) }))
+                }
+                borderRadius={shapes.inputRadius}
+              />
+            </FormField>
+            <FormField label="定員（任意）">
+              <Input
+                type="number"
+                value={form.capacity}
+                onChange={(e) => setForm((f) => ({ ...f, capacity: e.target.value }))}
+                borderRadius={shapes.inputRadius}
+              />
+            </FormField>
+          </div>
+        </div>
+      </ContentBlock>
 
-      <label className="block">
-        <span className="text-sm text-gray-600">状態</span>
-        <select
-          className={inputCls}
-          value={form.status}
-          onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
-        >
-          {SURVEY_STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {STATUS_LABEL[s] ?? s}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <label className="block">
-        <span className="text-sm text-gray-600">定員（任意）</span>
-        <input
-          type="number"
-          min={0}
-          className={inputCls}
-          value={form.capacity}
-          onChange={(e) => setForm((f) => ({ ...f, capacity: e.target.value }))}
-        />
-      </label>
-
-      <label className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          checked={form.requiresAuth}
-          onChange={(e) => setForm((f) => ({ ...f, requiresAuth: e.target.checked }))}
-        />
-        <span className="text-sm">認証を必須にする</span>
-      </label>
-
-      <label className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          checked={form.usesAi}
-          onChange={(e) => setForm((f) => ({ ...f, usesAi: e.target.checked }))}
-        />
-        <span className="text-sm">AI 機能を使う（Phase 2）</span>
-      </label>
+      <ContentBlock title="オプション">
+        <div className="space-y-3">
+          <Checkbox
+            label="認証を必須にする"
+            checked={form.requiresAuth}
+            onChange={(e) => setForm((f) => ({ ...f, requiresAuth: e.target.checked }))}
+          />
+          <Checkbox
+            label="AI 機能を使う（Phase 2）"
+            checked={form.usesAi}
+            onChange={(e) => setForm((f) => ({ ...f, usesAi: e.target.checked }))}
+          />
+        </div>
+      </ContentBlock>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <div className="flex gap-2">
-        <button
-          type="submit"
-          disabled={mutation.isPending}
-          className="rounded bg-gray-900 px-4 py-2 text-sm text-white disabled:opacity-50"
-        >
-          {mutation.isPending ? "保存中..." : "保存"}
-        </button>
-        <button
-          type="button"
-          onClick={() => router.push("/admin/surveys")}
-          className="rounded border border-gray-300 px-4 py-2 text-sm"
-        >
-          キャンセル
-        </button>
-      </div>
+      <FormActions
+        submitLabel="保存"
+        pending={mutation.isPending}
+        onCancel={() => router.push("/admin/surveys")}
+      />
     </form>
   );
 }
-
-const inputCls = "mt-1 w-full rounded border border-gray-300 px-3 py-2";
