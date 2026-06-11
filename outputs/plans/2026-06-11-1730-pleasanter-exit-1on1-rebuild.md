@@ -304,6 +304,8 @@ External (HTTPS)
 | 2026-06-11 | ui-catalog は **submodule をやめ、`packages/ui` に clone してベンダリング**（waoon 内で管理） | ユーザー決定（「submodule はまわりくどい」） |
 | 2026-06-11 | Phase 0 のスタックを固定: Next.js 16.2.9 / React 19.2.7 / Tailwind 4.3 / TS 5.9 / pnpm 10.15。install/typecheck/build green | 実装時の registry 最新で確定 |
 | 2026-06-11 | ui-catalog 統合は Phase 0 から分離（**v3 preset⇔Tailwind v4 差・SCSS(sass)・peerDeps** の解消が必要なため専用ステップ化） | 統合リスク回避 |
+| 2026-06-11 | ui 本配線完了（`feature/ui-catalog-wiring`）。`tokens.css` は v4 `@theme` ネイティブ（v3 preset は未使用）、SCSS は `sass`、peer は旧 1on1 相当を導入、`transpilePackages` に `@ui-catalog/core`。`/ui-demo` で build green | 実装で確定 |
+| 2026-06-11 | apps/web は ui ソースを Next が型チェックするため `noUncheckedIndexedAccess:false`、base から `verbatimModuleSyntax` 撤去（ui は strict だが両者未使用）。自社 packages(domain/auth) は base のまま厳格 | ui ソース整合のため |
 
 ---
 
@@ -315,10 +317,8 @@ External (HTTPS)
 - 旧 `/api/jobs/*`（Pleasanter バッチ）の pg_cron + pgmq 置換詳細設計。
 - `.claude/rules/*`（git-workflow.md 等）の **Gitea / `tea` 前提の記述を GitHub / `gh` へ読み替え更新**
   （ブランチ戦略は 3 層のまま、ホスト固有記述のみ）。CI は `.github/workflows/`。
-- **ui-catalog（`packages/ui`）の本配線**: ① ui の Tailwind v3 preset を **Tailwind v4** の `@theme`/CSS トークンへ
-  移植 ② SCSS Modules 用に `sass` を apps/web に追加 ③ import するコンポーネントの peerDeps を都度追加
-  ④ `pnpm-workspace.yaml` の `!packages/ui` 除外を外す ⑤ `next.config.ts` の `transpilePackages` に `@ui-catalog/core` 追加。
-  → 完了で「見た目踏襲」（Phase 5）の土台が立つ。
+- ~~ui-catalog（`packages/ui`）の本配線~~ → **完了**（`feature/ui-catalog-wiring`）。「見た目踏襲」（Phase 5）の土台が立った。
+  残: ① テーマ 3 軸（色/形/背景）の ThemeRoot 実装 ② MarkdownEditor/MathView 等を使う場合の追加 peer（codemirror/katex/marked）。
 - `.claude/rules/*` の `zod`→`valibot` 等、ai-education 由来の例の waoon スタックへの読み替え。
 
 ---
