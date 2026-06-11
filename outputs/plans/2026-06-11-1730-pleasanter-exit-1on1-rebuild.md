@@ -310,6 +310,8 @@ External (HTTPS)
 | 2026-06-11 | RLS の GUC 名は **`app.user_id`**（`app.current_user` は予約語 `current_user` と衝突し `SET LOCAL` で構文エラー）。API は `SET LOCAL app.user_id = '<gotrue sub>'` を注入、`app.current_user_id()` が参照（未設定→NULL で fail-closed）。pg_cron は preload 後に `db:migrate` で作成 | 実装で判明 |
 | 2026-06-11 | Phase 1 後半（アプリ層、`feature/auth-app-layer`）: `packages/auth`(GoTrue HTTP 薄ラッパ) + `apps/web` の lib/auth(jose 検証/httpOnly cookie) + `/api/v1/auth/{login,logout,refresh,me}` + `middleware`(未認証→/login) + /login ページ。**ログインループを実機検証**（未認証307→login 200+cookie→/me 200→保護トップ200→誤パス401）。access の `sub` が Phase 2 RLS の `app.user_id` 値 | 実装・検証 green |
 | 2026-06-11 | `users.gotrue_id` provisioning は Phase 2（users テーブル作成後）へ。env 検証は build 落ち回避のため import 時 throw をやめ実行時（production で secret 必須） | 依存順 / next build 都合 |
+| 2026-06-11 | Phase 2 データモデル+RLS（`feature/data-model-rls`）: 付録A に沿い org/users/surveys/questions/publications/answers/schedules + 中間テーブル(多値正規化)。RLS は本人/admin/viewer の最小ガード、組織階層は API 層。`app.is_admin()` を users×positions(役職コード990-999) に接続。db:seed/test:db 追加。pgTAP 全 PASS | 実装・検証 green |
+| 2026-06-11 | answers ⇄ answer_viewers の RLS 相互参照で**無限再帰**が出たため、横参照を **SECURITY DEFINER 関数**(app.is_answer_viewer / owns_or_interviews_answer / interviews_answer)で RLS バイパスして解消 | 実装で判明 |
 
 ---
 
