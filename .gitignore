@@ -1,0 +1,21 @@
+# 依存・ビルド成果物
+node_modules/
+.pnpm-store/
+.next/
+out/
+dist/
+build/
+coverage/
+
+# 環境・シークレット
+.env
+.env.*
+!.env.example
+.claude/settings.local.json
+
+# 旧 1on1 ソース（参照のみ・リポジトリには含めない。原本は doc/1on1-main.zip）
+doc/legacy-1on1/
+
+# OS / エディタ
+.DS_Store
+*.log
