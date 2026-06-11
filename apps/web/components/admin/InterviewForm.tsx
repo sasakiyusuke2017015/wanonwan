@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { EVAL_ITEMS, HEALTH_STATUSES, INTERVIEW_METHODS } from "@waoon/domain";
+import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
+import { FormField, Input, Select } from "@ui-catalog/core/molecules";
+import { TextArea } from "@ui-catalog/core/atoms";
+import { useTheme } from "@ui-catalog/core/infra/theme";
 import { ApiError, apiSend } from "@/lib/api/client";
+import { FormActions } from "@/components/admin/FormActions";
 
 type Initial = {
   interviewAt: string | null;
@@ -16,8 +21,12 @@ type Initial = {
 
 const toLocal = (iso: string | null) => (iso ? iso.slice(0, 16) : "");
 
+const METHOD_OPTIONS = INTERVIEW_METHODS.map((m) => ({ value: String(m.value), label: m.label }));
+const HEALTH_OPTIONS = HEALTH_STATUSES.map((h) => ({ value: String(h.value), label: h.label }));
+
 export function InterviewForm({ answerId, initial }: { answerId: string; initial: Initial }) {
   const router = useRouter();
+  const { shapes } = useTheme();
   const [f, setF] = useState({
     interviewAt: toLocal(initial.interviewAt),
     interviewMethod: initial.interviewMethod == null ? "" : String(initial.interviewMethod),
@@ -60,63 +69,80 @@ export function InterviewForm({ answerId, initial }: { answerId: string; initial
   }
 
   return (
-    <form onSubmit={submit} className="max-w-lg space-y-4">
-      <div className="flex flex-wrap gap-3">
-        <label className="text-sm text-gray-600">
-          面談日時
-          <input type="datetime-local" className={cls} value={f.interviewAt} onChange={(e) => setF((s) => ({ ...s, interviewAt: e.target.value }))} />
-        </label>
-        <label className="text-sm text-gray-600">
-          面談方式
-          <select className={cls} value={f.interviewMethod} onChange={(e) => setF((s) => ({ ...s, interviewMethod: e.target.value }))}>
-            <option value="">（未選択）</option>
-            {INTERVIEW_METHODS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
-          </select>
-        </label>
-        <label className="text-sm text-gray-600">
-          健康状態
-          <select className={cls} value={f.healthStatus} onChange={(e) => setF((s) => ({ ...s, healthStatus: e.target.value }))}>
-            <option value="">（未選択）</option>
-            {HEALTH_STATUSES.map((h) => <option key={h.value} value={h.value}>{h.label}</option>)}
-          </select>
-        </label>
-      </div>
+    <form onSubmit={submit} className="max-w-2xl space-y-4">
+      <ContentBlock title="面談">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <FormField label="面談日時">
+            <Input
+              type="datetime-local"
+              value={f.interviewAt}
+              onChange={(e) => setF((s) => ({ ...s, interviewAt: e.target.value }))}
+              borderRadius={shapes.inputRadius}
+            />
+          </FormField>
+          <FormField label="面談方式">
+            <Select
+              options={METHOD_OPTIONS}
+              value={f.interviewMethod || undefined}
+              onChange={(v) => setF((s) => ({ ...s, interviewMethod: v == null ? "" : String(v) }))}
+              allowEmpty
+              placeholder="（未選択）"
+              borderRadius={shapes.inputRadius}
+            />
+          </FormField>
+          <FormField label="健康状態">
+            <Select
+              options={HEALTH_OPTIONS}
+              value={f.healthStatus || undefined}
+              onChange={(v) => setF((s) => ({ ...s, healthStatus: v == null ? "" : String(v) }))}
+              allowEmpty
+              placeholder="（未選択）"
+              borderRadius={shapes.inputRadius}
+            />
+          </FormField>
+        </div>
+      </ContentBlock>
 
-      <fieldset>
-        <legend className="text-sm text-gray-600">評価（0〜5）</legend>
-        <div className="mt-1 grid grid-cols-2 gap-2 sm:grid-cols-3">
+      <ContentBlock title="評価（0〜5）">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           {EVAL_ITEMS.map((it) => (
-            <label key={it.key} className="text-xs text-gray-500">
-              {it.label}
-              <input
+            <FormField key={it.key} label={it.label}>
+              <Input
                 type="number"
-                min={0}
-                max={5}
-                className={cls}
-                value={f.evaluation[it.key] ?? ""}
-                onChange={(e) => setF((s) => ({ ...s, evaluation: { ...s.evaluation, [it.key]: e.target.value } }))}
+                value={f.evaluation[it.key] == null ? "" : String(f.evaluation[it.key])}
+                onChange={(e) =>
+                  setF((s) => ({ ...s, evaluation: { ...s.evaluation, [it.key]: e.target.value } }))
+                }
+                borderRadius={shapes.inputRadius}
               />
-            </label>
+            </FormField>
           ))}
         </div>
-      </fieldset>
+      </ContentBlock>
 
-      <label className="block text-sm text-gray-600">
-        面談メモ
-        <textarea className={cls} rows={3} value={f.interviewMemo} onChange={(e) => setF((s) => ({ ...s, interviewMemo: e.target.value }))} />
-      </label>
-      <label className="block text-sm text-gray-600">
-        次回までのアクション
-        <textarea className={cls} rows={2} value={f.nextAction} onChange={(e) => setF((s) => ({ ...s, nextAction: e.target.value }))} />
-      </label>
+      <ContentBlock title="記録">
+        <div className="space-y-4">
+          <FormField label="面談メモ">
+            <TextArea
+              value={f.interviewMemo}
+              onChange={(e) => setF((s) => ({ ...s, interviewMemo: e.target.value }))}
+              borderRadius={shapes.inputRadius}
+            />
+          </FormField>
+          <FormField label="次回までのアクション">
+            <TextArea
+              value={f.nextAction}
+              onChange={(e) => setF((s) => ({ ...s, nextAction: e.target.value }))}
+              borderRadius={shapes.inputRadius}
+            />
+          </FormField>
+        </div>
+      </ContentBlock>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
       {done && <p className="text-sm text-green-600">面談を記録しました（完了）。</p>}
-      <button type="submit" disabled={busy} className="rounded bg-gray-900 px-4 py-2 text-sm text-white disabled:opacity-50">
-        {busy ? "保存中..." : "面談を記録（完了にする）"}
-      </button>
+
+      <FormActions submitLabel="面談を記録（完了にする）" pendingLabel="保存中..." pending={busy} />
     </form>
   );
 }
-
-const cls = "mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm";

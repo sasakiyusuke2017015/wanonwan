@@ -326,6 +326,8 @@ External (HTTPS)
 | 2026-06-12 | **テーマ切替UI(色/形/背景パネル)を前倒し採用**（Plan 非ゴール「2テーマ切替＝将来検討」から繰り上げ） | ユーザー指示（基盤に含める） |
 | 2026-06-12 | ui-catalog の **organisms/templates barrel を import しない**方針を確立。barrel は MarkdownEditor(codemirror peer 未導入) や CalendarPage(SSR で window 参照) を巻き込みビルド不能になるため、ベンダリング package.json に必要分のみ deep export(Modal/BackgroundTexture/Header/SubHeader/SideNav/Footer) を追加して個別 import する | 実装で判明（barrel 回避） |
 | 2026-06-12 | 見た目踏襲 第2増分（管理一覧の定石化, `feature/admin-lists-uicatalog`）: 管理3一覧(users/surveys/answers)を素の table から @ui-catalog の InteractiveTable へ。再利用ラッパ AdminListTable(テーマ適用 + mounted ゲート + loading/empty/error + 行クリック遷移)を新設し、各ページは列定義(COLUMNS)+行データ map のみ。InteractiveTable も deep export 追加。実機: 200・SSRクラッシュ無し、code-reviewer APPROVE | 見た目踏襲の続き(一覧定石) |
+| 2026-06-12 | 見た目踏襲 第3増分（フォーム定石化, `feature/admin-forms-uicatalog`）: 管理3フォーム(User/Survey/Interview)を素の Tailwind から ContentBlock(セクション)+FormField+Input/Select/TextArea/Checkbox+Button へ。共通 FormActions 新設。ContentBlock deep export 追加。フォームは (admin) ガード配下でクライアント描画のみ＝SSR されないため mounted ゲート不要 | 見た目踏襲の続き(フォーム定石) |
+| 2026-06-12 | **@ui-catalog の Select は value!==undefined かつ options 未一致で先頭に自動フォールバックする**。未選択を空文字 `""` で渡すと先頭値に化ける回帰（コードレビュー BLOCKER B-1）。**未選択 Select には `value={form.X \|\| undefined}` を渡す**（空文字→undefined で Select の早期 return に乗せる）。再レビュー APPROVE | 実装で判明（Select 仕様） |
 
 ---
 
