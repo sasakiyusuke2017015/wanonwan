@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { AnswerType } from "@waoon/domain";
+import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
+import { FormField, Input, Select } from "@ui-catalog/core/molecules";
+import { Radio, Checkbox, TextArea } from "@ui-catalog/core/atoms";
+import { useTheme } from "@ui-catalog/core/infra/theme";
 import { ApiError, apiSend } from "@/lib/api/client";
+import { FormActions } from "@/components/admin/FormActions";
 
 export type AnswerQuestion = {
   id: string;
@@ -15,6 +20,9 @@ export type AnswerQuestion = {
 
 type Values = Record<string, string | string[]>;
 
+const isAnswered = (v: string | string[] | undefined) =>
+  Array.isArray(v) ? v.length > 0 : Boolean(v && v.trim());
+
 export function AnswerForm({
   publicationId,
   questions,
@@ -25,6 +33,7 @@ export function AnswerForm({
   initial?: Values;
 }) {
   const router = useRouter();
+  const { shapes } = useTheme();
   const [values, setValues] = useState<Values>(initial ?? {});
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -39,37 +48,32 @@ export function AnswerForm({
 
   function renderInput(q: AnswerQuestion) {
     const val = values[q.id];
+    const strVal = typeof val === "string" ? val : "";
     switch (q.answerType) {
       case "radio":
         return (
           <div className="space-y-1">
             {q.choices.map((c) => (
-              <label key={c} className="flex items-center gap-2 text-sm">
-                <input
-                  type="radio"
-                  name={q.id}
-                  checked={val === c}
-                  onChange={() => setVal(q.id, c)}
-                  required={q.required}
-                />
-                {c}
-              </label>
+              <Radio
+                key={c}
+                name={q.id}
+                label={c}
+                checked={val === c}
+                onChange={() => setVal(q.id, c)}
+              />
             ))}
           </div>
         );
       case "select":
         return (
-          <select
-            className={cls}
-            value={typeof val === "string" ? val : ""}
-            onChange={(e) => setVal(q.id, e.target.value)}
-            required={q.required}
-          >
-            <option value="">（選択してください）</option>
-            {q.choices.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
+          <Select
+            options={q.choices.map((c) => ({ value: c, label: c }))}
+            value={strVal || undefined}
+            onChange={(v) => setVal(q.id, v == null ? "" : String(v))}
+            allowEmpty
+            placeholder="（選択してください）"
+            borderRadius={shapes.inputRadius}
+          />
         );
       case "checkbox":
         return (
@@ -77,36 +81,31 @@ export function AnswerForm({
             {q.choices.map((c) => {
               const arr = Array.isArray(val) ? val : [];
               return (
-                <label key={c} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={arr.includes(c)}
-                    onChange={(e) => toggleCheckbox(q.id, c, e.target.checked)}
-                  />
-                  {c}
-                </label>
+                <Checkbox
+                  key={c}
+                  label={c}
+                  checked={arr.includes(c)}
+                  onChange={(e) => toggleCheckbox(q.id, c, e.target.checked)}
+                />
               );
             })}
           </div>
         );
       case "textarea":
         return (
-          <textarea
-            className={cls}
-            rows={3}
-            value={typeof val === "string" ? val : ""}
+          <TextArea
+            value={strVal}
             onChange={(e) => setVal(q.id, e.target.value)}
-            required={q.required}
+            borderRadius={shapes.inputRadius}
           />
         );
       default:
         return (
-          <input
-            className={cls}
+          <Input
             type={q.answerType === "tel" ? "tel" : "text"}
-            value={typeof val === "string" ? val : ""}
+            value={strVal}
             onChange={(e) => setVal(q.id, e.target.value)}
-            required={q.required}
+            borderRadius={shapes.inputRadius}
           />
         );
     }
@@ -114,6 +113,11 @@ export function AnswerForm({
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    const missing = questions.find((q) => q.required && !isAnswered(values[q.id]));
+    if (missing) {
+      setError("未回答の必須項目があります");
+      return;
+    }
     setError(null);
     setBusy(true);
     try {
@@ -127,28 +131,25 @@ export function AnswerForm({
     }
   }
 
+  if (questions.length === 0) {
+    return <p className="text-sm text-gray-500">設問がありません。</p>;
+  }
+
   return (
-    <form onSubmit={submit} className="max-w-xl space-y-6">
-      {questions.map((q, i) => (
-        <div key={q.id}>
-          <div className="text-sm font-medium">
-            {i + 1}. {q.body}
-            {q.required && <span className="ml-1 text-red-500">*</span>}
-          </div>
-          <div className="mt-2">{renderInput(q)}</div>
+    <form onSubmit={submit} className="max-w-2xl space-y-4">
+      <ContentBlock title="設問">
+        <div className="space-y-5">
+          {questions.map((q, i) => (
+            <FormField key={q.id} label={`${i + 1}. ${q.body}`} required={q.required}>
+              {renderInput(q)}
+            </FormField>
+          ))}
         </div>
-      ))}
-      {questions.length === 0 && <p className="text-sm text-gray-500">設問がありません。</p>}
+      </ContentBlock>
+
       {error && <p className="text-sm text-red-600">{error}</p>}
-      <button
-        type="submit"
-        disabled={busy || questions.length === 0}
-        className="rounded bg-gray-900 px-4 py-2 text-sm text-white disabled:opacity-50"
-      >
-        {busy ? "送信中..." : "回答を送信"}
-      </button>
+
+      <FormActions submitLabel="回答を送信" pendingLabel="送信中..." pending={busy} />
     </form>
   );
 }
-
-const cls = "w-full rounded border border-gray-300 px-3 py-2 text-sm";

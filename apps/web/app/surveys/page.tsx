@@ -1,7 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { Card } from "@ui-catalog/core/molecules";
+import { Badge, Text } from "@ui-catalog/core/atoms";
 import { apiGet } from "@/lib/api/client";
 
 type Row = {
@@ -13,44 +15,46 @@ type Row = {
 };
 
 export default function SurveysPage() {
+  const router = useRouter();
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["me-surveys"],
     queryFn: () => apiGet<{ data: Row[] }>("/api/v1/me/surveys"),
   });
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold">実施中のアンケート</h1>
-      </div>
+    <div className="mx-auto max-w-3xl">
+      <h1 className="mb-4 text-xl font-bold">実施中のアンケート</h1>
 
       {isLoading && <p className="text-sm text-gray-500">読み込み中...</p>}
       {isError && <p className="text-sm text-red-600">{(error as Error).message}</p>}
 
-      <ul className="space-y-2">
-        {data?.data.map((r) => (
-          <li
-            key={r.publicationId}
-            className="flex items-center justify-between rounded border border-gray-200 p-3"
-          >
-            <div>
-              <div className="text-sm font-medium">{r.publicationTitle || r.surveyTitle}</div>
-              <div className="text-xs text-gray-500">{r.answerId ? "回答済み" : "未回答"}</div>
-            </div>
-            <Link
-              href={`/surveys/${r.publicationId}`}
-              className="rounded bg-gray-900 px-3 py-1.5 text-sm text-white"
-            >
-              {r.answerId ? "回答を見直す" : "回答する"}
-            </Link>
-          </li>
-        ))}
-        {data && data.data.length === 0 && (
-          <li className="rounded border border-dashed p-4 text-center text-sm text-gray-400">
-            実施中のアンケートはありません
-          </li>
-        )}
-      </ul>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {data?.data.map((r) => {
+          const answered = Boolean(r.answerId);
+          return (
+            <Card key={r.publicationId} onClick={() => router.push(`/surveys/${r.publicationId}`)}>
+              <div className="flex h-full flex-col gap-2">
+                <Text weight="bold">{r.publicationTitle || r.surveyTitle}</Text>
+                <div className="mt-auto flex items-center justify-between">
+                  <Badge
+                    value={answered ? "回答済み" : "未回答"}
+                    variant={answered ? "success" : "warning"}
+                  />
+                  <Text size="sm" variant="muted">
+                    {answered ? "回答を見直す →" : "回答する →"}
+                  </Text>
+                </div>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+
+      {data && data.data.length === 0 && (
+        <div className="rounded border border-dashed p-6 text-center text-sm text-gray-400">
+          実施中のアンケートはありません
+        </div>
+      )}
     </div>
   );
 }
