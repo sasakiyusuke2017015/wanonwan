@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { verifyAccessToken } from "@/lib/auth/jwt";
 import { getAccessToken } from "@/lib/auth/session";
 import { LogoutButton } from "./logout-button";
@@ -17,6 +18,9 @@ export default async function Home() {
         </span>
         <LogoutButton />
       </div>
+      <Link href="/admin/users" className="text-sm text-blue-600 underline">
+        管理画面へ
+      </Link>
     </main>
   );
 }
