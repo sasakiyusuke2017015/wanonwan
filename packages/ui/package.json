@@ -11,6 +11,7 @@
     "./organisms": "./core/organisms/index.ts",
     "./organisms/Modal": "./core/organisms/Modal/index.ts",
     "./organisms/BackgroundTexture": "./core/organisms/BackgroundTexture/index.ts",
+    "./organisms/InteractiveTable": "./core/organisms/InteractiveTable/index.ts",
     "./organisms/TagCloud": "./core/organisms/TagCloud/index.ts",
     "./organisms/MarkdownEditor": "./core/organisms/MarkdownEditor/index.ts",
     "./organisms/MarkdownPreview": "./core/organisms/MarkdownPreview/index.ts",

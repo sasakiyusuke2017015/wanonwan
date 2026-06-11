@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import type { Column, TableRowData } from "@ui-catalog/core/organisms/InteractiveTable";
 import { apiGet } from "@/lib/api/client";
+import { AdminListTable } from "@/components/admin/AdminListTable";
 
 type UserRow = {
   id: string;
@@ -11,11 +14,22 @@ type UserRow = {
   email: string;
 };
 
+type Row = TableRowData & UserRow;
+
+const COLUMNS: Column[] = [
+  { accessor: "code", label: "コード", proportion: 16, dataAlign: "left" },
+  { accessor: "name", label: "名前", proportion: 28, dataAlign: "left" },
+  { accessor: "email", label: "メール", proportion: 56, dataAlign: "left" },
+];
+
 export default function UsersListPage() {
+  const router = useRouter();
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["users"],
     queryFn: () => apiGet<{ data: UserRow[] }>("/api/v1/users"),
   });
+
+  const rows: Row[] = (data?.data ?? []).map((u) => ({ ...u }));
 
   return (
     <div>
@@ -29,45 +43,14 @@ export default function UsersListPage() {
         </Link>
       </div>
 
-      {isLoading && <p className="text-sm text-gray-500">読み込み中...</p>}
-      {isError && <p className="text-sm text-red-600">{(error as Error).message}</p>}
-
-      {data && (
-        <table className="w-full border text-sm">
-          <thead>
-            <tr className="bg-gray-50 text-left">
-              <th className="p-2">コード</th>
-              <th className="p-2">名前</th>
-              <th className="p-2">メール</th>
-              <th className="p-2" />
-            </tr>
-          </thead>
-          <tbody>
-            {data.data.map((u) => (
-              <tr key={u.id} className="border-t">
-                <td className="p-2">{u.code}</td>
-                <td className="p-2">{u.name}</td>
-                <td className="p-2">{u.email}</td>
-                <td className="p-2 text-right">
-                  <Link
-                    href={`/admin/users/${u.id}/edit`}
-                    className="text-blue-600 hover:underline"
-                  >
-                    編集
-                  </Link>
-                </td>
-              </tr>
-            ))}
-            {data.data.length === 0 && (
-              <tr>
-                <td colSpan={4} className="p-4 text-center text-gray-400">
-                  ユーザーがいません
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      )}
+      <AdminListTable
+        columns={COLUMNS}
+        data={rows}
+        loading={isLoading}
+        error={isError ? (error as Error).message : null}
+        emptyMessage="ユーザーがいません"
+        onRowClick={(row) => router.push(`/admin/users/${row.id}/edit`)}
+      />
     </div>
   );
 }
