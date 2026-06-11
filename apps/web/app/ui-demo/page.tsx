@@ -6,7 +6,7 @@ import { Badge, Box, Stack, Text } from "@ui-catalog/core/atoms";
 // packages/ui を transpile + Tailwind v4 トークン + SCSS Modules で配線できているかを確認する。
 export default function UiDemoPage() {
   return (
-    <main className="p-8">
+    <div>
       <Stack>
         <Text size="2xl" weight="bold">
           ui-catalog 結合テスト
@@ -20,6 +20,6 @@ export default function UiDemoPage() {
           <Badge value="score" appearance="score" color="green" />
         </Box>
       </Stack>
-    </main>
+    </div>
   );
 }

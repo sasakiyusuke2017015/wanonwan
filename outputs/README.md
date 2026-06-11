@@ -7,7 +7,7 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 
 | ステータス | Plan | 概要 | 関連 PR / レビュー | 推奨アクション |
 |---|---|---|---|---|
-| 🟡 実装中 | [Pleasanter 排除 + 1on1 再構築](plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md) | 旧 1on1 を新スタック(Next.js/Postgres/GoTrue/RLS)で再構築。主要フロー実装済み | [計画レビュー: APPROVE（対応後）](reviews/2026-06-11-1830-pleasanter-exit-1on1-rebuild-review.md) / PR #1–13 merged, #14 open | 見た目踏襲(ui-catalog 本格適用) |
+| 🟡 実装中 | [Pleasanter 排除 + 1on1 再構築](plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md) | 旧 1on1 を新スタック(Next.js/Postgres/GoTrue/RLS)で再構築。主要フロー実装済み + 見た目踏襲の基盤(シェル/テーマ)着手 | [計画レビュー: APPROVE（対応後）](reviews/2026-06-11-1830-pleasanter-exit-1on1-rebuild-review.md) / [コードレビュー(基盤): APPROVE](reviews/2026-06-12-0017-app-shell-theme-review.md) / PR #1–14 merged | 見た目踏襲の続き(各ページの定石化) |
 
 > 全フェーズの決定・ハマりどころ（RLS 無限再帰 / GUC 予約語衝突 / 二層認可など）は
 > [Plan の判断ログ](plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md#9-判断ログ)に時系列で記録。次セッションはまずそこを読む。
@@ -24,12 +24,13 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 | 6 | CI（GitHub Actions: typecheck/build/pgTAP） | #10 | ✅ merged |
 | 4+ | 設問ビルダ / 掲載管理 | #11, #12 | ✅ merged |
 | 5a | 回答者フロー（実施中一覧→回答→保存） | #13 | ✅ merged |
-| 5b | 面談フロー（answers API + 面談記録 + API層認可） | #14 | 🟢 CI green・マージ待ち |
+| 5b | 面談フロー（answers API + 面談記録 + API層認可） | #14 | ✅ merged |
+| 見た目1 | 見た目踏襲・基盤（テーマ3軸 + AppLayout シェル + ナビ + テーマ切替UI） | `feature/app-shell-theme` | 🟣 マージ承認待ち |
 
 ### 次セッションの起点
 
-1. **PR #14 をマージ** → develop 完成
-2. **見た目踏襲**（ui-catalog 本格適用 = organisms peer 導入 + テーマ3軸）。機能は揃ったので質を上げる
+1. **見た目踏襲・基盤 PR をマージ** → 全ページがシェル(Header/SideNav/Footer + テーマ)配下に入る
+2. **見た目踏襲の続き**: 各ページを ui-catalog 定石へ（一覧=InteractiveTable/CardGrid、フォーム=ContentBlock/FormField/valibot）。基盤の上に増分 PR で進める
 3. 周辺: ダッシュボード / スケジュール / 委任、日時 tz、レートリミット、`.claude` の Gitea→GitHub 読み替え、実データ移行
 
 ### ローカル起動メモ
