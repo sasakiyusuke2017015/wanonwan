@@ -319,6 +319,7 @@ External (HTTPS)
 | 2026-06-11 | Phase 4-b 管理者「アンケート管理」画面（`feature/admin-surveys`）: 一覧/新規/編集 + surveys API(CRUD)。**タスク1の管理者2画面が両方完成**。設問ビルダ/掲載管理は後続 | タスク1 中心要件 |
 | 2026-06-11 | Phase 6 CI（`feature/ci`）: GitHub Actions で install/typecheck/build/pgTAP を自動化。CI green（~2分）。pnpm 版二重指定を packageManager 一本化で解消 | develop 保護の土台 |
 | 2026-06-11 | Phase 4-c 設問ビルダ（`feature/survey-questions`）: questions API(追加/編集/削除/並び替え) + QuestionsEditor を survey 編集に統合。choices は jsonb(`tx.json`)。実機で CRUD/reorder/RLS(member 403) green。掲載管理(publications)は次 | アンケート実用化 |
+| 2026-06-11 | Phase 4-d 掲載管理（`feature/survey-publications`）: publications API(CRUD) + PublicationsEditor を survey 編集に統合。状態(100-990)+期間。実機 green。これでアンケート→設問→掲載が揃い回答者フローが実データで動く | アンケート公開 |
 
 ---
 
@@ -335,6 +336,7 @@ External (HTTPS)
 - `.claude/rules/*` の `zod`→`valibot` 等、ai-education 由来の例の waoon スタックへの読み替え。
 - **認証エンドポイントのレートリミット**（`/api/v1/auth/login` 等）。nginx か API 層で（security.md 準拠、Phase 6 で）。
 - **`users.gotrue_id` provisioning**（管理者ユーザー作成 → GoTrue identity 発行 → users 紐付け）。Phase 2（users テーブル）以降。
+- **日時の timezone 処理**: 掲載の datetime-local 入力が UTC 保存で表示ズレ（JST 前提の変換を入れる）。
 
 ---
 

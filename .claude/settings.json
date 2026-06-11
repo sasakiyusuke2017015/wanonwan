@@ -62,7 +62,8 @@
       "Bash(curl -s -b /tmp/cj-admin.txt -w '\\\\nstatus=%{http_code}\\\\n' http://localhost:3001/api/v1/org)",
       "Bash(git commit -q -m 'feat: Phase 4-a 管理者ユーザー管理画面（一覧/新規/編集 + admin ガード） *)",
       "Bash(git commit -q -m 'feat: Phase 4-b 管理者アンケート管理画面（一覧/新規/編集 + surveys API） *)",
-      "Bash(git commit -q -m 'feat: 設問ビルダ（questions API + QuestionsEditor） *)"
+      "Bash(git commit -q -m 'feat: 設問ビルダ（questions API + QuestionsEditor） *)",
+      "Bash(git commit -q -m 'feat: 掲載管理（publications API + PublicationsEditor） *)"
     ],
     "additionalDirectories": [
       "/tmp"
