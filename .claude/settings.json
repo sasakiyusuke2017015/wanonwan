@@ -61,7 +61,8 @@
       "Bash(GOTRUE_URL=http://localhost:9999 GOTRUE_JWT_SECRET=dev-only-change-me-please-32bytes-minimum DATABASE_URL=postgres://app_user:app@localhost:5432/waoon PORT=3001 pnpm --filter @waoon/web start)",
       "Bash(curl -s -b /tmp/cj-admin.txt -w '\\\\nstatus=%{http_code}\\\\n' http://localhost:3001/api/v1/org)",
       "Bash(git commit -q -m 'feat: Phase 4-a 管理者ユーザー管理画面（一覧/新規/編集 + admin ガード） *)",
-      "Bash(git commit -q -m 'feat: Phase 4-b 管理者アンケート管理画面（一覧/新規/編集 + surveys API） *)"
+      "Bash(git commit -q -m 'feat: Phase 4-b 管理者アンケート管理画面（一覧/新規/編集 + surveys API） *)",
+      "Bash(git commit -q -m 'feat: 設問ビルダ（questions API + QuestionsEditor） *)"
     ],
     "additionalDirectories": [
       "/tmp"
