@@ -1,0 +1,234 @@
+// =============================================================================
+// Badge Component Styles
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Base Badge
+// -----------------------------------------------------------------------------
+.badge {
+  display: inline-block;
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+}
+
+// -----------------------------------------------------------------------------
+// Appearances
+// -----------------------------------------------------------------------------
+.metric {
+  display: block;
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+}
+
+.score {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-medium);
+}
+
+.status {
+  display: inline-block;
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+}
+
+// -----------------------------------------------------------------------------
+// Sizes - Default appearance
+// -----------------------------------------------------------------------------
+.small {
+  font-size: var(--font-size-xs);
+  padding: var(--spacing-0-5) var(--spacing-2);
+}
+
+.medium {
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-1) var(--spacing-3);
+}
+
+.large {
+  font-size: var(--font-size-base);
+  padding: var(--spacing-1-5) var(--spacing-4);
+}
+
+// -----------------------------------------------------------------------------
+// Sizes - Metric appearance
+// -----------------------------------------------------------------------------
+.metric.small {
+  font-size: var(--font-size-xs);
+  padding: var(--spacing-1) var(--spacing-2);
+}
+
+.metric.medium {
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-1-5) var(--spacing-3);
+}
+
+.metric.large {
+  font-size: var(--font-size-base);
+  padding: var(--spacing-2) var(--spacing-4);
+}
+
+// -----------------------------------------------------------------------------
+// Sizes - Score appearance
+// -----------------------------------------------------------------------------
+.score.small {
+  font-size: var(--font-size-xs);
+  width: 2rem;
+  height: 1.25rem;
+}
+
+.score.medium {
+  font-size: var(--font-size-sm);
+  width: 2.5rem;
+  height: 1.5rem;
+}
+
+.score.large {
+  font-size: var(--font-size-base);
+  width: 3rem;
+  height: 2rem;
+}
+
+// -----------------------------------------------------------------------------
+// Sizes - Status appearance
+// -----------------------------------------------------------------------------
+.status.small {
+  font-size: var(--font-size-xs);
+  padding: var(--spacing-0-5) var(--spacing-2);
+}
+
+.status.medium {
+  font-size: var(--font-size-xs);
+  padding: var(--spacing-1) var(--spacing-3);
+}
+
+.status.large {
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-1-5) var(--spacing-4);
+}
+
+// -----------------------------------------------------------------------------
+// Colors - Solid
+// -----------------------------------------------------------------------------
+.solidBlue {
+  background-color: #3b82f6;
+  color: var(--color-white);
+}
+
+.solidGreen {
+  background-color: #22c55e;
+  color: var(--color-white);
+}
+
+.solidRed {
+  background-color: #ef4444;
+  color: var(--color-white);
+}
+
+.solidYellow {
+  background-color: #eab308;
+  color: var(--color-white);
+}
+
+.solidGray {
+  background-color: #6b7280;
+  color: var(--color-white);
+}
+
+.solidOrange {
+  background-color: #f97316;
+  color: var(--color-white);
+}
+
+// -----------------------------------------------------------------------------
+// Colors - Outline
+// -----------------------------------------------------------------------------
+.outlineBlue {
+  background-color: transparent;
+  border: 1px solid #3b82f6;
+  color: #3b82f6;
+}
+
+.outlineGreen {
+  background-color: transparent;
+  border: 1px solid #22c55e;
+  color: #22c55e;
+}
+
+.outlineRed {
+  background-color: transparent;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+}
+
+.outlineYellow {
+  background-color: transparent;
+  border: 1px solid #eab308;
+  color: #eab308;
+}
+
+.outlineGray {
+  background-color: transparent;
+  border: 1px solid #6b7280;
+  color: #6b7280;
+}
+
+.outlineOrange {
+  background-color: transparent;
+  border: 1px solid #f97316;
+  color: #f97316;
+}
+
+// -----------------------------------------------------------------------------
+// Colors - Gradient
+// -----------------------------------------------------------------------------
+.gradientBlue {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: var(--color-white);
+  box-shadow: var(--shadow-lg);
+}
+
+.gradientGreen {
+  background: linear-gradient(135deg, #10b981, #16a34a);
+  color: var(--color-white);
+  box-shadow: var(--shadow-lg);
+}
+
+.gradientRed {
+  background: linear-gradient(135deg, #ef4444, #e11d48);
+  color: var(--color-white);
+  box-shadow: var(--shadow-lg);
+}
+
+.gradientYellow {
+  background: linear-gradient(135deg, #facc15, #f59e0b);
+  color: var(--color-white);
+  box-shadow: var(--shadow-lg);
+}
+
+.gradientGray {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+  color: var(--color-white);
+  box-shadow: var(--shadow-lg);
+}
+
+.gradientOrange {
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: var(--color-white);
+  box-shadow: var(--shadow-lg);
+}
+
+// -----------------------------------------------------------------------------
+// Gradient hover effect for metric
+// -----------------------------------------------------------------------------
+.metricGradient {
+  transition-property: transform, box-shadow;
+  transition-duration: var(--transition-duration-200);
+  transition-timing-function: var(--transition-ease-in-out);
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-xl);
+  }
+}

@@ -1,0 +1,21 @@
+.root {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  font-size: var(--font-size-xs);
+}
+
+.dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--border-radius-full);
+}
+
+.label {
+  font-weight: var(--font-weight-semibold);
+}
+
+.value {
+  color: var(--color-gray-800);
+}

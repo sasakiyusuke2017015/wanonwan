@@ -1,0 +1,144 @@
+// =============================================================================
+// Tooltip Component Styles
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Wrapper
+// -----------------------------------------------------------------------------
+.wrapper {
+  position: relative;
+  display: inline-flex;
+
+  &:hover .tooltip {
+    opacity: 1;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Tooltip bubble
+// -----------------------------------------------------------------------------
+.tooltip {
+  --tooltip-radius: 4px;
+  --tooltip-arrow-size: 6px;
+
+  position: absolute;
+  z-index: 50;
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  background-color: var(--color-gray-800);
+  color: var(--color-white);
+  opacity: 0;
+  pointer-events: none;
+  transition-property: opacity;
+  transition-duration: var(--transition-duration-100);
+  transition-timing-function: var(--transition-ease-in-out);
+}
+
+// -----------------------------------------------------------------------------
+// Positions (with border-shape arrows)
+//
+// border-shape で吹き出し全体を1つの形として宣言する。
+// padding 領域に矢印分のスペースを足すため、各 position で padding を上書きする。
+// box-shadow も形に追従するので filter: drop-shadow() のハックは不要。
+// -----------------------------------------------------------------------------
+.top {
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: var(--spacing-1);
+  padding-bottom: calc(var(--spacing-1) + var(--tooltip-arrow-size));
+
+  border-shape: shape(
+    from var(--tooltip-radius) 0,
+    hline to calc(100% - var(--tooltip-radius)),
+    curve to 100% var(--tooltip-radius) with 100% 0,
+    vline to calc(100% - var(--tooltip-arrow-size) - var(--tooltip-radius)),
+    curve to calc(100% - var(--tooltip-radius)) calc(100% - var(--tooltip-arrow-size))
+      with 100% calc(100% - var(--tooltip-arrow-size)),
+    hline to calc(50% + var(--tooltip-arrow-size)),
+    line to 50% 100%,
+    line to calc(50% - var(--tooltip-arrow-size)) calc(100% - var(--tooltip-arrow-size)),
+    hline to var(--tooltip-radius),
+    curve to 0 calc(100% - var(--tooltip-arrow-size) - var(--tooltip-radius))
+      with 0 calc(100% - var(--tooltip-arrow-size)),
+    vline to var(--tooltip-radius),
+    curve to var(--tooltip-radius) 0 with 0 0
+  );
+}
+
+.bottom {
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: var(--spacing-1);
+  padding-top: calc(var(--spacing-1) + var(--tooltip-arrow-size));
+
+  border-shape: shape(
+    from var(--tooltip-radius) var(--tooltip-arrow-size),
+    hline to calc(50% - var(--tooltip-arrow-size)),
+    line to 50% 0,
+    line to calc(50% + var(--tooltip-arrow-size)) var(--tooltip-arrow-size),
+    hline to calc(100% - var(--tooltip-radius)),
+    curve to 100% calc(var(--tooltip-arrow-size) + var(--tooltip-radius))
+      with 100% var(--tooltip-arrow-size),
+    vline to calc(100% - var(--tooltip-radius)),
+    curve to calc(100% - var(--tooltip-radius)) 100% with 100% 100%,
+    hline to var(--tooltip-radius),
+    curve to 0 calc(100% - var(--tooltip-radius)) with 0 100%,
+    vline to calc(var(--tooltip-arrow-size) + var(--tooltip-radius)),
+    curve to var(--tooltip-radius) var(--tooltip-arrow-size)
+      with 0 var(--tooltip-arrow-size)
+  );
+}
+
+.left {
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-right: var(--spacing-1);
+  padding-right: calc(var(--spacing-2) + var(--tooltip-arrow-size));
+
+  border-shape: shape(
+    from var(--tooltip-radius) 0,
+    hline to calc(100% - var(--tooltip-arrow-size) - var(--tooltip-radius)),
+    curve to calc(100% - var(--tooltip-arrow-size)) var(--tooltip-radius)
+      with calc(100% - var(--tooltip-arrow-size)) 0,
+    vline to calc(50% - var(--tooltip-arrow-size)),
+    line to 100% 50%,
+    line to calc(100% - var(--tooltip-arrow-size)) calc(50% + var(--tooltip-arrow-size)),
+    vline to calc(100% - var(--tooltip-radius)),
+    curve to calc(100% - var(--tooltip-arrow-size) - var(--tooltip-radius)) 100%
+      with calc(100% - var(--tooltip-arrow-size)) 100%,
+    hline to var(--tooltip-radius),
+    curve to 0 calc(100% - var(--tooltip-radius)) with 0 100%,
+    vline to var(--tooltip-radius),
+    curve to var(--tooltip-radius) 0 with 0 0
+  );
+}
+
+.right {
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: var(--spacing-1);
+  padding-left: calc(var(--spacing-2) + var(--tooltip-arrow-size));
+
+  border-shape: shape(
+    from calc(var(--tooltip-arrow-size) + var(--tooltip-radius)) 0,
+    hline to calc(100% - var(--tooltip-radius)),
+    curve to 100% var(--tooltip-radius) with 100% 0,
+    vline to calc(100% - var(--tooltip-radius)),
+    curve to calc(100% - var(--tooltip-radius)) 100% with 100% 100%,
+    hline to calc(var(--tooltip-arrow-size) + var(--tooltip-radius)),
+    curve to var(--tooltip-arrow-size) calc(100% - var(--tooltip-radius))
+      with var(--tooltip-arrow-size) 100%,
+    vline to calc(50% + var(--tooltip-arrow-size)),
+    line to 0 50%,
+    line to var(--tooltip-arrow-size) calc(50% - var(--tooltip-arrow-size)),
+    vline to calc(var(--tooltip-arrow-size) + var(--tooltip-radius)),
+    curve to calc(var(--tooltip-arrow-size) + var(--tooltip-radius)) 0
+      with var(--tooltip-arrow-size) 0
+  );
+}

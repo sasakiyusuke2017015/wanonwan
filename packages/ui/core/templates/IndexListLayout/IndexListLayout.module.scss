@@ -1,0 +1,67 @@
+.root {
+  display: grid;
+  gap: 2.5rem;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 3rem 2rem 6rem;
+  align-items: start;
+  justify-content: center;
+}
+
+/* デフォルト: サイドバー右 */
+.sidebarRight {
+  grid-template-columns: minmax(0, 720px) 260px;
+}
+/* サイドバー左 */
+.sidebarLeft {
+  grid-template-columns: 260px minmax(0, 720px);
+}
+.sidebarLeft .main {
+  grid-column: 2;
+}
+.sidebarLeft .sidebar {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.main {
+  min-width: 0;
+}
+
+.sidebar {
+  position: sticky;
+  top: 4.5rem;
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  padding-right: 0.25rem;
+}
+
+@media (max-width: 900px) {
+  .root,
+  .sidebarLeft,
+  .sidebarRight {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding: 2rem 1.25rem 4rem;
+  }
+  .sidebarLeft .main,
+  .sidebarRight .main,
+  .sidebarLeft .sidebar,
+  .sidebarRight .sidebar {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .sidebar {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    margin-top: 2rem;
+    padding: 1rem 1.25rem;
+    background: var(--bg-card, #fff);
+    border: 1px solid var(--border, #e8e6de);
+    border-radius: 8px;
+  }
+}

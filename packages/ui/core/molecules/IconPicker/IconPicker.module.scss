@@ -1,0 +1,35 @@
+.container {
+  display: flex;
+  gap: var(--spacing-1);
+  flex-wrap: wrap;
+}
+
+.iconButton {
+  border-radius: var(--border-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.iconButtonSelected {
+  box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px var(--color-primary-500);
+  background-color: color-mix(in srgb, var(--color-primary-500) 10%, transparent);
+}
+
+.iconButtonUnselected {
+  &:hover {
+    background-color: var(--color-gray-100);
+  }
+}
+
+.iconContent {
+  transition: transform var(--transition-duration-150);
+
+  &:hover {
+    transform: scale(1.25);
+  }
+}

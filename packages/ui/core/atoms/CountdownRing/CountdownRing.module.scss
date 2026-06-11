@@ -1,0 +1,47 @@
+// =============================================================================
+// CountdownRing Component Styles
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Wrapper
+// -----------------------------------------------------------------------------
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+// -----------------------------------------------------------------------------
+// SVG
+// -----------------------------------------------------------------------------
+.svg {
+  transform: rotate(-90deg);
+}
+
+// -----------------------------------------------------------------------------
+// Number overlay
+// -----------------------------------------------------------------------------
+.number {
+  position: absolute;
+  color: white;
+  font-size: var(--font-size-sm);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
+}
+
+// -----------------------------------------------------------------------------
+// Ring depletion animation
+// -----------------------------------------------------------------------------
+.progress {
+  // stroke-dashoffset animated via inline style (dynamic circumference)
+}
+
+@keyframes countdown-ring-depletion {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: var(--circumference);
+  }
+}

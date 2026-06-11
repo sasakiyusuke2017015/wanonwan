@@ -1,0 +1,38 @@
+.root {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--border-radius-default);
+  font-size: var(--font-size-xs);
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  transition: background-color var(--transition-duration-150) var(--transition-ease-in-out);
+
+  &:hover {
+    background-color: var(--color-hover-bg);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary-500) 50%, transparent);
+  }
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.label {
+  color: var(--color-accent);
+  font-family: var(--font-family-mono);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  .root:hover & {
+    text-decoration: underline;
+  }
+}

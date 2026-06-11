@@ -1,0 +1,39 @@
+.authFormCard {
+  border-radius: var(--border-radius-2xl);
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  box-shadow: var(--shadow-xl);
+
+  // デフォルトマージン
+  &--defaultMargin {
+    margin-left: var(--spacing-4);
+    margin-right: var(--spacing-4);
+    margin-bottom: var(--spacing-4);
+  }
+
+  // デフォルトパディング
+  &--defaultPadding {
+    padding: var(--spacing-6) var(--spacing-5);
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+
+    @media (min-width: 640px) {
+      gap: var(--spacing-6);
+    }
+  }
+
+  &__copyright {
+    font-size: var(--font-size-xs);
+    color: var(--color-gray-400);
+    text-align: right;
+    margin-top: var(--spacing-1);
+
+    @media (min-width: 640px) {
+      margin-top: var(--spacing-4);
+    }
+  }
+}

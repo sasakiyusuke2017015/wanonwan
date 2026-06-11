@@ -1,0 +1,55 @@
+.root {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--spacing-3);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  column-gap: var(--spacing-1);
+  row-gap: 0.125rem;
+  font-size: var(--font-size-xs);
+}
+
+.dot {
+  display: inline-block;
+  height: 0.5rem;
+  width: 0.5rem;
+  border-radius: var(--border-radius-full);
+}
+
+.label {
+  font-weight: var(--font-weight-semibold);
+}
+
+.value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-gray-800);
+}
+
+.unit {
+  color: var(--color-gray-800);
+}
+
+.divider {
+  color: var(--color-gray-300);
+}
+
+.total {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  font-size: var(--font-size-sm);
+}
+
+.totalLabel {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-700);
+}
+
+.totalValue {
+  color: var(--color-gray-800);
+}

@@ -1,0 +1,61 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border, #e8e6de);
+  border-radius: 8px;
+  background: var(--bg-card, #ffffff);
+  overflow: hidden;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid var(--border, #e8e6de);
+  background: var(--border-soft, #f0ede3);
+  flex-wrap: wrap;
+}
+
+.toolbarBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 28px;
+  padding: 0 0.45rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--fg, #222);
+  border-radius: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+
+.toolbarBtn:hover {
+  background: var(--bg-card, #ffffff);
+  border-color: var(--border, #e8e6de);
+}
+
+.toolbarSpacer {
+  flex: 1;
+}
+
+.toolbarHint {
+  font-size: 0.72rem;
+  color: var(--muted, #8a8a8a);
+}
+
+.editor {
+  min-height: 0;
+}
+
+.editor :global(.cm-editor) {
+  height: 100%;
+}
+
+.editor :global(.cm-scroller) {
+  overflow: auto;
+}

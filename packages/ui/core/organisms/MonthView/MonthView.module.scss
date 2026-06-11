@@ -1,0 +1,33 @@
+.todayCell {
+  background-color: var(--color-today-bg);
+}
+
+.dropTarget {
+  transition: background-color 200ms ease-in-out, box-shadow 200ms ease-in-out;
+}
+
+.weekRowEven {
+  background-color: var(--color-weekday-even-bg);
+}
+
+.grid {
+  flex: 1;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-gray-400) 30%, transparent);
+    border-radius: 3px;
+
+    &:hover {
+      background: color-mix(in srgb, var(--color-gray-400) 50%, transparent);
+    }
+  }
+}

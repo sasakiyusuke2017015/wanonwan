@@ -1,0 +1,168 @@
+// =============================================================================
+// TreeView Component Styles
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Container
+// -----------------------------------------------------------------------------
+.root {
+  display: flex;
+  flex-direction: column;
+}
+
+// -----------------------------------------------------------------------------
+// Row
+// -----------------------------------------------------------------------------
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 3px;
+  font-size: var(--font-size-sm);
+  transition: background-color var(--transition-duration-150) var(--transition-ease-in-out);
+  border: none;
+  background: transparent;
+  color: var(--color-gray-300);
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--color-gray-500) 20%, transparent);
+  }
+}
+
+.rowSelected {
+  background-color: color-mix(in srgb, var(--color-info-500) 20%, transparent);
+  color: #60a5fa; // blue-400
+  font-weight: var(--font-weight-medium);
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--color-info-500) 20%, transparent);
+  }
+}
+
+// Drag states
+.rowDragging {
+  opacity: 0.5;
+}
+
+.rowDragOver {
+  background-color: rgba(59, 130, 246, 0.15);
+  outline: 1px dashed rgba(59, 130, 246, 0.5);
+  outline-offset: -1px;
+}
+
+.rowDropTarget {
+  background-color: rgba(59, 130, 246, 0.2);
+  outline: 2px solid rgba(59, 130, 246, 0.6);
+  outline-offset: -2px;
+}
+
+// -----------------------------------------------------------------------------
+// Guide SVG overlay
+// -----------------------------------------------------------------------------
+.guides {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.guideLine {
+  stroke: var(--color-gray-600);
+  stroke-width: 1;
+}
+
+// -----------------------------------------------------------------------------
+// Chevron toggle
+// -----------------------------------------------------------------------------
+.chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.chevronFill {
+  fill: var(--color-gray-500);
+}
+
+// リーフノード — 三角なし、幅ゼロ
+.leafSpacer {
+  width: 0;
+  flex-shrink: 0;
+}
+
+// -----------------------------------------------------------------------------
+// Icon / Label / Indicator
+// -----------------------------------------------------------------------------
+.icon {
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.indicator {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding-right: var(--spacing-1);
+}
+
+// -----------------------------------------------------------------------------
+// Hover actions
+// -----------------------------------------------------------------------------
+.actions {
+  position: absolute;
+  right: var(--spacing-1);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity var(--transition-duration-150) var(--transition-ease-in-out);
+
+  .row:hover & {
+    opacity: 1;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Color dot (プロジェクトカラー表示用)
+// -----------------------------------------------------------------------------
+.colorDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+// -----------------------------------------------------------------------------
+// Insert indicator (ドラッグ中の挿入位置表示)
+// -----------------------------------------------------------------------------
+.insertIndicator {
+  height: 2px;
+  background-color: #60a5fa; // blue-400
+  border-radius: 2px;
+  margin: 2px 4px;
+}
+
+// -----------------------------------------------------------------------------
+// Edit row (編集モード時)
+// -----------------------------------------------------------------------------
+.editRow {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-0-5) 0;
+}

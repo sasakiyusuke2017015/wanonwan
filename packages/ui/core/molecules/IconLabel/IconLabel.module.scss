@@ -1,0 +1,15 @@
+.label {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.icon {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.text {
+  line-height: 1;
+}

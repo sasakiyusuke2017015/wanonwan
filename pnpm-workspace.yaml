@@ -1,0 +1,6 @@
+packages:
+  - apps/*
+  - packages/*
+  # packages/ui (= 取り込んだ @ui-catalog/core) は本配線まで install 対象外。
+  # Tailwind v4 対応 / SCSS(sass) / peerDeps の統合を済ませてから外す。
+  - "!packages/ui"

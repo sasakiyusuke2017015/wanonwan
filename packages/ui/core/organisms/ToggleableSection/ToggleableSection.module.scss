@@ -1,0 +1,77 @@
+.toggleableSection {
+  // デフォルトマージン
+  &--defaultMargin {
+    margin-bottom: var(--spacing-4);
+
+    @media (min-width: 640px) {
+      margin-bottom: var(--spacing-8);
+    }
+  }
+
+  &__button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: var(--spacing-2) var(--spacing-3);
+    border-left: 4px solid;
+    background-color: rgba(255, 255, 255, 0.8);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-gray-800);
+    text-align: left;
+    cursor: pointer;
+    transition: background-color var(--transition-duration-150);
+
+    &:hover {
+      background-color: rgba(191, 219, 254, 0.8); // blue-100/80
+    }
+  }
+
+  &__icon {
+    margin-right: var(--spacing-2);
+    flex-shrink: 0;
+  }
+
+  &__collapse {
+    overflow: hidden;
+    transition: max-height 600ms cubic-bezier(0.68, -0.55, 0.265, 1.55),
+                opacity 600ms ease-in-out;
+
+    &--open {
+      max-height: 5000px;
+      opacity: 1;
+    }
+
+    &--closed {
+      max-height: 0;
+      opacity: 0;
+    }
+  }
+
+  &__content {
+    background-color: rgba(255, 255, 255, 0.6);
+    transition: transform 600ms cubic-bezier(0.68, -0.55, 0.265, 1.55),
+                opacity 600ms ease-in-out;
+
+    // デフォルトパディング
+    &--defaultPadding {
+      padding: var(--spacing-2);
+      margin: 0 var(--spacing-2);
+
+      @media (min-width: 640px) {
+        padding: var(--spacing-4);
+        margin: 0 var(--spacing-4);
+      }
+    }
+
+    &--open {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+    &--closed {
+      transform: translateY(-1.25rem) scale(0.95);
+      opacity: 0;
+    }
+  }
+}

@@ -1,0 +1,92 @@
+.wrapper {
+  position: fixed;
+  bottom: var(--spacing-4);
+  right: var(--spacing-4);
+  z-index: 50;
+  animation: fadeIn var(--transition-duration-300) ease-out;
+}
+
+.card {
+  border-radius: var(--border-radius-lg);
+  background-color: #fff;
+  padding: var(--spacing-4);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  ring: 1px solid var(--color-gray-200);
+  outline: 1px solid var(--color-gray-200);
+}
+
+.cardDark {
+  background-color: var(--color-gray-800);
+  outline-color: var(--color-gray-700);
+}
+
+.contentRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+}
+
+.contentBody {
+  flex: 1;
+}
+
+.title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+}
+
+.titleDark {
+  color: #fff;
+}
+
+.subtitle {
+  margin-top: var(--spacing-1);
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-600);
+}
+
+.subtitleDark {
+  color: var(--color-gray-300);
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-gray-400);
+  cursor: pointer;
+  transition: color var(--transition-duration-150);
+
+  &:hover {
+    color: var(--color-gray-600);
+  }
+}
+
+.closeButtonDark {
+  &:hover {
+    color: var(--color-gray-200);
+  }
+}
+
+.closeIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.actions {
+  margin-top: var(--spacing-3);
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,59 @@
+.root {
+  font-size: 0.88rem;
+  padding-right: 0.5rem;
+}
+
+.title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted, #8a8a8a);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0 0 0.75rem;
+}
+
+.empty {
+  color: var(--muted, #8a8a8a);
+  font-size: 0.85rem;
+  padding: 0.25rem 0;
+  margin: 0;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.list li {
+  margin-bottom: 0.2rem;
+}
+
+.list a {
+  display: block;
+  padding: 0.3rem 0.55rem;
+  color: var(--fg-soft, #555);
+  border-radius: 4px;
+  line-height: 1.45;
+  text-decoration: none;
+  border-left: 2px solid transparent;
+}
+
+.list a:hover {
+  background: var(--border-soft, #f0ede3);
+  color: var(--fg, #222);
+}
+
+.list a.h3 {
+  padding-left: 1.4rem;
+  font-size: 0.84rem;
+  color: var(--muted, #8a8a8a);
+}
+
+/* スクロール同期のアクティブ状態（呼び出し側で toc-active クラス付与） */
+.list a:global(.toc-active) {
+  background: var(--accent-soft, #dbeafe);
+  color: var(--accent, #2563eb);
+  border-left-color: var(--accent, #2563eb);
+  font-weight: 600;
+}

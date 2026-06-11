@@ -1,0 +1,193 @@
+{
+  "name": "@ui-catalog/core",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./atoms": "./core/atoms/index.ts",
+    "./molecules": "./core/molecules/index.ts",
+    "./organisms": "./core/organisms/index.ts",
+    "./organisms/TagCloud": "./core/organisms/TagCloud/index.ts",
+    "./organisms/MarkdownEditor": "./core/organisms/MarkdownEditor/index.ts",
+    "./organisms/MarkdownPreview": "./core/organisms/MarkdownPreview/index.ts",
+    "./organisms/MonthView": "./core/organisms/MonthView/index.ts",
+    "./organisms/WeekView": "./core/organisms/WeekView/index.ts",
+    "./organisms/AgendaView": "./core/organisms/AgendaView/index.ts",
+    "./organisms/Timeline": "./core/organisms/Timeline/index.ts",
+    "./organisms/MiniCalendarGrid": "./core/organisms/MiniCalendarGrid/index.ts",
+    "./organisms/TocList": "./core/organisms/TocList/index.ts",
+    "./organisms/ArticleGroupList": "./core/organisms/ArticleGroupList/index.ts",
+    "./organisms/ArticleCard": "./core/organisms/ArticleCard/index.ts",
+    "./organisms/ProfileMenu": "./core/organisms/ProfileMenu/index.ts",
+    "./organisms/SiteHeaderShell": "./core/organisms/SiteHeaderShell/index.ts",
+    "./atoms/Switch": "./core/atoms/Switch/index.ts",
+    "./atoms/CheckBadge": "./core/atoms/CheckBadge/index.ts",
+    "./templates/IndexListLayout": "./core/templates/IndexListLayout/index.ts",
+    "./templates/ArticleLayout": "./core/templates/ArticleLayout/index.ts",
+    "./templates/EditorLayout": "./core/templates/EditorLayout/index.ts",
+    "./templates": "./core/templates/index.ts",
+    "./hooks": "./core/hooks/index.ts",
+    "./hooks/router": "./core/hooks/router/index.ts",
+    "./hooks/ui": "./core/hooks/ui/index.ts",
+    "./tokens": "./core/tokens/index.ts",
+    "./constants": "./core/constants/index.ts",
+    "./types": "./core/types/index.ts",
+    "./utils": "./core/utils/index.ts",
+    "./styles": "./core/styles/index.ts",
+    "./styles/tokens": "./core/styles/tokens.css",
+    "./styles/globals.css": "./core/styles/globals.css",
+    "./infra": "./infra/index.ts",
+    "./infra/devtools": "./infra/devtools/index.ts",
+    "./infra/version": "./infra/version/index.ts",
+    "./infra/theme": "./infra/theme/index.ts",
+    "./calend/state": "./core/hooks/calend/calendar.ts",
+    "./calend/types": "./core/types/calend.ts",
+    "./calend/hooks": "./core/hooks/calend/index.ts",
+    "./calend/utils": "./core/utils/calend/index.ts",
+    "./tailwind-preset": "./tailwind.preset.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx",
+    "clean": "rm -rf node_modules/.cache storybook-static dist",
+    "storybook": "docker compose -f infra/docker/docker-compose.yml up",
+    "storybook:localhost": "storybook dev -p 6006 --no-open",
+    "storybook:down": "docker compose -f infra/docker/docker-compose.yml down",
+    "storybook:build": "storybook build -o storybook-static",
+    "storybook:deploy": "node --env-file=.env.local node_modules/chromatic/dist/bin.js --build-script-name=storybook:build",
+    "storybook:deploy:ghpages": "pnpm clean && pnpm storybook:build && rm -rf node_modules/.cache/gh-pages && gh-pages -d storybook-static",
+    "test:storybook": "vitest --project storybook",
+    "export-versions": "npx tsx infra/version/export-versions-cli.ts"
+  },
+  "peerDependencies": {
+    "@codemirror/commands": "^6.0.0",
+    "@codemirror/lang-markdown": "^6.0.0",
+    "@codemirror/language": "^6.0.0",
+    "@codemirror/state": "^6.0.0",
+    "@codemirror/view": "^6.0.0",
+    "@dnd-kit/core": "^6.0.0",
+    "@dnd-kit/sortable": "^8.0.0 || ^10.0.0",
+    "@dnd-kit/utilities": "^3.0.0",
+    "@lezer/highlight": "^1.0.0",
+    "@tanstack/react-virtual": "^3.0.0",
+    "clsx": "^2.0.0",
+    "date-fns": "^3.0.0 || ^4.0.0",
+    "framer-motion": "^11.0.0 || ^12.0.0",
+    "jotai": "^2.0.0",
+    "katex": "^0.16.0",
+    "marked": "^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "react-router-dom": "^6.0.0 || ^7.0.0",
+    "recharts": "^2.0.0 || ^3.0.0",
+    "tailwind-merge": "^2.0.0 || ^3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "katex": {
+      "optional": true
+    },
+    "@codemirror/commands": {
+      "optional": true
+    },
+    "@codemirror/lang-markdown": {
+      "optional": true
+    },
+    "@codemirror/language": {
+      "optional": true
+    },
+    "@codemirror/state": {
+      "optional": true
+    },
+    "@codemirror/view": {
+      "optional": true
+    },
+    "@lezer/highlight": {
+      "optional": true
+    },
+    "marked": {
+      "optional": true
+    },
+    "framer-motion": {
+      "optional": true
+    },
+    "jotai": {
+      "optional": true
+    },
+    "recharts": {
+      "optional": true
+    },
+    "react-router-dom": {
+      "optional": true
+    },
+    "date-fns": {
+      "optional": true
+    },
+    "@dnd-kit/core": {
+      "optional": true
+    },
+    "@dnd-kit/sortable": {
+      "optional": true
+    },
+    "@dnd-kit/utilities": {
+      "optional": true
+    },
+    "@tanstack/react-virtual": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@codemirror/commands": "^6.10.3",
+    "@codemirror/lang-markdown": "^6.5.0",
+    "@codemirror/language": "^6.12.3",
+    "@codemirror/state": "^6.6.0",
+    "@codemirror/view": "^6.41.1",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@lezer/highlight": "^1.2.3",
+    "@storybook/addon-a11y": "^10.2.14",
+    "@storybook/addon-actions": "^9.0.8",
+    "@storybook/addon-controls": "^9.0.8",
+    "@storybook/addon-designs": "^11.1.3",
+    "@storybook/addon-docs": "^10.2.14",
+    "@storybook/addon-links": "^10.2.14",
+    "@storybook/addon-vitest": "^10.2.14",
+    "@storybook/react": "^10.2.14",
+    "@storybook/react-vite": "^10.2.14",
+    "@tailwindcss/postcss": "^4.2.1",
+    "@tanstack/react-virtual": "^3.13.19",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/katex": "^0.16.8",
+    "@types/node": "^25.3.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "chromatic": "^16.1.0",
+    "clsx": "^2.1.1",
+    "codemirror": "^6.0.2",
+    "date-fns": "^4.1.0",
+    "framer-motion": "^12.34.4",
+    "gh-pages": "^6.3.0",
+    "glob": "^13.0.6",
+    "jotai": "^2.12.4",
+    "jsdom": "^29.0.1",
+    "katex": "^0.16.44",
+    "marked": "^18.0.2",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^7.13.1",
+    "recharts": "^3.7.0",
+    "sass-embedded": "^1.98.0",
+    "storybook": "^10.2.14",
+    "tailwind-merge": "^3.5.0",
+    "tailwindcss": "^4.2.1",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
+    "vitest": "^4.0.18"
+  },
+  "dependencies": {
+    "@measured/puck": "^0.20.2"
+  }
+}

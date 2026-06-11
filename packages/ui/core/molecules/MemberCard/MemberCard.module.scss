@@ -1,0 +1,155 @@
+.scoreItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+.scoreLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-500);
+}
+
+.scoreNull {
+  color: var(--color-gray-400);
+  font-size: var(--font-size-sm);
+}
+
+.statusBadge {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+.statusLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-500);
+}
+
+.selectionIndicator {
+  position: absolute;
+  top: var(--spacing-2);
+  right: var(--spacing-2);
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--border-radius-full);
+  background-color: var(--color-primary, var(--color-primary-500));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.card {
+  position: relative;
+  background-color: #fff;
+  padding: var(--spacing-4);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-duration-200);
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-0.25rem);
+  }
+}
+
+.cardDefault {
+  border: 1px solid var(--color-gray-100);
+
+  &:hover {
+    border-color: var(--color-gray-200);
+  }
+}
+
+.cardDefaultSelected {
+  border: 2px solid var(--color-primary, var(--color-primary-500));
+  background-color: var(--color-primary-bg, #eff6ff);
+}
+
+.cardAlert {
+  border: 1px solid var(--color-error-border, #fca5a5);
+  background-color: rgba(254, 242, 242, 0.5);
+
+  &:hover {
+    border-color: var(--color-error, #f87171);
+  }
+}
+
+.cardAlertSelected {
+  border: 2px solid var(--color-error, #f87171);
+  background-color: #fef2f2;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-3);
+}
+
+.headerContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-800);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subtitle {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-500);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scoresGrid {
+  display: grid;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-3);
+  padding: var(--spacing-2) 0;
+  background-color: var(--color-gray-50);
+}
+
+.statusesWrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-2);
+}
+
+.datesWrap {
+  display: flex;
+  gap: var(--spacing-4);
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-500);
+  border-top: 1px solid var(--color-gray-100);
+  padding-top: var(--spacing-2);
+}
+
+.extraSection {
+  margin-top: var(--spacing-2);
+  padding-top: var(--spacing-2);
+  border-top: 1px solid var(--color-gray-100);
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-500);
+}
+
+.badgeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  margin-bottom: var(--spacing-1);
+}
+
+.memo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

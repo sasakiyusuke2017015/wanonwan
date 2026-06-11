@@ -1,0 +1,233 @@
+.agendaView {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-surface-primary);
+
+  &__list {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-6);
+  }
+
+  // 空状態
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: var(--spacing-3);
+    color: var(--color-text-tertiary);
+  }
+
+  &__emptyText {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+  }
+
+  // 日付グループ
+  &__dayGroup {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: var(--spacing-4);
+    padding: var(--spacing-3) 0;
+    border-bottom: var(--border-width-1) solid var(--color-border-subtle);
+    transition: opacity var(--transition-duration-200) var(--transition-ease-in-out);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    // 過去の予定は薄く表示
+    &[data-is-past='true'] {
+      opacity: 0.6;
+    }
+
+    // 今日の予定を強調
+    &[data-is-today='true'] {
+      .agendaView__dateHeader {
+        background: var(--color-primary-subtle);
+        border-radius: var(--border-radius-md);
+      }
+
+      .agendaView__dateDay {
+        color: var(--color-primary);
+        font-weight: var(--font-weight-bold);
+      }
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: 80px 1fr;
+      gap: var(--spacing-3);
+    }
+  }
+
+  // 日付ヘッダー
+  &__dateHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2);
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+  }
+
+  &__dateLabel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-0-5);
+  }
+
+  &__dateDay {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-none);
+    color: var(--color-text-primary);
+  }
+
+  &__dateWeekday {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+  }
+
+  &__todayBadge {
+    display: inline-block;
+    padding: var(--spacing-0-5) var(--spacing-2);
+    background: var(--color-primary);
+    color: var(--color-white);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    border-radius: var(--border-radius-full);
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-wider);
+  }
+
+  // イベントリスト
+  &__events {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+
+  // イベントカード
+  &__eventCard {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3);
+    background: var(--color-surface-secondary);
+    border: var(--border-width-1) solid var(--color-border-subtle);
+    border-left: var(--border-width-4) solid var(--event-color, var(--color-primary));
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    text-align: left;
+    transition: all var(--transition-duration-200) var(--transition-ease-in-out);
+
+    &:hover {
+      background: var(--color-surface-tertiary);
+      border-color: var(--event-color, var(--color-primary));
+      transform: translateX(4px);
+      box-shadow: var(--shadow-md);
+    }
+
+    &:active {
+      transform: translateX(2px);
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+      gap: var(--spacing-2);
+    }
+  }
+
+  // イベント時刻
+  &__eventTime {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    min-width: 100px;
+
+    @media (max-width: 640px) {
+      min-width: auto;
+    }
+  }
+
+  &__eventTimeSeparator {
+    color: var(--color-text-tertiary);
+  }
+
+  &__eventAllDay {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    padding: var(--spacing-0-5) var(--spacing-1-5);
+    background: var(--color-info-subtle);
+    color: var(--color-info);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    border-radius: var(--border-radius-sm);
+    text-transform: uppercase;
+  }
+
+  // イベント内容
+  &__eventContent {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1-5);
+    min-width: 0;
+  }
+
+  &__eventTitle {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+
+    > span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  &__eventIcon {
+    flex-shrink: 0;
+    color: var(--event-color, var(--color-primary));
+  }
+
+  &__eventDescription {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-normal);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  &__eventRepeat {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    font-weight: var(--font-weight-medium);
+  }
+}

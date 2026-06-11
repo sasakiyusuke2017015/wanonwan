@@ -1,0 +1,61 @@
+.row {
+  display: grid;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border-secondary) 50%, transparent);
+  cursor: pointer;
+}
+
+.label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  padding: var(--spacing-2) var(--spacing-3) var(--spacing-2) 0;
+  text-align: right;
+  user-select: none;
+}
+
+.slot {
+  position: relative;
+  border-left: 1px solid color-mix(in srgb, var(--color-border-secondary) 50%, transparent);
+  transition: background-color var(--transition-duration-150);
+
+  &:hover {
+    background-color: var(--color-gray-100);
+  }
+}
+
+.currentHour {
+  background-color: color-mix(in srgb, var(--color-primary-500) 5%, transparent);
+}
+
+.active {
+  background-color: color-mix(in srgb, var(--color-primary-500) 5%, transparent);
+}
+
+.activeIndicator {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--color-primary-500);
+  border-radius: var(--border-radius-sm);
+  pointer-events: none;
+  z-index: 20;
+}
+
+.currentTimeLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  background-color: var(--color-danger-500);
+  z-index: 5;
+  pointer-events: none;
+}
+
+.currentTimeDot {
+  position: absolute;
+  left: -4px;
+  top: -4px;
+  width: 10px;
+  height: 10px;
+  background-color: var(--color-danger-500);
+  border-radius: 50%;
+}
