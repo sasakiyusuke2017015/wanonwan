@@ -316,6 +316,7 @@ External (HTTPS)
 | 2026-06-11 | bigint PK は postgres.js が文字列で返す（JS 精度回避）。API レスポンスでは id が string。フロント/型側で吸収する（必要なら数値化） | postgres.js 仕様 |
 | 2026-06-11 | Phase 4-a 管理者「ユーザー管理」画面（`feature/admin-users`）: 一覧/新規/編集 + admin ガード(/me に isAdmin 追加) + org マスタ API。TanStack Query + Tailwind。実機検証 green。アンケート管理 + surveys API は次 PR | タスク1 中心要件 |
 | 2026-06-11 | 管理画面 UI は当面 **Tailwind 機能 UI**（ui-catalog の organisms barrel は codemirror/marked peer 未導入のため）。InteractiveTable 等の ui-catalog 適用は Phase 5（見た目仕上げ）or organism-peer 導入後 | 統合コスト回避 |
+| 2026-06-11 | Phase 4-b 管理者「アンケート管理」画面（`feature/admin-surveys`）: 一覧/新規/編集 + surveys API(CRUD)。**タスク1の管理者2画面が両方完成**。設問ビルダ/掲載管理は後続 | タスク1 中心要件 |
 
 ---
 
