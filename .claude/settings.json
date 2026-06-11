@@ -51,7 +51,16 @@
       "Bash(pnpm --filter @waoon/web build)",
       "Bash(echo \"EXIT_BUILD=$?\")",
       "Bash(git commit -q -m 'feat: Phase 0 モノレポ基盤（Next.js 16 + pnpm workspace） *)",
-      "Bash(gh pr *)"
+      "Bash(gh pr *)",
+      "Bash(git fetch *)",
+      "Bash(git pull *)",
+      "Bash(command -v docker)",
+      "Bash(docker --version)",
+      "Bash(docker compose *)",
+      "Bash(git stash *)",
+      "Bash(GOTRUE_URL=http://localhost:9999 GOTRUE_JWT_SECRET=dev-only-change-me-please-32bytes-minimum DATABASE_URL=postgres://app_user:app@localhost:5432/waoon PORT=3001 pnpm --filter @waoon/web start)",
+      "Bash(curl -s -b /tmp/cj-admin.txt -w '\\\\nstatus=%{http_code}\\\\n' http://localhost:3001/api/v1/org)",
+      "Bash(git commit -q -m 'feat: Phase 4-a 管理者ユーザー管理画面（一覧/新規/編集 + admin ガード） *)"
     ],
     "additionalDirectories": [
       "/tmp"

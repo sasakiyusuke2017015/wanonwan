@@ -314,6 +314,8 @@ External (HTTPS)
 | 2026-06-11 | answers ⇄ answer_viewers の RLS 相互参照で**無限再帰**が出たため、横参照を **SECURITY DEFINER 関数**(app.is_answer_viewer / owns_or_interviews_answer / interviews_answer)で RLS バイパスして解消 | 実装で判明 |
 | 2026-06-11 | Phase 3 API 層（`feature/api-layer`）: DB クライアント(postgres.js, app_user) + `withUser(sub)` が `set_config('app.user_id', sub, true)` を注入＝**Phase1 認証 × Phase2 RLS を実コードで接続**。users API(一覧/詳細/作成/更新) + domain valibot。実機検証: admin は create 201、member(一般)は **403(RLS 42501)**、一覧は両者可、未認証 401 | 実装・検証 green |
 | 2026-06-11 | bigint PK は postgres.js が文字列で返す（JS 精度回避）。API レスポンスでは id が string。フロント/型側で吸収する（必要なら数値化） | postgres.js 仕様 |
+| 2026-06-11 | Phase 4-a 管理者「ユーザー管理」画面（`feature/admin-users`）: 一覧/新規/編集 + admin ガード(/me に isAdmin 追加) + org マスタ API。TanStack Query + Tailwind。実機検証 green。アンケート管理 + surveys API は次 PR | タスク1 中心要件 |
+| 2026-06-11 | 管理画面 UI は当面 **Tailwind 機能 UI**（ui-catalog の organisms barrel は codemirror/marked peer 未導入のため）。InteractiveTable 等の ui-catalog 適用は Phase 5（見た目仕上げ）or organism-peer 導入後 | 統合コスト回避 |
 
 ---
 
