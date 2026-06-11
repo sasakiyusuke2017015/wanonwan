@@ -1,0 +1,53 @@
+# Build outputs
+dist/
+storybook-static/
+*.tsbuildinfo
+
+# Dependencies
+node_modules/
+.pnpm-store/
+package-lock.json
+
+# Test results
+coverage/
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Media (画像・動画・音声は呼び出し側で保持する方針。誤コミット防止)
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+*.avif
+*.svg
+*.ico
+*.mp4
+*.mov
+*.webm
+*.mp3
+*.wav
+*.pdf
+
+# Claude Code（親 repo では追跡しない。複製先で各自管理する）
+.claude/

@@ -1,0 +1,101 @@
+// =============================================================================
+// NavItem Component Styles
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Base
+// -----------------------------------------------------------------------------
+.navItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: 0.375rem var(--spacing-2); // py-1.5 px-2.5
+  padding-left: 0.625rem;
+  border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+  border-left: 2px solid transparent;
+  transition: background-color var(--transition-duration-150), color var(--transition-duration-150);
+  cursor: pointer;
+  background: none;
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  color: var(--color-gray-300);
+
+  &:hover {
+    background-color: var(--color-slate-700, var(--color-gray-700));
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Selected state
+// -----------------------------------------------------------------------------
+.selected {
+  background-color: var(--color-slate-700-50, color-mix(in srgb, var(--color-gray-700) 50%, transparent));
+}
+
+// Accent color variants (selected border + text)
+.accentBlue {
+  border-left-color: var(--color-blue-400, #60a5fa);
+  color: var(--color-blue-400, #60a5fa);
+}
+
+.accentYellow {
+  border-left-color: var(--color-yellow-400, #facc15);
+  color: var(--color-yellow-400, #facc15);
+}
+
+.accentOrange {
+  border-left-color: var(--color-orange-400, #fb923c);
+  color: var(--color-orange-400, #fb923c);
+}
+
+.accentGreen {
+  border-left-color: var(--color-green-400, #4ade80);
+  color: var(--color-green-400, #4ade80);
+}
+
+.accentGray {
+  border-left-color: var(--color-gray-400);
+  color: var(--color-gray-400);
+}
+
+.accentPurple {
+  border-left-color: var(--color-purple-400, #c084fc);
+  color: var(--color-purple-400, #c084fc);
+}
+
+// -----------------------------------------------------------------------------
+// Drop target states
+// -----------------------------------------------------------------------------
+.meetingDropTarget {
+  box-shadow: inset 0 0 0 2px var(--color-green-400, #4ade80);
+  background-color: var(--color-slate-600, var(--color-gray-600));
+}
+
+.projectDropTarget {
+  box-shadow: inset 0 0 0 2px var(--color-blue-400, #60a5fa);
+  background-color: var(--color-slate-600, var(--color-gray-600));
+}
+
+// -----------------------------------------------------------------------------
+// Children
+// -----------------------------------------------------------------------------
+.icon {
+  flex-shrink: 0;
+}
+
+.label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  text-align: left;
+}
+
+.badge {
+  color: var(--color-gray-400);
+  font-size: 10px;
+}

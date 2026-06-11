@@ -1,0 +1,39 @@
+.card {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 4px;
+  border-radius: 6px;
+  cursor: grab;
+  transition: background-color 0.15s;
+  overflow: hidden;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--color-gray-200) 50%, transparent);
+  }
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  border-radius: 50%;
+}
+
+.time {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.title {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-left: 4px;
+}

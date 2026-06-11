@@ -1,0 +1,151 @@
+// =============================================================================
+// Input Component Styles
+// =============================================================================
+
+@use '../../styles/mixins' as *;
+
+// -----------------------------------------------------------------------------
+// Base Input
+// -----------------------------------------------------------------------------
+.input {
+  @include input-base;
+  box-shadow: var(--shadow-sm);
+
+  &:hover:not(:disabled) {
+    box-shadow: var(--shadow-md);
+  }
+
+  // Hide native date/number pickers
+  &::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    display: none;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Wrapper for icon
+// -----------------------------------------------------------------------------
+.wrapper {
+  position: relative;
+}
+
+// -----------------------------------------------------------------------------
+// Sizes
+// -----------------------------------------------------------------------------
+.small {
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: var(--font-size-sm);
+}
+
+.medium {
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: var(--font-size-base);
+}
+
+.large {
+  padding: var(--spacing-3) var(--spacing-4);
+  font-size: var(--font-size-lg);
+}
+
+// -----------------------------------------------------------------------------
+// Variants
+// -----------------------------------------------------------------------------
+.default {
+  background-color: var(--color-white);
+  border-color: var(--color-border-primary);
+  color: var(--color-text-primary);
+
+  &::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  &:focus {
+    border-color: #3b82f6;
+    box-shadow: var(--shadow-sm), 0 0 0 3px rgba(59, 130, 246, 0.2);
+  }
+}
+
+.dark {
+  background-color: var(--color-gray-800);
+  border-color: var(--color-gray-600);
+  color: var(--color-white);
+
+  &::placeholder {
+    color: var(--color-gray-400);
+  }
+
+  &:focus {
+    border-color: #3b82f6;
+    box-shadow: var(--shadow-sm), 0 0 0 3px rgba(59, 130, 246, 0.2);
+  }
+}
+
+.outlined {
+  background-color: transparent;
+  border: var(--border-width-2) solid var(--color-border-primary);
+  color: var(--color-gray-700);
+
+  &:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Icon positioning
+// -----------------------------------------------------------------------------
+.iconLeft {
+  &.small { padding-left: var(--spacing-8); }
+  &.medium { padding-left: var(--spacing-10); }
+  &.large { padding-left: var(--spacing-12); }
+}
+
+.iconRight {
+  &.small { padding-right: var(--spacing-8); }
+  &.medium { padding-right: var(--spacing-10); }
+  &.large { padding-right: var(--spacing-12); }
+}
+
+// -----------------------------------------------------------------------------
+// Icon wrapper
+// -----------------------------------------------------------------------------
+.iconWrapper {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.iconWrapperLeft {
+  left: 0;
+  padding-left: var(--spacing-3);
+}
+
+.iconWrapperRight {
+  right: 0;
+  padding-right: var(--spacing-3);
+}
+
+.iconClickable {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.icon {
+  color: var(--color-text-muted);
+}
+
+// -----------------------------------------------------------------------------
+// Disabled
+// -----------------------------------------------------------------------------
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

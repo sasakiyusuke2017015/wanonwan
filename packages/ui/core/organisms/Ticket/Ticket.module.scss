@@ -1,0 +1,44 @@
+// =============================================================================
+// Ticket Component Styles
+//
+// border-shape で半円の切り欠きをチケットの輪郭として描画する。
+// 対応ブラウザ: Chrome / Edge 147+ のみ
+// =============================================================================
+.ticket {
+  --ticket-notch: 16px;
+
+  display: inline-flex;
+  align-items: stretch;
+  min-width: 280px;
+  background: var(--color-white);
+  color: var(--color-gray-800);
+  box-shadow: 0 12px 28px -10px rgb(0 0 0 / 0.25);
+
+  border-shape: shape(
+    from 0 0,
+    hline to 100%,
+    vline to calc(50% - var(--ticket-notch)),
+    arc by 0 calc(2 * var(--ticket-notch))
+      of var(--ticket-notch) var(--ticket-notch) small ccw,
+    vline to 100%,
+    hline to 0,
+    vline to calc(50% + var(--ticket-notch)),
+    arc by 0 calc(-2 * var(--ticket-notch))
+      of var(--ticket-notch) var(--ticket-notch) small ccw,
+    close
+  );
+
+  &__main {
+    flex: 1;
+    padding: var(--spacing-4) var(--spacing-6);
+  }
+
+  &__stub {
+    flex: 0 0 auto;
+    padding: var(--spacing-4) var(--spacing-6);
+    border-left: 2px dashed var(--color-gray-300);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

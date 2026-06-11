@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+/* テーマトークン（旧 1on1 の色/形/背景 3 軸を踏襲する土台。Phase 0 では最小定義） */
+:root {
+  --background: #ffffff;
+  --foreground: #111827;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}

@@ -1,0 +1,22 @@
+.root {
+  display: inline;
+}
+
+.totalLabel {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+}
+
+.totalValue {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-800);
+}
+
+.selectedLabel {
+  font-size: var(--font-size-sm);
+  color: var(--color-accent);
+}
+
+.selectedValue {
+  font-weight: var(--font-weight-semibold);
+}

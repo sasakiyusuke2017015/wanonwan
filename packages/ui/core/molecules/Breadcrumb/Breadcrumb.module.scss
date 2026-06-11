@@ -1,0 +1,142 @@
+// =============================================================================
+// Chevron variant
+//
+// border-shape の shape() で矢羽形を要素の輪郭として宣言する。
+// 矢羽の三角部分が bounding box の中に完全に収まるので、間隔は gap だけで完結。
+// box-shadow も矢羽の輪郭に追従する（Chrome 147+ 専用機能）。
+// =============================================================================
+.breadcrumb--chevron {
+  display: flex;
+}
+
+.breadcrumb__chevron-list {
+  --chevron-arrow-width: 14px;
+
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.breadcrumb__chevron-step {
+  display: flex;
+  align-items: center;
+  padding: 10px 22px 10px calc(var(--chevron-arrow-width) + 14px);
+  background: var(--color-gray-200);
+  color: var(--color-gray-700);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  transition: background-color var(--transition-duration-150) var(--transition-ease-in-out);
+
+  border-shape: shape(
+    from 0 0,
+    hline to calc(100% - var(--chevron-arrow-width)),
+    line to 100% 50%,
+    line to calc(100% - var(--chevron-arrow-width)) 100%,
+    hline to 0,
+    line to var(--chevron-arrow-width) 50%,
+    close
+  );
+
+  &--first {
+    padding-left: 18px;
+    border-shape: shape(
+      from 0 0,
+      hline to calc(100% - var(--chevron-arrow-width)),
+      line to 100% 50%,
+      line to calc(100% - var(--chevron-arrow-width)) 100%,
+      hline to 0,
+      close
+    );
+  }
+
+  &--current {
+    background: var(--color-primary-500);
+    color: var(--color-white);
+  }
+
+  &:hover:not(&--current) {
+    background: var(--color-gray-300);
+  }
+}
+
+.breadcrumb__chevron-link {
+  color: inherit;
+  text-decoration: none;
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+}
+
+// =============================================================================
+// Default variant
+// =============================================================================
+.breadcrumb {
+  display: flex;
+  align-items: center;
+
+  &__list {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+  }
+
+  &__link {
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    border-radius: var(--border-radius-sm);
+    transition: opacity var(--transition-duration-150) var(--transition-ease-in-out),
+                text-decoration var(--transition-duration-150) var(--transition-ease-in-out);
+
+    &:hover {
+      text-decoration: underline;
+      opacity: 0.8;
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary-500) 50%, transparent);
+    }
+
+    &:active {
+      opacity: 0.6;
+    }
+  }
+
+  &__separator {
+    margin: 0 var(--spacing-2);
+    font-size: var(--font-size-sm);
+  }
+
+  &__current {
+    font-weight: var(--font-weight-semibold);
+
+    &--sm {
+      font-size: var(--font-size-sm);
+    }
+
+    &--md {
+      font-size: var(--font-size-base);
+    }
+
+    &--lg {
+      font-size: var(--font-size-lg);
+    }
+
+    &--xl {
+      font-size: var(--font-size-xl);
+    }
+  }
+}

@@ -1,0 +1,25 @@
+.header {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 50;
+
+  &__inner {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    padding: 0 var(--spacing-1);
+
+    @media (min-width: 1024px) {
+      padding: 0 var(--spacing-2);
+    }
+  }
+
+  &__content {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+  }
+}

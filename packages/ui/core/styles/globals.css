@@ -1,0 +1,141 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* アニメーション用 keyframes */
+@keyframes cardDeal {
+  0% { opacity: 0; transform: translateX(100px) scale(0.95); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes menuItemSlide {
+  0% { opacity: 0; transform: translateY(-20px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes cardFadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes cardScaleUp {
+  0% { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes cardBounceIn {
+  0% { opacity: 0; transform: scale(0.3); }
+  50% { opacity: 1; transform: scale(1.05); }
+  70% { transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes tableRowFadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes tableRowSlideLeft {
+  0% { opacity: 0; transform: translateX(-50px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes dropMenuFadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes dropMenuScaleY {
+  0% { opacity: 0; transform: scaleY(0); transform-origin: top; }
+  100% { opacity: 1; transform: scaleY(1); transform-origin: top; }
+}
+
+/* シマーエフェクト（スケルトンUI用） */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* マーチングアンツ（Excelライクな動く点線）アニメーション */
+/* CSS変数で各辺の表示を制御 */
+.marching-ants {
+  --ma-top: 0;
+  --ma-bottom: 0;
+  --ma-left: 0;
+  --ma-right: 0;
+  position: relative;
+}
+
+.marching-ants::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 10;
+  background:
+    /* 上辺 */
+    repeating-linear-gradient(90deg, #16a34a 0, #16a34a 5px, transparent 5px, transparent 10px),
+    /* 下辺 */
+    repeating-linear-gradient(90deg, #16a34a 0, #16a34a 5px, transparent 5px, transparent 10px),
+    /* 左辺 */
+    repeating-linear-gradient(180deg, #16a34a 0, #16a34a 5px, transparent 5px, transparent 10px),
+    /* 右辺 */
+    repeating-linear-gradient(180deg, #16a34a 0, #16a34a 5px, transparent 5px, transparent 10px);
+  background-size:
+    calc(100% * var(--ma-top)) 3px,
+    calc(100% * var(--ma-bottom)) 3px,
+    3px calc(100% * var(--ma-left)),
+    3px calc(100% * var(--ma-right));
+  background-position:
+    0 0,
+    0 100%,
+    0 0,
+    100% 0;
+  background-repeat: no-repeat;
+  animation: marching-ants-all 0.4s linear infinite;
+}
+
+@keyframes marching-ants-all {
+  0% { background-position: 0 0, 0 100%, 0 0, 100% 0; }
+  100% { background-position: 10px 0, -10px 100%, 0 -10px, 100% 10px; }
+}
+
+/* 各辺の有効化クラス */
+.marching-ants-top { --ma-top: 1; }
+.marching-ants-bottom { --ma-bottom: 1; }
+.marching-ants-left { --ma-left: 1; }
+.marching-ants-right { --ma-right: 1; }
+
+/* Recharts: SVGクリック時のフォーカス枠を非表示 */
+.recharts-wrapper,
+.recharts-wrapper *,
+.recharts-surface,
+.recharts-surface * {
+  outline: none !important;
+}

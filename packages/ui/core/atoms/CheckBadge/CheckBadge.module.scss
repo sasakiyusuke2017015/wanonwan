@@ -1,0 +1,46 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--fg-soft, #555);
+  border-radius: 6px;
+}
+
+.root:hover {
+  background: var(--border-soft, #f0ede3);
+}
+
+.root:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border, #e8e6de);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: transparent;
+  background: var(--bg-card, #fff);
+  transition: all 0.15s;
+}
+
+.root[data-checked='true'] .box {
+  background: #10b981;
+  border-color: #10b981;
+  color: #fff;
+}
+
+.root[data-checked='true'] .label {
+  text-decoration: line-through;
+  color: var(--muted, #8a8a8a);
+}

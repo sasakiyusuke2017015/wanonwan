@@ -1,0 +1,119 @@
+.stepIndicator {
+  padding: var(--spacing-6);
+  background-color: var(--color-white);
+  border: 2px solid var(--color-gray-300);
+  border-radius: var(--border-radius-xl);
+
+  &__title {
+    margin-bottom: var(--spacing-4);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-gray-800);
+  }
+
+  &__steps {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  &__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &--animated {
+      transition: all var(--transition-duration-300) ease-out;
+    }
+
+    &--completed {
+      color: var(--color-white);
+
+      &[data-color='green'] { background-color: var(--color-success-500); }
+      &[data-color='blue'] { background-color: var(--color-info-500); }
+      &[data-color='purple'] { background-color: #8b5cf6; }
+      &[data-color='teal'] { background-color: #14b8a6; }
+    }
+
+    &--inProgress {
+      &[data-color='green'] { background-color: var(--color-success-500); }
+      &[data-color='blue'] { background-color: var(--color-info-500); }
+      &[data-color='purple'] { background-color: #8b5cf6; }
+      &[data-color='teal'] { background-color: #14b8a6; }
+      &[data-color='orange'] { background-color: #f97316; }
+    }
+
+    &--pending {
+      background-color: var(--color-gray-200);
+      color: var(--color-gray-400);
+    }
+  }
+
+  &__label {
+    margin-top: var(--spacing-2);
+    font-size: var(--font-size-xs);
+
+    &--animated {
+      transition: all var(--transition-duration-300) ease-out;
+    }
+
+    &[data-status='completed'] {
+      &[data-color='green'] { color: var(--color-success-600); }
+      &[data-color='blue'] { color: var(--color-info-600); }
+      &[data-color='purple'] { color: #7c3aed; }
+      &[data-color='teal'] { color: #0d9488; }
+    }
+
+    &[data-status='in_progress'] {
+      &[data-color='green'] { color: var(--color-success-600); }
+      &[data-color='blue'] { color: var(--color-info-600); }
+      &[data-color='purple'] { color: #7c3aed; }
+      &[data-color='teal'] { color: #0d9488; }
+      &[data-color='orange'] { color: #ea580c; }
+    }
+
+    &[data-status='pending'] {
+      color: var(--color-gray-400);
+    }
+  }
+
+  &__connector {
+    position: relative;
+    flex: 1;
+    height: 4px;
+    margin: 0 var(--spacing-2);
+    background-color: var(--color-gray-200);
+    overflow: hidden;
+    border-radius: 9999px;
+
+    &__fill {
+      position: absolute;
+      inset: 0;
+      left: 0;
+      border-radius: 9999px;
+      width: 0;
+
+      &--animated {
+        transition: all 700ms ease-out;
+      }
+
+      &--completed {
+        width: 100%;
+
+        &[data-color='green'] { background-color: var(--color-success-500); }
+        &[data-color='blue'] { background-color: var(--color-info-500); }
+        &[data-color='purple'] { background-color: #8b5cf6; }
+        &[data-color='teal'] { background-color: #14b8a6; }
+      }
+    }
+  }
+}

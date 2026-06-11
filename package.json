@@ -1,0 +1,23 @@
+{
+  "name": "waoon",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.15.1",
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=10"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @waoon/web dev",
+    "build": "pnpm --filter @waoon/web build",
+    "start": "pnpm --filter @waoon/web start",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "echo \"lint: 後続フェーズ(Phase 6 CI)で設定\"",
+    "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md,css}\"",
+    "ui:update": "git submodule update --remote packages/ui-catalog"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "typescript": "^5.9.0"
+  }
+}

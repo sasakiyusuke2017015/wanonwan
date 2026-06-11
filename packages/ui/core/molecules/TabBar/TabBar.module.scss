@@ -1,0 +1,105 @@
+.tabBar {
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  background-color: var(--color-white);
+
+  &__separator {
+    height: var(--spacing-4);
+    width: 1px;
+    background-color: var(--color-gray-300);
+  }
+
+  &__tab {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-4);
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition-duration-150) var(--transition-ease-in-out);
+
+    &:hover:not(&--active) {
+      border-bottom-color: var(--color-gray-300);
+      background-color: var(--color-gray-50);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--color-primary-500) 50%, transparent);
+    }
+
+    &:active:not(&--active) {
+      background-color: var(--color-gray-100);
+    }
+
+    &--active {
+      &[data-color='green'] {
+        border-bottom-color: var(--color-success-500);
+        background-color: var(--color-success-50);
+        color: var(--color-success-700);
+
+        .tabBar__closeButton {
+          color: var(--color-success-600);
+        }
+      }
+
+      &[data-color='blue'] {
+        border-bottom-color: var(--color-info-500);
+        background-color: var(--color-info-50);
+        color: var(--color-info-700);
+
+        .tabBar__closeButton {
+          color: var(--color-info-600);
+        }
+      }
+
+      &[data-color='teal'] {
+        border-bottom-color: #14b8a6;
+        background-color: #f0fdfa;
+        color: #0f766e;
+
+        .tabBar__closeButton {
+          color: #0d9488;
+        }
+      }
+    }
+  }
+
+  &__label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+  }
+
+  &__closeButton {
+    margin-left: var(--spacing-1);
+    padding: 2px;
+    border-radius: var(--border-radius-sm);
+    color: var(--color-gray-400);
+    opacity: 0;
+    transition: all var(--transition-duration-150) var(--transition-ease-in-out);
+
+    &:hover {
+      background-color: var(--color-gray-200);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary-500) 50%, transparent);
+      opacity: 1;
+    }
+
+    .tabBar__tab:hover &,
+    .tabBar__tab--active & {
+      opacity: 1;
+    }
+
+    &__icon {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}

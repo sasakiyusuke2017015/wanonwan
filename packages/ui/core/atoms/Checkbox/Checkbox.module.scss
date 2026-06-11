@@ -1,0 +1,101 @@
+// =============================================================================
+// Checkbox Component Styles
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Wrapper with label
+// -----------------------------------------------------------------------------
+.wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+// -----------------------------------------------------------------------------
+// Base Checkbox
+// -----------------------------------------------------------------------------
+.checkbox {
+  cursor: pointer;
+  border-radius: var(--border-radius-default);
+  transition-property: transform, box-shadow;
+  transition-duration: var(--transition-duration-200);
+  transition-timing-function: var(--transition-ease-in-out);
+
+  &:hover:not(:disabled) {
+    transform: scale(1.1);
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Sizes
+// -----------------------------------------------------------------------------
+.small {
+  width: 0.875rem;  // 14px
+  height: 0.875rem;
+}
+
+.medium {
+  width: 1rem;      // 16px
+  height: 1rem;
+}
+
+.large {
+  width: 1.25rem;   // 20px
+  height: 1.25rem;
+}
+
+// -----------------------------------------------------------------------------
+// Variants
+// -----------------------------------------------------------------------------
+.default {
+  border: var(--border-width-1) solid var(--color-border-primary);
+  accent-color: #2563eb;
+
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  }
+}
+
+.primary {
+  border: var(--border-width-1) solid #5eead4;
+  accent-color: #14b8a6;
+
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.3);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Label
+// -----------------------------------------------------------------------------
+.label {
+  cursor: pointer;
+  user-select: none;
+  color: var(--color-gray-700);
+}
+
+.labelSmall {
+  font-size: var(--font-size-xs);
+}
+
+.labelMedium {
+  font-size: var(--font-size-sm);
+}
+
+.labelLarge {
+  font-size: var(--font-size-base);
+}
+
+.labelDisabled {
+  cursor: not-allowed;
+  color: var(--color-gray-500);
+}

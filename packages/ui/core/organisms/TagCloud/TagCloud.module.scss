@@ -1,0 +1,58 @@
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.item {
+  display: inline-flex;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2em 0.6em;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #3730a3;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-family: inherit;
+  transition: background 0.1s;
+}
+
+.link:hover {
+  background: #e0e7ff;
+}
+
+a.link {
+  text-decoration: none;
+}
+
+button.link {
+  cursor: pointer;
+}
+
+.tagLabel {
+  line-height: 1;
+}
+
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  padding: 0 0.3em;
+  background: rgba(55, 48, 163, 0.15);
+  color: inherit;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}

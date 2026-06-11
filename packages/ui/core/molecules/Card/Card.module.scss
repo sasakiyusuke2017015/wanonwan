@@ -1,0 +1,92 @@
+// =============================================================================
+// Card Component Styles
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Base Card
+// -----------------------------------------------------------------------------
+.card {
+  background-color: var(--color-white);
+  box-shadow: var(--shadow-default);
+  border-radius: var(--border-radius-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+// -----------------------------------------------------------------------------
+// Padding
+// -----------------------------------------------------------------------------
+.padding {
+  padding: var(--spacing-3);
+
+  @media (min-width: 640px) {
+    padding: var(--spacing-6);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Clickable
+// -----------------------------------------------------------------------------
+.clickable {
+  cursor: pointer;
+  transition-property: box-shadow, transform;
+  transition-duration: var(--transition-duration-150);
+  transition-timing-function: var(--transition-ease-in-out);
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-md), 0 0 0 3px color-mix(in srgb, var(--color-primary-500) 30%, transparent);
+  }
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: var(--shadow-default);
+  }
+
+  @media (hover: none) {
+    &:active {
+      opacity: 0.9;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Sub-components
+// -----------------------------------------------------------------------------
+.cardHeader {
+  padding: var(--spacing-3) var(--spacing-4);
+}
+
+.cardContent {
+  padding: var(--spacing-3) var(--spacing-4);
+  flex: 1;
+}
+
+.cardFooter {
+  padding: var(--spacing-3) var(--spacing-4);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+// -----------------------------------------------------------------------------
+// SectionCard
+// -----------------------------------------------------------------------------
+.sectionHeader {
+  padding: var(--spacing-4) var(--spacing-6);
+  border-bottom: 2px solid var(--color-gray-200);
+}
+
+.sectionTitle {
+  font-size: 1.125rem; // text-lg
+  font-weight: 700; // font-bold
+  color: var(--color-gray-900);
+  margin: 0;
+}
+
+.sectionContent {
+  padding: var(--spacing-6);
+}

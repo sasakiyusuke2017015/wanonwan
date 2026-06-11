@@ -140,7 +140,9 @@ External (HTTPS)
 ### Phase 0 — モノレポ基盤 ⟦必須⟧
 
 1. pnpm workspace 初期化（`apps/web` / `packages/auth` / `packages/domain`）。`pnpm-workspace.yaml` / `turbo`（任意）/ ルート `tsconfig.base.json` / ESLint / Prettier。
-2. ui-catalog を **git submodule + `link:`** で取り込み（`packages/ui-catalog`、branch `project/waoon`、`transpilePackages` 設定、`pnpm ui:update`）。
+2. ui-catalog を **このリポジトリへ clone してベンダリング**（`packages/ui` = `@ui-catalog/core`、nested `.git` 除去、waoon 内で管理）。
+   submodule は採用しない（判断ログ参照）。**本配線（Tailwind v4 対応 / SCSS=sass / peerDeps）は専用ステップ**で行い、
+   それまでは pnpm workspace から除外（`!packages/ui`）して install を軽量に保つ。
 3. Next.js 16 App Router 雛形 + Tailwind v4（ui-catalog プリセット共有）+ ThemeRoot（テーマ 3 軸の踏襲）。
 4. `pnpm` scripts 統一（`dev` / `db:up` / `db:migrate` / `db:seed` / `db:psql` / `test` / `test:db` 等）。
 - 【検証】`pnpm dev` でトップが描画 / `pnpm typecheck` 緑。
@@ -299,6 +301,9 @@ External (HTTPS)
 | 2026-06-11 | 回答本体は MVP で `answer_json`(jsonb) 保持。設問別集計要件が出たら明細テーブルへ正規化 | 計画レビュー NICE-TO-HAVE |
 | 2026-06-11 | ブランチ戦略は **3 層 `feature→develop→main`**（git-workflow.md）に統一。技術メモの GitHub Flow は不採用 | ユーザー決定 |
 | 2026-06-11 | git init 済（`main` / origin=GitHub）。`doc/legacy-1on1/` は `.gitignore` | ユーザー決定 |
+| 2026-06-11 | ui-catalog は **submodule をやめ、`packages/ui` に clone してベンダリング**（waoon 内で管理） | ユーザー決定（「submodule はまわりくどい」） |
+| 2026-06-11 | Phase 0 のスタックを固定: Next.js 16.2.9 / React 19.2.7 / Tailwind 4.3 / TS 5.9 / pnpm 10.15。install/typecheck/build green | 実装時の registry 最新で確定 |
+| 2026-06-11 | ui-catalog 統合は Phase 0 から分離（**v3 preset⇔Tailwind v4 差・SCSS(sass)・peerDeps** の解消が必要なため専用ステップ化） | 統合リスク回避 |
 
 ---
 
@@ -310,6 +315,11 @@ External (HTTPS)
 - 旧 `/api/jobs/*`（Pleasanter バッチ）の pg_cron + pgmq 置換詳細設計。
 - `.claude/rules/*`（git-workflow.md 等）の **Gitea / `tea` 前提の記述を GitHub / `gh` へ読み替え更新**
   （ブランチ戦略は 3 層のまま、ホスト固有記述のみ）。CI は `.github/workflows/`。
+- **ui-catalog（`packages/ui`）の本配線**: ① ui の Tailwind v3 preset を **Tailwind v4** の `@theme`/CSS トークンへ
+  移植 ② SCSS Modules 用に `sass` を apps/web に追加 ③ import するコンポーネントの peerDeps を都度追加
+  ④ `pnpm-workspace.yaml` の `!packages/ui` 除外を外す ⑤ `next.config.ts` の `transpilePackages` に `@ui-catalog/core` 追加。
+  → 完了で「見た目踏襲」（Phase 5）の土台が立つ。
+- `.claude/rules/*` の `zod`→`valibot` 等、ai-education 由来の例の waoon スタックへの読み替え。
 
 ---
 

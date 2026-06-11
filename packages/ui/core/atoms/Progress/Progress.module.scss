@@ -1,0 +1,131 @@
+// =============================================================================
+// Progress Component Styles
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Track
+// -----------------------------------------------------------------------------
+.track {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 9999px;
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+// -----------------------------------------------------------------------------
+// Sizes
+// -----------------------------------------------------------------------------
+.small {
+  height: 4px;
+}
+
+.medium {
+  height: 8px;
+}
+
+.large {
+  height: 12px;
+}
+
+// -----------------------------------------------------------------------------
+// Indicator
+// -----------------------------------------------------------------------------
+.indicator {
+  height: 100%;
+  border-radius: 9999px;
+  transition-property: width;
+  transition-duration: var(--transition-duration-300);
+  transition-timing-function: var(--transition-ease-in-out);
+}
+
+// -----------------------------------------------------------------------------
+// Colors
+// -----------------------------------------------------------------------------
+.colorBlue {
+  background-color: #3b82f6;
+}
+
+.colorGreen {
+  background-color: #22c55e;
+}
+
+.colorRed {
+  background-color: #ef4444;
+}
+
+.colorYellow {
+  background-color: #eab308;
+}
+
+.colorGray {
+  background-color: #6b7280;
+}
+
+.colorOrange {
+  background-color: #f97316;
+}
+
+// -----------------------------------------------------------------------------
+// Label
+// -----------------------------------------------------------------------------
+.label {
+  position: absolute;
+  right: var(--spacing-2);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-white);
+}
+
+// -----------------------------------------------------------------------------
+// Animations
+// -----------------------------------------------------------------------------
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+}
+
+.stalled {
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

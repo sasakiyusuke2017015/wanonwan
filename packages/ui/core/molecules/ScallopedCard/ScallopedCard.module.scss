@@ -1,0 +1,41 @@
+// =============================================================================
+// ScallopedCard Component Styles
+//
+// border-shape の arc を繰り返して波エッジを輪郭として描画する。
+// 対応ブラウザ: Chrome / Edge 147+ のみ
+// =============================================================================
+.card {
+  display: inline-block;
+  min-width: 320px;
+  padding: var(--spacing-8) var(--spacing-9);
+  background: var(--color-white);
+  color: var(--color-gray-800);
+  box-shadow: 0 12px 28px -10px rgb(0 0 0 / 0.25);
+
+  border-shape: shape(
+    from 0% 0%,
+    // 上辺: 5 つの弧で右に進む
+    arc by 20% 0% of 10% 10% small cw,
+    arc by 20% 0% of 10% 10% small cw,
+    arc by 20% 0% of 10% 10% small cw,
+    arc by 20% 0% of 10% 10% small cw,
+    arc by 20% 0% of 10% 10% small cw,
+    // 右辺: 4 つの弧で下に進む
+    arc by 0% 25% of 12% 12% small cw,
+    arc by 0% 25% of 12% 12% small cw,
+    arc by 0% 25% of 12% 12% small cw,
+    arc by 0% 25% of 12% 12% small cw,
+    // 下辺: 5 つの弧で左に戻る
+    arc by -20% 0% of 10% 10% small cw,
+    arc by -20% 0% of 10% 10% small cw,
+    arc by -20% 0% of 10% 10% small cw,
+    arc by -20% 0% of 10% 10% small cw,
+    arc by -20% 0% of 10% 10% small cw,
+    // 左辺: 4 つの弧で上に戻る
+    arc by 0% -25% of 12% 12% small cw,
+    arc by 0% -25% of 12% 12% small cw,
+    arc by 0% -25% of 12% 12% small cw,
+    arc by 0% -25% of 12% 12% small cw,
+    close
+  ) content-box;
+}

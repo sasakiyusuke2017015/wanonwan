@@ -1,0 +1,38 @@
+.fab {
+  position: fixed;
+  bottom: var(--spacing-4);
+  right: var(--spacing-4);
+  z-index: 40;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--border-radius-full);
+  background-color: var(--color-accent);
+  color: #ffffff;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  transition: background-color var(--transition-duration-200);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  padding: 0;
+
+  &:hover {
+    background-color: var(--color-accent-hover);
+  }
+}
+
+.icon {
+  font-size: var(--font-size-lg);
+}
+
+.badge {
+  position: absolute;
+  top: -0.125rem;
+  right: -0.125rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: var(--border-radius-full);
+  background-color: var(--color-error);
+  border: 2px solid var(--color-bg-surface);
+}

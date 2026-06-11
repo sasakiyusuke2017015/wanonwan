@@ -1,0 +1,30 @@
+# ui-catalog Storybook 開発環境
+#
+# 使用方法:
+#   cd packages/ui-catalog
+#   pnpm storybook
+#
+# 停止:
+#   pnpm storybook:down
+
+services:
+  storybook:
+    image: node:22-slim
+    container_name: ui-catalog-storybook
+    working_dir: /workspace
+    ports:
+      - "6006:6006"
+    volumes:
+      - ../..:/workspace
+    environment:
+      - NODE_ENV=development
+      - CI=true
+      - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_INTERVAL=3000
+    command: >
+      sh -c "
+        corepack enable &&
+        corepack prepare pnpm@10 --activate &&
+        pnpm install --frozen-lockfile &&
+        pnpm exec storybook dev -p 6006 --no-open --host 0.0.0.0
+      "
