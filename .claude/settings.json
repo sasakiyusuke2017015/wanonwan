@@ -63,7 +63,8 @@
       "Bash(git commit -q -m 'feat: Phase 4-a 管理者ユーザー管理画面（一覧/新規/編集 + admin ガード） *)",
       "Bash(git commit -q -m 'feat: Phase 4-b 管理者アンケート管理画面（一覧/新規/編集 + surveys API） *)",
       "Bash(git commit -q -m 'feat: 設問ビルダ（questions API + QuestionsEditor） *)",
-      "Bash(git commit -q -m 'feat: 掲載管理（publications API + PublicationsEditor） *)"
+      "Bash(git commit -q -m 'feat: 掲載管理（publications API + PublicationsEditor） *)",
+      "Bash(git commit -q -m 'feat: 回答者フロー（実施中アンケート一覧 → 回答 → 保存） *)"
     ],
     "additionalDirectories": [
       "/tmp"
