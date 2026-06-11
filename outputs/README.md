@@ -7,17 +7,41 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 
 | ステータス | Plan | 概要 | 関連 PR / レビュー | 推奨アクション |
 |---|---|---|---|---|
-| 🟡 実装中 | [Pleasanter 排除 + 1on1 再構築](plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md) | 旧 1on1 を新スタック(Next.js/Postgres/GoTrue/RLS)で再構築。管理者2画面新規 + 回答者フル移植 | [計画レビュー: APPROVE（対応後）](reviews/2026-06-11-1830-pleasanter-exit-1on1-rebuild-review.md) / PR #1–9 merged | Phase 5(回答者フロー/見た目踏襲) or 設問ビルダ |
+| 🟡 実装中 | [Pleasanter 排除 + 1on1 再構築](plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md) | 旧 1on1 を新スタック(Next.js/Postgres/GoTrue/RLS)で再構築。主要フロー実装済み | [計画レビュー: APPROVE（対応後）](reviews/2026-06-11-1830-pleasanter-exit-1on1-rebuild-review.md) / PR #1–13 merged, #14 open | 見た目踏襲(ui-catalog 本格適用) |
 
-### 実装進捗（develop 取り込み済み）
+> 全フェーズの決定・ハマりどころ（RLS 無限再帰 / GUC 予約語衝突 / 二層認可など）は
+> [Plan の判断ログ](plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md#9-判断ログ)に時系列で記録。次セッションはまずそこを読む。
 
-| Phase | 内容 | PR |
-|---|---|---|
-| 0 | モノレポ + Next.js 16 + ui-catalog ベンダリング | #1, #2, #3 |
-| 1 | Docker(Postgres+拡張) + GoTrue + RLS context | #4, #5 |
-| 2 | データモデル + RLS + pgTAP | #6 |
-| 3 | API 層（DB クライアント + RLS 注入 + users API） | #7 |
-| 4 | 管理者画面: ユーザー管理 / アンケート管理 | #8, #9 |
-| 6 | CI（GitHub Actions: typecheck/build/pgTAP） | 進行中 |
+### 実装進捗
 
-残: Phase 5(回答者フロー・見た目踏襲)、設問ビルダ/掲載管理、レートリミット、実データ移行、`.claude` の Gitea→GitHub 読み替え。
+| Phase | 内容 | PR | 状態 |
+|---|---|---|---|
+| 0 | モノレポ + Next.js 16 + ui-catalog ベンダリング | #1–3 | ✅ merged |
+| 1 | Docker(Postgres+拡張) + GoTrue + RLS context | #4, #5 | ✅ merged |
+| 2 | データモデル + RLS + pgTAP | #6 | ✅ merged |
+| 3 | API 層（DB クライアント + RLS 注入 + users API） | #7 | ✅ merged |
+| 4 | 管理者画面: ユーザー管理 / アンケート管理 | #8, #9 | ✅ merged |
+| 6 | CI（GitHub Actions: typecheck/build/pgTAP） | #10 | ✅ merged |
+| 4+ | 設問ビルダ / 掲載管理 | #11, #12 | ✅ merged |
+| 5a | 回答者フロー（実施中一覧→回答→保存） | #13 | ✅ merged |
+| 5b | 面談フロー（answers API + 面談記録 + API層認可） | #14 | 🟢 CI green・マージ待ち |
+
+### 次セッションの起点
+
+1. **PR #14 をマージ** → develop 完成
+2. **見た目踏襲**（ui-catalog 本格適用 = organisms peer 導入 + テーマ3軸）。機能は揃ったので質を上げる
+3. 周辺: ダッシュボード / スケジュール / 委任、日時 tz、レートリミット、`.claude` の Gitea→GitHub 読み替え、実データ移行
+
+### ローカル起動メモ
+
+```bash
+pnpm db:up            # postgres + gotrue
+pnpm db:migrate       # スキーマ適用（冪等）
+pnpm db:seed          # admin/member/alice 等
+pnpm test:db          # pgTAP(RLS)
+# web は env を渡して起動:
+# GOTRUE_URL=http://localhost:9999 GOTRUE_JWT_SECRET=dev-only-change-me-please-32bytes-minimum \
+#   DATABASE_URL=postgres://app_user:app@localhost:5432/waoon pnpm --filter @waoon/web start
+```
+
+seed ログイン: `admin@example.com` / `Admin1234!`（管理者）, `member@example.com` / `Member1234!`（一般）
