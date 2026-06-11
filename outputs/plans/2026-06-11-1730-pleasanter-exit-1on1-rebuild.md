@@ -322,6 +322,9 @@ External (HTTPS)
 | 2026-06-11 | Phase 4-d 掲載管理（`feature/survey-publications`）: publications API(CRUD) + PublicationsEditor を survey 編集に統合。状態(100-990)+期間。実機 green。これでアンケート→設問→掲載が揃い回答者フローが実データで動く | アンケート公開 |
 | 2026-06-11 | Phase 5-a 回答者フロー（`feature/respondent-flow`）: /me/surveys(実施中一覧) + /publications/[id]/detail + answer 提出 API、/surveys と /surveys/[publishId] ページ(設問7形式レンダリング)。実機で 一覧→回答→保存→見直し green、回答の respondent=本人(RLS)。面談/ダッシュボード/見た目踏襲(ui-catalog本格適用)は後続 | 旧 1on1 の核 |
 | 2026-06-11 | Phase 5-b 面談フロー（`feature/interview-flow`）: answers API(一覧/詳細/面談記録) + /admin/answers 一覧・詳細(回答内容 + InterviewForm: 日時/方式/健康状態/評価5項目/メモ/次回)。**RLS は本人にも UPDATE を許すため、面談記録は API 層で admin/面談者に限定**（回答者は 403）。実機検証で回答者の不正記録を阻止 = 主認可(API)/最終ガード(RLS) の二層を実証 | 1on1 のもう半分 |
+| 2026-06-12 | 見た目踏襲 第1増分（基盤のみ, `feature/app-shell-theme`）: テーマ3軸(色/形/背景)を @ui-catalog の theme atom で配線 + AppLayout シェル(Header/SubHeader/SideNav/Footer/BackgroundTexture + モバイル下部タブ) + useNavigationItems(isAdmin で admin 項目出し分け) + テーマ切替モーダル。AppFrame が /login・/ui-demo を bare に、他は全ページにシェルを被せる。SSR=既定テーマ→mount後に保存テーマの mounted ゲートで hydration mismatch 回避。実機: admin ログイン→home/surveys/admin が200でシェル描画、/login bare、code-reviewer APPROVE | 機能が揃ったので質(見た目)を上げる |
+| 2026-06-12 | **テーマ切替UI(色/形/背景パネル)を前倒し採用**（Plan 非ゴール「2テーマ切替＝将来検討」から繰り上げ） | ユーザー指示（基盤に含める） |
+| 2026-06-12 | ui-catalog の **organisms/templates barrel を import しない**方針を確立。barrel は MarkdownEditor(codemirror peer 未導入) や CalendarPage(SSR で window 参照) を巻き込みビルド不能になるため、ベンダリング package.json に必要分のみ deep export(Modal/BackgroundTexture/Header/SubHeader/SideNav/Footer) を追加して個別 import する | 実装で判明（barrel 回避） |
 
 ---
 
@@ -334,7 +337,9 @@ External (HTTPS)
 - `.claude/rules/*`（git-workflow.md 等）の **Gitea / `tea` 前提の記述を GitHub / `gh` へ読み替え更新**
   （ブランチ戦略は 3 層のまま、ホスト固有記述のみ）。CI は `.github/workflows/`。
 - ~~ui-catalog（`packages/ui`）の本配線~~ → **完了**（`feature/ui-catalog-wiring`）。「見た目踏襲」（Phase 5）の土台が立った。
-  残: ① テーマ 3 軸（色/形/背景）の ThemeRoot 実装 ② MarkdownEditor/MathView 等を使う場合の追加 peer（codemirror/katex/marked）。
+  - ~~① テーマ 3 軸（色/形/背景）の配線~~ → **完了**（`feature/app-shell-theme`、AppLayout シェル + テーマ切替UI）。
+  - 残: ② **各ページの ui-catalog 定石化**（一覧→InteractiveTable/CardGrid、フォーム→ContentBlock/FormField/valibot）。基盤の上に増分 PR で進める。
+  - 残: ③ MarkdownEditor/MathView 等を使う場合の追加 peer（codemirror/katex/marked）と、それを使う organism の deep export 追加。
 - `.claude/rules/*` の `zod`→`valibot` 等、ai-education 由来の例の waoon スタックへの読み替え。
 - **認証エンドポイントのレートリミット**（`/api/v1/auth/login` 等）。nginx か API 層で（security.md 準拠、Phase 6 で）。
 - **`users.gotrue_id` provisioning**（管理者ユーザー作成 → GoTrue identity 発行 → users 紐付け）。Phase 2（users テーブル）以降。

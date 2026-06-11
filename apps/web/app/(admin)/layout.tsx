@@ -27,24 +27,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  return (
-    <div className="min-h-screen">
-      <header className="flex items-center gap-6 border-b px-6 py-3">
-        <strong className="text-sm">waoon 管理</strong>
-        <nav className="flex gap-4 text-sm">
-          <Link href="/admin/users" className="hover:underline">
-            ユーザー管理
-          </Link>
-          <Link href="/admin/surveys" className="hover:underline">
-            アンケート管理
-          </Link>
-          <Link href="/admin/answers" className="hover:underline">
-            回答・面談
-          </Link>
-        </nav>
-        <span className="ml-auto text-sm text-gray-500">{data.name}</span>
-      </header>
-      <main className="p-6">{children}</main>
-    </div>
-  );
+  // ヘッダー / ナビは AppLayout シェルが提供する。ここは admin ガードのみ担う。
+  return <>{children}</>;
 }
