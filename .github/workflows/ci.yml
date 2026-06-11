@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+# 同一ブランチの古い実行はキャンセル
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      # pnpm のバージョンは package.json の packageManager から取る（重複指定しない）
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm -r typecheck
+
+      - name: Build (web)
+        run: pnpm --filter @waoon/web build
+
+      # --- DB スタックを立てて pgTAP（RLS）を実行 ---
+      - name: Build DB image
+        run: pnpm db:build
+
+      - name: Start DB stack
+        run: pnpm db:up
+
+      - name: Wait for Postgres
+        run: |
+          for i in $(seq 1 30); do
+            if docker compose -f infra/docker-compose.yml exec -T postgres pg_isready -U postgres -d waoon; then
+              echo "postgres ready"; exit 0
+            fi
+            sleep 2
+          done
+          echo "postgres not ready"; exit 1
+
+      - name: Migrate
+        run: pnpm db:migrate
+
+      - name: Seed
+        run: pnpm db:seed
+
+      - name: pgTAP (RLS)
+        run: pnpm test:db
+
+      - name: Stop DB stack
+        if: always()
+        run: pnpm db:down
