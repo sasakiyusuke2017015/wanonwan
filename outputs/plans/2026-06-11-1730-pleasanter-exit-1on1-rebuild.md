@@ -229,11 +229,11 @@ External (HTTPS)
 
 ### Phase 6 — CI / デプロイ ⟦優先⟧
 
-1. **`.github/workflows/`**（実リポジトリは GitHub）: typecheck / lint / test / test:db（pgTAP）/ build。
-2. compose dev/stg/prod（stg/prod 同一構成）。`pnpm db:migrate` を CI/CD で。
-3. nginx prod 設定。
-- 【検証】CI 緑 / stg 起動確認。
-- 【担当】build-error-resolver（CI 緑化）/ doc-updater。
+1. **`.github/workflows/`**（実リポジトリは GitHub）: typecheck / build / test:db（pgTAP）。→ **✅ 完了**（#10）。
+2. ~~compose dev/stg/prod + nginx prod 設定~~ → **デプロイ基盤として独立 Plan に分離**:
+   [deploy-infra](2026-06-12-1530-deploy-infra.md)（secrets 遮断 / web image / nginx / CD / GoTrue prod / prod provisioning / backup）。
+   理由は [マイルストーン計画レビュー](../reviews/2026-06-12-1500-pleasanter-exit-1on1-rebuild-review.md)（6 観点が判断密集で 3 行に収まらず NEEDS WORK）。
+- 【検証】CI 緑（✅）。stg/prod の起動検証は deploy-infra Plan 側で。
 
 ---
 
@@ -336,6 +336,7 @@ External (HTTPS)
 | 2026-06-12 | 日時 tz 修正（`feature/datetime-jst`）: timestamptz に対し datetime-local(JST 壁時計)を**そのまま保存していたため実 instant が 9h ずれ**（掲載の実施中ウィンドウが UTC基準でズレ、表示も slice で UTC を見せ往復一致して気付きにくい）。`lib/datetime` で **JST(+09:00 固定)⇄UTC ISO** 変換を入れ、保存は jstInputToUtcIso・編集表示は utcIsoToJstInput・一覧は formatJstDateTime。API/DB は無改修（絶対時刻を素通し）。実機: 入力15:30→DB 06:30Z→表示15:30。code-reviewer APPROVE | データ整合（instant ズレ）修正 |
 | 2026-06-12 | ダッシュボード画面（`feature/dashboard`）: `/api/v1/dashboard`(withUser 集計＝**RLS スコープ**: admin 全件/他は自分のスライス) + `/dashboard` ページ(回答状況/面談実施率/健康分布の themed バー + 評価5項目の RadarChart)。RadarChart deep export 追加。nav に追加（RLS でスコープのため全ユーザー表示）。実機: admin total=3 / member total=1（スコープ実証）。code-reviewer APPROVE | Phase 5 優先「Dashboard」の実装 |
 | 2026-06-12 | スケジュール画面（`feature/schedule`）: schedules CRUD API(GET 共有読み/POST created_by=app.uid()/PUT・DELETE は RLS owner-or-admin で他人は 404) + `/schedule` に @ui-catalog の **MonthView/EventModal** を統合(共有カレンダー)。CalendarEvent↔schedule は ISO↔Date(絶対時刻で tz 変換不要)。EventModal/calendar atoms を deep export。**calendar atoms がモジュール評価で window.location を読む**ため page を `next/dynamic ssr:false` でクライアント専用化。実機: API CRUD + RLS(member が admin の予定 PUT→404, 共有 read) green。**カレンダー対話(クリック作成/編集/ドラッグ)はブラウザ手動確認が必要**。code-reviewer APPROVE | Phase 5 優先「Schedule」の実装 |
+| 2026-06-12 | Phase 6 の **デプロイ基盤を独立 Plan [deploy-infra](2026-06-12-1530-deploy-infra.md) へ分離**（CI は #10 で完了済み）。secrets の prod 遮断 / web image / nginx / CD / GoTrue prod / prod admin provisioning / backup を 6 観点で詰める | マイルストーン計画レビュー(Phase 6) NEEDS WORK の指摘 |
 
 ---
 

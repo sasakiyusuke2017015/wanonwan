@@ -7,7 +7,8 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 
 | ステータス | Plan | 概要 | 関連 PR / レビュー | 推奨アクション |
 |---|---|---|---|---|
-| 🟡 実装中 | [Pleasanter 排除 + 1on1 再構築](plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md) | 旧 1on1 を新スタック(Next.js/Postgres/GoTrue/RLS)で再構築。主要フロー + 見た目踏襲（基盤〜管理〜回答者）+ provisioning / レートリミット / 日時tz までマージ済 | [計画](reviews/2026-06-11-1830-pleasanter-exit-1on1-rebuild-review.md) / [基盤](reviews/2026-06-12-0017-app-shell-theme-review.md) / [管理一覧](reviews/2026-06-12-0039-admin-lists-uicatalog-review.md) / [管理フォーム](reviews/2026-06-12-0112-admin-forms-uicatalog-review.md) / [回答者](reviews/2026-06-12-0134-respondent-flow-uicatalog-review.md) / [provisioning(security)](reviews/2026-06-12-1117-user-provisioning-review.md) / [レートリミット(security)](reviews/2026-06-12-1130-auth-rate-limit-review.md) / [日時tz](reviews/2026-06-12-1159-datetime-jst-review.md) / PR #1–21 merged | 一覧拡張 / ダッシュボード・スケジュール画面 |
+| 🟡 実装中 | [Pleasanter 排除 + 1on1 再構築](plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md) | 旧 1on1 を新スタック(Next.js/Postgres/GoTrue/RLS)で再構築。Phase 0–5 + 見た目踏襲 + provisioning/レートリミット/日時tz + Dashboard/Schedule までマージ済。残=デプロイ基盤（別 Plan へ分離） | [計画(初回)](reviews/2026-06-11-1830-pleasanter-exit-1on1-rebuild-review.md) / [計画(Phase6再)](reviews/2026-06-12-1500-pleasanter-exit-1on1-rebuild-review.md) / 機能別レビューは各 PR。PR #1–23 merged | デプロイ基盤の Plan 確定後にクローズ |
+| 🔵 計画レビュー待ち | [デプロイ基盤 (stg/prod compose + nginx + CD + provisioning)](plans/2026-06-12-1530-deploy-infra.md) | 親 Plan の Phase 6 を独立化。secrets 遮断 / web image / nginx(TLS,rate-limit) / CD / GoTrue prod / prod admin provisioning / backup | — | Codex に計画レビュー依頼（要決定 D-1〜D-6 確定） |
 
 > 全フェーズの決定・ハマりどころ（RLS 無限再帰 / GUC 予約語衝突 / 二層認可など）は
 > [Plan の判断ログ](plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md#9-判断ログ)に時系列で記録。次セッションはまずそこを読む。
