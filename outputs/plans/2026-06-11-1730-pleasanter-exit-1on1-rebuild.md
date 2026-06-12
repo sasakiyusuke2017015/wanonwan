@@ -333,6 +333,7 @@ External (HTTPS)
 | 2026-06-12 | 初期パスワードは **システム生成（一度だけ表示）** 方式（dev に SMTP 無しでリカバリメール方式が使えないため） | ユーザー決定 |
 | 2026-06-12 | 認証レートリミット（`feature/auth-rate-limit`）: login(10/分)/refresh(30/分) に **IP 単位・固定ウィンドウのプロセス内メモリ limiter**（429+Retry-After）。email 単位は採らない（被害者 email を叩くアカウントロック DoS 回避）。プロセス内メモリは単一 next start 前提＝本番はエッジ(nginx)/Redis が本命。XFF は信頼 proxy 配下でのみ信頼。実機: 200→401×2→429。security 🟢LOW + code APPROVE | security.md「全EPにレートリミット」充足(MVP) |
 | 2026-06-12 | 日時 tz 修正（`feature/datetime-jst`）: timestamptz に対し datetime-local(JST 壁時計)を**そのまま保存していたため実 instant が 9h ずれ**（掲載の実施中ウィンドウが UTC基準でズレ、表示も slice で UTC を見せ往復一致して気付きにくい）。`lib/datetime` で **JST(+09:00 固定)⇄UTC ISO** 変換を入れ、保存は jstInputToUtcIso・編集表示は utcIsoToJstInput・一覧は formatJstDateTime。API/DB は無改修（絶対時刻を素通し）。実機: 入力15:30→DB 06:30Z→表示15:30。code-reviewer APPROVE | データ整合（instant ズレ）修正 |
+| 2026-06-12 | ダッシュボード画面（`feature/dashboard`）: `/api/v1/dashboard`(withUser 集計＝**RLS スコープ**: admin 全件/他は自分のスライス) + `/dashboard` ページ(回答状況/面談実施率/健康分布の themed バー + 評価5項目の RadarChart)。RadarChart deep export 追加。nav に追加（RLS でスコープのため全ユーザー表示）。実機: admin total=3 / member total=1（スコープ実証）。code-reviewer APPROVE | Phase 5 優先「Dashboard」の実装 |
 
 ---
 
