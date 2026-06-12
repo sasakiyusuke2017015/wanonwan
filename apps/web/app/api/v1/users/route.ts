@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import * as v from "valibot";
 import { CreateUserSchema } from "@waoon/domain";
+import { GoTrueError } from "@waoon/auth";
 import { getCurrentClaims } from "@/lib/auth/current-user";
+import { gotrue } from "@/lib/auth/gotrue";
+import { mintServiceRoleToken, generateInitialPassword } from "@/lib/auth/provisioning";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
 
@@ -10,7 +13,9 @@ export async function GET() {
   const claims = await getCurrentClaims();
   if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
 
-  const rows = await withUser(claims.sub, (tx) => tx`
+  const rows = await withUser(
+    claims.sub,
+    (tx) => tx`
     select id, code, name, email,
            position_id   as "positionId",
            division_id   as "divisionId",
@@ -18,11 +23,18 @@ export async function GET() {
            section_id    as "sectionId"
     from public.users
     order by id
-  `);
+  `,
+  );
   return NextResponse.json({ data: rows });
 }
 
-// ユーザー新規作成（RLS users_write = admin のみ。非 admin は 42501 → 403）。
+// ユーザー新規作成 + GoTrue provisioning。
+// 業務ユーザー(public.users)と GoTrue identity を同時に発行し、gotrue_id で紐付ける
+// （これが無いと作成ユーザーはログインできない）。初期パスワードはサーバ生成し、
+// レスポンスで管理者へ一度だけ返す。
+//
+// 認可: GoTrue identity を作る前に app.is_admin() で弾く（非 admin が認証ユーザーを
+// 量産できないように）。最終ガードは insert 時の RLS users_write(WITH CHECK admin)。
 export async function POST(req: Request) {
   const claims = await getCurrentClaims();
   if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
@@ -34,16 +46,74 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "入力が不正です" }, { status: 400 });
   }
 
+  // 1) admin ゲート + 重複チェック（GoTrue identity を作る前に弾く）。
+  let precheck: { admin: boolean; dup: boolean };
   try {
-    const rows = await withUser(claims.sub, (tx) => tx`
-      insert into public.users (code, name, email, position_id, division_id, department_id, section_id)
-      values (${input.code}, ${input.name}, ${input.email},
+    precheck = await withUser(claims.sub, async (tx) => {
+      const [adminRow] = await tx`select app.is_admin() as ok`;
+      if (!adminRow?.ok) return { admin: false, dup: false };
+      const dup = await tx`
+        select 1 from public.users
+        where email = ${input.email} or code = ${input.code}
+        limit 1
+      `;
+      return { admin: true, dup: dup.length > 0 };
+    });
+  } catch (e) {
+    return mapDbError(e);
+  }
+  if (!precheck.admin) return NextResponse.json({ error: "権限がありません" }, { status: 403 });
+  if (precheck.dup) {
+    return NextResponse.json({ error: "コードまたはメールが重複しています" }, { status: 409 });
+  }
+
+  // 2) GoTrue identity を発行（admin API は service_role JWT を要求）。
+  const initialPassword = generateInitialPassword();
+  let gotrueId: string;
+  try {
+    const token = await mintServiceRoleToken();
+    const gotrueUser = await gotrue.admin.createUser(
+      {
+        email: input.email,
+        password: initialPassword,
+        emailConfirm: true,
+        userMetadata: { name: input.name },
+      },
+      token,
+    );
+    gotrueId = gotrueUser.id;
+  } catch (e) {
+    if (e instanceof GoTrueError && (e.status === 422 || e.status === 409)) {
+      return NextResponse.json(
+        { error: "このメールアドレスは既に登録されています" },
+        { status: 409 },
+      );
+    }
+    return NextResponse.json({ error: "認証ユーザーの作成に失敗しました" }, { status: 502 });
+  }
+
+  // 3) 業務ユーザーを gotrue_id 付きで insert。失敗したら GoTrue 側を掃除（orphan 防止）。
+  try {
+    const rows = await withUser(
+      claims.sub,
+      (tx) => tx`
+      insert into public.users (gotrue_id, code, name, email, position_id, division_id, department_id, section_id)
+      values (${gotrueId}, ${input.code}, ${input.name}, ${input.email},
               ${input.positionId ?? null}, ${input.divisionId ?? null},
               ${input.departmentId ?? null}, ${input.sectionId ?? null})
       returning id, code, name, email
-    `);
-    return NextResponse.json({ data: rows[0] }, { status: 201 });
+    `,
+    );
+    return NextResponse.json({ data: rows[0], initialPassword }, { status: 201 });
   } catch (e) {
+    try {
+      const token = await mintServiceRoleToken();
+      await gotrue.admin.deleteUser(gotrueId, token);
+    } catch (cleanupError) {
+      // 掃除失敗は致命ではない（orphan GoTrue ユーザーが残るが業務ユーザーは未作成）。
+      // 運用で拾えるよう gotrue_id を残す（パスワード等の機微情報は出さない）。
+      console.error(`GoTrue orphan cleanup failed: gotrue_id=${gotrueId}`, cleanupError);
+    }
     return mapDbError(e);
   }
 }

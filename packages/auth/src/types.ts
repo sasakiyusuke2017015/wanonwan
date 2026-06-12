@@ -39,5 +39,7 @@ export interface GoTrueClient {
   admin: {
     /** service_role JWT が必要 */
     createUser(input: CreateUserInput, serviceRoleToken: string): Promise<GoTrueUser>;
+    /** service_role JWT が必要。provisioning 失敗時のロールバック（orphan 掃除）に使う。 */
+    deleteUser(id: string, serviceRoleToken: string): Promise<void>;
   };
 }
