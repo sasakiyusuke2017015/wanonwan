@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
-import { FormField, Input, Select } from "@ui-catalog/core/molecules";
+import { FormField, Input, Select, Button } from "@ui-catalog/core/molecules";
 import { useTheme } from "@ui-catalog/core/infra/theme";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import { FormActions } from "@/components/admin/FormActions";
@@ -40,12 +40,17 @@ const EMPTY = {
 const toOptions = (items?: OrgItem[]) =>
   (items ?? []).map((it) => ({ value: it.id, label: it.name }));
 
+// 作成時は initialPassword を含む。更新時は無し。
+type SaveResult = { data: unknown; initialPassword?: string };
+
 export function UserForm({ userId }: { userId?: string }) {
   const router = useRouter();
   const qc = useQueryClient();
   const { shapes } = useTheme();
   const [form, setForm] = useState(EMPTY);
   const [error, setError] = useState<string | null>(null);
+  // 作成成功時、サーバ生成の初期パスワードを一度だけ表示するための状態。
+  const [created, setCreated] = useState<{ email: string; password: string } | null>(null);
 
   const { data: org } = useQuery({
     queryKey: ["org"],
@@ -82,11 +87,16 @@ export function UserForm({ userId }: { userId?: string }) {
         if (form[key]) payload[key] = Number(form[key]);
       }
       return userId
-        ? apiSend(`/api/v1/users/${userId}`, "PUT", payload)
-        : apiSend("/api/v1/users", "POST", payload);
+        ? apiSend<SaveResult>(`/api/v1/users/${userId}`, "PUT", payload)
+        : apiSend<SaveResult>("/api/v1/users", "POST", payload);
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       qc.invalidateQueries({ queryKey: ["users"] });
+      // 新規作成時は初期パスワードを一度だけ表示する（遷移しない）。
+      if (!userId && result.initialPassword) {
+        setCreated({ email: form.email, password: result.initialPassword });
+        return;
+      }
       router.push("/admin/users");
       router.refresh();
     },
@@ -95,6 +105,40 @@ export function UserForm({ userId }: { userId?: string }) {
 
   function set<K extends keyof typeof form>(key: K, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  // 作成完了：初期パスワードを一度だけ提示する。再表示できないので控えてもらう。
+  if (created) {
+    return (
+      <div className="max-w-2xl">
+        <ContentBlock title="ユーザーを作成しました">
+          <div className="space-y-3">
+            <p className="text-sm">
+              下の初期パスワードは<strong>この画面でしか表示されません</strong>
+              。控えてから本人へ共有してください。
+            </p>
+            <div className="text-sm">
+              メール: <span className="font-medium">{created.email}</span>
+            </div>
+            <div className="text-sm">
+              初期パスワード:{" "}
+              <code className="select-all rounded bg-gray-100 px-2 py-1 font-mono">
+                {created.password}
+              </code>
+            </div>
+            <Button
+              onClick={() => {
+                router.push("/admin/users");
+                router.refresh();
+              }}
+              borderRadius={shapes.buttonRadius}
+            >
+              ユーザー一覧へ
+            </Button>
+          </div>
+        </ContentBlock>
+      </div>
+    );
   }
 
   return (

@@ -98,6 +98,13 @@ export function createGoTrueClient(options: GoTrueClientOptions): GoTrueClient {
           }),
         })) as unknown as GoTrueUser;
       },
+
+      async deleteUser(id: string, serviceRoleToken: string) {
+        await gotrueFetch(`${base}/admin/users/${id}`, {
+          method: "DELETE",
+          headers: { authorization: `Bearer ${serviceRoleToken}` },
+        });
+      },
     },
   };
 }
