@@ -14,6 +14,7 @@ export const NAV_ITEMS: readonly NavItemDef[] = [
   { id: "home", href: "/", label: "ホーム", iconName: "home" },
   { id: "dashboard", href: "/dashboard", label: "ダッシュボード", iconName: "dashboard" },
   { id: "surveys", href: "/surveys", label: "アンケート", iconName: "survey" },
+  { id: "schedule", href: "/schedule", label: "スケジュール", iconName: "calendar" },
   {
     id: "admin-users",
     href: "/admin/users",
