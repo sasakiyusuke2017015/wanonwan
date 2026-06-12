@@ -7,8 +7,8 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 
 | ステータス | Plan | 概要 | 関連 PR / レビュー | 推奨アクション |
 |---|---|---|---|---|
-| 🟡 実装中 | [Pleasanter 排除 + 1on1 再構築](plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md) | 旧 1on1 を新スタック(Next.js/Postgres/GoTrue/RLS)で再構築。Phase 0–5 + 見た目踏襲 + provisioning/レートリミット/日時tz + Dashboard/Schedule までマージ済。残=デプロイ基盤（別 Plan へ分離） | [計画(初回)](reviews/2026-06-11-1830-pleasanter-exit-1on1-rebuild-review.md) / [計画(Phase6再)](reviews/2026-06-12-1500-pleasanter-exit-1on1-rebuild-review.md) / 機能別レビューは各 PR。PR #1–23 merged | デプロイ基盤の Plan 確定後にクローズ |
-| 🔵 計画レビュー待ち | [デプロイ基盤 (stg/prod compose + nginx + CD + provisioning)](plans/2026-06-12-1530-deploy-infra.md) | 親 Plan の Phase 6 を独立化。secrets 遮断 / web image / nginx(TLS,rate-limit) / CD / GoTrue prod / prod admin provisioning / backup | — | Codex に計画レビュー依頼（要決定 D-1〜D-6 確定） |
+| 🟡 実装中 | [Pleasanter 排除 + 1on1 再構築](plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md) | 旧 1on1 を新スタック(Next.js/Postgres/GoTrue/RLS)で再構築。Phase 0–5 + 見た目踏襲 + provisioning/レートリミット/日時tz + Dashboard/Schedule までマージ済。残=デプロイ基盤（別 Plan へ分離） | [計画(初回)](reviews/2026-06-11-1830-pleasanter-exit-1on1-rebuild-review.md) / [計画(Phase6再)](reviews/2026-06-12-1500-pleasanter-exit-1on1-rebuild-review.md) / 機能別レビューは各 PR。PR #1–23 merged | デプロイ基盤の実装・検証完了後にクローズ |
+| 🟣 マージ承認待ち | [デプロイ基盤 (stg/prod compose + nginx + CD + provisioning)](plans/2026-06-12-1530-deploy-infra.md) | 親 Plan の Phase 6 を独立化。secrets 遮断 / web image / nginx(TLS,rate-limit) / CD / GoTrue prod / prod admin provisioning / backup | [計画レビュー](reviews/2026-06-12-1545-deploy-infra-review.md): NEEDS WORK / [再計画レビュー v2](reviews/2026-06-12-1600-deploy-infra-review-v2.md): APPROVE / [コードレビュー](reviews/2026-06-12-1648-deploy-infra-code-review.md): BLOCKED / [コードレビュー v2](reviews/2026-06-12-1715-deploy-infra-code-review-v2.md): APPROVE | Claude Code が commit → PR（develop 向け）→ 笹木さんマージ承認 |
 
 > 全フェーズの決定・ハマりどころ（RLS 無限再帰 / GUC 予約語衝突 / 二層認可など）は
 > [Plan の判断ログ](plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md#9-判断ログ)に時系列で記録。次セッションはまずそこを読む。

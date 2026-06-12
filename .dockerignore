@@ -1,0 +1,21 @@
+# build context を小さく保つ。secrets / 生成物 / 依存は image に入れない。
+**/node_modules
+**/.next
+**/dist
+**/build
+**/coverage
+**/.turbo
+.git
+.github
+.claude
+doc
+docs
+outputs
+infra/nginx
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.*.example
+**/*.log
+.DS_Store
+**/*.tsbuildinfo
