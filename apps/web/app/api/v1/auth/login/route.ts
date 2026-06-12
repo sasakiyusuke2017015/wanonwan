@@ -3,6 +3,7 @@ import * as v from "valibot";
 import { GoTrueError } from "@waoon/auth";
 import { gotrue } from "@/lib/auth/gotrue";
 import { setSession } from "@/lib/auth/session";
+import { AUTH_RATE_LIMITS, getClientIp, rateLimit, tooManyRequests } from "@/lib/auth/rate-limit";
 
 const LoginBody = v.object({
   email: v.pipe(v.string(), v.email()),
@@ -10,11 +11,19 @@ const LoginBody = v.object({
 });
 
 export async function POST(req: Request) {
+  // ブルートフォース緩和: IP 単位でログイン試行を制限（成功/失敗どちらも計上）。
+  const ip = getClientIp(req);
+  const limit = rateLimit(`login:ip:${ip}`, AUTH_RATE_LIMITS.loginPerIp, AUTH_RATE_LIMITS.windowMs);
+  if (!limit.ok) return tooManyRequests(limit.retryAfterSec);
+
   let input: v.InferOutput<typeof LoginBody>;
   try {
     input = v.parse(LoginBody, await req.json());
   } catch {
-    return NextResponse.json({ error: "メールアドレスとパスワードを入力してください" }, { status: 400 });
+    return NextResponse.json(
+      { error: "メールアドレスとパスワードを入力してください" },
+      { status: 400 },
+    );
   }
 
   try {
@@ -28,7 +37,12 @@ export async function POST(req: Request) {
       // 認証失敗の詳細はクライアントへ出さない（汎用メッセージ）
       const status = error.status === 400 || error.status === 401 ? 401 : 502;
       return NextResponse.json(
-        { error: status === 401 ? "メールアドレスまたはパスワードが違います" : "認証サーバに接続できません" },
+        {
+          error:
+            status === 401
+              ? "メールアドレスまたはパスワードが違います"
+              : "認証サーバに接続できません",
+        },
         { status },
       );
     }
