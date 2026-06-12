@@ -13,6 +13,7 @@
     "./organisms/BackgroundTexture": "./core/organisms/BackgroundTexture/index.ts",
     "./organisms/InteractiveTable": "./core/organisms/InteractiveTable/index.ts",
     "./organisms/ContentBlock": "./core/organisms/ContentBlock/index.ts",
+    "./organisms/RadarChart": "./core/organisms/RadarChart/index.ts",
     "./organisms/TagCloud": "./core/organisms/TagCloud/index.ts",
     "./organisms/MarkdownEditor": "./core/organisms/MarkdownEditor/index.ts",
     "./organisms/MarkdownPreview": "./core/organisms/MarkdownPreview/index.ts",
