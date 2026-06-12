@@ -2,14 +2,15 @@
 
 | 項目 | 値 |
 |---|---|
-| ステータス | ⚪ 実装待ち（計画レビュー対応後 APPROVE / 笹木さん承認待ち） |
+| ステータス | 🟡 実装中: Phase 0–5 完了（+ 見た目踏襲 / GoTrue provisioning / レートリミット / 日時tz）。残 = Phase 6 デプロイ基盤（CI ✅ / stg・prod compose・nginx 未）。一次ソースは末尾「ステータス」と [README ダッシュボード](../README.md) |
 | slug | `pleasanter-exit-1on1-rebuild` |
 | 作成 | 2026-06-11 17:30 JST |
-| 関連 PR / レビュー | [計画レビュー](../reviews/2026-06-11-1830-pleasanter-exit-1on1-rebuild-review.md) |
+| 関連 PR / レビュー | [計画レビュー](../reviews/2026-06-11-1830-pleasanter-exit-1on1-rebuild-review.md)。機能別コードレビューは [README ダッシュボード](../README.md) 参照。PR #1–23 merged |
 | git repo | `https://github.com/sasakiyusuke2017015/waoon.git`（**GitHub**） |
 | 一次情報 | [doc/_techmemo-decoded.md](../../doc/_techmemo-decoded.md) / [doc/legacy-1on1/](../../doc/legacy-1on1/) / [付録A](#付録a-pleasanter-実スキーマ--新スキーマ対応) |
 
-> 本 Plan は **計画ドラフト**。実装着手前に笹木さん承認を待つ（[plan-review-workflow.md](../../.claude/rules/plan-review-workflow.md)）。
+> Phase 0–5 は実装・コードレビュー・マージ済み（PR #1–23。認証系は security-reviewer も APPROVE）。
+> 残るマイルストーンは **Phase 6（デプロイ基盤: stg/prod compose + nginx）**。進捗の一次ソースは末尾「ステータス」と [README ダッシュボード](../README.md)。
 
 ---
 
@@ -466,9 +467,15 @@ Pleasanter は汎用カラム（`ClassA–Z` / `NumA–Z` / `DateA–Z` / `Descr
 
 - [x] Plan ドラフト完成（本ファイル）
 - [x] 計画レビュー（[初回 NEEDS WORK → 対応後 APPROVE](../reviews/2026-06-11-1830-pleasanter-exit-1on1-rebuild-review.md)、BLOCKER 2 件解消済み）
-- [ ] 笹木さん承認（大規模のため実装前に明示承認）
+- [x] 笹木さん承認（実装着手で代替。以降は機能単位で逐次レビュー → マージ承認）
 - [x] git init + GitHub リモート設定 + ブランチ戦略確定（3 層 / `doc/legacy-1on1` ignore）
-- [ ] Phase 0–6 実装
-- [ ] コードレビュー
-- [ ] PR merge
-- [ ] マージ後検証
+- [x] Phase 0 モノレポ基盤（#1–3）
+- [x] Phase 1 DB スタック + 認証基盤（#4, #5 + auth アプリ層）
+- [x] Phase 2 データモデル + RLS + pgTAP（#6）
+- [x] Phase 3 API 層（#7 + questions/publications/answers/dashboard/schedules API）
+- [x] Phase 4 管理者画面（#8, #9, #11, #12）
+- [x] Phase 5 回答者主要フロー（#13, #14）+ Dashboard（#22）+ Schedule（#23）
+- [x] 見た目踏襲（#15–18）/ provisioning（#19）/ レートリミット（#20）/ 日時tz（#21）
+- [x] 各 PR コードレビュー（code-reviewer。認証系は security-reviewer も APPROVE）
+- [ ] **Phase 6 デプロイ基盤**（CI は ✅ 済 #10 / stg・prod compose・nginx prod 設定は未）
+- [ ] マージ後検証: `/schedule` カレンダー対話（作成/編集/削除/ドラッグ）のブラウザ手動確認
