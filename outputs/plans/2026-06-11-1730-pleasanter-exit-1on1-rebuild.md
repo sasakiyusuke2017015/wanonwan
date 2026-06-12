@@ -5,7 +5,7 @@
 | ステータス | 🟡 実装中: Phase 0–5 完了（+ 見た目踏襲 / GoTrue provisioning / レートリミット / 日時tz）。残 = Phase 6 デプロイ基盤（CI ✅ / stg・prod compose・nginx 未）。一次ソースは末尾「ステータス」と [README ダッシュボード](../README.md) |
 | slug | `pleasanter-exit-1on1-rebuild` |
 | 作成 | 2026-06-11 17:30 JST |
-| 関連 PR / レビュー | [計画レビュー](../reviews/2026-06-11-1830-pleasanter-exit-1on1-rebuild-review.md)。機能別コードレビューは [README ダッシュボード](../README.md) 参照。PR #1–23 merged |
+| 関連 PR / レビュー | [計画レビュー(初回)](../reviews/2026-06-11-1830-pleasanter-exit-1on1-rebuild-review.md) / [計画レビュー(Phase 6 焦点・NEEDS WORK)](../reviews/2026-06-12-1500-pleasanter-exit-1on1-rebuild-review.md)。機能別コードレビューは [README ダッシュボード](../README.md) 参照。PR #1–23 merged |
 | git repo | `https://github.com/sasakiyusuke2017015/waoon.git`（**GitHub**） |
 | 一次情報 | [doc/_techmemo-decoded.md](../../doc/_techmemo-decoded.md) / [doc/legacy-1on1/](../../doc/legacy-1on1/) / [付録A](#付録a-pleasanter-実スキーマ--新スキーマ対応) |
 
