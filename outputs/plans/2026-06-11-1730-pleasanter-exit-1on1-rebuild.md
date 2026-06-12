@@ -328,6 +328,7 @@ External (HTTPS)
 | 2026-06-12 | 見た目踏襲 第2増分（管理一覧の定石化, `feature/admin-lists-uicatalog`）: 管理3一覧(users/surveys/answers)を素の table から @ui-catalog の InteractiveTable へ。再利用ラッパ AdminListTable(テーマ適用 + mounted ゲート + loading/empty/error + 行クリック遷移)を新設し、各ページは列定義(COLUMNS)+行データ map のみ。InteractiveTable も deep export 追加。実機: 200・SSRクラッシュ無し、code-reviewer APPROVE | 見た目踏襲の続き(一覧定石) |
 | 2026-06-12 | 見た目踏襲 第3増分（フォーム定石化, `feature/admin-forms-uicatalog`）: 管理3フォーム(User/Survey/Interview)を素の Tailwind から ContentBlock(セクション)+FormField+Input/Select/TextArea/Checkbox+Button へ。共通 FormActions 新設。ContentBlock deep export 追加。フォームは (admin) ガード配下でクライアント描画のみ＝SSR されないため mounted ゲート不要 | 見た目踏襲の続き(フォーム定石) |
 | 2026-06-12 | **@ui-catalog の Select は value!==undefined かつ options 未一致で先頭に自動フォールバックする**。未選択を空文字 `""` で渡すと先頭値に化ける回帰（コードレビュー BLOCKER B-1）。**未選択 Select には `value={form.X \|\| undefined}` を渡す**（空文字→undefined で Select の早期 return に乗せる）。再レビュー APPROVE | 実装で判明（Select 仕様） |
+| 2026-06-12 | 日時 tz 修正（`feature/datetime-jst`）: timestamptz に対し datetime-local(JST 壁時計)を**そのまま保存していたため実 instant が 9h ずれ**（掲載の実施中ウィンドウが UTC基準でズレ、表示も slice で UTC を見せ往復一致して気付きにくい）。`lib/datetime` で **JST(+09:00 固定)⇄UTC ISO** 変換を入れ、保存は jstInputToUtcIso・編集表示は utcIsoToJstInput・一覧は formatJstDateTime。API/DB は無改修（絶対時刻を素通し）。実機: 入力15:30→DB 06:30Z→表示15:30。code-reviewer APPROVE | データ整合（instant ズレ）修正 |
 
 ---
 
@@ -346,7 +347,7 @@ External (HTTPS)
 - `.claude/rules/*` の `zod`→`valibot` 等、ai-education 由来の例の waoon スタックへの読み替え。
 - **認証エンドポイントのレートリミット**（`/api/v1/auth/login` 等）。nginx か API 層で（security.md 準拠、Phase 6 で）。
 - **`users.gotrue_id` provisioning**（管理者ユーザー作成 → GoTrue identity 発行 → users 紐付け）。Phase 2（users テーブル）以降。
-- **日時の timezone 処理**: 掲載の datetime-local 入力が UTC 保存で表示ズレ（JST 前提の変換を入れる）。
+- ~~**日時の timezone 処理**: 掲載の datetime-local 入力が UTC 保存で表示ズレ~~ → **完了**（`feature/datetime-jst`、`lib/datetime` で JST⇄UTC 変換）。残: schedules 等に datetime UI を足す際も同ヘルパを使う、`datetime.ts` の Vitest 単体テスト。
 
 ---
 

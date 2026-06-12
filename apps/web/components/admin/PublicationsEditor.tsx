@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PUBLICATION_STATUSES, publicationStatusLabel } from "@waoon/domain";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
+import { formatJstDateTime, jstInputToUtcIso, utcIsoToJstInput } from "@/lib/datetime";
 
 type Publication = {
   id: string;
@@ -22,12 +23,12 @@ type Draft = {
 };
 
 const EMPTY: Draft = { title: "", status: 100, startAt: "", endAt: "" };
-const toLocal = (iso: string | null) => (iso ? iso.slice(0, 16) : "");
+// datetime-local(JST 壁時計) は保存時に UTC ISO へ変換する（[lib/datetime] 参照）。
 const draftToPayload = (d: Draft) => ({
   title: d.title || null,
   status: d.status,
-  startAt: d.startAt || null,
-  endAt: d.endAt || null,
+  startAt: jstInputToUtcIso(d.startAt),
+  endAt: jstInputToUtcIso(d.endAt),
 });
 
 export function PublicationsEditor({ surveyId }: { surveyId: string }) {
@@ -57,7 +58,12 @@ export function PublicationsEditor({ surveyId }: { surveyId: string }) {
           <li key={p.id} className="rounded border border-gray-200 p-3">
             {editingId === p.id ? (
               <PublicationForm
-                initial={{ title: p.title ?? "", status: p.status, startAt: toLocal(p.startAt), endAt: toLocal(p.endAt) }}
+                initial={{
+                  title: p.title ?? "",
+                  status: p.status,
+                  startAt: utcIsoToJstInput(p.startAt),
+                  endAt: utcIsoToJstInput(p.endAt),
+                }}
                 submitLabel="更新"
                 onCancel={() => setEditingId(null)}
                 onSubmit={async (d) => {
@@ -76,19 +82,25 @@ export function PublicationsEditor({ surveyId }: { surveyId: string }) {
                     </span>
                   </div>
                   <div className="text-xs text-gray-500">
-                    {toLocal(p.startAt) || "—"} 〜 {toLocal(p.endAt) || "—"}
+                    {formatJstDateTime(p.startAt) || "—"} 〜 {formatJstDateTime(p.endAt) || "—"}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
-                  <button onClick={() => setEditingId(p.id)} className="text-blue-600">編集</button>
-                  <button onClick={() => remove.mutate(p.id)} className="text-red-600">削除</button>
+                  <button onClick={() => setEditingId(p.id)} className="text-blue-600">
+                    編集
+                  </button>
+                  <button onClick={() => remove.mutate(p.id)} className="text-red-600">
+                    削除
+                  </button>
                 </div>
               </div>
             )}
           </li>
         ))}
         {publications.length === 0 && !isLoading && (
-          <li className="rounded border border-dashed p-4 text-center text-sm text-gray-400">掲載がありません</li>
+          <li className="rounded border border-dashed p-4 text-center text-sm text-gray-400">
+            掲載がありません
+          </li>
         )}
       </ul>
 
@@ -152,7 +164,9 @@ function PublicationForm({
           onChange={(e) => setDraft((d) => ({ ...d, status: Number(e.target.value) }))}
         >
           {PUBLICATION_STATUSES.map((s) => (
-            <option key={s.value} value={s.value}>{s.label}</option>
+            <option key={s.value} value={s.value}>
+              {s.label}
+            </option>
           ))}
         </select>
         <label className="text-xs text-gray-500">
@@ -176,7 +190,11 @@ function PublicationForm({
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="flex gap-2">
-        <button type="submit" disabled={busy} className="rounded bg-gray-900 px-3 py-1.5 text-sm text-white disabled:opacity-50">
+        <button
+          type="submit"
+          disabled={busy}
+          className="rounded bg-gray-900 px-3 py-1.5 text-sm text-white disabled:opacity-50"
+        >
           {busy ? "..." : submitLabel}
         </button>
         {onCancel && (
