@@ -1,0 +1,40 @@
+# apps/web の本番 image。Next.js standalone 出力で最小ランタイムを作る。
+# pnpm モノレポなので build context はリポジトリ root（infra/ ではない）。
+#   docker build -f infra/Dockerfile.web -t waoon-web .
+
+# ---- base: pnpm を有効化した node ----
+FROM node:22-alpine AS base
+ENV PNPM_HOME=/pnpm
+ENV PATH=$PNPM_HOME:$PATH
+RUN corepack enable
+WORKDIR /app
+
+# ---- deps: lockfile から依存を解決（layer cache 最大化のため manifest だけ先に copy）----
+FROM base AS deps
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY apps/web/package.json apps/web/
+COPY packages/ packages/
+RUN pnpm install --frozen-lockfile
+
+# ---- builder: ソースを入れて web を standalone build ----
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/packages ./packages
+COPY . .
+RUN pnpm --filter @waoon/web build
+
+# ---- runner: standalone 出力だけを載せた最小イメージ ----
+FROM base AS runner
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+# 非 root で実行（node イメージ同梱の node ユーザー）。
+USER node
+
+# standalone は tracing root（リポジトリ root）構造を保持して出力される。
+COPY --from=builder --chown=node:node /app/apps/web/.next/standalone ./
+COPY --from=builder --chown=node:node /app/apps/web/.next/static ./apps/web/.next/static
+
+EXPOSE 3000
+# server.js は standalone 内の apps/web 配下に出力される。
+CMD ["node", "apps/web/server.js"]

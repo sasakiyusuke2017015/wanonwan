@@ -11,6 +11,8 @@ coverage/
 .env
 .env.*
 !.env.example
+# *.example テンプレートは追跡対象に戻す（.env.* に巻き込まれないように）。実値ファイルのみ無視。
+!.env.*.example
 .claude/settings.local.json
 
 # 旧 1on1 ソース（参照のみ・リポジトリには含めない。原本は doc/1on1-main.zip）

@@ -22,7 +22,22 @@
     "db:psql": "docker compose -f infra/docker-compose.yml exec postgres psql -U postgres -d waoon",
     "db:migrate": "node scripts/db-migrate.mjs",
     "db:seed": "node scripts/db-seed.mjs",
-    "test:db": "node scripts/db-test.mjs"
+    "test:db": "node scripts/db-test.mjs",
+    "check:secrets:stg": "node scripts/check-secrets.mjs infra/.env.stg",
+    "check:secrets:prod": "node scripts/check-secrets.mjs infra/.env.prod",
+    "compose:stg:build": "docker compose --env-file infra/.env.stg -f infra/docker-compose.stg.yml build",
+    "compose:stg:pull": "docker compose --env-file infra/.env.stg -f infra/docker-compose.stg.yml pull",
+    "compose:stg:up": "node scripts/check-secrets.mjs infra/.env.stg && docker compose --env-file infra/.env.stg -f infra/docker-compose.stg.yml up -d",
+    "compose:stg:down": "docker compose --env-file infra/.env.stg -f infra/docker-compose.stg.yml down",
+    "compose:stg:logs": "docker compose --env-file infra/.env.stg -f infra/docker-compose.stg.yml logs -f",
+    "compose:stg:migrate": "node scripts/db-migrate.mjs --compose-file infra/docker-compose.stg.yml --env-file infra/.env.stg",
+    "compose:prod:build": "docker compose --env-file infra/.env.prod -f infra/docker-compose.prod.yml build",
+    "compose:prod:pull": "docker compose --env-file infra/.env.prod -f infra/docker-compose.prod.yml pull",
+    "compose:prod:up": "node scripts/check-secrets.mjs infra/.env.prod && docker compose --env-file infra/.env.prod -f infra/docker-compose.prod.yml up -d",
+    "compose:prod:down": "docker compose --env-file infra/.env.prod -f infra/docker-compose.prod.yml down",
+    "compose:prod:logs": "docker compose --env-file infra/.env.prod -f infra/docker-compose.prod.yml logs -f",
+    "compose:prod:migrate": "node scripts/db-migrate.mjs --compose-file infra/docker-compose.prod.yml --env-file infra/.env.prod",
+    "provision:prod": "node scripts/provision.mjs --compose-file infra/docker-compose.prod.yml --env-file infra/.env.prod"
   },
   "devDependencies": {
     "prettier": "^3.4.2",

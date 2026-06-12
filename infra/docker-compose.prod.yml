@@ -1,0 +1,119 @@
+# production スタック（postgres + gotrue + web + nginx）。
+# stg と同一構成。差分は --env-file infra/.env.prod の値のみ（ドメイン・secrets・image tag）。
+# 起動: pnpm compose:prod:up（先に scripts/check-secrets.mjs が走る）
+# 未設定 secret は ${VAR:?...} で起動失敗する（B-2）。
+name: waoon-prod
+
+services:
+  # PostgreSQL 15 + 拡張同梱。ネットワーク非公開（ports を出さない＝compose 内部のみ）。
+  postgres:
+    build:
+      context: ./data
+      dockerfile: Dockerfile.db
+    image: waoon-postgres:15
+    container_name: waoon-prod-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${PG_SUPERUSER:?PG_SUPERUSER required}
+      POSTGRES_PASSWORD: ${PG_SUPERUSER_PASSWORD:?PG_SUPERUSER_PASSWORD required}
+      POSTGRES_DB: ${PG_DATABASE:?PG_DATABASE required}
+      # initdb の 05_rotate_roles.sh が内部ロール password を env 由来へ rotate する（B-2）。
+      AUTH_ADMIN_PASSWORD: ${AUTH_ADMIN_PASSWORD:?AUTH_ADMIN_PASSWORD required}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?APP_DB_PASSWORD required}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ../outputs/infra-data/schema/00_bootstrap.sql:/docker-entrypoint-initdb.d/00_bootstrap.sql:ro
+      - ./data/05_rotate_roles.sh:/docker-entrypoint-initdb.d/05_rotate_roles.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_SUPERUSER} -d ${PG_DATABASE}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks: [waoon]
+
+  # GoTrue（認証エンジン）。直接公開せず nginx 経由でのみ到達。
+  gotrue:
+    image: supabase/auth:v2.189.0
+    container_name: waoon-prod-gotrue
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: "postgres://supabase_auth_admin:${AUTH_ADMIN_PASSWORD:?AUTH_ADMIN_PASSWORD required}@postgres:5432/${PG_DATABASE}?search_path=auth&sslmode=disable"
+      GOTRUE_SITE_URL: ${SITE_URL:?SITE_URL required}
+      API_EXTERNAL_URL: ${API_EXTERNAL_URL:?API_EXTERNAL_URL required}
+      GOTRUE_API_HOST: 0.0.0.0
+      PORT: "9999"
+      GOTRUE_JWT_SECRET: ${JWT_SECRET:?JWT_SECRET required}
+      GOTRUE_JWT_EXP: "3600"
+      GOTRUE_JWT_AUD: authenticated
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_DISABLE_SIGNUP: "true"
+      GOTRUE_MAILER_AUTOCONFIRM: "true"
+      GOTRUE_LOG_LEVEL: info
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9999/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks: [waoon]
+
+  # apps/web（Next.js standalone）。GHCR の image を pull。
+  web:
+    image: ${WEB_IMAGE:?WEB_IMAGE required}:${WEB_IMAGE_TAG:?WEB_IMAGE_TAG required}
+    container_name: waoon-prod-web
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      gotrue:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      # app_user の password は env secret から組み立てる（dev 固定値を残さない）。
+      DATABASE_URL: postgres://app_user:${APP_DB_PASSWORD:?APP_DB_PASSWORD required}@postgres:5432/${PG_DATABASE}
+      GOTRUE_URL: ${GOTRUE_URL:?GOTRUE_URL required}
+      GOTRUE_JWT_SECRET: ${JWT_SECRET}
+    networks: [waoon]
+
+  # nginx（TLS 終端・ルーティング・XFF 注入・一次レートリミット）。設定は ./nginx を参照。
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: waoon-prod-nginx
+    restart: unless-stopped
+    depends_on:
+      - web
+      - gotrue
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      WAOON_DOMAIN: ${WAOON_DOMAIN:?WAOON_DOMAIN required}
+    volumes:
+      - ./nginx/templates:/etc/nginx/templates:ro
+      - ./nginx/conf.d/10-limits.conf:/etc/nginx/conf.d/10-limits.conf:ro
+      - certbot-conf:/etc/letsencrypt:ro
+      - certbot-www:/var/www/certbot
+    networks: [waoon]
+
+  # certbot（Let's Encrypt 自動更新）。初回発行は infra/nginx/README.md の手順を参照。
+  certbot:
+    image: certbot/certbot:latest
+    container_name: waoon-prod-certbot
+    restart: unless-stopped
+    volumes:
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    # 12h ごとに更新を試みる（更新が無ければ no-op）。
+    entrypoint: /bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot; sleep 12h & wait $${!}; done'
+
+volumes:
+  db-data:
+  certbot-conf:
+  certbot-www:
+
+networks:
+  waoon:
+    name: waoon-prod
