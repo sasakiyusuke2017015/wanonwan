@@ -28,6 +28,7 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 | 見た目1 | 見た目踏襲・基盤（テーマ3軸 + AppLayout シェル + ナビ + テーマ切替UI） | #15 | ✅ merged |
 | 見た目2 | 管理一覧の定石化（users/surveys/answers → InteractiveTable + AdminListTable） | #16 | ✅ merged |
 | 見た目3 | 管理フォームの定石化（User/Survey/Interview → ContentBlock + FormField + FormActions） | `feature/admin-forms-uicatalog` | 🟣 マージ承認待ち |
+| データ整合 | 日時 tz 修正（datetime-local の JST⇄UTC 変換、掲載/面談の instant ズレ解消）。[コードレビュー: APPROVE](reviews/2026-06-12-1159-datetime-jst-review.md) | `feature/datetime-jst` | 🟣 マージ承認待ち |
 
 ### 次セッションの起点
 

@@ -9,6 +9,7 @@ import { TextArea } from "@ui-catalog/core/atoms";
 import { useTheme } from "@ui-catalog/core/infra/theme";
 import { ApiError, apiSend } from "@/lib/api/client";
 import { FormActions } from "@/components/admin/FormActions";
+import { jstInputToUtcIso, utcIsoToJstInput } from "@/lib/datetime";
 
 type Initial = {
   interviewAt: string | null;
@@ -19,8 +20,6 @@ type Initial = {
   nextAction: string | null;
 };
 
-const toLocal = (iso: string | null) => (iso ? iso.slice(0, 16) : "");
-
 const METHOD_OPTIONS = INTERVIEW_METHODS.map((m) => ({ value: String(m.value), label: m.label }));
 const HEALTH_OPTIONS = HEALTH_STATUSES.map((h) => ({ value: String(h.value), label: h.label }));
 
@@ -28,7 +27,7 @@ export function InterviewForm({ answerId, initial }: { answerId: string; initial
   const router = useRouter();
   const { shapes } = useTheme();
   const [f, setF] = useState({
-    interviewAt: toLocal(initial.interviewAt),
+    interviewAt: utcIsoToJstInput(initial.interviewAt),
     interviewMethod: initial.interviewMethod == null ? "" : String(initial.interviewMethod),
     healthStatus: initial.healthStatus == null ? "" : String(initial.healthStatus),
     evaluation: { ...(initial.evaluation ?? {}) } as Record<string, number | string>,
@@ -51,7 +50,7 @@ export function InterviewForm({ answerId, initial }: { answerId: string; initial
     }
     try {
       await apiSend(`/api/v1/answers/${answerId}/interview`, "PUT", {
-        interviewAt: f.interviewAt || null,
+        interviewAt: jstInputToUtcIso(f.interviewAt),
         interviewMethod: f.interviewMethod ? Number(f.interviewMethod) : null,
         healthStatus: f.healthStatus ? Number(f.healthStatus) : null,
         evaluation,
