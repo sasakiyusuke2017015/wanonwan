@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import * as v from "valibot";
-import { getCurrentClaims } from "@/lib/auth/current-user";
+import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
 
@@ -21,6 +21,8 @@ export const ScheduleBody = v.object({
 export async function GET() {
   const claims = await getCurrentClaims();
   if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+  const mustChange = forceChangeGuard(claims);
+  if (mustChange) return mustChange;
 
   const rows = await withUser(
     claims.sub,
@@ -40,6 +42,8 @@ export async function GET() {
 export async function POST(req: Request) {
   const claims = await getCurrentClaims();
   if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+  const mustChange = forceChangeGuard(claims);
+  if (mustChange) return mustChange;
 
   let input: v.InferOutput<typeof ScheduleBody>;
   try {

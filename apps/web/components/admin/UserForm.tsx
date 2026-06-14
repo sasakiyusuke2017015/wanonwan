@@ -49,8 +49,12 @@ export function UserForm({ userId }: { userId?: string }) {
   const { shapes } = useTheme();
   const [form, setForm] = useState(EMPTY);
   const [error, setError] = useState<string | null>(null);
-  // 作成成功時、サーバ生成の初期パスワードを一度だけ表示するための状態。
-  const [created, setCreated] = useState<{ email: string; password: string } | null>(null);
+  // 作成 / リセット成功時、サーバ生成の初期パスワードを一度だけ表示するための状態。
+  const [created, setCreated] = useState<{
+    email: string;
+    password: string;
+    kind: "created" | "reset";
+  } | null>(null);
 
   const { data: org } = useQuery({
     queryKey: ["org"],
@@ -94,7 +98,7 @@ export function UserForm({ userId }: { userId?: string }) {
       qc.invalidateQueries({ queryKey: ["users"] });
       // 新規作成時は初期パスワードを一度だけ表示する（遷移しない）。
       if (!userId && result.initialPassword) {
-        setCreated({ email: form.email, password: result.initialPassword });
+        setCreated({ email: form.email, password: result.initialPassword, kind: "created" });
         return;
       }
       router.push("/admin/users");
@@ -103,19 +107,30 @@ export function UserForm({ userId }: { userId?: string }) {
     onError: (e) => setError(e instanceof ApiError ? e.message : "保存に失敗しました"),
   });
 
+  // 編集時のみ: パスワードをリセットしてサーバ生成 PW を一度だけ表示する。
+  const resetMutation = useMutation({
+    mutationFn: () =>
+      apiSend<{ initialPassword: string }>(`/api/v1/users/${userId}/reset-password`, "POST"),
+    onSuccess: (result) => {
+      setCreated({ email: form.email, password: result.initialPassword, kind: "reset" });
+    },
+    onError: (e) => setError(e instanceof ApiError ? e.message : "パスワードのリセットに失敗しました"),
+  });
+
   function set<K extends keyof typeof form>(key: K, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
-  // 作成完了：初期パスワードを一度だけ提示する。再表示できないので控えてもらう。
+  // 作成 / リセット完了：初期パスワードを一度だけ提示する。再表示できないので控えてもらう。
   if (created) {
+    const title = created.kind === "created" ? "ユーザーを作成しました" : "パスワードをリセットしました";
     return (
       <div className="max-w-2xl">
-        <ContentBlock title="ユーザーを作成しました">
+        <ContentBlock title={title}>
           <div className="space-y-3">
             <p className="text-sm">
               下の初期パスワードは<strong>この画面でしか表示されません</strong>
-              。控えてから本人へ共有してください。
+              。控えてから本人へ共有してください。本人は次回ログイン後にパスワードの変更を求められます。
             </p>
             <div className="text-sm">
               メール: <span className="font-medium">{created.email}</span>
@@ -225,6 +240,27 @@ export function UserForm({ userId }: { userId?: string }) {
           </FormField>
         </div>
       </ContentBlock>
+
+      {userId && (
+        <ContentBlock title="パスワード">
+          <div className="space-y-3">
+            <p className="text-sm">
+              新しい初期パスワードを発行します。発行後は本人が次回ログイン時に変更を求められます。
+            </p>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setError(null);
+                resetMutation.mutate();
+              }}
+              loading={resetMutation.isPending}
+              borderRadius={shapes.buttonRadius}
+            >
+              パスワードをリセット
+            </Button>
+          </div>
+        </ContentBlock>
+      )}
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 

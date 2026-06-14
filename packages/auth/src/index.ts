@@ -6,4 +6,5 @@ export type {
   GoTrueClientOptions,
   GoTrueSession,
   GoTrueUser,
+  UpdateUserAttributes,
 } from "./types";

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import * as v from "valibot";
 import { CreateSurveySchema } from "@waoon/domain";
-import { getCurrentClaims } from "@/lib/auth/current-user";
+import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
 
@@ -9,6 +9,8 @@ import { mapDbError } from "@/lib/db/errors";
 export async function GET() {
   const claims = await getCurrentClaims();
   if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+  const mustChange = forceChangeGuard(claims);
+  if (mustChange) return mustChange;
 
   const rows = await withUser(claims.sub, (tx) => tx`
     select s.id, s.title, s.status, s.capacity,
@@ -25,6 +27,8 @@ export async function GET() {
 export async function POST(req: Request) {
   const claims = await getCurrentClaims();
   if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+  const mustChange = forceChangeGuard(claims);
+  if (mustChange) return mustChange;
 
   let input: v.InferOutput<typeof CreateSurveySchema>;
   try {
