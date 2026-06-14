@@ -2,12 +2,12 @@
 
 | 項目 | 値 |
 |---|---|
-| ステータス | 🟠 計画差し戻し（再計画レビュー2 NEEDS WORK 反映済み。BLOCKER は Plan 文面で解消。**着手は PR #25 マージ後**） |
+| ステータス | ⚪ 実装待ち（再々計画レビュー APPROVE。**着手は PR #25 マージ後**＝同一ファイル衝突回避） |
 | slug | `api-route-helpers` |
 | 作成 | 2026-06-15 16:10 JST |
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | `refactor/api-route-helpers`（未作成） |
-| 関連 PR / レビュー | [計画レビュー(Codex)](../reviews/2026-06-15-1625-api-route-helpers-review.md): NEEDS WORK / [再計画レビュー2(Agent)](../reviews/2026-06-15-1640-api-route-helpers-replan-review.md): NEEDS WORK（me/change-password/admin の個別対応・反映済み） |
+| 関連 PR / レビュー | [計画レビュー(Codex)](../reviews/2026-06-15-1625-api-route-helpers-review.md): NEEDS WORK / [再計画レビュー2(Agent)](../reviews/2026-06-15-1640-api-route-helpers-replan-review.md): NEEDS WORK / [再々計画レビュー(Agent)](../reviews/2026-06-15-1655-api-route-helpers-replan-review-v2.md): **APPROVE** |
 | 依存 | [PR #25](https://github.com/sasakiyusuke2017015/waoon/pull/25)（force-change）マージ後。#25 と同じ 20+ ルートを再度触るため |
 | 由来 | force-change PR で導入した per-route `forceChangeGuard` 直書き（20 ルート）を見て「高階ラッパで集約し、他の反復 boilerplate にも展開すべき」となった。[auth-gotrue-sync-force-change Plan §9 残課題](2026-06-14-1455-auth-gotrue-sync-force-change.md) |
 
@@ -97,9 +97,9 @@ auth ルートは「同じ allowlist でも前提が違う」ため **1 種類�
 - PR #25 がマージ済みであること。`develop` を pull して `refactor/api-route-helpers` を切る。
 
 ### Step 1 — ヘルパ/ラッパの実装（ルートは未変更）
-1. `lib/api/request.ts`: `parseBody(req, Schema)`（成功で data、失敗で 400 Response）。
-2. `lib/auth/service-role.ts`: `withServiceRole(fn)`（**mint → fn(token) まで**。response mapping は呼び出し側）。
-3. `lib/auth/route.ts`: §3 の `withActiveUser` / `withSessionUser` / `withAdmin` / `withOptionalUser`（型と 401/403/`{ok:true}` の出し分け）。**既存 `withUser`（db）と名前衝突させない**。
+1. `lib/api/request.ts`: `parseBody(req, Schema, errorMessage?)`（成功で data、失敗で 400 Response）。**400 文言は route ごとに違う**（users=「入力が不正です」/ login=「メールアドレスとパスワードを入力してください」/ change-password=「現在のパスワードと…12文字以上…」）ため、**文言を引数化して現状維持**する。
+2. `lib/auth/service-role.ts`: `withServiceRole(fn)`（**mint → fn(token) まで**。response mapping は呼び出し側。インライン型で複数回 mint 可）。
+3. `lib/auth/route.ts`: §3 の `withActiveUser` / `withSessionUser` / `withAdmin` / `withOptionalUser`（型と 401/403/`{ok:true}` の出し分け）。**既存 `withUser`（db）と名前衝突させない**。`withOptionalUser`(logout) は **claims ではなく raw access token を渡す**（`gotrue.signOut(token)` は raw token が要る・token 有効時のみ best-effort・例外は握って `{ ok: true }`）。
 - 【検証】単体で typecheck green。
 
 ### Step 2 — parseBody 移行（#4）
@@ -129,8 +129,9 @@ auth ルートは「同じ allowlist でも前提が違う」ため **1 種類�
   - **`change-password` の 429（rate-limit 最外）→ 401 → email 欠落 401 → 400** の順が不変。
   - 未認証 401 / force-change 持ちの業務 API 403 / allowlist（me/change-password/logout）通過。
   - admin 必須ルートの非 admin **403**（PUT も 403）。
-  - 入力不正 400 / 重複 409 / レートリミット 429。
+  - 入力不正 **400 の文言が route ごとに不変**（users / login / change-password）。重複 409 / レートリミット 429。
   - `login`/`refresh`/`logout` の契約（未ログイン/失効でも所定動作・`{ ok: true }`）。
+  - admin precheck（`app.is_admin()`）と dup チェックが **同一 `withUser` クロージャ（同一 tx/snapshot）内に残る**こと（tx 分割の drift を拾う）。
 - 全 `route.ts` の export を Step 4 の**分類表と 1:1 照合**（business/admin に `getCurrentClaims` 直呼びが残らない＝ガード漏れ無し／business が誤って `withSessionUser` に乗っていない）。
 - **auth ルートの契約維持**: `login`（未ログインで 200/401）・`refresh`（access 無でも refresh cookie で成立）・`logout`（token 無でも `clearSession` + `{ ok: true }`）・`me`/`change-password`（force-change でも到達）。
 
@@ -145,7 +146,7 @@ auth ルートは「同じ allowlist でも前提が違う」ため **1 種類�
 | Next の handler 型（params Promise）とジェネリクス | 型エラー・実行時不整合 | Step 1 で型を固め、params 有無の両ルートで検証 |
 | #25 未マージで着手しコンフリクト | 手戻り | Step 0 で #25 マージを前提条件に明記 |
 | 過度な抽象化 | 可読性低下 | #6 は見送り。価値の高い 5 パターンに限定 |
-| **新規 route でのガード書き忘れ**（grep+目視は新規に効かない） | 認可漏れ | 一次は分類表照合だが構造的強制ではない。**残課題**: business/admin の `route.ts` で `getCurrentClaims`/`getAccessToken` 直 import を禁止する CI lint（allowlist 除外）または module 境界。今回スコープ外でも §残課題に明記 |
+| **新規 route でのガード書き忘れ**（grep+目視は新規に効かない） | 認可漏れ | 一次は分類表照合だが構造的強制ではない。**残課題（別タスク）**: `app/api/**/route.ts` から `getCurrentClaims`/`getAccessToken`/`verifyAccessToken`/`getRefreshToken` **および `mintServiceRoleToken`** の直 import を `no-restricted-imports` で禁止（allowlist は eslint override で `auth/me` 等に限定）。service_role 直 import 禁止は「admin ゲート無しで GoTrue admin を叩く新規穴」も塞ぐ |
 | auth ルートの個別挙動を素朴にラッパ化（me の 2 種 401・change-password の 429/401 順・admin 403/404） | 挙動 drift＝pure refactor 失敗 | §3 の auth ルート個別対応（me 対象外・change-password 順序維持・admin は tx 内）。§5 で integration test 必須化 |
 
 ---
@@ -169,7 +170,7 @@ auth ルートは「同じ allowlist でも前提が違う」ため **1 種類�
 - [x] 指摘反映（§3 ラッパ 6 分類・命名衝突回避・service_role 責務・分類表照合）
 - [x] **再計画レビュー2（Agent 3 視点・#25 実コード）** → [NEEDS WORK](../reviews/2026-06-15-1640-api-route-helpers-replan-review.md)
 - [x] 指摘反映（me 対象外 / change-password 順序 / admin は tx 内 / 分類表キー / 検出拡張 / serviceRole 粒度 / test 必須 / CI lint 残課題）
-- [ ] **再々計画レビュー**（任意。BLOCKER は Plan 文面で解消済み）
+- [x] **再々計画レビュー（Agent: code+security）** → [APPROVE](../reviews/2026-06-15-1655-api-route-helpers-replan-review-v2.md)（残 NICE は Step 1/§5 に反映）
 - [ ] PR #25 マージ確認 → 着手
 - [ ] （F-1）#25 の PUT 先頭コメント `…非 admin は対象 0 行 → 404 相当` を実コード(403)に合わせて修正（#25 ブランチで）
 - [ ] Step 1〜5 実装（refactor/api-route-helpers）
