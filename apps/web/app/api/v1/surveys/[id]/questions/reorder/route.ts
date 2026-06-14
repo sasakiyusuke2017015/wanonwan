@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import * as v from "valibot";
 import { ReorderQuestionsSchema } from "@waoon/domain";
-import { getCurrentClaims } from "@/lib/auth/current-user";
+import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
 
@@ -11,6 +11,8 @@ type Ctx = { params: Promise<{ id: string }> };
 export async function PUT(req: Request, { params }: Ctx) {
   const claims = await getCurrentClaims();
   if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+  const mustChange = forceChangeGuard(claims);
+  if (mustChange) return mustChange;
   const { id } = await params;
   const surveyId = Number(id);
 

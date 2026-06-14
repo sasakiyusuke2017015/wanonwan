@@ -3,8 +3,9 @@
 import { usePathname } from "next/navigation";
 import { AppLayout } from "./AppLayout";
 
-// シェルを外すパス。middleware の PUBLIC_PATHS（未認証で素通りするルート）と揃える。
-const BARE_PATHS = ["/login", "/ui-demo"];
+// シェルを外すパス。/login・/ui-demo に加え、PW 強制変更ゲートの /change-password も
+// シェル（ナビ）を被せない（変更が済むまで他へ遷移させないため）。
+const BARE_PATHS = ["/login", "/ui-demo", "/change-password"];
 
 // 認証済みページにのみ AppLayout シェルを被せる。/login 等はそのまま描画する。
 export function AppFrame({ children }: { children: React.ReactNode }) {

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCurrentClaims } from "@/lib/auth/current-user";
+import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
 import { withUser } from "@/lib/db/client";
 
 // ダッシュボード集計。RLS(answers_select)でスコープされるため、admin は全件、
@@ -7,6 +7,8 @@ import { withUser } from "@/lib/db/client";
 export async function GET() {
   const claims = await getCurrentClaims();
   if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+  const mustChange = forceChangeGuard(claims);
+  if (mustChange) return mustChange;
 
   const data = await withUser(claims.sub, async (tx) => {
     const [summary] = await tx`

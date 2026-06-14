@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import * as v from "valibot";
 import { CreateUserSchema } from "@waoon/domain";
 import { GoTrueError } from "@waoon/auth";
-import { getCurrentClaims } from "@/lib/auth/current-user";
+import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
 import { gotrue } from "@/lib/auth/gotrue";
 import { mintServiceRoleToken, generateInitialPassword } from "@/lib/auth/provisioning";
+import { mustChangeAppMetadata } from "@/lib/auth/metadata";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
 
@@ -12,6 +13,8 @@ import { mapDbError } from "@/lib/db/errors";
 export async function GET() {
   const claims = await getCurrentClaims();
   if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+  const mustChange = forceChangeGuard(claims);
+  if (mustChange) return mustChange;
 
   const rows = await withUser(
     claims.sub,
@@ -38,6 +41,8 @@ export async function GET() {
 export async function POST(req: Request) {
   const claims = await getCurrentClaims();
   if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+  const mustChange = forceChangeGuard(claims);
+  if (mustChange) return mustChange;
 
   let input: v.InferOutput<typeof CreateUserSchema>;
   try {
@@ -78,6 +83,8 @@ export async function POST(req: Request) {
         password: initialPassword,
         emailConfirm: true,
         userMetadata: { name: input.name },
+        // 初期 PW はサーバ生成のため、初回ログイン後に変更を強制する。
+        appMetadata: mustChangeAppMetadata(true),
       },
       token,
     );

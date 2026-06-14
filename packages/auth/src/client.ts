@@ -4,6 +4,7 @@ import type {
   GoTrueClientOptions,
   GoTrueSession,
   GoTrueUser,
+  UpdateUserAttributes,
 } from "./types";
 
 export class GoTrueError extends Error {
@@ -95,7 +96,23 @@ export function createGoTrueClient(options: GoTrueClientOptions): GoTrueClient {
             password: input.password,
             email_confirm: input.emailConfirm ?? true,
             user_metadata: input.userMetadata,
+            app_metadata: input.appMetadata,
           }),
+        })) as unknown as GoTrueUser;
+      },
+
+      async updateUser(id: string, attrs: UpdateUserAttributes, serviceRoleToken: string) {
+        // 指定された属性だけ送る（undefined のキーは GoTrue に渡さない）。
+        const body: Record<string, unknown> = {};
+        if (attrs.email !== undefined) body.email = attrs.email;
+        if (attrs.password !== undefined) body.password = attrs.password;
+        if (attrs.emailConfirm !== undefined) body.email_confirm = attrs.emailConfirm;
+        if (attrs.userMetadata !== undefined) body.user_metadata = attrs.userMetadata;
+        if (attrs.appMetadata !== undefined) body.app_metadata = attrs.appMetadata;
+        return (await gotrueFetch(`${base}/admin/users/${id}`, {
+          method: "PUT",
+          headers: { ...jsonHeaders, authorization: `Bearer ${serviceRoleToken}` },
+          body: JSON.stringify(body),
         })) as unknown as GoTrueUser;
       },
 

@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
-import { getCurrentClaims } from "@/lib/auth/current-user";
+import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
 import { withUser } from "@/lib/db/client";
 
 // 回答一覧（RLS で可視範囲が決まる: admin 全件 / 面談者 / 閲覧者 / 本人）。
 export async function GET() {
   const claims = await getCurrentClaims();
   if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+  const mustChange = forceChangeGuard(claims);
+  if (mustChange) return mustChange;
 
   const rows = await withUser(claims.sub, (tx) => tx`
     select a.id, a.status,
