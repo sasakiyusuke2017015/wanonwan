@@ -2,12 +2,12 @@
 
 | 項目 | 値 |
 |---|---|
-| ステータス | 🟦 コードレビュー APPROVE（commit / PR 確認待ち。受け入れ前に B-0 runtime 検証） |
+| ステータス | 🟣 マージ承認待ち（[PR #25](https://github.com/sasakiyusuke2017015/waoon/pull/25)。受け入れ前に B-0 runtime 検証） |
 | slug | `auth-gotrue-sync-force-change` |
 | 作成 | 2026-06-14 14:55 JST |
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | `feature/auth-gotrue-sync-force-change`（未作成） |
-| 関連 PR / レビュー | [計画レビュー](../reviews/2026-06-15-0930-auth-gotrue-sync-force-change-review.md): NEEDS WORK（3 視点並列・反映済み） / [再計画レビュー(Codex)](../reviews/2026-06-15-0930-auth-gotrue-sync-force-change-replan-review.md): NEEDS WORK（middleware /api 撤回・反映済み） / [再々計画レビュー(Codex)](../reviews/2026-06-15-0945-auth-gotrue-sync-force-change-replan-review-v2.md): APPROVE / [コードレビュー(Codex)](../reviews/2026-06-15-1015-auth-gotrue-sync-force-change-code-review.md): NEEDS WORK / [再コードレビュー(Codex)](../reviews/2026-06-15-1030-auth-gotrue-sync-force-change-code-review-v2.md): **APPROVE** |
+| 関連 PR / レビュー | [PR #25](https://github.com/sasakiyusuke2017015/waoon/pull/25)（develop 向け）/ [計画レビュー](../reviews/2026-06-15-0930-auth-gotrue-sync-force-change-review.md): NEEDS WORK（3 視点並列・反映済み） / [再計画レビュー(Codex)](../reviews/2026-06-15-0930-auth-gotrue-sync-force-change-replan-review.md): NEEDS WORK（middleware /api 撤回・反映済み） / [再々計画レビュー(Codex)](../reviews/2026-06-15-0945-auth-gotrue-sync-force-change-replan-review-v2.md): APPROVE / [コードレビュー(Codex)](../reviews/2026-06-15-1015-auth-gotrue-sync-force-change-code-review.md): NEEDS WORK / [再コードレビュー(Codex)](../reviews/2026-06-15-1030-auth-gotrue-sync-force-change-code-review-v2.md): **APPROVE** |
 | 親 Plan | [pleasanter-exit-1on1-rebuild](2026-06-11-1730-pleasanter-exit-1on1-rebuild.md) の「認証の残」（[§10](2026-06-11-1730-pleasanter-exit-1on1-rebuild.md#L357): 編集時の email/password の GoTrue 同期 / 初回ログイン後の force-change） |
 | 一次情報 | [users/[id]/route.ts](../../apps/web/app/api/v1/users/[id]/route.ts) / [client.ts](../../packages/auth/src/client.ts) / [jwt.ts](../../apps/web/lib/auth/jwt.ts) / [middleware.ts](../../apps/web/middleware.ts) / [provisioning.ts](../../apps/web/lib/auth/provisioning.ts) |
 
@@ -209,7 +209,7 @@
 - [x] **コードレビュー（Codex）** → [NEEDS WORK](../reviews/2026-06-15-1015-auth-gotrue-sync-force-change-code-review.md)（PUT の admin ゲート欠落）
 - [x] 指摘反映（PUT に admin ゲート追加、reset-password 404/409 分離）
 - [x] **再コードレビュー（Codex）** → [APPROVE](../reviews/2026-06-15-1030-auth-gotrue-sync-force-change-code-review-v2.md)（残 NICE は B-0 runtime のみ）
-- [ ] commit（笹木さん確認）→ PR 作成（develop 向け）
+- [x] commit（2 本: feat / docs）→ push → **PR 作成（[#25](https://github.com/sasakiyusuke2017015/waoon/pull/25)）**
 - [ ] 笹木さんマージ承認 → Squash Merge
 - [ ] **マージ後（受け入れ）検証**（笹木さん環境・Docker）
   - [ ] **B-0**: 新規作成ユーザーの access token に `app_metadata.must_change_password=true` が載る（崩れたら判断 #2 の DB カラム方式へピボット）
