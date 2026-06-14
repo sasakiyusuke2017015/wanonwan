@@ -113,7 +113,7 @@ auth ルートは「同じ allowlist でも前提が違う」ため **1 種類�
    - `public`=`auth/login` / `refresh`=`auth/refresh` / `logout`=`auth/logout`（`withOptionalUser`） / `session`=`auth/change-password`（`withSessionUser`+本体維持） / **`bespoke`=`auth/me`（対象外）**。
    - `admin`=`users` POST・`users/[id]` PUT・`users/[id]/reset-password`（`withAdmin` + admin 403 は tx 内維持）。
    - `business`=上記以外すべて（`withActiveUser`）。**罠: `me/surveys` は名前に `me` を含むが business**（auth の `me` ではない）。
-2. 表に従い移行。`me` は触らない。
+2. 表に従い移行。`me` は触らない。**F-1**: `users/[id]/route.ts` PUT の先頭コメント `…非 admin は対象 0 行 → 404 相当`（実コードは 403）をこの移行のついでに修正する。
 - 【検証】全 export を**分類表と 1:1 照合**（一次検証）。grep は補助とし、検出語を `getCurrentClaims` だけでなく **`getAccessToken` / `verifyAccessToken` / `getRefreshToken`** にも広げる（`me` のように低レベル直呼びの認証を見逃さない）。business/admin にガード漏れが無いこと、business が誤って session/bespoke に乗っていないことを確認。
 
 ### Step 5 — rate-limit 畳み込み（#5）
@@ -172,7 +172,7 @@ auth ルートは「同じ allowlist でも前提が違う」ため **1 種類�
 - [x] 指摘反映（me 対象外 / change-password 順序 / admin は tx 内 / 分類表キー / 検出拡張 / serviceRole 粒度 / test 必須 / CI lint 残課題）
 - [x] **再々計画レビュー（Agent: code+security）** → [APPROVE](../reviews/2026-06-15-1655-api-route-helpers-replan-review-v2.md)（残 NICE は Step 1/§5 に反映）
 - [ ] PR #25 マージ確認 → 着手
-- [ ] （F-1）#25 の PUT 先頭コメント `…非 admin は対象 0 行 → 404 相当` を実コード(403)に合わせて修正（#25 ブランチで）
+- [ ] （F-1）`users/[id]/route.ts` PUT 先頭コメント `…非 admin は対象 0 行 → 404 相当` を実コード(403)に合わせて修正 → **本 refactor PR でまとめて対応**（PUT は `withAdmin` で触るため）
 - [ ] Step 1〜5 実装（refactor/api-route-helpers）
 - [ ] 検証: typecheck / build green + 挙動不変の突合
 - [ ] コードレビュー（Codex）
