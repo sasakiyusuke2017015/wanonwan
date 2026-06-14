@@ -2,7 +2,7 @@
 
 | 項目 | 値 |
 |---|---|
-| ステータス | 🟣 マージ承認待ち（[PR #25](https://github.com/sasakiyusuke2017015/waoon/pull/25)。受け入れ前に B-0 runtime 検証） |
+| ステータス | 🟢 マージ済み（検証中）（[PR #25](https://github.com/sasakiyusuke2017015/waoon/pull/25) merged・受け入れ検証 B-0 他が残る） |
 | slug | `auth-gotrue-sync-force-change` |
 | 作成 | 2026-06-14 14:55 JST |
 | 担当 | Claude Code + 笹木さん |
@@ -210,7 +210,7 @@
 - [x] 指摘反映（PUT に admin ゲート追加、reset-password 404/409 分離）
 - [x] **再コードレビュー（Codex）** → [APPROVE](../reviews/2026-06-15-1030-auth-gotrue-sync-force-change-code-review-v2.md)（残 NICE は B-0 runtime のみ）
 - [x] commit（2 本: feat / docs）→ push → **PR 作成（[#25](https://github.com/sasakiyusuke2017015/waoon/pull/25)）**
-- [ ] 笹木さんマージ承認 → Squash Merge
+- [x] 笹木さんマージ承認 → **merge 済み（#25, develop）**
 - [ ] **マージ後（受け入れ）検証**（笹木さん環境・Docker）
   - [ ] **B-0**: 新規作成ユーザーの access token に `app_metadata.must_change_password=true` が載る（崩れたら判断 #2 の DB カラム方式へピボット）
   - [ ] A-1: admin が email 変更 → 新 email でログイン可・旧 email 不可
