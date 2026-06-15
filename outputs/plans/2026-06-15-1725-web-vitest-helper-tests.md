@@ -2,7 +2,7 @@
 
 | 項目 | 値 |
 |---|---|
-| ステータス | 🟡 実装完了・PR へ（test-only のため計画/コードレビューは省略・笹木さん合意） |
+| ステータス | 🟣 マージ承認待ち（[PR #27](https://github.com/sasakiyusuke2017015/waoon/pull/27)・test-only でレビュー省略） |
 | slug | `web-vitest-helper-tests` |
 | 作成 | 2026-06-15 17:25 JST |
 | 担当 | Claude Code + 笹木さん |
@@ -102,4 +102,4 @@ apps/web に **Vitest を導入**し、refactor で追加した API ヘルパ（
 - [x] 実装（test/web-vitest-helper-tests）: Vitest 導入 + 5 テスト（13 ケース）
 - [x] 検証: `pnpm --filter @waoon/web test` green（5 files / 13 tests）/ `tsc --noEmit` green
 - [x] コードレビュー → **省略**（test-only。出来上がったテストを笹木さんが PR で確認）
-- [ ] PR 作成（develop 向け）→ 笹木さんマージ承認
+- [x] PR 作成（develop 向け）→ **[PR #27](https://github.com/sasakiyusuke2017015/waoon/pull/27)**・笹木さんマージ承認待ち
