@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
 import { gotrue } from "@/lib/auth/gotrue";
-import { mintServiceRoleToken, generateInitialPassword } from "@/lib/auth/provisioning";
+import { generateInitialPassword } from "@/lib/auth/provisioning";
+import { withServiceRole } from "@/lib/auth/service-role";
 import { mustChangeAppMetadata } from "@/lib/auth/metadata";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
@@ -39,11 +40,12 @@ export async function POST(_req: Request, { params }: Ctx) {
 
   const initialPassword = generateInitialPassword();
   try {
-    const token = await mintServiceRoleToken();
-    await gotrue.admin.updateUser(
-      target.gotrueId,
-      { password: initialPassword, appMetadata: mustChangeAppMetadata(true) },
-      token,
+    await withServiceRole((token) =>
+      gotrue.admin.updateUser(
+        target.gotrueId!,
+        { password: initialPassword, appMetadata: mustChangeAppMetadata(true) },
+        token,
+      ),
     );
   } catch (e) {
     console.error(`GoTrue password reset failed: gotrue_id=${target.gotrueId}`, e);

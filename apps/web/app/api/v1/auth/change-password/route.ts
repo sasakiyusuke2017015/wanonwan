@@ -3,7 +3,7 @@ import * as v from "valibot";
 import { GoTrueError } from "@waoon/auth";
 import { getCurrentClaims } from "@/lib/auth/current-user";
 import { gotrue } from "@/lib/auth/gotrue";
-import { mintServiceRoleToken } from "@/lib/auth/provisioning";
+import { withServiceRole } from "@/lib/auth/service-role";
 import { mustChangeAppMetadata } from "@/lib/auth/metadata";
 import { setSession } from "@/lib/auth/session";
 import { parseBody } from "@/lib/api/request";
@@ -48,11 +48,12 @@ export async function POST(req: Request) {
 
   // 2) PW 更新 + フラグ解除（service_role）。ここで変更は確定。
   try {
-    const token = await mintServiceRoleToken();
-    await gotrue.admin.updateUser(
-      claims.sub,
-      { password: input.newPassword, appMetadata: mustChangeAppMetadata(false) },
-      token,
+    await withServiceRole((token) =>
+      gotrue.admin.updateUser(
+        claims.sub,
+        { password: input.newPassword, appMetadata: mustChangeAppMetadata(false) },
+        token,
+      ),
     );
   } catch (e) {
     console.error(`change-password update failed: sub=${claims.sub}`, e instanceof GoTrueError ? e.status : e);

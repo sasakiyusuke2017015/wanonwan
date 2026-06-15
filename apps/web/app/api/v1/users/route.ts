@@ -3,7 +3,8 @@ import { CreateUserSchema } from "@waoon/domain";
 import { GoTrueError } from "@waoon/auth";
 import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
 import { gotrue } from "@/lib/auth/gotrue";
-import { mintServiceRoleToken, generateInitialPassword } from "@/lib/auth/provisioning";
+import { generateInitialPassword } from "@/lib/auth/provisioning";
+import { withServiceRole } from "@/lib/auth/service-role";
 import { mustChangeAppMetadata } from "@/lib/auth/metadata";
 import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
@@ -73,17 +74,18 @@ export async function POST(req: Request) {
   const initialPassword = generateInitialPassword();
   let gotrueId: string;
   try {
-    const token = await mintServiceRoleToken();
-    const gotrueUser = await gotrue.admin.createUser(
-      {
-        email: input.email,
-        password: initialPassword,
-        emailConfirm: true,
-        userMetadata: { name: input.name },
-        // 初期 PW はサーバ生成のため、初回ログイン後に変更を強制する。
-        appMetadata: mustChangeAppMetadata(true),
-      },
-      token,
+    const gotrueUser = await withServiceRole((token) =>
+      gotrue.admin.createUser(
+        {
+          email: input.email,
+          password: initialPassword,
+          emailConfirm: true,
+          userMetadata: { name: input.name },
+          // 初期 PW はサーバ生成のため、初回ログイン後に変更を強制する。
+          appMetadata: mustChangeAppMetadata(true),
+        },
+        token,
+      ),
     );
     gotrueId = gotrueUser.id;
   } catch (e) {
@@ -111,8 +113,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ data: rows[0], initialPassword }, { status: 201 });
   } catch (e) {
     try {
-      const token = await mintServiceRoleToken();
-      await gotrue.admin.deleteUser(gotrueId, token);
+      await withServiceRole((token) => gotrue.admin.deleteUser(gotrueId, token));
     } catch (cleanupError) {
       // 掃除失敗は致命ではない（orphan GoTrue ユーザーが残るが業務ユーザーは未作成）。
       // 運用で拾えるよう gotrue_id を残す（パスワード等の機微情報は出さない）。

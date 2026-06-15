@@ -3,7 +3,7 @@ import { UpdateUserSchema } from "@waoon/domain";
 import { GoTrueError } from "@waoon/auth";
 import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
 import { gotrue } from "@/lib/auth/gotrue";
-import { mintServiceRoleToken } from "@/lib/auth/provisioning";
+import { withServiceRole } from "@/lib/auth/service-role";
 import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
@@ -80,8 +80,9 @@ export async function PUT(req: Request, { params }: Ctx) {
       return NextResponse.json({ error: "認証ユーザーが紐付いていません" }, { status: 409 });
     }
     try {
-      const token = await mintServiceRoleToken();
-      await gotrue.admin.updateUser(target.gotrueId, { email: input.email, emailConfirm: true }, token);
+      await withServiceRole((token) =>
+        gotrue.admin.updateUser(target.gotrueId!, { email: input.email, emailConfirm: true }, token),
+      );
     } catch (e) {
       if (e instanceof GoTrueError && (e.status === 422 || e.status === 409)) {
         return NextResponse.json({ error: "このメールアドレスは既に登録されています" }, { status: 409 });
@@ -113,8 +114,9 @@ export async function PUT(req: Request, { params }: Ctx) {
 // gotrue_id を残して運用で拾えるようにする。PW 等の機微情報は出さない）。
 async function rollbackGotrueEmail(gotrueId: string, oldEmail: string): Promise<void> {
   try {
-    const token = await mintServiceRoleToken();
-    await gotrue.admin.updateUser(gotrueId, { email: oldEmail, emailConfirm: true }, token);
+    await withServiceRole((token) =>
+      gotrue.admin.updateUser(gotrueId, { email: oldEmail, emailConfirm: true }, token),
+    );
   } catch (rollbackError) {
     console.error(`GoTrue email rollback failed: gotrue_id=${gotrueId}`, rollbackError);
   }
