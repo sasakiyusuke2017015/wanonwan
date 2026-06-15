@@ -1,26 +1,19 @@
 import { NextResponse } from "next/server";
-import * as v from "valibot";
 import { CreateQuestionSchema } from "@waoon/domain";
-import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { withActiveUser } from "@/lib/auth/route";
+import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 // 設問を更新（全項目。RLS questions_write = admin）。
-export async function PUT(req: Request, { params }: Ctx) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
+export const PUT = withActiveUser(async (req, claims, { params }: Ctx) => {
   const { id } = await params;
 
-  let input: v.InferOutput<typeof CreateQuestionSchema>;
-  try {
-    input = v.parse(CreateQuestionSchema, await req.json());
-  } catch {
-    return NextResponse.json({ error: "入力が不正です" }, { status: 400 });
-  }
+  const parsed = await parseBody(req, CreateQuestionSchema);
+  if (parsed instanceof NextResponse) return parsed;
+  const input = parsed;
 
   try {
     const rows = await withUser(claims.sub, (tx) => tx`
@@ -40,14 +33,10 @@ export async function PUT(req: Request, { params }: Ctx) {
   } catch (e) {
     return mapDbError(e);
   }
-}
+});
 
 // 設問を削除（survey_questions リンクは FK CASCADE で消える）。
-export async function DELETE(_req: Request, { params }: Ctx) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
+export const DELETE = withActiveUser(async (_req, claims, { params }: Ctx) => {
   const { id } = await params;
 
   try {
@@ -59,4 +48,4 @@ export async function DELETE(_req: Request, { params }: Ctx) {
   } catch (e) {
     return mapDbError(e);
   }
-}
+});

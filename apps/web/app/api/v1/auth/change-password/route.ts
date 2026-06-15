@@ -3,10 +3,11 @@ import * as v from "valibot";
 import { GoTrueError } from "@waoon/auth";
 import { getCurrentClaims } from "@/lib/auth/current-user";
 import { gotrue } from "@/lib/auth/gotrue";
-import { mintServiceRoleToken } from "@/lib/auth/provisioning";
+import { withServiceRole } from "@/lib/auth/service-role";
 import { mustChangeAppMetadata } from "@/lib/auth/metadata";
 import { setSession } from "@/lib/auth/session";
-import { AUTH_RATE_LIMITS, getClientIp, rateLimit, tooManyRequests } from "@/lib/auth/rate-limit";
+import { parseBody } from "@/lib/api/request";
+import { AUTH_RATE_LIMITS, checkRateLimit } from "@/lib/auth/rate-limit";
 
 const Body = v.object({
   currentPassword: v.pipe(v.string(), v.minLength(1)),
@@ -17,13 +18,8 @@ const Body = v.object({
 // current PW を再確認してから更新し、app_metadata のフラグを解除、新 PW で再ログインして
 // セッション（access+refresh）を新世代へ差し替える。これは allowlist で forceChangeGuard を掛けない。
 export async function POST(req: Request) {
-  const ip = getClientIp(req);
-  const limit = rateLimit(
-    `change-password:ip:${ip}`,
-    AUTH_RATE_LIMITS.loginPerIp,
-    AUTH_RATE_LIMITS.windowMs,
-  );
-  if (!limit.ok) return tooManyRequests(limit.retryAfterSec);
+  const limited = checkRateLimit(req, "change-password", AUTH_RATE_LIMITS.loginPerIp);
+  if (limited) return limited;
 
   const claims = await getCurrentClaims();
   if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
@@ -31,12 +27,9 @@ export async function POST(req: Request) {
   if (!claims.email) return NextResponse.json({ error: "再ログインしてください" }, { status: 401 });
   const email = claims.email;
 
-  let input: v.InferOutput<typeof Body>;
-  try {
-    input = v.parse(Body, await req.json());
-  } catch {
-    return NextResponse.json({ error: "現在のパスワードと新しいパスワード（12文字以上）を入力してください" }, { status: 400 });
-  }
+  const parsed = await parseBody(req, Body, "現在のパスワードと新しいパスワード（12文字以上）を入力してください");
+  if (parsed instanceof NextResponse) return parsed;
+  const input = parsed;
 
   // 1) current PW 確認（本人確認）。失敗は 401（汎用）。
   try {
@@ -50,11 +43,12 @@ export async function POST(req: Request) {
 
   // 2) PW 更新 + フラグ解除（service_role）。ここで変更は確定。
   try {
-    const token = await mintServiceRoleToken();
-    await gotrue.admin.updateUser(
-      claims.sub,
-      { password: input.newPassword, appMetadata: mustChangeAppMetadata(false) },
-      token,
+    await withServiceRole((token) =>
+      gotrue.admin.updateUser(
+        claims.sub,
+        { password: input.newPassword, appMetadata: mustChangeAppMetadata(false) },
+        token,
+      ),
     );
   } catch (e) {
     console.error(`change-password update failed: sub=${claims.sub}`, e instanceof GoTrueError ? e.status : e);

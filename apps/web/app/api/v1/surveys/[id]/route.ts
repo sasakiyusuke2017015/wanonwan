@@ -1,17 +1,13 @@
 import { NextResponse } from "next/server";
-import * as v from "valibot";
 import { UpdateSurveySchema } from "@waoon/domain";
-import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { withActiveUser } from "@/lib/auth/route";
+import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
 
 type Ctx = { params: Promise<{ id: string }> };
 
-export async function GET(_req: Request, { params }: Ctx) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
+export const GET = withActiveUser(async (_req, claims, { params }: Ctx) => {
   const { id } = await params;
 
   const rows = await withUser(claims.sub, (tx) => tx`
@@ -22,21 +18,14 @@ export async function GET(_req: Request, { params }: Ctx) {
   `);
   if (rows.length === 0) return NextResponse.json({ error: "not found" }, { status: 404 });
   return NextResponse.json({ data: rows[0] });
-}
+});
 
-export async function PUT(req: Request, { params }: Ctx) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
+export const PUT = withActiveUser(async (req, claims, { params }: Ctx) => {
   const { id } = await params;
 
-  let input: v.InferOutput<typeof UpdateSurveySchema>;
-  try {
-    input = v.parse(UpdateSurveySchema, await req.json());
-  } catch {
-    return NextResponse.json({ error: "入力が不正です" }, { status: 400 });
-  }
+  const parsed = await parseBody(req, UpdateSurveySchema);
+  if (parsed instanceof NextResponse) return parsed;
+  const input = parsed;
 
   const set: Record<string, unknown> = {};
   if (input.title !== undefined) set.title = input.title;
@@ -59,4 +48,4 @@ export async function PUT(req: Request, { params }: Ctx) {
   } catch (e) {
     return mapDbError(e);
   }
-}
+});

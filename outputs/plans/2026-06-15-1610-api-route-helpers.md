@@ -2,12 +2,12 @@
 
 | 項目 | 値 |
 |---|---|
-| ステータス | ⚪ 実装待ち（再々計画レビュー APPROVE。**着手は PR #25 マージ後**＝同一ファイル衝突回避） |
+| ステータス | 🟣 マージ承認待ち（[PR #26](https://github.com/sasakiyusuke2017015/waoon/pull/26)） |
 | slug | `api-route-helpers` |
 | 作成 | 2026-06-15 16:10 JST |
 | 担当 | Claude Code + 笹木さん |
-| ブランチ | `refactor/api-route-helpers`（未作成） |
-| 関連 PR / レビュー | [計画レビュー(Codex)](../reviews/2026-06-15-1625-api-route-helpers-review.md): NEEDS WORK / [再計画レビュー2(Agent)](../reviews/2026-06-15-1640-api-route-helpers-replan-review.md): NEEDS WORK / [再々計画レビュー(Agent)](../reviews/2026-06-15-1655-api-route-helpers-replan-review-v2.md): **APPROVE** |
+| ブランチ | `refactor/api-route-helpers` |
+| 関連 PR / レビュー | 計画レビュー 3 本（NEEDS WORK→NEEDS WORK→APPROVE）/ [コードレビュー(Agent)](../reviews/2026-06-15-1710-api-route-helpers-code-review.md): **APPROVE** |
 | 依存 | [PR #25](https://github.com/sasakiyusuke2017015/waoon/pull/25)（force-change）マージ後。#25 と同じ 20+ ルートを再度触るため |
 | 由来 | force-change PR で導入した per-route `forceChangeGuard` 直書き（20 ルート）を見て「高階ラッパで集約し、他の反復 boilerplate にも展開すべき」となった。[auth-gotrue-sync-force-change Plan §9 残課題](2026-06-14-1455-auth-gotrue-sync-force-change.md) |
 
@@ -160,6 +160,8 @@ auth ルートは「同じ allowlist でも前提が違う」ため **1 種類�
 | 2026-06-15 | 着手は PR #25 マージ後 | #25 と同一ファイル（20+ ルート）を触るためコンフリクト回避 |
 | 2026-06-15 | 計画レビュー（Codex）**NEEDS WORK** を反映: **allowlist を 1 ラッパにまとめず細分化**（§3 の 6 分類）。`withActiveUser`/`withAdmin`/`withSessionUser`/`withOptionalUser` + login/refresh 個別。`withUser` 名は既存 DB helper と衝突するので不使用。`withServiceRole` は mint まで・response mapping は呼び出し側。Step 4 に**ルート分類表との照合**を追加 | Codex BLOCKER: login(未ログイン)/refresh(refresh cookie のみ)/logout(token 無でも clearSession+ok)/me・change-password(force-change bypass) は前提が別で、401-only ラッパに寄せると現行契約を壊す。NICE（命名衝突・admin 内包順・service_role 責務・分類表照合）も反映 |
 | 2026-06-15 | 再計画レビュー2（Agent 3 視点・#25 実コード照合）**NEEDS WORK** を反映 | BLOCKER: **B-1 `me` はラッパ対象外**（2 種 401+リッチ body の drift）/ **B-2 `change-password` は rate-limit 最外の順序維持**。admin は **tx 内 403 判定をラッパに持ち上げない**（PUT も #25 で 403 統一・security の 404 前提は誤読を訂正）。NICE: 分類表の一次キーは `/auth/` 配下・`me/surveys` は business / 検出語を `getAccessToken` 等に拡張 / `withServiceRole` はインライン型 / `withOptionalUser` の clearSession 責務 / integration test 必須 / 新規 route 用 CI lint を残課題に。[再計画レビュー2](../reviews/2026-06-15-1640-api-route-helpers-replan-review.md) |
+| 2026-06-15 | 実装時: **ラッパは `withActiveUser` 1 種に集約**（`withSessionUser`/`withAdmin`/`withOptionalUser` は作らない） | change-password は rate-limit を最外に保つ必要があり wrapper で auth を前置すると順序が反転（B-2）→ 本体維持。me は独自実装（B-1）。logout は `getAccessToken` ベースで元々 getCurrentClaims 不使用→据え置き。admin は 403 を tx 内に残すため withActiveUser で足りる。結果、追加ラッパは不要で `withActiveUser` のみが残った（コードレビュー Agent 2 視点 APPROVE で確認） |
+| 2026-06-15 | コードレビュー（Agent: code+security）**APPROVE**。挙動不変・ガード漏れ無しを全 route で確認 | [コードレビュー](../reviews/2026-06-15-1710-api-route-helpers-code-review.md)。残: Plan §5 の integration test は後続（FOLLOW-UP）、新規 route 用 `no-restricted-imports` は §残課題 |
 
 ---
 
@@ -171,9 +173,11 @@ auth ルートは「同じ allowlist でも前提が違う」ため **1 種類�
 - [x] **再計画レビュー2（Agent 3 視点・#25 実コード）** → [NEEDS WORK](../reviews/2026-06-15-1640-api-route-helpers-replan-review.md)
 - [x] 指摘反映（me 対象外 / change-password 順序 / admin は tx 内 / 分類表キー / 検出拡張 / serviceRole 粒度 / test 必須 / CI lint 残課題）
 - [x] **再々計画レビュー（Agent: code+security）** → [APPROVE](../reviews/2026-06-15-1655-api-route-helpers-replan-review-v2.md)（残 NICE は Step 1/§5 に反映）
-- [ ] PR #25 マージ確認 → 着手
-- [ ] （F-1）`users/[id]/route.ts` PUT 先頭コメント `…非 admin は対象 0 行 → 404 相当` を実コード(403)に合わせて修正 → **本 refactor PR でまとめて対応**（PUT は `withAdmin` で触るため）
-- [ ] Step 1〜5 実装（refactor/api-route-helpers）
-- [ ] 検証: typecheck / build green + 挙動不変の突合
-- [ ] コードレビュー（Codex）
-- [ ] PR 作成（develop 向け）→ 笹木さんマージ承認
+- [x] PR #25 マージ確認 → 着手
+- [x] （F-1）`users/[id]/route.ts` PUT 先頭コメントを実コード(403)に合わせて修正（本 refactor で対応済み）
+- [x] Step 1〜5 実装（refactor/api-route-helpers・5 コミット）
+- [x] 検証: typecheck green / build green（挙動不変は静的精査で確認）
+- [x] **コードレビュー（Agent: code+security）** → [APPROVE](../reviews/2026-06-15-1710-api-route-helpers-code-review.md)
+- [x] PR 作成（develop 向け）→ **[PR #26](https://github.com/sasakiyusuke2017015/waoon/pull/26)**・笹木さんマージ承認待ち
+- [ ] （後続）挙動不変の軽い integration test（429→401→400 順 / me の 2 種 401 / admin 403 等）
+- [ ] （後続）新規 route のガード強制: `no-restricted-imports` で認証プリミティブ直 import を禁止（allowlist override）

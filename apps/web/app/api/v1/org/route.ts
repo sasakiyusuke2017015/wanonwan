@@ -1,14 +1,9 @@
 import { NextResponse } from "next/server";
-import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { withActiveUser } from "@/lib/auth/route";
 import { withUser } from "@/lib/db/client";
 
 // フォームの選択肢用: 組織マスタ（本部/部/課/役職）。認証済みなら可。
-export async function GET() {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
-
+export const GET = withActiveUser(async (_req, claims) => {
   const data = await withUser(claims.sub, async (tx) => {
     // 単一接続トランザクションなので逐次で実行する
     const positions = await tx`select id, code, name from public.positions order by code`;
@@ -19,4 +14,4 @@ export async function GET() {
   });
 
   return NextResponse.json({ data });
-}
+});

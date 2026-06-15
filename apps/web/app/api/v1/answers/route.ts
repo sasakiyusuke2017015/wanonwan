@@ -1,14 +1,9 @@
 import { NextResponse } from "next/server";
-import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { withActiveUser } from "@/lib/auth/route";
 import { withUser } from "@/lib/db/client";
 
 // 回答一覧（RLS で可視範囲が決まる: admin 全件 / 面談者 / 閲覧者 / 本人）。
-export async function GET() {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
-
+export const GET = withActiveUser(async (_req, claims) => {
   const rows = await withUser(claims.sub, (tx) => tx`
     select a.id, a.status,
            a.health_status as "healthStatus",
@@ -23,4 +18,4 @@ export async function GET() {
     order by a.id desc
   `);
   return NextResponse.json({ data: rows });
-}
+});

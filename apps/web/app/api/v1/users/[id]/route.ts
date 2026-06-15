@@ -1,20 +1,16 @@
 import { NextResponse } from "next/server";
-import * as v from "valibot";
 import { UpdateUserSchema } from "@waoon/domain";
 import { GoTrueError } from "@waoon/auth";
-import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { withActiveUser } from "@/lib/auth/route";
 import { gotrue } from "@/lib/auth/gotrue";
-import { mintServiceRoleToken } from "@/lib/auth/provisioning";
+import { withServiceRole } from "@/lib/auth/service-role";
+import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
 
 type Ctx = { params: Promise<{ id: string }> };
 
-export async function GET(_req: Request, { params }: Ctx) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
+export const GET = withActiveUser(async (_req, claims, { params }: Ctx) => {
   const { id } = await params;
 
   const rows = await withUser(claims.sub, (tx) => tx`
@@ -27,22 +23,15 @@ export async function GET(_req: Request, { params }: Ctx) {
   `);
   if (rows.length === 0) return NextResponse.json({ error: "not found" }, { status: 404 });
   return NextResponse.json({ data: rows[0] });
-}
+});
 
-// 更新（RLS users_write = admin のみ。非 admin は対象 0 行 → 404 相当）。
-export async function PUT(req: Request, { params }: Ctx) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
+// 更新（admin のみ。GoTrue を触る前に app.is_admin() で 403。RLS users_write が最終ガード）。
+export const PUT = withActiveUser(async (req, claims, { params }: Ctx) => {
   const { id } = await params;
 
-  let input: v.InferOutput<typeof UpdateUserSchema>;
-  try {
-    input = v.parse(UpdateUserSchema, await req.json());
-  } catch {
-    return NextResponse.json({ error: "入力が不正です" }, { status: 400 });
-  }
+  const parsed = await parseBody(req, UpdateUserSchema);
+  if (parsed instanceof NextResponse) return parsed;
+  const input = parsed;
 
   const set: Record<string, unknown> = {};
   if (input.code !== undefined) set.code = input.code;
@@ -83,8 +72,9 @@ export async function PUT(req: Request, { params }: Ctx) {
       return NextResponse.json({ error: "認証ユーザーが紐付いていません" }, { status: 409 });
     }
     try {
-      const token = await mintServiceRoleToken();
-      await gotrue.admin.updateUser(target.gotrueId, { email: input.email, emailConfirm: true }, token);
+      await withServiceRole((token) =>
+        gotrue.admin.updateUser(target.gotrueId!, { email: input.email, emailConfirm: true }, token),
+      );
     } catch (e) {
       if (e instanceof GoTrueError && (e.status === 422 || e.status === 409)) {
         return NextResponse.json({ error: "このメールアドレスは既に登録されています" }, { status: 409 });
@@ -110,14 +100,15 @@ export async function PUT(req: Request, { params }: Ctx) {
     if (emailChanged) await rollbackGotrueEmail(target.gotrueId!, oldEmail);
     return mapDbError(e);
   }
-}
+});
 
 // GoTrue email を旧値へ戻す。失敗は致命ではない（DB=旧・ログイン=新 のズレが残るため
 // gotrue_id を残して運用で拾えるようにする。PW 等の機微情報は出さない）。
 async function rollbackGotrueEmail(gotrueId: string, oldEmail: string): Promise<void> {
   try {
-    const token = await mintServiceRoleToken();
-    await gotrue.admin.updateUser(gotrueId, { email: oldEmail, emailConfirm: true }, token);
+    await withServiceRole((token) =>
+      gotrue.admin.updateUser(gotrueId, { email: oldEmail, emailConfirm: true }, token),
+    );
   } catch (rollbackError) {
     console.error(`GoTrue email rollback failed: gotrue_id=${gotrueId}`, rollbackError);
   }

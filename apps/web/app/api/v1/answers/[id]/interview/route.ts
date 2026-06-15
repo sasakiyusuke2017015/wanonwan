@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import * as v from "valibot";
 import { RecordInterviewSchema } from "@waoon/domain";
-import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { withActiveUser } from "@/lib/auth/route";
+import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
 
@@ -11,20 +11,13 @@ const nz = (s: string | null | undefined) => (s ? s : null);
 
 // 面談を記録（RLS answers_update = admin / 面談者 / 本人）。
 // interviewer_id 未設定なら記録者を面談者に設定する（admin が claim する経路）。
-export async function PUT(req: Request, { params }: Ctx) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
+export const PUT = withActiveUser(async (req, claims, { params }: Ctx) => {
   const { id } = await params;
   const aid = Number(id);
 
-  let input: v.InferOutput<typeof RecordInterviewSchema>;
-  try {
-    input = v.parse(RecordInterviewSchema, await req.json());
-  } catch {
-    return NextResponse.json({ error: "入力が不正です" }, { status: 400 });
-  }
+  const parsed = await parseBody(req, RecordInterviewSchema);
+  if (parsed instanceof NextResponse) return parsed;
+  const input = parsed;
 
   try {
     const outcome = await withUser(claims.sub, async (tx) => {
@@ -62,4 +55,4 @@ export async function PUT(req: Request, { params }: Ctx) {
   } catch (e) {
     return mapDbError(e);
   }
-}
+});

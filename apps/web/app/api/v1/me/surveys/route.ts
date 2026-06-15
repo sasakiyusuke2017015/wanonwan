@@ -1,14 +1,9 @@
 import { NextResponse } from "next/server";
-import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { withActiveUser } from "@/lib/auth/route";
 import { withUser } from "@/lib/db/client";
 
 // 回答者向け: 実施中(200)の掲載一覧 + 自分の回答状態。
-export async function GET() {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
-
+export const GET = withActiveUser(async (_req, claims) => {
   const rows = await withUser(claims.sub, (tx) => tx`
     select p.id        as "publicationId",
            p.title     as "publicationTitle",
@@ -27,4 +22,4 @@ export async function GET() {
     order by p.id desc
   `);
   return NextResponse.json({ data: rows });
-}
+});
