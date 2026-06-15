@@ -7,7 +7,7 @@ import { withServiceRole } from "@/lib/auth/service-role";
 import { mustChangeAppMetadata } from "@/lib/auth/metadata";
 import { setSession } from "@/lib/auth/session";
 import { parseBody } from "@/lib/api/request";
-import { AUTH_RATE_LIMITS, getClientIp, rateLimit, tooManyRequests } from "@/lib/auth/rate-limit";
+import { AUTH_RATE_LIMITS, checkRateLimit } from "@/lib/auth/rate-limit";
 
 const Body = v.object({
   currentPassword: v.pipe(v.string(), v.minLength(1)),
@@ -18,13 +18,8 @@ const Body = v.object({
 // current PW を再確認してから更新し、app_metadata のフラグを解除、新 PW で再ログインして
 // セッション（access+refresh）を新世代へ差し替える。これは allowlist で forceChangeGuard を掛けない。
 export async function POST(req: Request) {
-  const ip = getClientIp(req);
-  const limit = rateLimit(
-    `change-password:ip:${ip}`,
-    AUTH_RATE_LIMITS.loginPerIp,
-    AUTH_RATE_LIMITS.windowMs,
-  );
-  if (!limit.ok) return tooManyRequests(limit.retryAfterSec);
+  const limited = checkRateLimit(req, "change-password", AUTH_RATE_LIMITS.loginPerIp);
+  if (limited) return limited;
 
   const claims = await getCurrentClaims();
   if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });

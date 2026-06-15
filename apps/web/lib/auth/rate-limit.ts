@@ -74,3 +74,11 @@ export const AUTH_RATE_LIMITS = {
   loginPerIp: positiveIntEnv(process.env.RATE_LIMIT_LOGIN_PER_IP, 10),
   refreshPerIp: positiveIntEnv(process.env.RATE_LIMIT_REFRESH_PER_IP, 30),
 } as const;
+
+// 認証エンドポイントの rate-limit プリリュードをまとめる。IP 単位（key は `${keyPrefix}:ip:${ip}`）。
+// 制限超過なら 429 Response、通過なら null を返す。ウィンドウは AUTH_RATE_LIMITS.windowMs 固定。
+export function checkRateLimit(req: Request, keyPrefix: string, limit: number): NextResponse | null {
+  const ip = getClientIp(req);
+  const result = rateLimit(`${keyPrefix}:ip:${ip}`, limit, AUTH_RATE_LIMITS.windowMs);
+  return result.ok ? null : tooManyRequests(result.retryAfterSec);
+}
