@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import * as v from "valibot";
-import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { withActiveUser } from "@/lib/auth/route";
 import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
@@ -19,12 +19,7 @@ export const ScheduleBody = v.object({
 
 // 予定一覧。RLS(schedules_select)で認証済みなら全件閲覧（共有カレンダー）。
 // start_at が無い行はカレンダーに置けないため除外する。
-export async function GET() {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
-
+export const GET = withActiveUser(async (_req, claims) => {
   const rows = await withUser(
     claims.sub,
     (tx) => tx`
@@ -37,15 +32,10 @@ export async function GET() {
     `,
   );
   return NextResponse.json({ data: rows });
-}
+});
 
 // 予定の新規作成。created_by は本人(app.uid())。RLS write は admin or created_by。
-export async function POST(req: Request) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
-
+export const POST = withActiveUser(async (req, claims) => {
   const parsed = await parseBody(req, ScheduleBody);
   if (parsed instanceof NextResponse) return parsed;
   const input = parsed;
@@ -67,4 +57,4 @@ export async function POST(req: Request) {
   } catch (e) {
     return mapDbError(e);
   }
-}
+});

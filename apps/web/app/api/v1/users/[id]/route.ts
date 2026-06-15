@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { UpdateUserSchema } from "@waoon/domain";
 import { GoTrueError } from "@waoon/auth";
-import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { withActiveUser } from "@/lib/auth/route";
 import { gotrue } from "@/lib/auth/gotrue";
 import { withServiceRole } from "@/lib/auth/service-role";
 import { parseBody } from "@/lib/api/request";
@@ -10,11 +10,7 @@ import { mapDbError } from "@/lib/db/errors";
 
 type Ctx = { params: Promise<{ id: string }> };
 
-export async function GET(_req: Request, { params }: Ctx) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
+export const GET = withActiveUser(async (_req, claims, { params }: Ctx) => {
   const { id } = await params;
 
   const rows = await withUser(claims.sub, (tx) => tx`
@@ -27,14 +23,10 @@ export async function GET(_req: Request, { params }: Ctx) {
   `);
   if (rows.length === 0) return NextResponse.json({ error: "not found" }, { status: 404 });
   return NextResponse.json({ data: rows[0] });
-}
+});
 
-// 更新（RLS users_write = admin のみ。非 admin は対象 0 行 → 404 相当）。
-export async function PUT(req: Request, { params }: Ctx) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
+// 更新（admin のみ。GoTrue を触る前に app.is_admin() で 403。RLS users_write が最終ガード）。
+export const PUT = withActiveUser(async (req, claims, { params }: Ctx) => {
   const { id } = await params;
 
   const parsed = await parseBody(req, UpdateUserSchema);
@@ -108,7 +100,7 @@ export async function PUT(req: Request, { params }: Ctx) {
     if (emailChanged) await rollbackGotrueEmail(target.gotrueId!, oldEmail);
     return mapDbError(e);
   }
-}
+});
 
 // GoTrue email を旧値へ戻す。失敗は致命ではない（DB=旧・ログイン=新 のズレが残るため
 // gotrue_id を残して運用で拾えるようにする。PW 等の機微情報は出さない）。

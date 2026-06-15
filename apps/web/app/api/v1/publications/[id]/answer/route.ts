@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import * as v from "valibot";
-import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { withActiveUser } from "@/lib/auth/route";
 import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
@@ -13,11 +13,7 @@ const AnswerBody = v.object({
 });
 
 // 回答提出（実施中の掲載に対し、本人の回答を upsert）。RLS: insert with check respondent = self。
-export async function POST(req: Request, { params }: Ctx) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
+export const POST = withActiveUser(async (req, claims, { params }: Ctx) => {
   const { id } = await params;
   const pid = Number(id);
 
@@ -66,4 +62,4 @@ export async function POST(req: Request, { params }: Ctx) {
   } catch (e) {
     return mapDbError(e);
   }
-}
+});

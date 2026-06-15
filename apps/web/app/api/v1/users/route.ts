@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { CreateUserSchema } from "@waoon/domain";
 import { GoTrueError } from "@waoon/auth";
-import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { withActiveUser } from "@/lib/auth/route";
 import { gotrue } from "@/lib/auth/gotrue";
 import { generateInitialPassword } from "@/lib/auth/provisioning";
 import { withServiceRole } from "@/lib/auth/service-role";
@@ -11,12 +11,7 @@ import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
 
 // ユーザー一覧（認証済みなら可。RLS users_select）。
-export async function GET() {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
-
+export const GET = withActiveUser(async (_req, claims) => {
   const rows = await withUser(
     claims.sub,
     (tx) => tx`
@@ -30,7 +25,7 @@ export async function GET() {
   `,
   );
   return NextResponse.json({ data: rows });
-}
+});
 
 // ユーザー新規作成 + GoTrue provisioning。
 // 業務ユーザー(public.users)と GoTrue identity を同時に発行し、gotrue_id で紐付ける
@@ -39,12 +34,7 @@ export async function GET() {
 //
 // 認可: GoTrue identity を作る前に app.is_admin() で弾く（非 admin が認証ユーザーを
 // 量産できないように）。最終ガードは insert 時の RLS users_write(WITH CHECK admin)。
-export async function POST(req: Request) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
-
+export const POST = withActiveUser(async (req, claims) => {
   const parsed = await parseBody(req, CreateUserSchema);
   if (parsed instanceof NextResponse) return parsed;
   const input = parsed;
@@ -121,4 +111,4 @@ export async function POST(req: Request) {
     }
     return mapDbError(e);
   }
-}
+});

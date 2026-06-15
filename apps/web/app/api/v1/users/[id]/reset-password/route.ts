@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { withActiveUser } from "@/lib/auth/route";
 import { gotrue } from "@/lib/auth/gotrue";
 import { generateInitialPassword } from "@/lib/auth/provisioning";
 import { withServiceRole } from "@/lib/auth/service-role";
@@ -12,11 +12,7 @@ type Ctx = { params: Promise<{ id: string }> };
 // admin がユーザーのパスワードをリセットする。サーバ生成 PW を一度だけ返し、
 // 初回ログイン後の force-change フラグ（app_metadata）を立てる。
 // 認可: GoTrue を触る前に app.is_admin() で弾く。
-export async function POST(_req: Request, { params }: Ctx) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
+export const POST = withActiveUser(async (_req, claims, { params }: Ctx) => {
   const { id } = await params;
 
   // admin ゲート + 対象の gotrue_id 取得（GoTrue を触る前に）。
@@ -53,4 +49,4 @@ export async function POST(_req: Request, { params }: Ctx) {
   }
 
   return NextResponse.json({ initialPassword });
-}
+});

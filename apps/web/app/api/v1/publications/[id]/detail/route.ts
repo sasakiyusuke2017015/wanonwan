@@ -1,15 +1,11 @@
 import { NextResponse } from "next/server";
-import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { withActiveUser } from "@/lib/auth/route";
 import { withUser } from "@/lib/db/client";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 // 回答画面用: 掲載 + アンケート + 設問 + 自分の既存回答。
-export async function GET(_req: Request, { params }: Ctx) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
+export const GET = withActiveUser(async (_req, claims, { params }: Ctx) => {
   const { id } = await params;
   const pid = Number(id);
 
@@ -43,4 +39,4 @@ export async function GET(_req: Request, { params }: Ctx) {
 
   if (!result) return NextResponse.json({ error: "not found" }, { status: 404 });
   return NextResponse.json({ data: result });
-}
+});

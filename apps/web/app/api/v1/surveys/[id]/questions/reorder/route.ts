@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { ReorderQuestionsSchema } from "@waoon/domain";
-import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { withActiveUser } from "@/lib/auth/route";
 import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
@@ -8,11 +8,7 @@ import { mapDbError } from "@/lib/db/errors";
 type Ctx = { params: Promise<{ id: string }> };
 
 // 設問の並び替え（order = question id の並び）。RLS survey_questions_write = admin。
-export async function PUT(req: Request, { params }: Ctx) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
+export const PUT = withActiveUser(async (req, claims, { params }: Ctx) => {
   const { id } = await params;
   const surveyId = Number(id);
 
@@ -33,4 +29,4 @@ export async function PUT(req: Request, { params }: Ctx) {
   } catch (e) {
     return mapDbError(e);
   }
-}
+});

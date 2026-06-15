@@ -1,17 +1,12 @@
 import { NextResponse } from "next/server";
 import { CreateSurveySchema } from "@waoon/domain";
-import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { withActiveUser } from "@/lib/auth/route";
 import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
 
 // アンケート一覧（認証済みは閲覧可。RLS surveys_select）。
-export async function GET() {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
-
+export const GET = withActiveUser(async (_req, claims) => {
   const rows = await withUser(claims.sub, (tx) => tx`
     select s.id, s.title, s.status, s.capacity,
            s.requires_auth as "requiresAuth",
@@ -21,15 +16,10 @@ export async function GET() {
     order by s.id desc
   `);
   return NextResponse.json({ data: rows });
-}
+});
 
 // アンケート新規作成（RLS surveys_write = admin のみ）。
-export async function POST(req: Request) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
-
+export const POST = withActiveUser(async (req, claims) => {
   const parsed = await parseBody(req, CreateSurveySchema);
   if (parsed instanceof NextResponse) return parsed;
   const input = parsed;
@@ -45,4 +35,4 @@ export async function POST(req: Request) {
   } catch (e) {
     return mapDbError(e);
   }
-}
+});

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { RecordInterviewSchema } from "@waoon/domain";
-import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { withActiveUser } from "@/lib/auth/route";
 import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
@@ -11,11 +11,7 @@ const nz = (s: string | null | undefined) => (s ? s : null);
 
 // 面談を記録（RLS answers_update = admin / 面談者 / 本人）。
 // interviewer_id 未設定なら記録者を面談者に設定する（admin が claim する経路）。
-export async function PUT(req: Request, { params }: Ctx) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
+export const PUT = withActiveUser(async (req, claims, { params }: Ctx) => {
   const { id } = await params;
   const aid = Number(id);
 
@@ -59,4 +55,4 @@ export async function PUT(req: Request, { params }: Ctx) {
   } catch (e) {
     return mapDbError(e);
   }
-}
+});

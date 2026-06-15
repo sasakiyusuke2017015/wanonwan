@@ -23,12 +23,5 @@ export function withActiveUser<C = unknown>(handler: Handler<C>) {
   };
 }
 
-// auth/change-password 用。valid access 必須（401）だが force-change は bypass（許可）。
-// rate-limit・email 欠落 401・parseBody・service_role は route 本体に残す（順序を保つ）。
-export function withSessionUser<C = unknown>(handler: Handler<C>) {
-  return async (req: Request, ctx: C): Promise<Response> => {
-    const claims = await getCurrentClaims();
-    if (!claims) return unauthenticated();
-    return handler(req, claims, ctx);
-  };
-}
+// auth/me（独自実装）・auth/change-password（rate-limit を最外に保つため）は本ラッパを使わず、
+// それぞれ既存の認証プリミティブを route 本体で直接扱う。force-change bypass の allowlist。

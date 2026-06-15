@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { withActiveUser } from "@/lib/auth/route";
 import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
@@ -8,11 +8,7 @@ import { ScheduleBody } from "../route";
 type Ctx = { params: Promise<{ id: string }> };
 
 // 予定の更新。RLS(schedules_write)で admin or 作成者のみ（他人の行は 0 件更新 = 404）。
-export async function PUT(req: Request, { params }: Ctx) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
+export const PUT = withActiveUser(async (req, claims, { params }: Ctx) => {
   const { id } = await params;
 
   const parsed = await parseBody(req, ScheduleBody);
@@ -39,14 +35,10 @@ export async function PUT(req: Request, { params }: Ctx) {
   } catch (e) {
     return mapDbError(e);
   }
-}
+});
 
 // 予定の削除。RLS で admin or 作成者のみ（他人の行は 0 件削除 = 404）。
-export async function DELETE(_req: Request, { params }: Ctx) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
+export const DELETE = withActiveUser(async (_req, claims, { params }: Ctx) => {
   const { id } = await params;
 
   try {
@@ -59,4 +51,4 @@ export async function DELETE(_req: Request, { params }: Ctx) {
   } catch (e) {
     return mapDbError(e);
   }
-}
+});

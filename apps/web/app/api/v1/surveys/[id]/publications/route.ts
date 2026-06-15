@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { CreatePublicationSchema } from "@waoon/domain";
-import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { withActiveUser } from "@/lib/auth/route";
 import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
@@ -9,11 +9,7 @@ type Ctx = { params: Promise<{ id: string }> };
 
 const nz = (s: string | null | undefined) => (s ? s : null);
 
-export async function GET(_req: Request, { params }: Ctx) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
+export const GET = withActiveUser(async (_req, claims, { params }: Ctx) => {
   const { id } = await params;
 
   const rows = await withUser(claims.sub, (tx) => tx`
@@ -24,13 +20,9 @@ export async function GET(_req: Request, { params }: Ctx) {
     order by id desc
   `);
   return NextResponse.json({ data: rows });
-}
+});
 
-export async function POST(req: Request, { params }: Ctx) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
+export const POST = withActiveUser(async (req, claims, { params }: Ctx) => {
   const { id } = await params;
 
   const parsed = await parseBody(req, CreatePublicationSchema);
@@ -48,4 +40,4 @@ export async function POST(req: Request, { params }: Ctx) {
   } catch (e) {
     return mapDbError(e);
   }
-}
+});

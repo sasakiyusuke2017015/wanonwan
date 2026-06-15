@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { CreateQuestionSchema } from "@waoon/domain";
-import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { withActiveUser } from "@/lib/auth/route";
 import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
@@ -8,11 +8,7 @@ import { mapDbError } from "@/lib/db/errors";
 type Ctx = { params: Promise<{ id: string }> };
 
 // アンケートの設問一覧（sort_order 順）。
-export async function GET(_req: Request, { params }: Ctx) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
+export const GET = withActiveUser(async (_req, claims, { params }: Ctx) => {
   const { id } = await params;
 
   const rows = await withUser(claims.sub, (tx) => tx`
@@ -29,14 +25,10 @@ export async function GET(_req: Request, { params }: Ctx) {
     order by sq.sort_order, q.id
   `);
   return NextResponse.json({ data: rows });
-}
+});
 
 // 設問を追加（question 作成 + survey_questions リンク）。RLS write = admin。
-export async function POST(req: Request, { params }: Ctx) {
-  const claims = await getCurrentClaims();
-  if (!claims) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  const mustChange = forceChangeGuard(claims);
-  if (mustChange) return mustChange;
+export const POST = withActiveUser(async (req, claims, { params }: Ctx) => {
   const { id } = await params;
   const surveyId = Number(id);
 
@@ -67,4 +59,4 @@ export async function POST(req: Request, { params }: Ctx) {
   } catch (e) {
     return mapDbError(e);
   }
-}
+});
