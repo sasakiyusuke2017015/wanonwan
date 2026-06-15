@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import * as v from "valibot";
 import { ReorderQuestionsSchema } from "@waoon/domain";
 import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
 
@@ -16,12 +16,9 @@ export async function PUT(req: Request, { params }: Ctx) {
   const { id } = await params;
   const surveyId = Number(id);
 
-  let input: v.InferOutput<typeof ReorderQuestionsSchema>;
-  try {
-    input = v.parse(ReorderQuestionsSchema, await req.json());
-  } catch {
-    return NextResponse.json({ error: "入力が不正です" }, { status: 400 });
-  }
+  const parsed = await parseBody(req, ReorderQuestionsSchema);
+  if (parsed instanceof NextResponse) return parsed;
+  const input = parsed;
 
   try {
     await withUser(claims.sub, async (tx) => {

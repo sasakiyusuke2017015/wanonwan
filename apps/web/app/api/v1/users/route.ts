@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import * as v from "valibot";
 import { CreateUserSchema } from "@waoon/domain";
 import { GoTrueError } from "@waoon/auth";
 import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
 import { gotrue } from "@/lib/auth/gotrue";
 import { mintServiceRoleToken, generateInitialPassword } from "@/lib/auth/provisioning";
 import { mustChangeAppMetadata } from "@/lib/auth/metadata";
+import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
 
@@ -44,12 +44,9 @@ export async function POST(req: Request) {
   const mustChange = forceChangeGuard(claims);
   if (mustChange) return mustChange;
 
-  let input: v.InferOutput<typeof CreateUserSchema>;
-  try {
-    input = v.parse(CreateUserSchema, await req.json());
-  } catch {
-    return NextResponse.json({ error: "入力が不正です" }, { status: 400 });
-  }
+  const parsed = await parseBody(req, CreateUserSchema);
+  if (parsed instanceof NextResponse) return parsed;
+  const input = parsed;
 
   // 1) admin ゲート + 重複チェック（GoTrue identity を作る前に弾く）。
   let precheck: { admin: boolean; dup: boolean };

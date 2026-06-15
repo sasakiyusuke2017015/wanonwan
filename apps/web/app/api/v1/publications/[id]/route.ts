@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import * as v from "valibot";
 import { UpdatePublicationSchema } from "@waoon/domain";
 import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
 
@@ -17,12 +17,9 @@ export async function PUT(req: Request, { params }: Ctx) {
   if (mustChange) return mustChange;
   const { id } = await params;
 
-  let input: v.InferOutput<typeof UpdatePublicationSchema>;
-  try {
-    input = v.parse(UpdatePublicationSchema, await req.json());
-  } catch {
-    return NextResponse.json({ error: "入力が不正です" }, { status: 400 });
-  }
+  const parsed = await parseBody(req, UpdatePublicationSchema);
+  if (parsed instanceof NextResponse) return parsed;
+  const input = parsed;
 
   try {
     const rows = await withUser(claims.sub, (tx) => tx`

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import * as v from "valibot";
 import { RecordInterviewSchema } from "@waoon/domain";
 import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
 
@@ -19,12 +19,9 @@ export async function PUT(req: Request, { params }: Ctx) {
   const { id } = await params;
   const aid = Number(id);
 
-  let input: v.InferOutput<typeof RecordInterviewSchema>;
-  try {
-    input = v.parse(RecordInterviewSchema, await req.json());
-  } catch {
-    return NextResponse.json({ error: "入力が不正です" }, { status: 400 });
-  }
+  const parsed = await parseBody(req, RecordInterviewSchema);
+  if (parsed instanceof NextResponse) return parsed;
+  const input = parsed;
 
   try {
     const outcome = await withUser(claims.sub, async (tx) => {

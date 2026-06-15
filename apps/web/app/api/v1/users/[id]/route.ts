@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import * as v from "valibot";
 import { UpdateUserSchema } from "@waoon/domain";
 import { GoTrueError } from "@waoon/auth";
 import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
 import { gotrue } from "@/lib/auth/gotrue";
 import { mintServiceRoleToken } from "@/lib/auth/provisioning";
+import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
 
@@ -37,12 +37,9 @@ export async function PUT(req: Request, { params }: Ctx) {
   if (mustChange) return mustChange;
   const { id } = await params;
 
-  let input: v.InferOutput<typeof UpdateUserSchema>;
-  try {
-    input = v.parse(UpdateUserSchema, await req.json());
-  } catch {
-    return NextResponse.json({ error: "入力が不正です" }, { status: 400 });
-  }
+  const parsed = await parseBody(req, UpdateUserSchema);
+  if (parsed instanceof NextResponse) return parsed;
+  const input = parsed;
 
   const set: Record<string, unknown> = {};
   if (input.code !== undefined) set.code = input.code;

@@ -3,6 +3,7 @@ import * as v from "valibot";
 import { GoTrueError } from "@waoon/auth";
 import { gotrue } from "@/lib/auth/gotrue";
 import { setSession } from "@/lib/auth/session";
+import { parseBody } from "@/lib/api/request";
 import { AUTH_RATE_LIMITS, getClientIp, rateLimit, tooManyRequests } from "@/lib/auth/rate-limit";
 
 const LoginBody = v.object({
@@ -16,15 +17,9 @@ export async function POST(req: Request) {
   const limit = rateLimit(`login:ip:${ip}`, AUTH_RATE_LIMITS.loginPerIp, AUTH_RATE_LIMITS.windowMs);
   if (!limit.ok) return tooManyRequests(limit.retryAfterSec);
 
-  let input: v.InferOutput<typeof LoginBody>;
-  try {
-    input = v.parse(LoginBody, await req.json());
-  } catch {
-    return NextResponse.json(
-      { error: "メールアドレスとパスワードを入力してください" },
-      { status: 400 },
-    );
-  }
+  const parsed = await parseBody(req, LoginBody, "メールアドレスとパスワードを入力してください");
+  if (parsed instanceof NextResponse) return parsed;
+  const input = parsed;
 
   try {
     const session = await gotrue.signInWithPassword(input.email, input.password);

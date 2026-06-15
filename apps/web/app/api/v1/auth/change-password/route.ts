@@ -6,6 +6,7 @@ import { gotrue } from "@/lib/auth/gotrue";
 import { mintServiceRoleToken } from "@/lib/auth/provisioning";
 import { mustChangeAppMetadata } from "@/lib/auth/metadata";
 import { setSession } from "@/lib/auth/session";
+import { parseBody } from "@/lib/api/request";
 import { AUTH_RATE_LIMITS, getClientIp, rateLimit, tooManyRequests } from "@/lib/auth/rate-limit";
 
 const Body = v.object({
@@ -31,12 +32,9 @@ export async function POST(req: Request) {
   if (!claims.email) return NextResponse.json({ error: "再ログインしてください" }, { status: 401 });
   const email = claims.email;
 
-  let input: v.InferOutput<typeof Body>;
-  try {
-    input = v.parse(Body, await req.json());
-  } catch {
-    return NextResponse.json({ error: "現在のパスワードと新しいパスワード（12文字以上）を入力してください" }, { status: 400 });
-  }
+  const parsed = await parseBody(req, Body, "現在のパスワードと新しいパスワード（12文字以上）を入力してください");
+  if (parsed instanceof NextResponse) return parsed;
+  const input = parsed;
 
   // 1) current PW 確認（本人確認）。失敗は 401（汎用）。
   try {

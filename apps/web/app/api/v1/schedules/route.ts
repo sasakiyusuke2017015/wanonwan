@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import * as v from "valibot";
 import { getCurrentClaims, forceChangeGuard } from "@/lib/auth/current-user";
+import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
 
@@ -45,12 +46,9 @@ export async function POST(req: Request) {
   const mustChange = forceChangeGuard(claims);
   if (mustChange) return mustChange;
 
-  let input: v.InferOutput<typeof ScheduleBody>;
-  try {
-    input = v.parse(ScheduleBody, await req.json());
-  } catch {
-    return NextResponse.json({ error: "入力が不正です" }, { status: 400 });
-  }
+  const parsed = await parseBody(req, ScheduleBody);
+  if (parsed instanceof NextResponse) return parsed;
+  const input = parsed;
 
   try {
     const rows = await withUser(
