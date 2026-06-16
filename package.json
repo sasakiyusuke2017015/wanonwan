@@ -20,7 +20,6 @@
     "compose:dev:reset": "docker compose -f infra/docker-compose.yml down -v",
     "compose:dev:logs": "docker compose -f infra/docker-compose.yml logs -f",
     "dev:up": "pnpm run compose:dev:up && pnpm --filter @waoon/web dev",
-    "setup:dev": "pnpm run compose:dev:up && pnpm run db:migrate && pnpm run db:seed",
     "db:psql": "docker compose -f infra/docker-compose.yml exec postgres psql -U postgres -d waoon",
     "db:migrate": "node scripts/db-migrate.mjs",
     "db:seed": "node scripts/db-seed.mjs",
