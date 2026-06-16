@@ -51,13 +51,14 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 ### ローカル起動メモ
 
 ```bash
-pnpm db:up            # postgres + gotrue
+pnpm setup:dev        # 初回/作り直し: postgres+gotrue 起動 → migrate → seed
+pnpm dev:up           # 日常: postgres+gotrue 起動 → web を前面起動（compose:dev:up + dev）
+# 個別に回す場合:
+pnpm compose:dev:up   # postgres + gotrue（detached）
 pnpm db:migrate       # スキーマ適用（冪等）
 pnpm db:seed          # admin/member/alice 等
 pnpm test:db          # pgTAP(RLS)
-# web は env を渡して起動:
-# GOTRUE_URL=http://localhost:9999 GOTRUE_JWT_SECRET=dev-only-change-me-please-32bytes-minimum \
-#   DATABASE_URL=postgres://app_user:app@localhost:5432/waoon pnpm --filter @waoon/web start
+pnpm dev              # web のみ（env は apps/web/.env.example の既定で動く。差し替えは .env.local）
 ```
 
 seed ログイン: `admin@example.com` / `Admin1234!`（管理者）, `member@example.com` / `Member1234!`（一般）

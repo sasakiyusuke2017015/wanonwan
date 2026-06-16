@@ -37,10 +37,10 @@ jobs:
 
       # --- DB スタックを立てて pgTAP（RLS）を実行 ---
       - name: Build DB image
-        run: pnpm db:build
+        run: pnpm compose:dev:build
 
       - name: Start DB stack
-        run: pnpm db:up
+        run: pnpm compose:dev:up
 
       - name: Wait for Postgres
         run: |
@@ -63,4 +63,4 @@ jobs:
 
       - name: Stop DB stack
         if: always()
-        run: pnpm db:down
+        run: pnpm compose:dev:down
