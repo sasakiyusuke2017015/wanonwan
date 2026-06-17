@@ -12,7 +12,7 @@
     "build": "pnpm --filter @waoon/web build",
     "start": "pnpm --filter @waoon/web start",
     "typecheck": "pnpm -r typecheck",
-    "lint": "echo \"lint: 後続フェーズ(Phase 6 CI)で設定\"",
+    "lint": "pnpm --filter @waoon/web lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md,css}\"",
     "compose:dev:build": "docker compose -f infra/docker-compose.yml build",
     "compose:dev:up": "docker compose -f infra/docker-compose.yml up -d --wait",

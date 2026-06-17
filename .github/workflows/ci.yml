@@ -32,6 +32,9 @@ jobs:
       - name: Typecheck
         run: pnpm -r typecheck
 
+      - name: Lint
+        run: pnpm lint
+
       - name: Build (web)
         run: pnpm --filter @waoon/web build
 
