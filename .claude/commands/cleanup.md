@@ -14,7 +14,7 @@ description: ローカル git 状態を対話的に棚卸しして整理し、de
 ## 前提
 
 - マージ先ブランチは `develop` (`.claude/rules/git-workflow.md` 準拠)
-- リモートは Gitea (`origin`)
+- リモートは GitHub (`origin`)
 - 裸の `git stash` は禁止 (消える事故の元なので新規には作らない)
 - 「あとで決める」を許さない (放置が散らかりの元)
 
@@ -134,7 +134,7 @@ git branch -vv | grep ': gone]'
 
 PR 未作成のブランチ (未 push or push 済みだが PR なし) を見つけた場合は、
 削除前に「これは PR にしますか？」と確認する。Yes なら push + `gh pr create`
-or Gitea で PR 作成手順を提示、No なら削除候補として扱う。
+で PR 作成手順を提示、No なら削除候補として扱う。
 
 ### 6. worktree の棚卸し
 

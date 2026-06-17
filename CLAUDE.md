@@ -83,8 +83,3 @@ nginx (TLS終端・ルーティング)
 - **ブランチ戦略**: [git-workflow.md](.claude/rules/git-workflow.md) の **3 層 `feature→develop→main`** に統一
   （技術選定メモの GitHub Flow は不採用）。
 - **`doc/legacy-1on1/` は `.gitignore`**（参照のみ。原本は `doc/1on1-main.zip`）。
-
-## 残課題
-
-- `.claude/rules/*`（git-workflow.md 等）に残る **Gitea / `tea` 前提の記述を GitHub / `gh` へ更新**する
-  （ブランチ戦略は 3 層のまま、ホスト固有の記述だけ読み替え）。

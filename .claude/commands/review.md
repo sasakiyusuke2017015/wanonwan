@@ -1,5 +1,5 @@
 ---
-description: レビューのディスパッチャ。引数や現在の git 状態を見て /plan-review (計画レビュー) or /pr-review (コードレビュー) に振り分ける。waoon は Gitea (`gh` ではなく `tea` を使う) で運用。
+description: レビューのディスパッチャ。引数や現在の git 状態を見て /plan-review (計画レビュー) or /pr-review (コードレビュー) に振り分ける。waoon は GitHub (`gh` を使う) で運用。
 ---
 
 # /review コマンド (ディスパッチャ)
@@ -28,7 +28,7 @@ description: レビューのディスパッチャ。引数や現在の git 状�
 1. **未 commit 差分がある** (`git status --short` が non-empty) →
    `/pr-review` (`--staged` + untracked を含めて見る)
 2. **現在 branch が `develop` / `main` ではない && open PR が存在する** →
-   `/pr-review <その PR 番号>` (Gitea API で取得)
+   `/pr-review <その PR 番号>` (`gh pr list` で取得)
 3. **現在 branch が `develop` / `main` ではない && open PR は無い** →
    `/pr-review` (`git diff develop...HEAD` で見る)
 4. **現在 branch が `develop` / `main`** → `outputs/plans/` から
@@ -46,9 +46,8 @@ description: レビューのディスパッチャ。引数や現在の git 状�
 
 ## waoon 固有の前提
 
-- **Gitea プロジェクト** (`http://<gitea-host>/`)。
-  PR 番号取得は `gh` ではなく **`tea pr list`** または
-  **`curl http://.../api/v1/repos/<owner>/<repo>/pulls`** を使う
+- **GitHub プロジェクト** (`sasakiyusuke2017015/waoon`)。
+  PR 番号取得・差分取得は `gh` CLI を使う (**`gh pr list`** / **`gh pr diff <番号>`**)
 - **`develop` ベース**。`main` への直接 PR は禁止
 - レビュアー Agent 起動時は `.claude/rules/agent-orchestration.md` §4 の
   **プロンプトテンプレート**を必ず含める (現行スタック前提・スコープ制約)
