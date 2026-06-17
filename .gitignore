@@ -15,8 +15,8 @@ coverage/
 !.env.*.example
 .claude/settings.local.json
 
-# 旧 1on1 ソース（参照のみ・リポジトリには含めない。原本は doc/1on1-main.zip）
-doc/legacy-1on1/
+# 旧 1on1 ソース（参照のみ・リポジトリには含めない。原本は docs/99_archive/1on1-main.zip）
+docs/99_archive/legacy-1on1/
 
 # Next.js / TypeScript 生成物
 next-env.d.ts

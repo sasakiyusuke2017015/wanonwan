@@ -15,8 +15,8 @@ waoon は、旧 **1on1（アンケート／面談）アプリ**を技術選定�
 
 | 一次情報 | 場所 |
 |---|---|
-| 技術選定メモ（採否 + 確度 + 思想） | [doc/_techmemo-decoded.md](doc/_techmemo-decoded.md)（原本: `doc/技術選定メモ_*.Csv`） |
-| 旧 1on1 ソース（**参照のみ・流用しない**） | [doc/legacy-1on1/](doc/legacy-1on1/) |
+| 技術選定メモ（採否 + 確度 + 思想） | [docs/技術選定/_techmemo-decoded.md](docs/技術選定/_techmemo-decoded.md)（原本: `docs/技術選定/技術選定メモ_*.Csv`） |
+| 旧 1on1 ソース（**参照のみ・流用しない**） | [docs/99_archive/legacy-1on1/](docs/99_archive/legacy-1on1/) |
 | 実装 Plan | [outputs/plans/](outputs/plans/) |
 
 ## 採用スタック（技術選定メモより）
@@ -82,4 +82,4 @@ nginx (TLS終端・ルーティング)
 - **ホスト**: GitHub（`origin = https://github.com/sasakiyusuke2017015/waoon.git`）。CI は `.github/workflows/`。
 - **ブランチ戦略**: [git-workflow.md](.claude/rules/git-workflow.md) の **3 層 `feature→develop→main`** に統一
   （技術選定メモの GitHub Flow は不採用）。
-- **`doc/legacy-1on1/` は `.gitignore`**（参照のみ。原本は `doc/1on1-main.zip`）。
+- **`docs/99_archive/legacy-1on1/` は `.gitignore`**（参照のみ。原本は `docs/99_archive/1on1-main.zip`）。

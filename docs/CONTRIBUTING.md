@@ -1,0 +1,88 @@
+# CONTRIBUTING — waoon 開発ガイド
+
+waoon をローカルで動かし、変更を PR にするまでの手順。AI 駆動開発の流れ・ブランチ戦略の
+一次情報は [.claude/rules/git-workflow.md](../.claude/rules/git-workflow.md) と
+[.claude/rules/plan-review-workflow.md](../.claude/rules/plan-review-workflow.md)。
+
+## 0. 開発環境（前提）
+
+第一級の開発環境は **Windows + PowerShell 5.1 + Rancher Desktop（Docker）**。
+Linux（stg サーバ）/ macOS は補助的。ドキュメントのコマンド例も PowerShell でそのまま
+動く形で書く（`&&` チェーンを避ける等の作法は [docs-style.md](../.claude/rules/docs-style.md)）。
+
+| 必要なもの | バージョン |
+|---|---|
+| Docker | Rancher Desktop（dockerd/moby）|
+| Node.js | >= 22 |
+| pnpm | 10.x（`corepack enable` で `package.json` の `packageManager` に追従）|
+
+## 1. セットアップ
+
+```bash
+pnpm install
+```
+
+env は未設定でも既定値で dev 動作する（[apps/web/.env.example](../apps/web/.env.example) /
+[infra/.env.example](../infra/.env.example)）。上書きしたいときだけ
+`apps/web/.env.local` / `infra/.env` を作る。
+
+## 2. 起動（日常はこれ 1 本）
+
+```bash
+pnpm dev:up
+```
+
+`dev:up` は次を順に実行する:
+
+1. `compose:dev:up` — postgres + gotrue を起動し healthy まで待つ（`--wait`）
+2. `db:migrate` — スキーマ適用（冪等）
+3. `db:seed` — 初期データ投入（冪等: `ON CONFLICT`）
+4. `dev` — web を前面起動 → http://localhost:3000
+
+seed 済みログイン: `admin@example.com` / `Admin1234!`（管理者）,
+`member@example.com` / `Member1234!`（一般）。
+
+### 個別に回す
+
+| コマンド | 用途 |
+|---|---|
+| `pnpm compose:dev:up` | postgres + gotrue のみ（detached, healthy 待ち） |
+| `pnpm db:migrate` | スキーマ適用 |
+| `pnpm db:seed` | 初期データ投入 |
+| `pnpm dev` | web のみ（DB は起動済み前提） |
+| `pnpm compose:dev:down` | 停止（データは保持） |
+| `pnpm compose:dev:logs` | コンテナログ追従 |
+
+ポート: web `3000` / postgres `5432` / gotrue `9999`。
+
+データを消して作り直したい・起動がおかしいときは
+[troubleshooting.md](troubleshooting.md) を参照。
+
+## 3. テスト・チェック
+
+| コマンド | 内容 |
+|---|---|
+| `pnpm typecheck` | 全パッケージの型チェック |
+| `pnpm --filter @waoon/web test` | web の Vitest（unit） |
+| `pnpm test:db` | pgTAP（RLS / SQL）。DB スタック起動が前提 |
+| `pnpm format` | Prettier |
+
+CI（[.github/workflows/ci.yml](../.github/workflows/ci.yml)）は PR / push 時に
+typecheck・web build・pgTAP を回す。
+
+## 4. ブランチ & PR
+
+3 層 `feature/* → develop → main`。マージ先は常に `develop`、Squash Merge。
+詳細は [git-workflow.md](../.claude/rules/git-workflow.md)。
+
+```bash
+git switch develop; git pull
+git switch -c feature/xxx
+# 実装 → commit
+git rebase develop
+git push -u origin feature/xxx
+gh pr create --base develop --title "feat: xxx" --reviewer sasakiyusuke2017015
+```
+
+> commit / push / PR 作成は、リアルタイムに追えない操作のため Claude Code は
+> 明示確認を取ってから実行する（[git-workflow.md の自律範囲](../.claude/rules/git-workflow.md)）。

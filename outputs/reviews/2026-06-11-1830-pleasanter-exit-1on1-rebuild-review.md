@@ -45,7 +45,7 @@
 
 ## 過去事例からの教訓
 
-- 旧 1on1 自身が「REST 200 件制限・内部ロジック依存」で Pleasanter 直 PG 接続に踏み切っていた（[POSTGRESQL_DIRECT_ACCESS_PLAN.md](../../doc/legacy-1on1/docs/POSTGRESQL_DIRECT_ACCESS_PLAN.md)）。**Plan はこの教訓を「Pleasanter 完全排除＝純正 Postgres」へと正しく昇華**している。
+- 旧 1on1 自身が「REST 200 件制限・内部ロジック依存」で Pleasanter 直 PG 接続に踏み切っていた（[POSTGRESQL_DIRECT_ACCESS_PLAN.md](../../docs/99_archive/legacy-1on1/docs/POSTGRESQL_DIRECT_ACCESS_PLAN.md)）。**Plan はこの教訓を「Pleasanter 完全排除＝純正 Postgres」へと正しく昇華**している。
 - 旧実装はロールを JWT に載せつつルーター層で未活用、認可は `canAccessAnswer()` 等の個別関数頼みだった。**新 Plan が「API 層で認可を主担」とするのは旧の暗黙知の明文化**として妥当。ただし RLS をどこまで効かせるか（BLOCKER 2）を決めないと、旧と同じ「認可がコードに散る」状態を RLS 側に作りかねない。
 
 ## 検証（この Review 自体の）
