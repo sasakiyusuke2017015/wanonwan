@@ -7,7 +7,7 @@
 | 作成 | 2026-06-11 17:30 JST |
 | 関連 PR / レビュー | [計画レビュー(初回)](../reviews/2026-06-11-1830-pleasanter-exit-1on1-rebuild-review.md) / [計画レビュー(Phase 6 焦点・NEEDS WORK)](../reviews/2026-06-12-1500-pleasanter-exit-1on1-rebuild-review.md)。機能別コードレビューは [README ダッシュボード](../README.md) 参照。PR #1–23 merged |
 | git repo | `https://github.com/sasakiyusuke2017015/waoon.git`（**GitHub**） |
-| 一次情報 | [doc/_techmemo-decoded.md](../../doc/_techmemo-decoded.md) / [doc/legacy-1on1/](../../doc/legacy-1on1/) / [付録A](#付録a-pleasanter-実スキーマ--新スキーマ対応) |
+| 一次情報 | [docs/技術選定/_techmemo-decoded.md](../../docs/技術選定/_techmemo-decoded.md) / [docs/99_archive/legacy-1on1/](../../docs/99_archive/legacy-1on1/) / [付録A](#付録a-pleasanter-実スキーマ--新スキーマ対応) |
 
 > Phase 0–5 は実装・コードレビュー・マージ済み（PR #1–23。認証系は security-reviewer も APPROVE）。
 > 残るマイルストーンは **Phase 6（デプロイ基盤: stg/prod compose + nginx）**。進捗の一次ソースは末尾「ステータス」と [README ダッシュボード](../README.md)。
@@ -47,7 +47,7 @@
 ## 2. スコープ境界
 
 - **触る**: 新規モノレポ一式（`apps/web` / `packages/*` / `infra/` / `outputs/infra-data/` / ルート設定 / `.gitea/workflows/`）。
-- **触らない（参照のみ）**: [doc/legacy-1on1/](../../doc/legacy-1on1/)（旧コードは読むだけ。コピー流用はしない＝技術メモ「モックは見た目確認のみ・実装は新規」に準拠）。
+- **触らない（参照のみ）**: [docs/99_archive/legacy-1on1/](../../docs/99_archive/legacy-1on1/)（旧コードは読むだけ。コピー流用はしない＝技術メモ「モックは見た目確認のみ・実装は新規」に準拠）。
 - **前提（所与）**: Next.js 16 / React 19 / Postgres15 / GoTrue / ui-catalog / TanStack Query / Tailwind v4。代替スタックは検討しない。
 
 ---
@@ -301,7 +301,7 @@ External (HTTPS)
 | 2026-06-11 | 計画レビュー BLOCKER②対応: **階層認可は API 層が主、RLS は本人/admin/viewer の最小ガード**に確定（§3.3） | 技術メモ「RLS に業務ロジックを持ち込まない」に整合 |
 | 2026-06-11 | 回答本体は MVP で `answer_json`(jsonb) 保持。設問別集計要件が出たら明細テーブルへ正規化 | 計画レビュー NICE-TO-HAVE |
 | 2026-06-11 | ブランチ戦略は **3 層 `feature→develop→main`**（git-workflow.md）に統一。技術メモの GitHub Flow は不採用 | ユーザー決定 |
-| 2026-06-11 | git init 済（`main` / origin=GitHub）。`doc/legacy-1on1/` は `.gitignore` | ユーザー決定 |
+| 2026-06-11 | git init 済（`main` / origin=GitHub）。`docs/99_archive/legacy-1on1/` は `.gitignore` | ユーザー決定 |
 | 2026-06-11 | ui-catalog は **submodule をやめ、`packages/ui` に clone してベンダリング**（waoon 内で管理） | ユーザー決定（「submodule はまわりくどい」） |
 | 2026-06-11 | Phase 0 のスタックを固定: Next.js 16.2.9 / React 19.2.7 / Tailwind 4.3 / TS 5.9 / pnpm 10.15。install/typecheck/build green | 実装時の registry 最新で確定 |
 | 2026-06-11 | ui-catalog 統合は Phase 0 から分離（**v3 preset⇔Tailwind v4 差・SCSS(sass)・peerDeps** の解消が必要なため専用ステップ化） | 統合リスク回避 |
@@ -373,7 +373,7 @@ pnpm dev
 
 ## 付録A: Pleasanter 実スキーマ → 新スキーマ対応
 
-一次情報: [doc/legacy-1on1/infra/pleasanter/site_package_2026_04.json](../../doc/legacy-1on1/infra/pleasanter/site_package_2026_04.json)（22 サイト）。
+一次情報: [docs/99_archive/legacy-1on1/infra/pleasanter/site_package_2026_04.json](../../docs/99_archive/legacy-1on1/infra/pleasanter/site_package_2026_04.json)（22 サイト）。
 Pleasanter は汎用カラム（`ClassA–Z` / `NumA–Z` / `DateA–Z` / `DescriptionA–Z` / `CheckA–Z`）に
 意味を後付けする方式。下表でその対応を解き、新スキーマの命名済みカラムへ落とす。
 **多値（`{choices}` の複数選択）は中間テーブルへ正規化**する。
@@ -469,7 +469,7 @@ Pleasanter は汎用カラム（`ClassA–Z` / `NumA–Z` / `DateA–Z` / `Descr
 - [x] Plan ドラフト完成（本ファイル）
 - [x] 計画レビュー（[初回 NEEDS WORK → 対応後 APPROVE](../reviews/2026-06-11-1830-pleasanter-exit-1on1-rebuild-review.md)、BLOCKER 2 件解消済み）
 - [x] 笹木さん承認（実装着手で代替。以降は機能単位で逐次レビュー → マージ承認）
-- [x] git init + GitHub リモート設定 + ブランチ戦略確定（3 層 / `doc/legacy-1on1` ignore）
+- [x] git init + GitHub リモート設定 + ブランチ戦略確定（3 層 / `docs/99_archive/legacy-1on1` ignore）
 - [x] Phase 0 モノレポ基盤（#1–3）
 - [x] Phase 1 DB スタック + 認証基盤（#4, #5 + auth アプリ層）
 - [x] Phase 2 データモデル + RLS + pgTAP（#6）
