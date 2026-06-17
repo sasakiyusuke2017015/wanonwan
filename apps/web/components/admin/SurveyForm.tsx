@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { SURVEY_STATUSES } from "@waoon/domain";
+import { CreateSurveySchema, SURVEY_STATUSES, UpdateSurveySchema } from "@waoon/domain";
 import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
 import { FormField, Input, Select } from "@ui-catalog/core/molecules";
 import { Checkbox } from "@ui-catalog/core/atoms";
 import { useTheme } from "@ui-catalog/core/infra/theme";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
+import { fieldErrorsOf } from "@/lib/forms/field-errors";
 import { FormActions } from "@/components/admin/FormActions";
 
 type SurveyDetail = {
@@ -40,6 +41,7 @@ export function SurveyForm({ surveyId }: { surveyId?: string }) {
     usesAi: false,
   });
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const { data: existing } = useQuery({
     queryKey: ["survey", surveyId],
@@ -59,15 +61,21 @@ export function SurveyForm({ surveyId }: { surveyId?: string }) {
     });
   }, [existing]);
 
+  // 送信用 payload を組む。フィールド検証と mutation の両方で同じ payload を使う。
+  function buildPayload(): Record<string, unknown> {
+    const payload: Record<string, unknown> = {
+      title: form.title,
+      status: form.status,
+      requiresAuth: form.requiresAuth,
+      usesAi: form.usesAi,
+    };
+    if (form.capacity) payload.capacity = Number(form.capacity);
+    return payload;
+  }
+
   const mutation = useMutation({
     mutationFn: () => {
-      const payload: Record<string, unknown> = {
-        title: form.title,
-        status: form.status,
-        requiresAuth: form.requiresAuth,
-        usesAi: form.usesAi,
-      };
-      if (form.capacity) payload.capacity = Number(form.capacity);
+      const payload = buildPayload();
       return surveyId
         ? apiSend(`/api/v1/surveys/${surveyId}`, "PUT", payload)
         : apiSend("/api/v1/surveys", "POST", payload);
@@ -84,8 +92,10 @@ export function SurveyForm({ surveyId }: { surveyId?: string }) {
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        if (!form.title.trim()) {
-          setError("タイトルは必須です");
+        const errs = fieldErrorsOf(surveyId ? UpdateSurveySchema : CreateSurveySchema, buildPayload());
+        setFieldErrors(errs);
+        if (Object.keys(errs).length > 0) {
+          setError(null);
           return;
         }
         setError(null);
@@ -95,7 +105,7 @@ export function SurveyForm({ surveyId }: { surveyId?: string }) {
     >
       <ContentBlock title="アンケート設定">
         <div className="space-y-4">
-          <FormField label="タイトル" required>
+          <FormField label="タイトル" required error={fieldErrors.title}>
             <Input
               value={form.title}
               onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}

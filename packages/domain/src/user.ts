@@ -14,9 +14,13 @@ export const UserSchema = v.object({
 export type User = v.InferOutput<typeof UserSchema>;
 
 export const CreateUserSchema = v.object({
-  code: v.pipe(v.string(), v.minLength(1)),
-  name: v.pipe(v.string(), v.minLength(1)),
-  email: v.pipe(v.string(), v.email()),
+  code: v.pipe(v.string(), v.minLength(1, "ユーザーコードは必須です")),
+  name: v.pipe(v.string(), v.minLength(1, "名前は必須です")),
+  email: v.pipe(
+    v.string(),
+    v.minLength(1, "メールアドレスは必須です"),
+    v.email("メールアドレスの形式が不正です"),
+  ),
   positionId: v.optional(v.number()),
   divisionId: v.optional(v.number()),
   departmentId: v.optional(v.number()),
