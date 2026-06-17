@@ -6,7 +6,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
 import { FormField, Input, Select, Button } from "@ui-catalog/core/molecules";
 import { useTheme } from "@ui-catalog/core/infra/theme";
+import { CreateUserSchema, UpdateUserSchema } from "@waoon/domain";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
+import { fieldErrorsOf } from "@/lib/forms/field-errors";
 import { FormActions } from "@/components/admin/FormActions";
 
 type OrgItem = { id: string; code: string; name: string };
@@ -49,6 +51,7 @@ export function UserForm({ userId }: { userId?: string }) {
   const { shapes } = useTheme();
   const [form, setForm] = useState(EMPTY);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   // 作成 / リセット成功時、サーバ生成の初期パスワードを一度だけ表示するための状態。
   const [created, setCreated] = useState<{
     email: string;
@@ -80,16 +83,23 @@ export function UserForm({ userId }: { userId?: string }) {
     });
   }, [existing]);
 
+  // 送信用 payload を組む。org フィールドは未選択なら省略、選択時のみ Number 化。
+  // フィールド検証（fieldErrorsOf）と mutation の両方で同じ payload を使う。
+  function buildPayload(): Record<string, unknown> {
+    const payload: Record<string, unknown> = {
+      code: form.code,
+      name: form.name,
+      email: form.email,
+    };
+    for (const key of ["positionId", "divisionId", "departmentId", "sectionId"] as const) {
+      if (form[key]) payload[key] = Number(form[key]);
+    }
+    return payload;
+  }
+
   const mutation = useMutation({
     mutationFn: () => {
-      const payload: Record<string, unknown> = {
-        code: form.code,
-        name: form.name,
-        email: form.email,
-      };
-      for (const key of ["positionId", "divisionId", "departmentId", "sectionId"] as const) {
-        if (form[key]) payload[key] = Number(form[key]);
-      }
+      const payload = buildPayload();
       return userId
         ? apiSend<SaveResult>(`/api/v1/users/${userId}`, "PUT", payload)
         : apiSend<SaveResult>("/api/v1/users", "POST", payload);
@@ -160,8 +170,10 @@ export function UserForm({ userId }: { userId?: string }) {
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        if (!form.code.trim() || !form.name.trim() || !form.email.trim()) {
-          setError("ユーザーコード・名前・メールアドレスは必須です");
+        const errs = fieldErrorsOf(userId ? UpdateUserSchema : CreateUserSchema, buildPayload());
+        setFieldErrors(errs);
+        if (Object.keys(errs).length > 0) {
+          setError(null);
           return;
         }
         setError(null);
@@ -171,21 +183,21 @@ export function UserForm({ userId }: { userId?: string }) {
     >
       <ContentBlock title="基本情報">
         <div className="space-y-4">
-          <FormField label="ユーザーコード" required>
+          <FormField label="ユーザーコード" required error={fieldErrors.code}>
             <Input
               value={form.code}
               onChange={(e) => set("code", e.target.value)}
               borderRadius={shapes.inputRadius}
             />
           </FormField>
-          <FormField label="名前" required>
+          <FormField label="名前" required error={fieldErrors.name}>
             <Input
               value={form.name}
               onChange={(e) => set("name", e.target.value)}
               borderRadius={shapes.inputRadius}
             />
           </FormField>
-          <FormField label="メールアドレス" required>
+          <FormField label="メールアドレス" required error={fieldErrors.email}>
             <Input
               type="email"
               value={form.email}

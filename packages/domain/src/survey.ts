@@ -16,7 +16,7 @@ export const SurveySchema = v.object({
 export type Survey = v.InferOutput<typeof SurveySchema>;
 
 export const CreateSurveySchema = v.object({
-  title: v.pipe(v.string(), v.minLength(1)),
+  title: v.pipe(v.string(), v.minLength(1, "タイトルは必須です")),
   status: v.optional(SurveyStatusSchema),
   capacity: v.optional(v.number()),
   requiresAuth: v.optional(v.boolean()),
