@@ -18,7 +18,7 @@
 | UI | ui-catalog（submodule + `link:`）/ Tailwind CSS v4 / TanStack Query |
 | 構成 | pnpm workspace モノレポ / Docker Compose（dev・stg・prod） |
 | テスト | Vitest / pgTAP / Playwright |
-| Git / CI | Gitea（セルフホスト）+ Gitea Actions |
+| Git / CI | GitHub（`sasakiyusuke2017015/waoon`）+ GitHub Actions |
 
 詳細な採否・根拠は [doc/_techmemo-decoded.md](doc/_techmemo-decoded.md)（技術選定メモ）。
 

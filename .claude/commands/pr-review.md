@@ -12,7 +12,7 @@ description: PR または現在 branch の実装差分をコードレビュー�
 ## このコマンドで行うこと
 
 1. レビュー対象を決定する (引数で指定 or 自動判別)
-   - PR 番号 → Gitea API + `tea pr diff` で取得
+   - PR 番号 → `gh pr diff <番号>` で取得
    - branch 名 → `git diff develop...<branch>` 等で取得
    - 引数なし → 現在 branch の未 commit 差分 + 直近 commit
 2. 変更ファイルを Read し、関連する既存コード / Plan を参照する
@@ -33,8 +33,8 @@ description: PR または現在 branch の実装差分をコードレビュー�
 /pr-review --staged                         # `git diff --staged` のみ
 ```
 
-PR 番号指定時は Gitea (`http://<gitea-host>/`) を
-叩く。`gh` ではなく `tea` または `curl` を使う (本プロジェクトは Gitea)。
+PR 番号指定時は GitHub (`sasakiyusuke2017015/waoon`) を `gh` CLI で叩く
+(`gh pr diff <番号>` / `gh pr view <番号>`)。
 
 ## 出力先
 

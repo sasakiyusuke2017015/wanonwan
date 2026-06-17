@@ -46,7 +46,7 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 1. **スケジュールの手動確認**: カレンダーの対話（日付クリック→作成モーダル / イベント編集 / ドラッグ移動）はブラウザでの動作確認が必要（curl 検証不能のため未確認）。
 2. **見た目の磨き込み**: 一覧のフィルタ/ソート + `StatisticPanel`、フォームのフィールド単位 valibot エラー表示、数値 Input の min/max
 3. **認証の残**: 編集時の email/password の GoTrue 同期、初回ログイン後の force-change、本番のエッジ(nginx)/Redis レートリミット
-4. 周辺: 委任、`.claude` の Gitea→GitHub 読み替え、root scripts 整理（保留中）、実データ移行
+4. 周辺: 委任、root scripts 整理（保留中）、実データ移行
 
 ### ローカル起動メモ
 

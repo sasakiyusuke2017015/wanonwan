@@ -9,9 +9,9 @@
 
       ↓
 PR 作成            CI（自動）          コードレビュー       マージ・デプロイ
-Claude Code    →  Gitea Actions  →   笹木さん         →  笹木さんが Squash Merge
-                  typecheck/lint       + Claude Code       → CD 自動実行
-                                       レビュー             → 本番確認（笹木さん）
+Claude Code    →  GitHub Actions →   笹木さん         →  笹木さんが Squash Merge
+                  typecheck/build/     + Claude Code       → CD 自動実行
+                  pgTAP                レビュー             → 本番確認（笹木さん）
 ```
 
 **担当まとめ**
@@ -20,7 +20,7 @@ Claude Code    →  Gitea Actions  →   笹木さん         →  笹木さん�
 |---|---|
 | 計画・設計 | キム + 笹木さん |
 | ブランチ作成・コーディング・コミット・PR 作成 | Claude Code（キムが確認） |
-| CI | Gitea Actions（自動） |
+| CI | GitHub Actions（自動） |
 | コードレビュー・マージ承認 | 笹木さん（+ Claude Code レビュー） |
 | CD・本番確認 | 自動 + 笹木さん |
 
@@ -169,16 +169,15 @@ git commit -m "feat: xxx"
 git rebase develop
 git push -u origin feature/xxx
 
-# 5. Gitea で PR 作成（develop 向け）
-# PR タイトル: feat: xxx
-# レビュアー: 笹木さん を指定
+# 5. GitHub で PR 作成（develop 向け）。gh CLI を使う場合:
+gh pr create --base develop --title "feat: xxx" --reviewer sasakiyusuke2017015
 ```
 
 ### develop → main のマージ（リリース時）
 
 ```powershell
 # develop が CI グリーン & 動作確認済みの状態で
-# Gitea 上で develop → main の PR を作成し Squash Merge
+# GitHub 上で develop → main の PR を作成し Squash Merge
 ```
 
 ---
@@ -202,7 +201,7 @@ git push -u origin feature/xxx
   「いつ何が締まったか」「どう束ねられたか」が後から確認しづらくなる。
   → **明示確認なしに commit しない**。
 - **`git push` と `gh pr create` はワーキングツリーを変えない**。状態が
-  変わるのはリモート (Gitea) 側だけで、ソース管理パネルには何も出ない。
+  変わるのはリモート (GitHub) 側だけで、ソース管理パネルには何も出ない。
   さらに他人 (笹木さん) に通知が飛ぶ shared state でもある。
   → **コマンドとして明示的に呼ばれたときだけ実行する**。
 
@@ -214,7 +213,7 @@ git push -u origin feature/xxx
 | `git add` | ✅ してよい | `Staged Changes` に移動するのが見える |
 | `git commit` | ❌ **必ず確認** | パネルから消えるため後から追いにくい。message 案を見せて Yes/No を取る |
 | `git push` | ❌ **必ず確認** | リモートに出た瞬間、パネルに出ない情報になる |
-| `gh pr create` / Gitea PR 作成 | ❌ **必ず確認** | 笹木さんに通知が飛ぶ shared state |
+| `gh pr create` / GitHub PR 作成 | ❌ **必ず確認** | 笹木さんに通知が飛ぶ shared state |
 | `git push --force` / `--force-with-lease` | ❌ **必ず確認** | 上書きリスクがあるので個別確認 |
 | `git switch` / `git pull --ff-only` | ✅ してよい | ローカルかつ可逆。ただし未 push commit がある場合は下記参照 |
 | `git branch -d` / `-D` | ❌ **必ず確認** | reflog で復元可だが事故りやすい |
@@ -253,13 +252,14 @@ commit が浮いた状態で別ブランチに移動すると、その commit �
 
 ---
 
-## CI（Gitea Actions）
+## CI（GitHub Actions）
 
-- ファイル: `.gitea/workflows/pr-ci.yml`
-- トリガー: PR 作成 / 更新時
+- ファイル: `.github/workflows/ci.yml`（CD は `.github/workflows/cd.yml`）
+- トリガー: `develop` / `main` への PR 作成・更新時 / push 時
 - チェック内容:
-  - `pnpm typecheck`（TypeScript 型チェック）
-  - `pnpm lint`（ESLint）
+  - `pnpm -r typecheck`（TypeScript 型チェック）
+  - `pnpm --filter @waoon/web build`（web ビルド）
+  - `pnpm test:db`（pgTAP / RLS。DB スタックを起動して実行）
 
 CI が失敗したままのブランチはマージ不可。
 
@@ -274,7 +274,7 @@ CI が失敗したままのブランチはマージ不可。
   ```powershell
   git stash push -m "feature/xxx: API レスポンス型の修正途中"
   ```
-- 推奨は **`wip:` commit + Draft PR**。作業途中でもブランチに commit してリモートに push し、Gitea で Draft PR を立ち上げる。ダッシュボードに「やりかけのタスク」が可視化されるので埋もれない。元のブランチに戻ったら `git reset HEAD~` で wip commit を剥がして作業継続できる。
+- 推奨は **`wip:` commit + Draft PR**。作業途中でもブランチに commit してリモートに push し、GitHub で Draft PR を立ち上げる。ダッシュボードに「やりかけのタスク」が可視化されるので埋もれない。元のブランチに戻ったら `git reset HEAD~` で wip commit を剥がして作業継続できる。
 - 並行作業が頻繁に必要なら **`git worktree`** を使い、別ディレクトリとしてブランチを物理的に分離する。VSCode を複数ウィンドウで開けるので、コンテナ / 依存関係 / TS Server の状態も分離できる:
   ```powershell
   git worktree add ../waoon-wip feature/xxx
@@ -282,9 +282,9 @@ CI が失敗したままのブランチはマージ不可。
 
 エージェントを複数稼働させる場合のブランチ・PR 滞留制御は [`agent-orchestration.md`](./agent-orchestration.md#2-並列稼働の制限) も参照。
 
-### リモート (Gitea) に push できないときはブランチを増やさない
+### リモート (GitHub) に push できないときはブランチを増やさない
 
-Gitea が落ちている / ネットワーク不通で **push できない間は、新規ブランチを切らず 1 本に commit を積む**。テーマが違う作業が来ても push 復旧までは同じブランチでよい。
+GitHub が落ちている / ネットワーク不通で **push できない間は、新規ブランチを切らず 1 本に commit を積む**。テーマが違う作業が来ても push 復旧までは同じブランチでよい。
 
 **Why:** push できない = ローカル commit がどこにも退避されない状態。この間にブランチを分けると未 push commit が複数ブランチに散らばり、「直したはずの修正が消えた」事故 (未 push commit の置き去り) を誘発する。退避先 (リモート) が無いうちは 1 ブランチにまとめておくのが最もロストしにくい。
 
