@@ -38,13 +38,33 @@ upload が完了しなかった `attachments`（`status=100` のまま）を定�
 pgTAP `outputs/infra-data/tests/jobs_gc.test.sql`: `is_stale_attachment` の真偽を
 境界含めて検証（app_user）。
 
-### Phase 2（後続）— pgmq + アプリ worker（外部到達が要る仕事）
+### Phase 2 — pgmq + 専用 Node worker（外部到達が要る仕事）
 
-- MinIO **オブジェクト本体**の掃除（Phase 1 はメタ行のみ削除。本体は孤児として残る）。
-- 形: pg_cron が「掃除対象の object_key」を **pgmq キューに積む** → アプリ side の
-  worker が `pgmq.read` → MinIO `DeleteObject` → `pgmq.delete`。
-- **worker をどう常駐させるか**が論点（compose に Node worker サービス追加 / もしくは
-  pg_net で内部 API を叩く）。決定は Phase 2 の Plan で。
+MinIO **オブジェクト本体**の掃除（Phase 1 はメタ行のみ削除＝本体は孤児として残る）。
+worker 方式は **専用 Node worker（compose サービス）** に決定（pg_net は拡張追加 + 内部
+エンドポイント認証が要るため見送り）。
+
+**enqueue は DELETE トリガに一本化**: pg_cron GC だけでなくユーザー削除・avatar 置換も含め、
+`attachments` の行削除すべてを `AFTER DELETE` トリガで捕捉して object_key をキューへ積む。
+
+#### Phase 2a（本 PR）— DB enqueue + worker 本体（dev 実行）
+
+- `86_attachment_gc_queue.sql`: `pgmq.create('attachment_gc')`（冪等）+ `app.enqueue_attachment_gc()`
+  （SECURITY DEFINER で pgmq へ enqueue）+ `attachments` の AFTER DELETE トリガ。
+- `apps/worker`（`@waoon/worker`）: `pgmq.read → DeleteObject → pgmq.delete` ループ。
+  - `parseGcMessage`（純関数）に unit test 8 件。壊れたメッセージは `pgmq.archive` で無限再配信回避。
+  - 失敗は ack せず visibility timeout で再配信（at-least-once）。
+  - worker は **superuser 接続**（pgmq read/delete に特権が要るため。保守デーモン）。
+  - dev は web 同様ホスト実行（`pnpm worker:start`、既定値で compose の pg/minio に接続）。
+- pgTAP `attachment_gc_queue.test.sql`: DELETE トリガ存在の回帰ガード（enqueue 実値は runtime）。
+- CI: worker の typecheck（`-r`）+ test を追加。
+
+#### Phase 2b（後続）— prod デプロイ配線（#44 stg 検証とペア）
+
+- `infra/Dockerfile.worker`（plain Node。web の standalone とは別ビルド）。
+- `cd.yml` に worker image の build/push（GHCR `waoon-worker`）。
+- stg/prod compose に `worker` サービス（`DATABASE_URL`=superuser / `STORAGE_ENDPOINT`=内部
+  `http://minio:9000` / pgmq ドレイン）。
 
 ### 将来（このPRのスコープ外）
 
@@ -54,10 +74,12 @@ pgTAP `outputs/infra-data/tests/jobs_gc.test.sql`: `is_stale_attachment` の真�
 
 ## 4. 検証の切り分け
 
-- pgTAP（CI / app_user）: `is_stale_attachment` の判定ロジック。
+- pgTAP（CI / app_user）: `is_stale_attachment` の判定ロジック / DELETE トリガ存在 /
+  worker の `parseGcMessage`（vitest 8 件）。
 - **runtime（Docker・笹木さん）**: migrate 適用後に `cron.job` に `gc-stale-attachments` が
   登録されること、`SELECT app.gc_stale_attachments()` が古い `status=100` のみ削除すること
-  （確定 200・直近 100 は残る）。
+  （確定 200・直近 100 は残る）。添付を削除→`pgmq` に積まれ→`pnpm worker:start` がドレインして
+  MinIO 本体が消えること（dev: pg/minio が要るため 5432/9000 を空ける or waoon stack 起動）。
 
 ## 5. ステータス
 
@@ -65,4 +87,6 @@ pgTAP `outputs/infra-data/tests/jobs_gc.test.sql`: `is_stale_attachment` の真�
 - [ ] 計画レビュー / 笹木さん承認
 - [x] Phase 1 実装（85_jobs.sql: 純関数 + DEFINER 削除 + cron 登録 / pgTAP 純関数検証）
 - [ ] Phase 1 runtime 検証（Docker・笹木さん: cron 登録 + 実削除）
-- [ ] Phase 2（pgmq + worker で MinIO 本体掃除）
+- [x] Phase 2a 実装（86: pgmq キュー + DELETE enqueue トリガ / `apps/worker` drain ループ + parseGcMessage unit 8 / pgTAP トリガ存在 / CI worker test）。typecheck(`-r`)・test green
+- [ ] Phase 2a runtime 検証（Docker・笹木さん: 削除→enqueue→worker が MinIO 本体削除）
+- [ ] Phase 2b（Dockerfile.worker + CD image + stg/prod compose の worker サービス）
