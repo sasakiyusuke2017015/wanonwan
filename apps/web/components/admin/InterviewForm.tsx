@@ -11,6 +11,7 @@ import { ApiError, apiSend } from "@/lib/api/client";
 import { FormActions } from "@/components/admin/FormActions";
 import { AttachmentsPanel } from "@/components/admin/AttachmentsPanel";
 import { InterviewSummary } from "@/components/admin/InterviewSummary";
+import { InterviewMentor } from "@/components/admin/InterviewMentor";
 import { jstInputToUtcIso, utcIsoToJstInput } from "@/lib/datetime";
 
 type Initial = {
@@ -144,6 +145,7 @@ export function InterviewForm({ answerId, initial }: { answerId: string; initial
       </ContentBlock>
 
       <InterviewSummary answerId={answerId} />
+      <InterviewMentor answerId={answerId} />
 
       <AttachmentsPanel entityType="interview" entityId={Number(answerId)} title="面談の添付資料" />
       <AttachmentsPanel entityType="answer" entityId={Number(answerId)} title="回答の添付ファイル" />
