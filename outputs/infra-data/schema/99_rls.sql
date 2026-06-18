@@ -24,6 +24,7 @@ ALTER TABLE public.survey_publications        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.answers                    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.answer_interview_candidates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.answer_viewers             ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.attachments                ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.schedules                  ENABLE ROW LEVEL SECURITY;
 
 -- 認証済み判定の短縮
@@ -102,6 +103,28 @@ BEGIN
       )$f$, t, t, t, t);
   END LOOP;
 END $$;
+
+-- ---- attachments: entity_type 別に親の可視性へ委譲（Phase 1 は interview）----
+-- interview: 面談記録(answers.id)の閲覧者/面談者/admin が読める。書きは面談者 or admin。
+-- 他 entity_type（answer/user_avatar/survey）は Phase 2 で分岐を追加する。
+DROP POLICY IF EXISTS attachments_select ON public.attachments;
+DROP POLICY IF EXISTS attachments_write  ON public.attachments;
+CREATE POLICY attachments_select ON public.attachments FOR SELECT USING (
+  app.is_admin()
+  OR (entity_type = 'interview' AND (
+        app.owns_or_interviews_answer(entity_id) OR app.is_answer_viewer(entity_id)
+      ))
+);
+CREATE POLICY attachments_write ON public.attachments FOR ALL USING (
+  app.is_admin()
+  OR (entity_type = 'interview' AND app.interviews_answer(entity_id))
+) WITH CHECK (
+  uploaded_by = app.uid()
+  AND (
+    app.is_admin()
+    OR (entity_type = 'interview' AND app.interviews_answer(entity_id))
+  )
+);
 
 -- ---- schedules: 認証済みは読める / 書きは作成者 or admin ----------------
 DROP POLICY IF EXISTS schedules_select ON public.schedules;

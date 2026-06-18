@@ -9,6 +9,7 @@ import { TextArea } from "@ui-catalog/core/atoms";
 import { useTheme } from "@ui-catalog/core/infra/theme";
 import { ApiError, apiSend } from "@/lib/api/client";
 import { FormActions } from "@/components/admin/FormActions";
+import { InterviewAttachments } from "@/components/admin/InterviewAttachments";
 import { jstInputToUtcIso, utcIsoToJstInput } from "@/lib/datetime";
 
 type Initial = {
@@ -140,6 +141,8 @@ export function InterviewForm({ answerId, initial }: { answerId: string; initial
           </FormField>
         </div>
       </ContentBlock>
+
+      <InterviewAttachments answerId={answerId} />
 
       {error && <p className="text-sm text-red-600">{error}</p>}
       {done && <p className="text-sm text-green-600">面談を記録しました（完了）。</p>}
