@@ -9,6 +9,7 @@ import { TextArea } from "@ui-catalog/core/atoms";
 import { useTheme } from "@ui-catalog/core/infra/theme";
 import { ApiError, apiSend } from "@/lib/api/client";
 import { FormActions } from "@/components/admin/FormActions";
+import { AttachmentsPanel } from "@/components/admin/AttachmentsPanel";
 import { jstInputToUtcIso, utcIsoToJstInput } from "@/lib/datetime";
 
 type Initial = {
@@ -140,6 +141,9 @@ export function InterviewForm({ answerId, initial }: { answerId: string; initial
           </FormField>
         </div>
       </ContentBlock>
+
+      <AttachmentsPanel entityType="interview" entityId={Number(answerId)} title="面談の添付資料" />
+      <AttachmentsPanel entityType="answer" entityId={Number(answerId)} title="回答の添付ファイル" />
 
       {error && <p className="text-sm text-red-600">{error}</p>}
       {done && <p className="text-sm text-green-600">面談を記録しました（完了）。</p>}
