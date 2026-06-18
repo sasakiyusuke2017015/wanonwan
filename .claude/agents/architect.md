@@ -197,7 +197,7 @@ AI 駆動 SaaS プラットフォームのアーキテクチャ例:
 
 ### 主要な設計判断
 1. **ハイブリッドデプロイ**: Vercel (フロント) + Cloud Run (バック) でパフォーマンス最適化
-2. **AI 連携**: 型安全のため Pydantic / Zod で構造化出力
+2. **AI 連携**: 型安全のため Pydantic / valibot で構造化出力
 3. **リアルタイム更新**: ライブデータのため Supabase subscriptions
 4. **イミュータブルパターン**: 予測可能な状態のため spread operator
 5. **Many Small Files**: 高凝集・低結合

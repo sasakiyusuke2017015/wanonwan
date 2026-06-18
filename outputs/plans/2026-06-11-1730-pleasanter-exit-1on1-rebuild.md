@@ -346,16 +346,15 @@ External (HTTPS)
 - AI 機能（FAQ/メンター）+ pgvector + LLM 基盤の Plan。
 - MinIO / 添付・MFA / 2 テーマ切替 / reg-suit VRT。
 - 旧 `/api/jobs/*`（Pleasanter バッチ）の pg_cron + pgmq 置換詳細設計。
-- `.claude/rules/*`（git-workflow.md 等）の **Gitea / `tea` 前提の記述を GitHub / `gh` へ読み替え更新**
-  （ブランチ戦略は 3 層のまま、ホスト固有記述のみ）。CI は `.github/workflows/`。
+- ~~`.claude/rules/*` の **Gitea / `tea` 前提を GitHub / `gh` へ読み替え**~~ → **完了**（#30）。CI は `.github/workflows/`。
 - ~~ui-catalog（`packages/ui`）の本配線~~ → **完了**（`feature/ui-catalog-wiring`）。「見た目踏襲」（Phase 5）の土台が立った。
   - ~~① テーマ 3 軸（色/形/背景）の配線~~ → **完了**（`feature/app-shell-theme`、AppLayout シェル + テーマ切替UI）。
   - 残: ② **各ページの ui-catalog 定石化**（一覧→InteractiveTable/CardGrid、フォーム→ContentBlock/FormField/valibot）。基盤の上に増分 PR で進める。
   - 残: ③ MarkdownEditor/MathView 等を使う場合の追加 peer（codemirror/katex/marked）と、それを使う organism の deep export 追加。
-- `.claude/rules/*` の `zod`→`valibot` 等、ai-education 由来の例の waoon スタックへの読み替え。
+- ~~`.claude/*` の `zod`→`valibot` 例の読み替え~~ → **完了**。残: architect/skills の Vercel/Supabase/Pydantic 等 ai-education 由来のより広い stack drift は別途。
 - ~~**認証エンドポイントのレートリミット**~~ → **API 層で実装済み**（`feature/auth-rate-limit`、login/refresh の IP 単位 in-memory limiter）。残: 本番のエッジ(nginx)/Redis 化、分散攻撃 / credential stuffing 対策（captcha 等）、信頼 proxy での実 IP 注入。
-- ~~**`users.gotrue_id` provisioning**~~ → **完了**（`feature/user-provisioning`、作成時に GoTrue identity 発行 + gotrue_id 紐付け + 初期パスワード生成）。残: 編集時の email/password の GoTrue 同期、初回ログイン後の force-change。
-- ~~**日時の timezone 処理**: 掲載の datetime-local 入力が UTC 保存で表示ズレ~~ → **完了**（`feature/datetime-jst`、`lib/datetime` で JST⇄UTC 変換）。残: schedules 等に datetime UI を足す際も同ヘルパを使う、`datetime.ts` の Vitest 単体テスト。
+- ~~**`users.gotrue_id` provisioning**~~ → **完了**（`feature/user-provisioning`、作成時に GoTrue identity 発行 + gotrue_id 紐付け + 初期パスワード生成）。~~残: 編集時の email/password の GoTrue 同期、初回ログイン後の force-change~~ → **完了**（#25）。
+- ~~**日時の timezone 処理**: 掲載の datetime-local 入力が UTC 保存で表示ズレ~~ → **完了**（`feature/datetime-jst`、`lib/datetime` で JST⇄UTC 変換）。残: schedules 等に datetime UI を足す際も同ヘルパを使う。~~`datetime.ts` の Vitest 単体テスト~~ → **完了**（10 ケース）。
 
 ---
 

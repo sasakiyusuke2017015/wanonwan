@@ -274,11 +274,11 @@ export function errorHandler(error: unknown, req: Request): Response {
     }, { status: error.statusCode })
   }
 
-  if (error instanceof z.ZodError) {
+  if (error instanceof v.ValiError) {
     return NextResponse.json({
       success: false,
       error: 'Validation failed',
-      details: error.errors
+      details: error.issues
     }, { status: 400 })
   }
 

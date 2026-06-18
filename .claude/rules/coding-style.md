@@ -58,14 +58,14 @@ try {
 ユーザー入力は **必ず** バリデーションする:
 
 ```typescript
-import { z } from 'zod'
+import * as v from 'valibot'
 
-const schema = z.object({
-  email: z.string().email(),
-  age: z.number().int().min(0).max(150)
+const schema = v.object({
+  email: v.pipe(v.string(), v.email()),
+  age: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(150))
 })
 
-const validated = schema.parse(input)
+const validated = v.parse(schema, input)
 ```
 
 ## コード品質チェックリスト

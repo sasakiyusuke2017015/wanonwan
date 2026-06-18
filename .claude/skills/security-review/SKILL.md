@@ -49,23 +49,23 @@ if (!apiKey) {
 
 #### Always Validate User Input
 ```typescript
-import { z } from 'zod'
+import * as v from 'valibot'
 
 // Define validation schema
-const CreateUserSchema = z.object({
-  email: z.string().email(),
-  name: z.string().min(1).max(100),
-  age: z.number().int().min(0).max(150)
+const CreateUserSchema = v.object({
+  email: v.pipe(v.string(), v.email()),
+  name: v.pipe(v.string(), v.minLength(1), v.maxLength(100)),
+  age: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(150))
 })
 
 // Validate before processing
 export async function createUser(input: unknown) {
   try {
-    const validated = CreateUserSchema.parse(input)
+    const validated = v.parse(CreateUserSchema, input)
     return await db.users.create(validated)
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return { success: false, errors: error.errors }
+    if (error instanceof v.ValiError) {
+      return { success: false, errors: error.issues }
     }
     throw error
   }
