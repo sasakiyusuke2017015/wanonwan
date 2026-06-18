@@ -1,6 +1,6 @@
 # フォームのフィールド単位 valibot エラー表示
 
-> ステータス: 🟡 実装中（Phase 1+2 実装済み / AnswerForm は follow-up）
+> ステータス: 🟡 実装中（Phase 1〜3 実装済み・全フォーム対応完了 / PR レビュー待ち）
 > 由来: [Status Dashboard「次セッションの起点」#2 見た目の磨き込み](../README.md) の「フォームのフィールド単位 valibot エラー表示」。
 
 | 項目 | 値 |
@@ -87,7 +87,7 @@
 - [x] 計画レビュー / 笹木さん承認（2026-06-17 承認）
 - [x] Phase 1 実装（helper + domain メッセージ + UserForm）。helper unit test 4 件 green
 - [x] Phase 2 実装（SurveyForm）。InterviewForm は検証フィールドなしで対象外
-- [ ] コードレビュー
-- [ ] Phase 3（AnswerForm 動的）= follow-up（別 PR / 別 Plan）
-- [ ] PR マージ
+- [x] Phase 1+2 PR (#33) マージ済み
+- [x] Phase 3 実装（AnswerForm 動的）。`requiredFieldErrors` helper を追加（unit test 3 件）し、設問駆動の必須未入力を設問ごとに表示
+- [ ] Phase 3 PR マージ
 - [ ] 親（dashboard）の見た目磨き込み #2 を消し込み

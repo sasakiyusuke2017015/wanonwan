@@ -17,3 +17,17 @@ export function fieldErrorsOf<TSchema extends v.GenericSchema>(
   }
   return errors;
 }
+
+// 設問駆動の動的フォーム用。必須（required）かつ未入力（isFilled が false）の項目を
+// id → メッセージ のマップにする。静的スキーマでは表せない「動的キー + required」検証向け。
+export function requiredFieldErrors<T extends { id: string; required: boolean }>(
+  items: T[],
+  isFilled: (item: T) => boolean,
+  message = "この項目は必須です",
+): Record<string, string> {
+  const errors: Record<string, string> = {};
+  for (const item of items) {
+    if (item.required && !isFilled(item)) errors[item.id] = message;
+  }
+  return errors;
+}
