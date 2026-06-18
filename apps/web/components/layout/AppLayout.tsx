@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Header } from "@ui-catalog/core/templates/Header";
 import { SubHeader } from "@ui-catalog/core/templates/SubHeader";
@@ -89,6 +90,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             >
               <Icon name="gear" size={20} />
             </button>
+            <Link
+              href="/change-password"
+              className="rounded border border-gray-300 px-3 py-1.5 text-sm"
+            >
+              パスワード変更
+            </Link>
             <LogoutButton />
           </div>
         }

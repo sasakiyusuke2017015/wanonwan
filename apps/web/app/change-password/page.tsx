@@ -49,7 +49,7 @@ export default function ChangePasswordPage() {
       <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4">
         <h1 className="text-xl font-bold">パスワードの変更</h1>
         <p className="text-sm text-gray-600">
-          初期パスワードのままです。続行するには新しいパスワードを設定してください。
+          現在のパスワードを入力し、新しいパスワードを設定してください。
         </p>
         <label className="block">
           <span className="text-sm text-gray-600">現在のパスワード</span>
