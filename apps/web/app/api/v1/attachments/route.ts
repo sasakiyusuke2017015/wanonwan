@@ -9,9 +9,10 @@ import { storage, STORAGE_BUCKET } from "@/lib/storage/client";
 import { objectKeyFor } from "@/lib/storage/keys";
 import { presignPut } from "@/lib/storage/presign";
 
-// Phase 1 は interview（面談記録）のみ。他 entity_type は Phase 2 で受け付ける。
+const ENTITY_TYPES = ["interview", "answer", "survey", "user_avatar"] as const;
+
 const CreateBody = v.object({
-  entityType: v.literal("interview"),
+  entityType: v.picklist(ENTITY_TYPES),
   entityId: v.number(),
   filename: v.pipe(v.string(), v.minLength(1)),
   contentType: v.pipe(v.string(), v.minLength(1)),
@@ -28,17 +29,21 @@ export const POST = withActiveUser(async (req, claims) => {
 
   let created: Array<{ id: number }>;
   try {
-    created = await withUser(
-      claims.sub,
-      (tx) => tx`
+    created = await withUser(claims.sub, async (tx) => {
+      // アバターは 1 ユーザー 1 枚。既存があれば置き換える（旧オブジェクトは pg_cron で掃除予定）。
+      if (input.entityType === "user_avatar") {
+        await tx`delete from public.attachments
+                 where entity_type = 'user_avatar' and entity_id = ${input.entityId}`;
+      }
+      return tx`
         insert into public.attachments
           (entity_type, entity_id, bucket, object_key, filename, content_type, uploaded_by)
         values
           (${input.entityType}, ${input.entityId}, ${STORAGE_BUCKET}, ${key},
            ${input.filename}, ${input.contentType}, app.uid())
         returning id
-      `,
-    );
+      `;
+    });
   } catch (e) {
     return mapDbError(e);
   }
@@ -54,7 +59,7 @@ export const GET = withActiveUser(async (req, claims) => {
   const url = new URL(req.url);
   const entityType = url.searchParams.get("entityType");
   const entityId = Number(url.searchParams.get("entityId"));
-  if (entityType !== "interview" || !Number.isInteger(entityId)) {
+  if (!entityType || !(ENTITY_TYPES as readonly string[]).includes(entityType) || !Number.isInteger(entityId)) {
     return NextResponse.json({ error: "entityType/entityId が不正です" }, { status: 400 });
   }
   const rows = await withUser(

@@ -1,6 +1,6 @@
 # 添付ファイル基盤（MinIO + presigned URL）
 
-> ステータス: 🟡 実装中（Phase 1 実装済み / Phase 2-3 残り）
+> ステータス: 🟡 実装中（Phase 1+2 実装済み / Phase 3 残り）
 > 由来: 親 Plan §10「MinIO / 添付」（将来検討）の本着手。AI/pgvector は別 Plan で後続。
 
 | 項目 | 値 |
@@ -107,6 +107,6 @@
 - [x] 計画レビュー / 笹木さん承認（2026-06-18 承認）
 - [x] Phase 1 実装（MinIO compose + storage lib(unit test 3) + attachments 表/RLS + pgTAP(4) + interview API 5本 + InterviewForm 添付 UI）。typecheck/lint/web test green。pgTAP は CI、実 upload/download は Docker・笹木さん
 - [ ] Phase 1 コードレビュー
-- [ ] Phase 2（回答 / 資料 / アバター）
+- [x] Phase 2 実装（RLS を 4 entity_type へ拡張 / API 汎用化 / 添付 UI を `AttachmentsPanel` に共通化 / avatar は 1 枚 unique index + 置換）。回答・面談添付は管理の面談画面、資料=SurveyForm、アバター=UserForm。pgTAP 拡張（survey 可視・write 拒否 throws_ok）。typecheck/lint/test green。**回答者フロー中の回答添付（answer 未保存時）は follow-up**
 - [ ] Phase 3（stg/prod + nginx）
 - [ ] マージ後検証（Docker・笹木さん）

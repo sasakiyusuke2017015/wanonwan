@@ -10,6 +10,7 @@ import { CreateUserSchema, UpdateUserSchema } from "@waoon/domain";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import { fieldErrorsOf } from "@/lib/forms/field-errors";
 import { FormActions } from "@/components/admin/FormActions";
+import { AttachmentsPanel } from "@/components/admin/AttachmentsPanel";
 
 type OrgItem = { id: string; code: string; name: string };
 type Org = {
@@ -272,6 +273,10 @@ export function UserForm({ userId }: { userId?: string }) {
             </Button>
           </div>
         </ContentBlock>
+      )}
+
+      {userId && (
+        <AttachmentsPanel entityType="user_avatar" entityId={Number(userId)} title="アバター" />
       )}
 
       {error && <p className="text-sm text-red-600">{error}</p>}

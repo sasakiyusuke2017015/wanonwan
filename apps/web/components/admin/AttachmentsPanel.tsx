@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 
+export type AttachmentEntity = "answer" | "interview" | "user_avatar" | "survey";
+
 type Attachment = {
   id: number;
   filename: string;
@@ -12,24 +14,31 @@ type Attachment = {
   status: number;
 };
 
-// 面談記録の添付。presigned URL で MinIO へ直接 up/down する。
-// 1) POST で presigned PUT URL を取得 → 2) ブラウザが MinIO へ PUT → 3) PATCH で確定。
-export function InterviewAttachments({ answerId }: { answerId: string }) {
-  const entityId = Number(answerId);
+// 添付パネル（presigned URL で MinIO へ直接 up/down）。entityType/entityId で対象に紐づく。
+// 1) POST で presigned PUT URL 取得 → 2) ブラウザが MinIO へ PUT → 3) PATCH で確定。
+export function AttachmentsPanel({
+  entityType,
+  entityId,
+  title = "添付資料",
+}: {
+  entityType: AttachmentEntity;
+  entityId: number;
+  title?: string;
+}) {
   const [items, setItems] = useState<Attachment[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function reload() {
     const res = await apiGet<{ data: Attachment[] }>(
-      `/api/v1/attachments?entityType=interview&entityId=${entityId}`,
+      `/api/v1/attachments?entityType=${entityType}&entityId=${entityId}`,
     );
     setItems(res.data);
   }
 
   useEffect(() => {
     reload().catch(() => setError("添付の取得に失敗しました"));
-  }, [entityId]);
+  }, [entityType, entityId]);
 
   async function onUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -41,7 +50,7 @@ export function InterviewAttachments({ answerId }: { answerId: string }) {
       const { data } = await apiSend<{ data: { id: number; uploadUrl: string } }>(
         "/api/v1/attachments",
         "POST",
-        { entityType: "interview", entityId, filename: file.name, contentType },
+        { entityType, entityId, filename: file.name, contentType },
       );
       const put = await fetch(data.uploadUrl, {
         method: "PUT",
@@ -81,7 +90,7 @@ export function InterviewAttachments({ answerId }: { answerId: string }) {
   }
 
   return (
-    <ContentBlock title="添付資料">
+    <ContentBlock title={title}>
       <div className="space-y-3">
         <input type="file" onChange={onUpload} disabled={busy} />
         {error && <p className="text-sm text-red-600">{error}</p>}
