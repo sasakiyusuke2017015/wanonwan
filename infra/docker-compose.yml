@@ -70,20 +70,8 @@ services:
     volumes:
       - minio-data:/data
     networks: [waoon]
-
-  # 起動後にバケットを作る（冪等）。minio が接続を受け付けるまで alias 設定をリトライする。
-  minio-setup:
-    image: minio/mc:latest
-    depends_on:
-      minio:
-        condition: service_started
-    entrypoint: >
-      /bin/sh -c "
-      until mc alias set local http://minio:9000 ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASSWORD:-minioadmin}; do echo 'waiting for minio'; sleep 1; done;
-      mc mb --ignore-existing local/${STORAGE_BUCKET:-waoon};
-      echo 'bucket ready';
-      "
-    networks: [waoon]
+  # バケット作成は compose の one-shot にしない（`up --wait` が exit したコンテナを失敗扱いにするため）。
+  # アプリ側 lib/storage の ensureBucket() が初回アップロード時に冪等に作成する。
 
 volumes:
   db-data:

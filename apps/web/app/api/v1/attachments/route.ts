@@ -7,7 +7,7 @@ import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
 import { storage, STORAGE_BUCKET } from "@/lib/storage/client";
 import { objectKeyFor } from "@/lib/storage/keys";
-import { presignPut } from "@/lib/storage/presign";
+import { ensureBucket, presignPut } from "@/lib/storage/presign";
 
 const ENTITY_TYPES = ["interview", "answer", "survey", "user_avatar"] as const;
 
@@ -50,6 +50,7 @@ export const POST = withActiveUser(async (req, claims) => {
   const row = created[0];
   if (!row) return NextResponse.json({ error: "権限がありません" }, { status: 403 });
 
+  await ensureBucket(storage, STORAGE_BUCKET);
   const uploadUrl = await presignPut(storage, STORAGE_BUCKET, key, input.contentType);
   return NextResponse.json({ data: { id: row.id, objectKey: key, uploadUrl } }, { status: 201 });
 });

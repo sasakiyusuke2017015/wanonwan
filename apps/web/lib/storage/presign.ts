@@ -3,8 +3,30 @@ import {
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
+  HeadBucketCommand,
+  CreateBucketCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+
+// バケットの存在を冪等に保証する（無ければ作る）。プロセス内で 1 回だけ実行されるよう
+// promise をキャッシュ（失敗時はリセットして次回再試行）。compose に init コンテナを置かず
+// アプリ起動経路で吸収するため（`up --wait` が one-shot コンテナで失敗するのを避ける）。
+let ensured: Promise<void> | null = null;
+export function ensureBucket(client: S3Client, bucket: string): Promise<void> {
+  if (!ensured) {
+    ensured = (async () => {
+      try {
+        await client.send(new HeadBucketCommand({ Bucket: bucket }));
+      } catch {
+        await client.send(new CreateBucketCommand({ Bucket: bucket }));
+      }
+    })().catch((e) => {
+      ensured = null;
+      throw e;
+    });
+  }
+  return ensured;
+}
 
 // presigned URL は API が認可判定の上で発行し、ブラウザが MinIO へ直接 upload/download する
 // （ファイル本体は Next を経由しない）。署名はローカル生成でネットワーク不要。
