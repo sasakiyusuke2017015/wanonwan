@@ -63,7 +63,7 @@ outputs/reviews/YYYY-MM-DD-HHMM-<slug>-review.md
 - ハードコードされた認証情報、API key、token、password
 - SQL injection の可能性 (動的 SQL に未エスケープの値が入る)
 - XSS の可能性 (`dangerouslySetInnerHTML` / sanitize 漏れ)
-- 入力バリデーション不足 (zod スキーマ等が無い API 入口)
+- 入力バリデーション不足 (valibot スキーマ等が無い API 入口)
 - 脆弱な依存関係
 - path traversal の可能性
 - 認証・認可 bypass (RLS / API 層のチェックが片方しかない等)

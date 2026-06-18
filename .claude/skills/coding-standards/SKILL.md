@@ -273,28 +273,28 @@ return NextResponse.json({
 ### Input Validation
 
 ```typescript
-import { z } from 'zod'
+import * as v from 'valibot'
 
 // ✅ GOOD: Schema validation
-const CreateMarketSchema = z.object({
-  name: z.string().min(1).max(200),
-  description: z.string().min(1).max(2000),
-  endDate: z.string().datetime(),
-  categories: z.array(z.string()).min(1)
+const CreateMarketSchema = v.object({
+  name: v.pipe(v.string(), v.minLength(1), v.maxLength(200)),
+  description: v.pipe(v.string(), v.minLength(1), v.maxLength(2000)),
+  endDate: v.pipe(v.string(), v.isoTimestamp()),
+  categories: v.pipe(v.array(v.string()), v.minLength(1))
 })
 
 export async function POST(request: Request) {
   const body = await request.json()
 
   try {
-    const validated = CreateMarketSchema.parse(body)
+    const validated = v.parse(CreateMarketSchema, body)
     // Proceed with validated data
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (error instanceof v.ValiError) {
       return NextResponse.json({
         success: false,
         error: 'Validation failed',
-        details: error.errors
+        details: error.issues
       }, { status: 400 })
     }
   }

@@ -333,7 +333,7 @@ SUPABASE_KEY=eyJ...
 5. **Many small files** - 200-400 lines typical, 800 max
 6. **No console.log** in production code
 7. **Proper error handling** with try/catch
-8. **Input validation** with Pydantic/Zod
+8. **Input validation** with Pydantic/valibot
 
 ---
 
