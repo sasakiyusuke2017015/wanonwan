@@ -8,6 +8,7 @@ import { FormField, Input, Select } from "@ui-catalog/core/molecules";
 import { Radio, Checkbox, TextArea } from "@ui-catalog/core/atoms";
 import { useTheme } from "@ui-catalog/core/infra/theme";
 import { ApiError, apiSend } from "@/lib/api/client";
+import { requiredFieldErrors } from "@/lib/forms/field-errors";
 import { FormActions } from "@/components/admin/FormActions";
 
 export type AnswerQuestion = {
@@ -36,6 +37,7 @@ export function AnswerForm({
   const { shapes } = useTheme();
   const [values, setValues] = useState<Values>(initial ?? {});
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
 
   const setVal = (qid: string, val: string | string[]) =>
@@ -113,9 +115,10 @@ export function AnswerForm({
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    const missing = questions.find((q) => q.required && !isAnswered(values[q.id]));
-    if (missing) {
-      setError("未回答の必須項目があります");
+    const errs = requiredFieldErrors(questions, (q) => isAnswered(values[q.id]));
+    setFieldErrors(errs);
+    if (Object.keys(errs).length > 0) {
+      setError(null);
       return;
     }
     setError(null);
@@ -140,7 +143,12 @@ export function AnswerForm({
       <ContentBlock title="設問">
         <div className="space-y-5">
           {questions.map((q, i) => (
-            <FormField key={q.id} label={`${i + 1}. ${q.body}`} required={q.required}>
+            <FormField
+              key={q.id}
+              label={`${i + 1}. ${q.body}`}
+              required={q.required}
+              error={fieldErrors[q.id]}
+            >
               {renderInput(q)}
             </FormField>
           ))}
