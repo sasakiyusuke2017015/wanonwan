@@ -10,6 +10,7 @@ import { useTheme } from "@ui-catalog/core/infra/theme";
 import { ApiError, apiSend } from "@/lib/api/client";
 import { FormActions } from "@/components/admin/FormActions";
 import { AttachmentsPanel } from "@/components/admin/AttachmentsPanel";
+import { InterviewSummary } from "@/components/admin/InterviewSummary";
 import { jstInputToUtcIso, utcIsoToJstInput } from "@/lib/datetime";
 
 type Initial = {
@@ -141,6 +142,8 @@ export function InterviewForm({ answerId, initial }: { answerId: string; initial
           </FormField>
         </div>
       </ContentBlock>
+
+      <InterviewSummary answerId={answerId} />
 
       <AttachmentsPanel entityType="interview" entityId={Number(answerId)} title="面談の添付資料" />
       <AttachmentsPanel entityType="answer" entityId={Number(answerId)} title="回答の添付ファイル" />
