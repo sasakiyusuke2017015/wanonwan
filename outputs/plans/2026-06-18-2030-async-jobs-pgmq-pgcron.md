@@ -59,12 +59,15 @@ worker 方式は **専用 Node worker（compose サービス）** に決定（pg
 - pgTAP `attachment_gc_queue.test.sql`: DELETE トリガ存在の回帰ガード（enqueue 実値は runtime）。
 - CI: worker の typecheck（`-r`）+ test を追加。
 
-#### Phase 2b（後続）— prod デプロイ配線（#44 stg 検証とペア）
+#### Phase 2b — prod デプロイ配線
 
-- `infra/Dockerfile.worker`（plain Node。web の standalone とは別ビルド）。
-- `cd.yml` に worker image の build/push（GHCR `waoon-worker`）。
+- `infra/Dockerfile.worker`（plain Node。`pnpm deploy --legacy` で自己完結化 → Node 22 の
+  type-stripping で TS を直接実行。**docker build + 起動を実機確認済み**）。
+- `cd.yml` に worker image の build/push（GHCR `waoon-worker`・gha cache scope 分離）+ deploy の
+  `dc up -d web worker nginx`（migration 後＝pgmq キュー作成済みで起動）。
 - stg/prod compose に `worker` サービス（`DATABASE_URL`=superuser / `STORAGE_ENDPOINT`=内部
-  `http://minio:9000` / pgmq ドレイン）。
+  `http://minio:9000` / 公開ポートなし）。`compose config` で stg/prod とも検証済み。
+- env 例に `WORKER_IMAGE` / `WORKER_IMAGE_TAG`。
 
 ### 将来（このPRのスコープ外）
 
@@ -89,4 +92,5 @@ worker 方式は **専用 Node worker（compose サービス）** に決定（pg
 - [ ] Phase 1 runtime 検証（Docker・笹木さん: cron 登録 + 実削除）
 - [x] Phase 2a 実装（86: pgmq キュー + DELETE enqueue トリガ / `apps/worker` drain ループ + parseGcMessage unit 8 / pgTAP トリガ存在 / CI worker test）。typecheck(`-r`)・test green
 - [ ] Phase 2a runtime 検証（Docker・笹木さん: 削除→enqueue→worker が MinIO 本体削除）
-- [ ] Phase 2b（Dockerfile.worker + CD image + stg/prod compose の worker サービス）
+- [x] Phase 2b 実装（Dockerfile.worker + CD の worker image build/push + deploy / stg/prod compose の worker サービス + env 例）。**docker build + 起動 + compose config を実機確認**
+- [ ] Phase 2b runtime 検証（笹木さん stg: CD で waoon-worker push → worker 起動 → 添付削除で本体掃除）
