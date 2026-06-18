@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import type { Column, TableRowData } from "@ui-catalog/core/organisms/InteractiveTable";
+import { StatisticList } from "@ui-catalog/core/molecules";
 import { apiGet } from "@/lib/api/client";
 import { AdminListTable } from "@/components/admin/AdminListTable";
 
@@ -20,6 +21,13 @@ const COLUMNS: Column[] = [
   { accessor: "code", label: "コード", proportion: 16, dataAlign: "left" },
   { accessor: "name", label: "名前", proportion: 28, dataAlign: "left" },
   { accessor: "email", label: "メール", proportion: 56, dataAlign: "left" },
+];
+
+const SEARCH_KEYS: (keyof Row & string)[] = ["code", "name", "email"];
+const SORTABLE = [
+  { key: "code", label: "コード" },
+  { key: "name", label: "名前" },
+  { key: "email", label: "メール" },
 ];
 
 export default function UsersListPage() {
@@ -43,6 +51,12 @@ export default function UsersListPage() {
         </Link>
       </div>
 
+      {!isLoading && !isError && (
+        <div className="mb-3">
+          <StatisticList items={[]} totalLabel="ユーザー" totalValue={rows.length} totalUnit="名" />
+        </div>
+      )}
+
       <AdminListTable
         columns={COLUMNS}
         data={rows}
@@ -50,6 +64,8 @@ export default function UsersListPage() {
         error={isError ? (error as Error).message : null}
         emptyMessage="ユーザーがいません"
         onRowClick={(row) => router.push(`/admin/users/${row.id}/edit`)}
+        searchKeys={SEARCH_KEYS}
+        sortable={SORTABLE}
       />
     </div>
   );
