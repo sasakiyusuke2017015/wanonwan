@@ -41,6 +41,9 @@ jobs:
       - name: Test (web)
         run: pnpm --filter @waoon/web test
 
+      - name: Test (worker)
+        run: pnpm --filter @waoon/worker test
+
       # --- DB スタックを立てて pgTAP（RLS）を実行 ---
       - name: Build DB image
         run: pnpm compose:dev:build
