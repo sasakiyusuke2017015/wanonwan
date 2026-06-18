@@ -73,9 +73,24 @@ services:
   # バケット作成は compose の one-shot にしない（`up --wait` が exit したコンテナを失敗扱いにするため）。
   # アプリ側 lib/storage の ensureBucket() が初回アップロード時に冪等に作成する。
 
+  # 自前ホスト埋め込み（AI メンター提案の RAG 用）。データを社外に出さずベクトル化する。
+  # profile "ai" 限定 = 既定の compose:dev:up / CI では起動しない（モデル DL で重くなるため）。
+  # 使うとき: pnpm compose:ai:up（--profile ai）。日本語対応の multilingual-e5-small（384次元）。
+  embeddings:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-latest
+    container_name: waoon-embeddings
+    profiles: ["ai"]
+    command: ["--model-id", "intfloat/multilingual-e5-small"]
+    ports:
+      - "${EMBEDDINGS_PORT:-8081}:80"
+    volumes:
+      - embeddings-data:/data
+    networks: [waoon]
+
 volumes:
   db-data:
   minio-data:
+  embeddings-data:
 
 networks:
   waoon:

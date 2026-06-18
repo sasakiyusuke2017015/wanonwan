@@ -1,6 +1,6 @@
 # AI 機能: 面談メンター提案 + 自由記述の要約/分析（Claude + pgvector）
 
-> ステータス: 🟡 実装中（Phase A 実装済み・キー未設定で無効 / Phase B は §3.2 決定待ち）
+> ステータス: 🟡 実装中（Phase A+B 実装済み・キー/URL 未設定で無効。§3.2 = 自前ホスト埋め込みに決定）
 > 由来: 親 Plan §10「AI 機能（FAQ/メンター）+ pgvector + LLM 基盤」。ユーザー指定の機能 = 面談メンター提案 + 自由記述の要約/分析。
 
 | 項目 | 値 |
@@ -127,6 +127,6 @@ Anthropic に埋め込み API が無いため、メンター提案の RAG（類�
 - [ ] 計画レビュー / 笹木さん承認
 - [x] Phase A 実装（`@anthropic-ai/sdk` + `lib/ai`(client/summarize, 純関数 unit test 4) + `POST /answers/[id]/summary`(key-gate 503 / 面談者・admin 限定 / 502) + InterviewForm に AI 要約 UI + env キー空既定）。typecheck/lint/test green。**キー未設定で外部送信ゼロ**
 - [ ] Phase A コードレビュー
-- [ ] 非同期基盤（pgmq/pg_cron）整備（Phase B 前提）
-- [ ] Phase B 実装（埋め込み + メンター提案）
+- [x] §3.2 埋め込みプロバイダ決定 = **自前ホスト**（compose に TEI/multilingual-e5-small・profile ai・社外送信なし）
+- [x] Phase B 実装（embeddings コンテナ(profile ai) + `lib/ai/embed`(unit 4) + `answers.embedding vector(384)` + hnsw + `lib/ai/mentor`(unit 2) + `POST /answers/[id]/mentor`(key/URL-gate 503・面談者/admin・lazy 埋め込み・pgvector 近傍・Claude 提案) + InterviewForm に UI）。typecheck/lint/test green。**非同期基盤は使わず lazy 生成で MVP**（孤児/再 index は後続）
 - [ ] マージ後検証（Docker・笹木さん）
