@@ -11,6 +11,7 @@ import { useTheme } from "@ui-catalog/core/infra/theme";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import { fieldErrorsOf } from "@/lib/forms/field-errors";
 import { FormActions } from "@/components/admin/FormActions";
+import { AttachmentsPanel } from "@/components/admin/AttachmentsPanel";
 
 type SurveyDetail = {
   id: string;
@@ -150,6 +151,10 @@ export function SurveyForm({ surveyId }: { surveyId?: string }) {
           />
         </div>
       </ContentBlock>
+
+      {surveyId && (
+        <AttachmentsPanel entityType="survey" entityId={Number(surveyId)} title="説明資料" />
+      )}
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 

@@ -21,3 +21,7 @@ CREATE TABLE IF NOT EXISTS public.attachments (
 );
 
 CREATE INDEX IF NOT EXISTS attachments_entity_idx ON public.attachments (entity_type, entity_id);
+
+-- アバターは 1 ユーザー 1 枚。新規アップロード前に既存を削除する運用（UI）を DB でも担保。
+CREATE UNIQUE INDEX IF NOT EXISTS attachments_one_avatar_per_user
+  ON public.attachments (entity_id) WHERE entity_type = 'user_avatar';
