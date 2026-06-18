@@ -108,5 +108,5 @@
 - [x] Phase 1 実装（MinIO compose + storage lib(unit test 3) + attachments 表/RLS + pgTAP(4) + interview API 5本 + InterviewForm 添付 UI）。typecheck/lint/web test green。pgTAP は CI、実 upload/download は Docker・笹木さん
 - [ ] Phase 1 コードレビュー
 - [x] Phase 2 実装（RLS を 4 entity_type へ拡張 / API 汎用化 / 添付 UI を `AttachmentsPanel` に共通化 / avatar は 1 枚 unique index + 置換）。回答・面談添付は管理の面談画面、資料=SurveyForm、アバター=UserForm。pgTAP 拡張（survey 可視・write 拒否 throws_ok）。typecheck/lint/test green。**回答者フロー中の回答添付（answer 未保存時）は follow-up**
-- [ ] Phase 3（stg/prod + nginx）
+- [x] Phase 3 実装（stg/prod compose に MinIO + nginx の storage サブドメイン server ブロック + web に STORAGE_* / MINIO_ROOT_* secrets + check-secrets に MINIO_ROOT_PASSWORD + env 例 + README に DNS/cert 手順）。**SigV4 整合のためサブパスでなく `storage.<domain>` サブドメイン**。実起動は笹木さん stg（DNS A + cert SAN に storage 名が必要）
 - [ ] マージ後検証（Docker・笹木さん）
