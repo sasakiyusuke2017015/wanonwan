@@ -1,6 +1,6 @@
 # 管理一覧のフィルタ/ソート + StatisticPanel
 
-> ステータス: 🟡 実装中（Phase 1 実装済み / Phase 2 残り）
+> ステータス: 🟡 実装中（Phase 1+2 実装済み・全一覧対応完了 / PR レビュー待ち）
 > 由来: [Status Dashboard「次セッションの起点」#2 見た目の磨き込み](../README.md) の「一覧のフィルタ/ソート + `StatisticPanel`」。
 
 | 項目 | 値 |
@@ -84,14 +84,14 @@ AdminListTable に汎用機能として足し、各ページは「どの列を�
 | 2026-06-18 | ロジックは純関数（filterRows/sortRows）に分離して unit test | UI から切り離してテスト可能にする（Docker 不要で挙動を担保） |
 | 2026-06-18 | StatisticPanel は status を持つ surveys/answers 中心、users は総数のみ | status 内訳が無い users に色付きパネルは過剰 |
 | 2026-06-18 | サーバ side のページング/ソートは非目的 | 当面データ量小。先に UX を出し、必要時に移行 |
+| 2026-06-18 | 集計は StatisticPanel（PieChart 同梱）ではなく軽量な `StatisticList` を採用 | 一覧ヘッダの集計は件数の素早い把握が目的。pie chart は分析ダッシュボード側で担う。一覧上部は dot + ラベル + 件数のコンパクト表示が適切 |
 
 ## 7. ステータス
 
 - [x] Plan ドラフト完成（本ファイル）
 - [x] 計画レビュー / 笹木さん承認（2026-06-18 承認）
 - [x] Phase 1 実装（`filter-sort.ts` 純関数 + unit test 7 件 / AdminListTable に searchKeys・sortable 追加 / users 適用 + StatisticList 総数）。typecheck・lint・test green
-- [ ] Phase 1 コードレビュー
-- [ ] Phase 2 実装（surveys/answers 展開 + status 別 StatisticPanel）
-- [ ] Phase 2 コードレビュー
+- [x] Phase 2 実装（surveys/answers に search/sort 展開 + status 別集計を `StatisticList` で表示）
+- [ ] コードレビュー
 - [ ] PR マージ
 - [ ] dashboard 見た目磨き込み #2 の該当項目を消し込み
