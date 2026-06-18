@@ -123,9 +123,10 @@ export function SurveyForm({ surveyId }: { surveyId?: string }) {
                 borderRadius={shapes.inputRadius}
               />
             </FormField>
-            <FormField label="定員（任意）">
+            <FormField label="定員（任意）" error={fieldErrors.capacity}>
               <Input
                 type="number"
+                min={1}
                 value={form.capacity}
                 onChange={(e) => setForm((f) => ({ ...f, capacity: e.target.value }))}
                 borderRadius={shapes.inputRadius}
