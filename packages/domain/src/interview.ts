@@ -48,7 +48,16 @@ export const RecordInterviewSchema = v.object({
   interviewAt: v.optional(v.nullable(v.string())),
   interviewMethod: v.optional(v.nullable(v.picklist([1, 2, 3]))),
   healthStatus: v.optional(v.nullable(v.number())),
-  evaluation: v.optional(v.record(v.string(), v.number())),
+  evaluation: v.optional(
+    v.record(
+      v.string(),
+      v.pipe(
+        v.number(),
+        v.minValue(0, "評価は 0〜5 で入力してください"),
+        v.maxValue(5, "評価は 0〜5 で入力してください"),
+      ),
+    ),
+  ),
   interviewMemo: v.optional(v.nullable(v.string())),
   nextAction: v.optional(v.nullable(v.string())),
   // 記録後の回答状況（既定 900 完了）

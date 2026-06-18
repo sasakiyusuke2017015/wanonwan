@@ -108,6 +108,9 @@ export function InterviewForm({ answerId, initial }: { answerId: string; initial
             <FormField key={it.key} label={it.label}>
               <Input
                 type="number"
+                min={0}
+                max={5}
+                step={1}
                 value={f.evaluation[it.key] == null ? "" : String(f.evaluation[it.key])}
                 onChange={(e) =>
                   setF((s) => ({ ...s, evaluation: { ...s.evaluation, [it.key]: e.target.value } }))
