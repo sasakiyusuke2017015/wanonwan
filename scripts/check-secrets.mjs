@@ -42,6 +42,7 @@ requireSecret("JWT_SECRET", "dev-only-change-me-please-32bytes-minimum", { minBy
 requireSecret("PG_SUPERUSER_PASSWORD", "postgres");
 requireSecret("AUTH_ADMIN_PASSWORD", "authadmin"); // supabase_auth_admin（00_bootstrap.sql 既定）
 requireSecret("APP_DB_PASSWORD", "app"); //            app_user（00_bootstrap.sql 既定）
+requireSecret("MINIO_ROOT_PASSWORD", "minioadmin"); // MinIO root（dev 既定 minioadmin は本番不可）
 
 // プレースホルダのまま起動していないか（テンプレートの example ドメインが残っている）。
 if ((env.WAOON_DOMAIN ?? "").endsWith(".example.com")) {

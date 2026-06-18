@@ -76,6 +76,25 @@ services:
       DATABASE_URL: postgres://app_user:${APP_DB_PASSWORD:?APP_DB_PASSWORD required}@postgres:5432/${PG_DATABASE}
       GOTRUE_URL: ${GOTRUE_URL:?GOTRUE_URL required}
       GOTRUE_JWT_SECRET: ${JWT_SECRET}
+      # 添付（MinIO）。presigned URL は browser-reachable な公開ホストで署名する必要があるため
+      # STORAGE_ENDPOINT は nginx 経由の storage サブドメイン（https://storage.<domain>）。
+      STORAGE_ENDPOINT: ${STORAGE_ENDPOINT:?STORAGE_ENDPOINT required}
+      STORAGE_ACCESS_KEY: ${MINIO_ROOT_USER:?MINIO_ROOT_USER required}
+      STORAGE_SECRET_KEY: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD required}
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-waoon}
+    networks: [waoon]
+
+  # MinIO（添付のオブジェクトストレージ）。直接公開せず nginx(storage サブドメイン)経由のみ。
+  minio:
+    image: minio/minio:latest
+    container_name: waoon-stg-minio
+    restart: unless-stopped
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER required}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD required}
+    volumes:
+      - minio-data:/data
     networks: [waoon]
 
   # nginx（TLS 終端・ルーティング・XFF 注入・一次レートリミット）。設定は ./nginx を参照。
@@ -86,11 +105,14 @@ services:
     depends_on:
       - web
       - gotrue
+      - minio
     ports:
       - "80:80"
       - "443:443"
     environment:
       WAOON_DOMAIN: ${WAOON_DOMAIN:?WAOON_DOMAIN required}
+      # 添付の storage サブドメイン（既定 storage.<domain>）。cert の SAN に含めること。
+      WAOON_STORAGE_DOMAIN: ${WAOON_STORAGE_DOMAIN:?WAOON_STORAGE_DOMAIN required}
     volumes:
       - ./nginx/templates:/etc/nginx/templates:ro
       - ./nginx/conf.d/10-limits.conf:/etc/nginx/conf.d/10-limits.conf:ro
@@ -113,6 +135,7 @@ volumes:
   db-data:
   certbot-conf:
   certbot-www:
+  minio-data:
 
 networks:
   waoon:
