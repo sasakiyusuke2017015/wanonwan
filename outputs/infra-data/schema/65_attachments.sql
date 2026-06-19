@@ -22,6 +22,9 @@ CREATE TABLE IF NOT EXISTS public.attachments (
 
 CREATE INDEX IF NOT EXISTS attachments_entity_idx ON public.attachments (entity_type, entity_id);
 
--- アバターは 1 ユーザー 1 枚。新規アップロード前に既存を削除する運用（UI）を DB でも担保。
-CREATE UNIQUE INDEX IF NOT EXISTS attachments_one_avatar_per_user
-  ON public.attachments (entity_id) WHERE entity_type = 'user_avatar';
+-- アバターは「確定済み(status=200)」が 1 ユーザー 1 枚。pending(100) は複数あってよい
+-- （新 upload を作っても、complete 成功時に旧 confirmed を置き換えるまで旧 avatar を残すため）。
+-- 定義変更を既存 DB にも反映するため DROP+CREATE（CREATE IF NOT EXISTS は既存 index を更新しない）。
+DROP INDEX IF EXISTS public.attachments_one_avatar_per_user;
+CREATE UNIQUE INDEX attachments_one_avatar_per_user
+  ON public.attachments (entity_id) WHERE entity_type = 'user_avatar' AND status = 200;

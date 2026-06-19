@@ -58,7 +58,8 @@ export function AttachmentsPanel({
         headers: { "Content-Type": contentType },
       });
       if (!put.ok) throw new Error("MinIO へのアップロードに失敗しました");
-      await apiSend(`/api/v1/attachments/${data.id}`, "PATCH", { sizeBytes: file.size });
+      // 確定はサーバが MinIO の実オブジェクトを検証して size を確定する（client 申告は送らない）。
+      await apiSend(`/api/v1/attachments/${data.id}`, "PATCH");
       await reload();
     } catch (err) {
       setError(
