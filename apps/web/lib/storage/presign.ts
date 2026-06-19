@@ -4,6 +4,7 @@ import {
   GetObjectCommand,
   DeleteObjectCommand,
   HeadBucketCommand,
+  HeadObjectCommand,
   CreateBucketCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -58,4 +59,20 @@ export function presignGet(
 
 export async function deleteObject(client: S3Client, bucket: string, key: string): Promise<void> {
   await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
+}
+
+// 実オブジェクトのメタ（サイズ・MIME）を取得する。存在しなければ null（complete の実体検証用）。
+export async function headObject(
+  client: S3Client,
+  bucket: string,
+  key: string,
+): Promise<{ contentLength: number; contentType: string } | null> {
+  try {
+    const r = await client.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+    return { contentLength: r.ContentLength ?? 0, contentType: r.ContentType ?? "" };
+  } catch (e) {
+    const err = e as { name?: string; $metadata?: { httpStatusCode?: number } };
+    if (err.name === "NotFound" || err.$metadata?.httpStatusCode === 404) return null;
+    throw e;
+  }
 }

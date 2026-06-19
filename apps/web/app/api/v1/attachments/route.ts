@@ -8,6 +8,7 @@ import { mapDbError } from "@/lib/db/errors";
 import { storage, STORAGE_BUCKET } from "@/lib/storage/client";
 import { objectKeyFor } from "@/lib/storage/keys";
 import { ensureBucket, presignPut } from "@/lib/storage/presign";
+import { isAllowedContentType } from "@/lib/storage/policy";
 
 const ENTITY_TYPES = ["interview", "answer", "survey", "user_avatar"] as const;
 
@@ -25,16 +26,18 @@ export const POST = withActiveUser(async (req, claims) => {
   if (parsed instanceof NextResponse) return parsed;
   const input = parsed;
 
+  // server-side の MIME allowlist（presign 前に弾く）。サイズ上限は complete の実体検証で担保。
+  if (!isAllowedContentType(input.contentType)) {
+    return NextResponse.json({ error: "許可されていないファイル種別です" }, { status: 415 });
+  }
+
   const key = objectKeyFor(input.entityType, input.entityId, randomUUID());
 
+  // アバターは pending を作るだけ（旧 avatar は upload 完了= complete 成功時に置き換える。
+  // 作成時に消すと、新 upload を放棄したときに旧 avatar を失うため）。
   let created: Array<{ id: number }>;
   try {
-    created = await withUser(claims.sub, async (tx) => {
-      // アバターは 1 ユーザー 1 枚。既存があれば置き換える（旧オブジェクトは pg_cron で掃除予定）。
-      if (input.entityType === "user_avatar") {
-        await tx`delete from public.attachments
-                 where entity_type = 'user_avatar' and entity_id = ${input.entityId}`;
-      }
+    created = await withUser(claims.sub, (tx) => {
       return tx`
         insert into public.attachments
           (entity_type, entity_id, bucket, object_key, filename, content_type, uploaded_by)
@@ -69,7 +72,7 @@ export const GET = withActiveUser(async (req, claims) => {
       select id, filename, content_type as "contentType", size_bytes as "sizeBytes",
              status, created_at as "createdAt"
       from public.attachments
-      where entity_type = ${entityType} and entity_id = ${entityId}
+      where entity_type = ${entityType} and entity_id = ${entityId} and status = 200
       order by id
     `,
   );
