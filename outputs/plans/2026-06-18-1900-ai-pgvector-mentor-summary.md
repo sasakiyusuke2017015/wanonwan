@@ -1,6 +1,6 @@
 # AI 機能: 面談メンター提案 + 自由記述の要約/分析（Claude + pgvector）
 
-> ステータス: 🟡 実装中（Phase A+B 実装済み・キー/URL 未設定で無効。§3.2 = 自前ホスト埋め込みに決定）
+> ステータス: 🟡 実装中（Phase A+B 実装済み・**二重 gate（key + 承認フラグ）未設定で無効**。§3.2 = 自前ホスト埋め込みに決定）
 > 由来: 親 Plan §10「AI 機能（FAQ/メンター）+ pgvector + LLM 基盤」。ユーザー指定の機能 = 面談メンター提案 + 自由記述の要約/分析。
 
 | 項目 | 値 |
@@ -36,9 +36,13 @@
 
 ---
 
-## 3. 先に承認が要る重大判断（実装前のブロッカー）
+## 3. 先に承認が要る重大判断（外部送信を有効化する前のブロッカー）
 
-> これらは **組織/笹木さんの意思決定**。決まるまで実装着手しない。
+> これらは **組織/笹木さんの意思決定**。**有効化（＝実際の外部送信）は承認まで行わない**。
+> ただし **disabled-by-default の実装（コード・UI）は承認前でも先行してよい**: 外部送信は
+> **二重 gate**（`ANTHROPIC_API_KEY` 設定 **かつ** `AI_EXTERNAL_PROCESSING_APPROVED=true`）で守られ、
+> 承認フラグ未設定の限り 503 を返し外部送信ゼロ。key 単独では有効化しない（テスト目的の key 混入で
+> 面談データが流れる事故を防ぐ）。stg/prod は `check-secrets` が「key あり・承認フラグ無し」を fail-closed で拒否する。
 
 ### 3.1 プライバシー — HR データの外部送信（最重要）
 
@@ -118,6 +122,8 @@ Anthropic に埋め込み API が無いため、メンター提案の RAG（類�
 | 2026-06-18 | Phase A（要約）と Phase B（pgvector 提案）に分割。A は埋め込み不要で先行可 | A は外部 LLM のみで完結、B は埋め込み + 非同期基盤が要る |
 | 2026-06-18 | **実装前に §3.1 プライバシー承認を必須化** | 従業員 HR データの外部送信は組織判断 |
 | 2026-06-18 | **機能は「`ANTHROPIC_API_KEY` を env に入れるまで動かない」設計で実装**（キー未設定＝外部送信ゼロ・503 で無効）。キーを入れる行為＝組織が外部送信を有効化する判断 | コードはキー無しでは送信しない安全な土台。有効化の意思決定を env キー投入に一本化（笹木さん/組織） |
+| 2026-06-19 | **key 単独 gate → 二重 gate に強化**（key + `AI_EXTERNAL_PROCESSING_APPROVED=true`）。`check-secrets` で「key あり・承認無し」を fail-closed で拒否。disabled-by-default 実装は承認前でも先行可と明文化 | レビュー指摘（BLOCKER）: テスト目的の key が stg/prod に紛れると面談データが即外部送信され得る。承認の意思を別フラグに分離し fail-safe 化 |
+| 2026-06-19 | **送信データ最小化/マスキング（§3.1(d)）は承認時に確定する明示ステップ**として残課題化（現状は要約=memo+next_action、メンター=対象+類似3件をそのまま送信。承認前は無効なので実害なし） | レビュー指摘（HIGH）: 有効化前に送信 field/文字数/類似件数を Plan に固定する必要 |
 
 ## 8. ステータス
 
@@ -129,4 +135,6 @@ Anthropic に埋め込み API が無いため、メンター提案の RAG（類�
 - [ ] Phase A コードレビュー
 - [x] §3.2 埋め込みプロバイダ決定 = **自前ホスト**（compose に TEI/multilingual-e5-small・profile ai・社外送信なし）
 - [x] Phase B 実装（embeddings コンテナ(profile ai) + `lib/ai/embed`(unit 4) + `answers.embedding vector(384)` + hnsw + `lib/ai/mentor`(unit 2) + `POST /answers/[id]/mentor`(key/URL-gate 503・面談者/admin・lazy 埋め込み・pgvector 近傍・Claude 提案) + InterviewForm に UI）。typecheck/lint/test green。**非同期基盤は使わず lazy 生成で MVP**（孤児/再 index は後続）
-- [ ] マージ後検証（Docker・笹木さん）
+- [x] レビュー指摘 BLOCKER 対応: 外部送信を二重 gate 化（key + `AI_EXTERNAL_PROCESSING_APPROVED`）+ `check-secrets` で key あり・承認無しを fail-closed 拒否 + .env.example + Plan 矛盾解消
+- [ ] **承認時に確定**: 送信データの最小化/マスキング（§3.1(d)）— 送信 field・文字数・類似件数を確定（レビュー HIGH。有効化前に必須）
+- [ ] マージ後検証（Docker・笹木さん: 承認フラグ + key 設定で要約/メンターが返る・未設定で 503）

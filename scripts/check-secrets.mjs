@@ -49,6 +49,14 @@ if ((env.WAOON_DOMAIN ?? "").endsWith(".example.com")) {
   errors.push("WAOON_DOMAIN が example.com のプレースホルダのままです");
 }
 
+// AI 外部送信は二重 gate。key があるのに承認フラグが無い stg/prod を fail-closed で拒否する
+// （テスト目的の ANTHROPIC_API_KEY 混入で面談データが Claude に流れる事故を防ぐ）。
+if ((env.ANTHROPIC_API_KEY ?? "") && env.AI_EXTERNAL_PROCESSING_APPROVED !== "true") {
+  errors.push(
+    "ANTHROPIC_API_KEY があるのに AI_EXTERNAL_PROCESSING_APPROVED=true がありません（外部送信の承認 gate 未設定）",
+  );
+}
+
 if (errors.length > 0) {
   console.error(`✗ secrets チェック失敗 (${envPath}):`);
   for (const e of errors) console.error(`  - ${e}`);
