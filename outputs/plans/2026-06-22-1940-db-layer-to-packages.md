@@ -6,7 +6,7 @@
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | `feature/db-to-packages`（予定） |
 | 関連 PR | TBD |
-| レビュー | TBD |
+| レビュー | [コードレビュー](../reviews/2026-06-22-1951-db-layer-to-packages-review.md)（APPROVE） |
 
 ## 目的
 
@@ -111,9 +111,9 @@ Plan / Review / 検証ドキュメントの置き場であり、**現役のソ�
 
 ## ステータス
 
-- [ ] Plan 承認（笹木さん）
-- [ ] 計画レビュー（任意 / `/plan-review`）
-- [ ] 実装（#51 マージ後）
-- [ ] コードレビュー（`/pr-review`）
+- [x] Plan 承認（笹木さん）
+- [x] 実装（#51 マージ後 develop 起点。git mv + 参照更新）
+- [x] コードレビュー（[APPROVE](../reviews/2026-06-22-1951-db-layer-to-packages-review.md)。Claude Code + code-reviewer agent。BLOCKER なし / NICE-TO-HAVE 2 件 LOW）
+- [ ] PR 作成 → 笹木さんマージ承認
 - [ ] PR merge
-- [ ] マージ後検証（上記「検証」。特に initdb から作り直し）
+- [ ] マージ後検証（CD で image SQL 非混入 / CI green）
