@@ -147,7 +147,7 @@ export function EventModal({ persistEvent, removeEvent }: EventModalProps) {
       await removeEvent(modal.editingEvent.id)
       close()
     } catch (error) {
-      throw new Error(`Failed to delete event: ${error}`)
+      throw new Error('Failed to delete event', { cause: error })
     }
   }, [modal.editingEvent, removeEvent, close])
 
@@ -193,7 +193,7 @@ export function EventModal({ persistEvent, removeEvent }: EventModalProps) {
         })
         close()
       } catch (error) {
-        throw new Error(`Failed to save event: ${error}`)
+        throw new Error('Failed to save event', { cause: error })
       }
     },
     [title, startDateStr, endDateStr, mode, repeatDays, startMin, endMin, color, icon, description, modal.editingEvent, persistEvent, close]

@@ -306,7 +306,7 @@ export const useKeyboardNavigation = ({
             for (let c = minCol; c <= maxCol; c++) {
               const column = columns[c];
               const cellValue = rowData?.[column?.accessor];
-              let textValue = '';
+              let textValue: string;
               if (cellValue === null || cellValue === undefined) {
                 textValue = '';
               } else if (typeof cellValue === 'object') {

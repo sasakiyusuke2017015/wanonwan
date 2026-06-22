@@ -71,9 +71,13 @@ let katexRenderToString: ((tex: string, opts: Record<string, unknown>) => string
 
 if (typeof window !== 'undefined') {
   try {
+    // katex は optional peer dep。未導入環境では落とさず null のままにするため動的 require する
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const katex = require('katex')
     katexRenderToString = katex.renderToString
-  } catch {}
+  } catch {
+    // katex 未導入時は katexRenderToString = null のまま
+  }
 }
 
 export function MathView({ latex, inline, textColor, fontSize }: MathViewProps) {

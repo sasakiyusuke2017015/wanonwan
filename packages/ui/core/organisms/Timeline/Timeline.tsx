@@ -35,7 +35,7 @@ export function Timeline({ events, headerVariant, persistEvent, removeEvent, onE
       try {
         await removeEvent(id)
       } catch (error) {
-        throw new Error(`Failed to delete event: ${error}`)
+        throw new Error('Failed to delete event', { cause: error })
       }
     },
     [removeEvent]
@@ -46,7 +46,7 @@ export function Timeline({ events, headerVariant, persistEvent, removeEvent, onE
       try {
         await persistEvent(event)
       } catch (error) {
-        throw new Error(`Failed to update event: ${error}`)
+        throw new Error('Failed to update event', { cause: error })
       }
     },
     [persistEvent]

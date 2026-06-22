@@ -56,7 +56,7 @@ export function WeekView({ events, showAllDayBar = true, persistEvent, removeEve
       try {
         await removeEvent(id)
       } catch (error) {
-        throw new Error(`Failed to delete event: ${error}`)
+        throw new Error('Failed to delete event', { cause: error })
       }
     },
     [removeEvent]
@@ -67,7 +67,7 @@ export function WeekView({ events, showAllDayBar = true, persistEvent, removeEve
       try {
         await persistEvent(event)
       } catch (error) {
-        throw new Error(`Failed to update event: ${error}`)
+        throw new Error('Failed to update event', { cause: error })
       }
     },
     [persistEvent]

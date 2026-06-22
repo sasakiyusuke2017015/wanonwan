@@ -17,6 +17,7 @@ import { selectedDateAtom, editingEventAtom } from '../../hooks/calendar/calenda
 import { getEventsForDay } from '../../utils/calendar/dates'
 import type { CalendarEvent } from '../../types/calendar'
 import { Icon } from '../../atoms/Icon/Icon'
+import type { IconName } from '../../constants'
 import styles from './AgendaView.module.scss'
 
 export interface AgendaViewProps {
@@ -131,7 +132,7 @@ export function AgendaView({ events, onEventClick }: AgendaViewProps) {
                   <div className={styles.agendaView__eventContent}>
                     <div className={styles.agendaView__eventTitle}>
                       {event.icon && (
-                        <Icon name={event.icon as any} size="sm" className={styles.agendaView__eventIcon} />
+                        <Icon name={event.icon as IconName} size="sm" className={styles.agendaView__eventIcon} />
                       )}
                       <span>{event.title}</span>
                     </div>
