@@ -5,6 +5,10 @@
 **/build
 **/coverage
 **/.turbo
+# DB の SQL は postgres へ volume マウントで渡る。web/worker image には不要（package.json は残す）。
+packages/db/schema
+packages/db/seed
+packages/db/tests
 .git
 .github
 .claude
