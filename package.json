@@ -9,11 +9,15 @@
   },
   "scripts": {
     "dev": "pnpm --filter @waoon/web dev",
-    "build": "pnpm --filter @waoon/web build",
+    "build": "turbo run build",
     "start": "pnpm --filter @waoon/web start",
-    "typecheck": "pnpm -r typecheck",
-    "lint": "pnpm --filter @waoon/web lint",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md,css}\"",
+    "clean": "rimraf -g node_modules \"apps/*/node_modules\" \"packages/*/node_modules\" .turbo \"apps/*/.next\" \"apps/*/.turbo\" \"packages/*/.turbo\" packages/ui/storybook-static",
+    "clean:build": "rimraf -g .turbo \"apps/*/.next\" \"apps/*/.turbo\" \"packages/*/.turbo\" packages/ui/storybook-static",
+    "clean:cache": "pnpm store prune",
     "compose:dev:build": "docker compose -f infra/docker-compose.yml build",
     "compose:dev:up": "docker compose -f infra/docker-compose.yml up -d --wait",
     "compose:dev:down": "docker compose -f infra/docker-compose.yml down",
@@ -44,6 +48,8 @@
   },
   "devDependencies": {
     "prettier": "^3.4.2",
+    "rimraf": "^6.1.3",
+    "turbo": "^2.9.18",
     "typescript": "^5.9.0"
   }
 }
