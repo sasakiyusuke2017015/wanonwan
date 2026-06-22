@@ -97,7 +97,7 @@ const sqlStr = (s) => `'${String(s).replace(/'/g, "''")}'`; // single quote エ�
 
 // --- 1) 組織マスタ seed（idempotent） ---
 console.log("• 組織マスタ seed を適用 (00_org.sql)");
-psql(readFileSync(join(root, "outputs", "infra-data", "seed", "00_org.sql"), "utf8"));
+psql(readFileSync(join(root, "packages", "db", "seed", "00_org.sql"), "utf8"));
 
 // --- 既存 admin チェック（GoTrue 重複作成を避ける） ---
 const exists = psql(`SELECT count(*) FROM public.users WHERE email = ${sqlStr(email)};`, {

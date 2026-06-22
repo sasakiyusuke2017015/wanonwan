@@ -1,0 +1,6 @@
+{
+  "name": "@waoon/db",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PostgreSQL の DDL / RLS / seed / pgTAP。schema は db:migrate、seed は db:seed、tests は test:db で適用する（いずれもルートの scripts/ 経由）。"
+}

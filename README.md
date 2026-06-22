@@ -33,7 +33,8 @@ waoon/
 ├── CLAUDE.md            プロジェクト概要 + AI 駆動開発の前提
 ├── README.md            ← このファイル
 ├── apps/web/            Next.js アプリ（UI + API Routes + Server Actions + lib/auth）
-├── packages/            共有パッケージ（@waoon/ui / auth / domain）
+├── packages/            共有パッケージ（@waoon/ui / auth / domain / db）
+│   └── db/              DDL・RLS・seed・pgTAP（db:migrate / db:seed / test:db で適用）
 ├── infra/               Docker Compose（dev/stg/prod）+ nginx + Dockerfile.web
 ├── scripts/             db-migrate / db-seed / provision / check-secrets 等
 ├── docs/                ドキュメント全般
@@ -45,8 +46,7 @@ waoon/
 └── outputs/
     ├── README.md        Plan / Review ステータスダッシュボード
     ├── plans/           実装前の Plan
-    ├── reviews/         Plan / 実装に対する Review
-    └── infra-data/      DDL・RLS・seed SQL
+    └── reviews/         Plan / 実装に対する Review
 ```
 
 ## 開発の進め方

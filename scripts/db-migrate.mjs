@@ -1,4 +1,4 @@
-// outputs/infra-data/schema/*.sql を昇順に postgres コンテナへ適用する（idempotent）。
+// packages/db/schema/*.sql を昇順に postgres コンテナへ適用する（idempotent）。
 // 00_bootstrap.sql は初回 initdb.d でも実行されるが、IF NOT EXISTS / CREATE OR REPLACE で冪等。
 //
 // dev:        pnpm db:migrate
@@ -30,7 +30,7 @@ const service = flag("service") ?? process.env.PG_SERVICE ?? "postgres";
 // PG_DATABASE / PG_SUPERUSER の優先順: process.env > env file > 既定値。
 // env file を渡したのに既定値 waoon/postgres へ向かう取りこぼしを防ぐ。
 const fileEnv = envFile ? parseEnvFile(resolvePath(envFile)) : {};
-const schemaDir = join(root, "outputs", "infra-data", "schema");
+const schemaDir = join(root, "packages", "db", "schema");
 const db = process.env.PG_DATABASE ?? fileEnv.PG_DATABASE ?? "waoon";
 const user = process.env.PG_SUPERUSER ?? fileEnv.PG_SUPERUSER ?? "postgres";
 

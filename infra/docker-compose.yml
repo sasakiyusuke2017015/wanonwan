@@ -17,7 +17,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
       # 初回起動時のブートストラップ（ロール/スキーマ/拡張/RLS ヘルパ）。gotrue 接続前提を満たす。
-      - ../outputs/infra-data/schema/00_bootstrap.sql:/docker-entrypoint-initdb.d/00_bootstrap.sql:ro
+      - ../packages/db/schema/00_bootstrap.sql:/docker-entrypoint-initdb.d/00_bootstrap.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${PG_SUPERUSER:-postgres} -d ${PG_DATABASE:-waoon}"]
       interval: 5s

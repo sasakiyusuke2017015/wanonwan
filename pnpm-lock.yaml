@@ -158,6 +158,8 @@ importers:
         specifier: ^5.9.0
         version: 5.9.3
 
+  packages/db: {}
+
   packages/domain:
     dependencies:
       valibot:
