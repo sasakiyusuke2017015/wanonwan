@@ -29,20 +29,9 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: Typecheck
-        run: pnpm -r typecheck
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Build (web)
-        run: pnpm --filter @waoon/web build
-
-      - name: Test (web)
-        run: pnpm --filter @waoon/web test
-
-      - name: Test (worker)
-        run: pnpm --filter @waoon/worker test
+      # typecheck / lint / build / test を turbo で集約実行（依存グラフ順 + キャッシュ）
+      - name: Verify (turbo)
+        run: pnpm turbo run typecheck lint build test
 
       # --- DB スタックを立てて pgTAP（RLS）を実行 ---
       - name: Build DB image

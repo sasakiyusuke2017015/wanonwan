@@ -30,7 +30,7 @@ waoon は、旧 **1on1（アンケート／面談）アプリ**を技術選定�
 | 認証 | GoTrue（JWT + Cookie、自前薄ラッパ） |
 | DB | PostgreSQL 15 + 拡張（pgmq / pg_cron / pgvector / pgtap）。**RLS で認可** |
 | 非同期 | pgmq / pg_cron（通知は非同期） |
-| パッケージ / 構成 | pnpm + pnpm workspace（モノレポ） |
+| パッケージ / 構成 | pnpm + pnpm workspace（モノレポ）+ Turborepo（`turbo run` でタスク実行） |
 | コンテナ | Docker Compose（dev / stg / prod、stg/prod 同一構成） |
 | テスト | Vitest / pgTAP（RLS・SQL）/ Playwright。テストピラミッド |
 | Git ホスト | **GitHub**（`sasakiyusuke2017015/waoon`）+ GitHub Actions |

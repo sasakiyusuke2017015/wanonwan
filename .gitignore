@@ -6,6 +6,7 @@ out/
 dist/
 build/
 coverage/
+.turbo/
 
 # 環境・シークレット
 .env

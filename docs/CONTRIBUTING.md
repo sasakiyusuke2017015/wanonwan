@@ -62,13 +62,19 @@ seed 済みログイン: `admin@example.com` / `Admin1234!`（管理者）,
 
 | コマンド | 内容 |
 |---|---|
-| `pnpm typecheck` | 全パッケージの型チェック |
-| `pnpm --filter @waoon/web test` | web の Vitest（unit） |
-| `pnpm test:db` | pgTAP（RLS / SQL）。DB スタック起動が前提 |
+| `pnpm typecheck` | 全パッケージの型チェック（`turbo run typecheck`） |
+| `pnpm lint` | 全パッケージの ESLint（`turbo run lint`。web + ui） |
+| `pnpm build` | ビルド（`turbo run build`） |
+| `pnpm test` | 全パッケージの Vitest（`turbo run test`。web + worker。unit） |
+| `pnpm test:db` | pgTAP（RLS / SQL）。DB スタック起動が前提（turbo 外） |
 | `pnpm format` | Prettier |
+| `pnpm clean:build` | ビルド成果物 + turbo キャッシュを削除 |
+
+`typecheck` / `lint` / `build` / `test` は Turborepo 経由で実行され、変更のない
+パッケージはキャッシュからスキップされる。
 
 CI（[.github/workflows/ci.yml](../.github/workflows/ci.yml)）は PR / push 時に
-typecheck・web build・pgTAP を回す。
+`turbo run typecheck lint build test`・pgTAP を回す。
 
 ## 4. ブランチ & PR
 
