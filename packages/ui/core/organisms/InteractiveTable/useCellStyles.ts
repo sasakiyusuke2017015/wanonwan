@@ -254,7 +254,7 @@ export const useCellStyles = ({
         baseBgColor = 'rgba(255, 255, 255, 0.8)';
     }
 
-    let finalBgColor = baseBgColor;
+    let finalBgColor: string;
     switch (colorTypes.cellBg) {
       case 'focused':
         finalBgColor = blendColors(baseBgColor, 'rgba(191, 219, 254, 0.8)');

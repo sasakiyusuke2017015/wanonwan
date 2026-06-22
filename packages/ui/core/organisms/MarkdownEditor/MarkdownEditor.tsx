@@ -188,7 +188,6 @@ export function MarkdownEditor({
       viewRef.current = null
     }
     // 初期化は一度だけ。value の後続反映は下のuseEffectで対応。
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // 外部から value を強制同期したい場合（sessionStorage 復元等）。

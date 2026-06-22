@@ -7,7 +7,6 @@ const mockDragAtom = { eventId: null, mode: null }
 const mockHoveredEventAtom = null
 const mockEventsAtom: CalendarEvent[] = []
 const mockSetHovered = vi.fn()
-const mockSetModal = vi.fn()
 const mockAnyDragActive = false
 
 vi.mock('jotai', () => ({
