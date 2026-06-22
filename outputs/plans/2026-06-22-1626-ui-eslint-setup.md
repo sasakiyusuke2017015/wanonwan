@@ -6,7 +6,7 @@
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | `feature/ui-eslint` |
 | 関連 PR | TBD |
-| レビュー | TBD |
+| レビュー | [コードレビュー](../reviews/2026-06-22-1755-ui-eslint-setup-review.md)（APPROVE） |
 | 親 Plan | [2026-06-22-1447-turbo-monorepo.md](2026-06-22-1447-turbo-monorepo.md)（turbo の lint 拡大の前提） |
 
 ## 目的
@@ -85,9 +85,8 @@ ui に eslint（web と同じ flat config: eslint 10 / typescript-eslint 8）を
 | 2026-06-22 | dependency-direction 等の ui-catalog 独自ルールは入れない | parent-strict.cjs にも「後日」とある範囲。flat config は js.recommended + tseslint.recommended の最小から始める |
 
 ## ステータス
-- [ ] 計画レビュー（`/plan-review`）
-- [ ] Plan 承認（笹木さん）
-- [ ] 実装
-- [ ] コードレビュー（`/pr-review`）
+- [x] 実装（commit 2cb89e5）
+- [x] コードレビュー（[APPROVE](../reviews/2026-06-22-1755-ui-eslint-setup-review.md)。Claude Code + code-reviewer agent。BLOCKER なし / NICE-TO-HAVE 2 件 LOW）
+- [ ] PR 作成 → 笹木さんマージ承認
 - [ ] PR merge
-- [ ] マージ後検証（上記「検証」チェック）
+- [ ] マージ後検証（CI green 確認。ui lint/typecheck は実装時に green 済み）
