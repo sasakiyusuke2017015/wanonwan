@@ -36,11 +36,13 @@ pnpm dev:up
 
 1. `compose:dev:up` — postgres + gotrue を起動し healthy まで待つ（`--wait`）
 2. `db:migrate` — スキーマ適用（冪等）
-3. `db:seed` — 初期データ投入（冪等: `ON CONFLICT`）
-4. `dev` — web を前面起動 → http://localhost:3000
+3. `seed:gotrue:dev` — GoTrue に dev ユーザを作成（冪等。seed の固定 UUID と一致）
+4. `db:seed` — 初期データ投入（冪等: `ON CONFLICT`）
+5. `dev` — web を前面起動 → http://localhost:3000
 
 seed 済みログイン: `admin@example.com` / `Admin1234!`（管理者）,
-`member@example.com` / `Member1234!`（一般）。
+`alice@example.com` / `Alice1234!`（一般）。dev ユーザは `pnpm dev:up`（内部で
+`seed:gotrue:dev`）が GoTrue に作成する。他に `bob` / `carol`（RLS 検証用）も同様。
 
 ### 個別に回す
 
