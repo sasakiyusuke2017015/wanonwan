@@ -68,4 +68,4 @@ pnpm dev              # web のみ（env は apps/web/.env.example の既定で�
 # データ消去して作り直し: pnpm compose:dev:down -v → pnpm dev:up
 ```
 
-seed ログイン: `admin@example.com` / `Admin1234!`（管理者）, `member@example.com` / `Member1234!`（一般）
+seed ログイン: `admin@example.com` / `Admin1234!`（管理者）, `alice@example.com` / `Alice1234!`（一般）

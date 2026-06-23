@@ -21,7 +21,7 @@ pnpm dev:up
 pnpm compose:dev:down -v && pnpm dev:up
 ```
 
-ログイン: `admin@example.com` / `Admin1234!`（管理者）, `member@example.com` / `Member1234!`（一般）
+ログイン: `admin@example.com` / `Admin1234!`（管理者）, `alice@example.com` / `Alice1234!`（一般）
 
 UI 以外の確認ポート: MinIO console `http://localhost:9001`（minioadmin/minioadmin）, GoTrue `http://localhost:9999`
 
