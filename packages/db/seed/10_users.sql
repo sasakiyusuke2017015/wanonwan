@@ -1,6 +1,7 @@
 -- サンプルユーザ seed（冪等）。RLS 検証用に gotrue_id を実テストユーザに紐付ける。
--- admin の gotrue_id は dev で作成した GoTrue ユーザ(admin@example.com)の id。
--- 別 GoTrue ユーザを作る場合は provisioning（Phase 2 管理画面）で gotrue_id を更新する。
+-- gotrue_id は固定 UUID。dev では scripts/seed-gotrue-dev.mjs が同じ UUID で GoTrue
+-- ユーザを作るため一致する（pnpm dev:up に組み込み済み）。
+-- stg/prod は scripts/provision.mjs が GoTrue 発行 id を public.users に紐付ける。
 
 INSERT INTO public.users (gotrue_id, code, name, email, position_id, division_id, department_id, section_id)
 SELECT
