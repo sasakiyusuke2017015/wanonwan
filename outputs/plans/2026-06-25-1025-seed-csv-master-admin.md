@@ -2,12 +2,12 @@
 
 | 項目 | 値 |
 |---|---|
-| ステータス | 🟣 マージ承認待ち（コードレビュー APPROVE。push/PR は笹木さん確認待ち） |
+| ステータス | 🟢 マージ済み（検証中）— #56 merged。残: 管理画面のブラウザ手動確認 |
 | slug | `seed-csv-master-admin` |
 | 作成 | 2026-06-25 10:25 JST |
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | `feature/seed-csv-master-admin` |
-| 関連 PR | [#56](https://github.com/sasakiyusuke2017015/waoon/pull/56)（develop 向け・笹木さん承認待ち） |
+| 関連 PR | [#56](https://github.com/sasakiyusuke2017015/waoon/pull/56) merged |
 | レビュー | [計画レビュー](../reviews/2026-06-25-1031-seed-csv-master-admin-review.md)（APPROVE 相当に収束） / [コードレビュー](../reviews/2026-06-25-1431-seed-csv-master-admin-code-review.md)（**APPROVE**） |
 | git repo | `https://github.com/sasakiyusuke2017015/waoon.git` |
 
@@ -208,8 +208,12 @@ dev / stg / prod すべてに入れられるようにする。あわせて組織
   - [x] typecheck 全パッケージ / web build 成功
   - [x] API 実機: admin CRUD / FK 削除 409 / admin帯 995 → 400 / 非admin → 403
 - [x] コードレビュー（[2026-06-25-1431](../reviews/2026-06-25-1431-seed-csv-master-admin-code-review.md)・**APPROVE**）→ 共通指摘の positions.code 生値補間を修正済み
-- [ ] PR 作成（`develop` 向け・笹木さん確認待ち）
+- [x] PR 作成・マージ（[#56](https://github.com/sasakiyusuke2017015/waoon/pull/56) merged）
+- [x] マージ後検証（develop で再確認）
+  - [x] develop クリーン投入 + pgTAP all passed（7 files）
+  - [x] API 実機（dev サーバ）: admin CRUD / FK 削除 409 / admin帯拒否 / 非admin 403
+  - [ ] **ブラウザ手動確認**: `/admin/org`（本部/部/課）・`/admin/positions` の一覧/新規/編集/削除（笹木さん）
 
-> Phase 1-3 実装 + ローカル検証 + コードレビュー（APPROVE）完了。次は push + PR（笹木さん確認）。
+> Phase 1-3 実装 + コードレビュー（APPROVE）+ マージ完了。残るは管理画面のブラウザ手動確認のみ。
 > 残課題（別タスク候補）: provision PW 出力先のリポジトリ外化 + エラーログ redact、3 マスタの RLS pgTAP 追加、
-> B-1 の「users.position_id への admin帯付与ガード」（既存 users ルート・別 Plan）。
+> B-1 の「users.position_id への admin帯付与ガード」（後続 = [separate-role-from-position](2026-06-25-1558-separate-role-from-position.md) で role 分離により解消）。

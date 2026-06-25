@@ -2,12 +2,12 @@
 
 | 項目 | 値 |
 |---|---|
-| ステータス | 🟣 マージ承認待ち（実装 + ローカル検証 + コードレビュー APPROVE 完了） |
+| ステータス | 🟢 マージ済み（検証中）— #57 merged。残: 権限トグルのブラウザ手動確認 |
 | slug | `separate-role-from-position` |
 | 作成 | 2026-06-25 15:58 JST |
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | `feature/separate-role-from-position`（develop `6ede703` 起点） |
-| 関連 PR | [#57](https://github.com/sasakiyusuke2017015/waoon/pull/57)（develop 向け・笹木さん承認待ち） |
+| 関連 PR | [#57](https://github.com/sasakiyusuke2017015/waoon/pull/57) merged |
 | レビュー | [コードレビュー](../reviews/2026-06-25-1627-separate-role-from-position-code-review.md)（**APPROVE**） |
 | 前提 | [#56](https://github.com/sasakiyusuke2017015/waoon/pull/56)（seed CSV化 + マスタ管理基盤）マージ済み。本 Plan はその続き |
 
@@ -136,7 +136,12 @@
 - [x] Phase 3: UI 管理者トグル + pgTAP 更新
 - [x] ローカル検証（pgTAP 7 / typecheck / build / API 実機: 昇格・最後のadmin保護409・帯ガード撤去）
 - [x] コードレビュー（[2026-06-25-1627](../reviews/2026-06-25-1627-separate-role-from-position-code-review.md)・**APPROVE**）→ 安価な指摘を反映済み
-- [ ] PR 作成（develop 向け・笹木さん確認待ち）
+- [x] PR 作成・マージ（[#57](https://github.com/sasakiyusuke2017015/waoon/pull/57) merged）
+- [x] マージ後検証（develop で再確認）
+  - [x] develop クリーン投入 + pgTAP all passed（7 files。role 基準 is_admin + 最後の admin 保護）
+  - [x] DB 確認: admin=role'admin'・position なし / 他=member / positions に 999 なし
+  - [x] API 実機（dev サーバ）: 管理者トグル昇格→isAdmin true / 最後の admin 降格 409 / 役職 995 作成 201
+  - [ ] **ブラウザ手動確認**: ユーザー編集の「権限（管理者/一般）」トグル（笹木さん）
 
-> 実装 + 検証 + コードレビュー（APPROVE）完了。次は push + PR。
+> 実装 + コードレビュー（APPROVE）+ マージ完了。残るは権限トグルのブラウザ手動確認のみ。
 > 残課題: bulk ローダーの role picklist 早期検証、複数 admin 同時降格の STATEMENT トリガー補強（任意）。
