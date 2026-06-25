@@ -5,3 +5,7 @@ export * from "./survey";
 export * from "./question";
 export * from "./publication";
 export * from "./interview";
+export * from "./division";
+export * from "./department";
+export * from "./section";
+export * from "./position";
