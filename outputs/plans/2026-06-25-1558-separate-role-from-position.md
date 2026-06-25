@@ -7,7 +7,7 @@
 | 作成 | 2026-06-25 15:58 JST |
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | `feature/separate-role-from-position`（develop `6ede703` 起点） |
-| 関連 PR | TBD（push 後に記録） |
+| 関連 PR | [#57](https://github.com/sasakiyusuke2017015/waoon/pull/57)（develop 向け・笹木さん承認待ち） |
 | レビュー | [コードレビュー](../reviews/2026-06-25-1627-separate-role-from-position-code-review.md)（**APPROVE**） |
 | 前提 | [#56](https://github.com/sasakiyusuke2017015/waoon/pull/56)（seed CSV化 + マスタ管理基盤）マージ済み。本 Plan はその続き |
 
