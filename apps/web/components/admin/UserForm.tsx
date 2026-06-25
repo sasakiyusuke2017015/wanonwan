@@ -6,7 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
 import { FormField, Input, Select, Button } from "@ui-catalog/core/molecules";
 import { useTheme } from "@ui-catalog/core/infra/theme";
-import { CreateUserSchema, UpdateUserSchema } from "@waoon/domain";
+import { CreateUserSchema, UpdateUserSchema, type UserRole } from "@waoon/domain";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import { fieldErrorsOf } from "@/lib/forms/field-errors";
 import { FormActions } from "@/components/admin/FormActions";
@@ -28,7 +28,7 @@ type UserDetail = {
   divisionId: string | null;
   departmentId: string | null;
   sectionId: string | null;
-  role: string;
+  role: UserRole;
 };
 
 const EMPTY = {

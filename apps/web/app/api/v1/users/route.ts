@@ -93,6 +93,8 @@ export const POST = withActiveUser(async (req, claims) => {
     const rows = await withUser(
       claims.sub,
       (tx) => tx`
+      -- role の付与は admin のみ（上の app.is_admin() ゲート + RLS users_write WITH CHECK が保証）。
+      -- 非 admin はここに到達できないため、role 指定があっても自己昇格にはならない。
       insert into public.users (gotrue_id, code, name, email, role, position_id, division_id, department_id, section_id)
       values (${gotrueId}, ${input.code}, ${input.name}, ${input.email}, ${input.role ?? "member"},
               ${input.positionId ?? null}, ${input.divisionId ?? null},

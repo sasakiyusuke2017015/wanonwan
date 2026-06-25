@@ -88,7 +88,7 @@ export const PUT = withActiveUser(async (req, claims, { params }: Ctx) => {
     const rows = await withUser(claims.sub, (tx) => tx`
       update public.users set ${tx(set)}, updated_at = now()
       where id = ${Number(id)}
-      returning id, code, name, email
+      returning id, code, name, email, role
     `);
     if (rows.length === 0) {
       // DB update が 0 行（RLS で弾かれた等）。GoTrue を先に変えていたら旧 email へ戻す。
