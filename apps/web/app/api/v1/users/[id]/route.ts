@@ -14,7 +14,7 @@ export const GET = withActiveUser(async (_req, claims, { params }: Ctx) => {
   const { id } = await params;
 
   const rows = await withUser(claims.sub, (tx) => tx`
-    select id, code, name, email,
+    select id, code, name, email, role,
            position_id   as "positionId",
            division_id   as "divisionId",
            department_id as "departmentId",
@@ -37,6 +37,7 @@ export const PUT = withActiveUser(async (req, claims, { params }: Ctx) => {
   if (input.code !== undefined) set.code = input.code;
   if (input.name !== undefined) set.name = input.name;
   if (input.email !== undefined) set.email = input.email;
+  if (input.role !== undefined) set.role = input.role;
   if (input.positionId !== undefined) set.position_id = input.positionId;
   if (input.divisionId !== undefined) set.division_id = input.divisionId;
   if (input.departmentId !== undefined) set.department_id = input.departmentId;
@@ -87,7 +88,7 @@ export const PUT = withActiveUser(async (req, claims, { params }: Ctx) => {
     const rows = await withUser(claims.sub, (tx) => tx`
       update public.users set ${tx(set)}, updated_at = now()
       where id = ${Number(id)}
-      returning id, code, name, email
+      returning id, code, name, email, role
     `);
     if (rows.length === 0) {
       // DB update が 0 行（RLS で弾かれた等）。GoTrue を先に変えていたら旧 email へ戻す。
@@ -98,6 +99,13 @@ export const PUT = withActiveUser(async (req, claims, { params }: Ctx) => {
   } catch (e) {
     // DB 失敗（unique violation 等）。GoTrue を先に変えていたら旧 email へ best-effort ロールバック。
     if (emailChanged) await rollbackGotrueEmail(target.gotrueId!, oldEmail);
+    // 最後の admin 保護トリガー（P0001）は意図的なガードなので明確なメッセージを返す。
+    if ((e as { code?: string } | null)?.code === "P0001") {
+      return NextResponse.json(
+        { error: "最後の管理者は降格・削除できません（最低 1 名の管理者が必要です）" },
+        { status: 409 },
+      );
+    }
     return mapDbError(e);
   }
 });

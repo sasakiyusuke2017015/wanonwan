@@ -6,7 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
 import { FormField, Input, Select, Button } from "@ui-catalog/core/molecules";
 import { useTheme } from "@ui-catalog/core/infra/theme";
-import { CreateUserSchema, UpdateUserSchema } from "@waoon/domain";
+import { CreateUserSchema, UpdateUserSchema, type UserRole } from "@waoon/domain";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import { fieldErrorsOf } from "@/lib/forms/field-errors";
 import { FormActions } from "@/components/admin/FormActions";
@@ -28,17 +28,24 @@ type UserDetail = {
   divisionId: string | null;
   departmentId: string | null;
   sectionId: string | null;
+  role: UserRole;
 };
 
 const EMPTY = {
   code: "",
   name: "",
   email: "",
+  role: "member",
   positionId: "",
   divisionId: "",
   departmentId: "",
   sectionId: "",
 };
+
+const ROLE_OPTIONS = [
+  { value: "member", label: "一般" },
+  { value: "admin", label: "管理者" },
+];
 
 const toOptions = (items?: OrgItem[]) =>
   (items ?? []).map((it) => ({ value: it.id, label: it.name }));
@@ -77,6 +84,7 @@ export function UserForm({ userId }: { userId?: string }) {
       code: u.code,
       name: u.name,
       email: u.email,
+      role: u.role ?? "member",
       positionId: u.positionId ?? "",
       divisionId: u.divisionId ?? "",
       departmentId: u.departmentId ?? "",
@@ -91,6 +99,7 @@ export function UserForm({ userId }: { userId?: string }) {
       code: form.code,
       name: form.name,
       email: form.email,
+      role: form.role,
     };
     for (const key of ["positionId", "divisionId", "departmentId", "sectionId"] as const) {
       if (form[key]) payload[key] = Number(form[key]);
@@ -206,6 +215,22 @@ export function UserForm({ userId }: { userId?: string }) {
               borderRadius={shapes.inputRadius}
             />
           </FormField>
+        </div>
+      </ContentBlock>
+
+      <ContentBlock title="権限">
+        <div className="max-w-xs">
+          <FormField label="システム権限" error={fieldErrors.role}>
+            <Select
+              options={ROLE_OPTIONS}
+              value={form.role}
+              onChange={(v) => set("role", v == null ? "member" : String(v))}
+              borderRadius={shapes.inputRadius}
+            />
+          </FormField>
+          <p className="mt-1 text-xs text-gray-500">
+            管理者はユーザー・マスタ・アンケートを管理できます（役職とは別軸の権限）。
+          </p>
         </div>
       </ContentBlock>
 

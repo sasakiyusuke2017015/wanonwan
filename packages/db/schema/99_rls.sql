@@ -48,21 +48,36 @@ BEGIN
   END LOOP;
 END $$;
 
--- ---- positions: admin 帯 (990-999) はアプリから不変（admin 自己昇格防止） ------
--- app.is_admin() の唯一の源が positions.code 990-999（90_rls_helpers.sql）。マスタ画面/API で
--- この帯を作成・更新・削除できると admin を自己付与できてしまうため、上の汎用 positions_write を
--- 差し替え、990-999 を app_user の書込対象から外す。990-999 行は seed/provision が superuser で
--- 投入し（RLS バイパス）、アプリ経由では作成も変更も削除もできない。
-DROP POLICY IF EXISTS positions_write ON public.positions;
-CREATE POLICY positions_write ON public.positions FOR ALL
-  USING (app.is_admin() AND code NOT BETWEEN 990 AND 999)
-  WITH CHECK (app.is_admin() AND code NOT BETWEEN 990 AND 999);
+-- positions は権限と無関係な純粋 HR マスタ（admin 判定は users.role が源）。
+-- write は上のループ既定（admin のみ）で十分。code 帯による特別扱いはしない。
 
 -- ---- users: 認証済みは読める（ディレクトリ。階層絞りは API）/ 書きは admin ----
 DROP POLICY IF EXISTS users_select ON public.users;
 DROP POLICY IF EXISTS users_write  ON public.users;
 CREATE POLICY users_select ON public.users FOR SELECT USING (app.current_user_id() IS NOT NULL);
 CREATE POLICY users_write  ON public.users FOR ALL USING (app.is_admin()) WITH CHECK (app.is_admin());
+
+-- 最後の admin を 0 人にする UPDATE/DELETE を拒否（全員ロックアウト防止）。
+-- RLS の WITH CHECK では他行をカウントできないためトリガーで担保する。
+-- SECURITY DEFINER 関数 + search_path 固定で RLS をバイパスして全 admin 数を数える。
+CREATE OR REPLACE FUNCTION app.prevent_last_admin_removal() RETURNS trigger
+  LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, app
+  AS $$
+  BEGIN
+    -- この操作で admin でなくなる行のときだけ検査（admin→admin の更新や member の操作は素通り）。
+    IF OLD.role = 'admin' AND (TG_OP = 'DELETE' OR NEW.role <> 'admin') THEN
+      IF (SELECT count(*) FROM public.users WHERE role = 'admin' AND id <> OLD.id) = 0 THEN
+        RAISE EXCEPTION '最後の管理者は降格・削除できません（最低 1 名の admin が必要）';
+      END IF;
+    END IF;
+    RETURN CASE WHEN TG_OP = 'DELETE' THEN OLD ELSE NEW END;
+  END;
+  $$;
+
+DROP TRIGGER IF EXISTS trg_prevent_last_admin_removal ON public.users;
+CREATE TRIGGER trg_prevent_last_admin_removal
+  BEFORE UPDATE OR DELETE ON public.users
+  FOR EACH ROW EXECUTE FUNCTION app.prevent_last_admin_removal();
 
 -- ---- user_interview_candidates: 本人 or admin --------------------------
 DROP POLICY IF EXISTS uic_select ON public.user_interview_candidates;
