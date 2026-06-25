@@ -87,6 +87,16 @@ function readCsv(path) {
   return parse(text, { columns: true, skip_empty_lines: true, trim: true });
 }
 
+// 整数カラム用。生値補間する前に整数であることを保証する（非数値の混入を SQL 手前で弾く）。
+function intLiteral(raw, label) {
+  const n = Number(raw);
+  if (!Number.isInteger(n)) {
+    console.error(`✗ ${label} が整数ではありません: ${JSON.stringify(raw)}`);
+    process.exit(1);
+  }
+  return String(n);
+}
+
 // マスタテーブル定義（FK 依存順）。build は 1 行を VALUES 用の式リストへ変換する。
 const MASTER_TABLES = [
   {
@@ -107,7 +117,7 @@ const MASTER_TABLES = [
   {
     table: "positions",
     columns: ["code", "name"],
-    build: (r) => [r.code, sqlStr(r.name)], // code は int。数値はそのまま
+    build: (r) => [intLiteral(r.code, "positions.code"), sqlStr(r.name)], // code は int
   },
 ];
 
