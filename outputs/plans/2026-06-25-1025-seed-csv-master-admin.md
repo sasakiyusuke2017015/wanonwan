@@ -2,13 +2,13 @@
 
 | 項目 | 値 |
 |---|---|
-| ステータス | 🟦 コードレビュー待ち（Phase 1-3 実装 + ローカル検証完了。PR 未作成） |
+| ステータス | 🟣 マージ承認待ち（コードレビュー APPROVE。push/PR は笹木さん確認待ち） |
 | slug | `seed-csv-master-admin` |
 | 作成 | 2026-06-25 10:25 JST |
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | `feature/seed-csv-master-admin` |
 | 関連 PR | TBD |
-| レビュー | [計画レビュー](../reviews/2026-06-25-1031-seed-csv-master-admin-review.md)（計画は APPROVE 相当に収束。BLOCKER 7 + C-1/C-2 反映済み） |
+| レビュー | [計画レビュー](../reviews/2026-06-25-1031-seed-csv-master-admin-review.md)（APPROVE 相当に収束） / [コードレビュー](../reviews/2026-06-25-1431-seed-csv-master-admin-code-review.md)（**APPROVE**） |
 | git repo | `https://github.com/sasakiyusuke2017015/waoon.git` |
 
 ---
@@ -207,8 +207,9 @@ dev / stg / prod すべてに入れられるようにする。あわせて組織
   - [x] pgTAP all passed（6 files・admin 帯昇格不可含む）
   - [x] typecheck 全パッケージ / web build 成功
   - [x] API 実機: admin CRUD / FK 削除 409 / admin帯 995 → 400 / 非admin → 403
-- [ ] コードレビュー（`/pr-review` or Codex）
-- [ ] PR 作成（`develop` 向け）
+- [x] コードレビュー（[2026-06-25-1431](../reviews/2026-06-25-1431-seed-csv-master-admin-code-review.md)・**APPROVE**）→ 共通指摘の positions.code 生値補間を修正済み
+- [ ] PR 作成（`develop` 向け・笹木さん確認待ち）
 
-> Phase 1-3 実装 + ローカル検証まで完了。残課題: B-1 の「users.position_id への admin帯付与ガード」は
-> 既存 users ルートの話で本スコープ外（後続タスク候補）。次はコードレビュー → PR。
+> Phase 1-3 実装 + ローカル検証 + コードレビュー（APPROVE）完了。次は push + PR（笹木さん確認）。
+> 残課題（別タスク候補）: provision PW 出力先のリポジトリ外化 + エラーログ redact、3 マスタの RLS pgTAP 追加、
+> B-1 の「users.position_id への admin帯付与ガード」（既存 users ルート・別 Plan）。
