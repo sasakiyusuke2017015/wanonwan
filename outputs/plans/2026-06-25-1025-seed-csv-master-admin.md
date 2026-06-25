@@ -7,7 +7,7 @@
 | 作成 | 2026-06-25 10:25 JST |
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | `feature/seed-csv-master-admin` |
-| 関連 PR | TBD |
+| 関連 PR | [#56](https://github.com/sasakiyusuke2017015/waoon/pull/56)（develop 向け・笹木さん承認待ち） |
 | レビュー | [計画レビュー](../reviews/2026-06-25-1031-seed-csv-master-admin-review.md)（APPROVE 相当に収束） / [コードレビュー](../reviews/2026-06-25-1431-seed-csv-master-admin-code-review.md)（**APPROVE**） |
 | git repo | `https://github.com/sasakiyusuke2017015/waoon.git` |
 
