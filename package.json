@@ -44,6 +44,7 @@
     "compose:prod:down": "docker compose --env-file infra/.env.prod -f infra/docker-compose.prod.yml down",
     "compose:prod:logs": "docker compose --env-file infra/.env.prod -f infra/docker-compose.prod.yml logs -f",
     "compose:prod:migrate": "node scripts/db-migrate.mjs --compose-file infra/docker-compose.prod.yml --env-file infra/.env.prod",
+    "provision:dev": "node scripts/provision.mjs --dev --compose-file infra/docker-compose.yml",
     "provision:stg": "node scripts/provision.mjs --compose-file infra/docker-compose.stg.yml --env-file infra/.env.stg",
     "provision:prod": "node scripts/provision.mjs --compose-file infra/docker-compose.prod.yml --env-file infra/.env.prod"
   },
