@@ -1,11 +1,16 @@
 import * as v from "valibot";
 
+// 認可ロール（役職とは別軸）。app.is_admin() は users.role を見る。
+export const UserRoleSchema = v.picklist(["admin", "member"], "role は admin か member です");
+export type UserRole = v.InferOutput<typeof UserRoleSchema>;
+
 // users（DDL 30_users.sql）に対応するドメイン型 + バリデータ。
 export const UserSchema = v.object({
   id: v.number(),
   code: v.string(),
   name: v.string(),
   email: v.pipe(v.string(), v.email()),
+  role: UserRoleSchema,
   positionId: v.nullable(v.number()),
   divisionId: v.nullable(v.number()),
   departmentId: v.nullable(v.number()),
@@ -21,6 +26,7 @@ export const CreateUserSchema = v.object({
     v.minLength(1, "メールアドレスは必須です"),
     v.email("メールアドレスの形式が不正です"),
   ),
+  role: v.optional(UserRoleSchema),
   positionId: v.optional(v.number()),
   divisionId: v.optional(v.number()),
   departmentId: v.optional(v.number()),

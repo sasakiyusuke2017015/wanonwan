@@ -15,7 +15,7 @@ export const GET = withActiveUser(async (_req, claims) => {
   const rows = await withUser(
     claims.sub,
     (tx) => tx`
-    select id, code, name, email,
+    select id, code, name, email, role,
            position_id   as "positionId",
            division_id   as "divisionId",
            department_id as "departmentId",
@@ -93,11 +93,11 @@ export const POST = withActiveUser(async (req, claims) => {
     const rows = await withUser(
       claims.sub,
       (tx) => tx`
-      insert into public.users (gotrue_id, code, name, email, position_id, division_id, department_id, section_id)
-      values (${gotrueId}, ${input.code}, ${input.name}, ${input.email},
+      insert into public.users (gotrue_id, code, name, email, role, position_id, division_id, department_id, section_id)
+      values (${gotrueId}, ${input.code}, ${input.name}, ${input.email}, ${input.role ?? "member"},
               ${input.positionId ?? null}, ${input.divisionId ?? null},
               ${input.departmentId ?? null}, ${input.sectionId ?? null})
-      returning id, code, name, email
+      returning id, code, name, email, role
     `,
     );
     return NextResponse.json({ data: rows[0], initialPassword }, { status: 201 });

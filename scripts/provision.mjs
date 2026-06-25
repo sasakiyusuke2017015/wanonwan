@@ -194,19 +194,21 @@ if (envFile) loaderArgs.push("--env-file", envFile);
 execFileSync("node", loaderArgs, { stdio: "inherit" });
 
 // --- 2) 投入対象ユーザーの一覧を組み立てる（単一 admin or 人員 CSV の N 名） ---
-// 単一モードの既定 org は admin: 999 / HQ-DEPT1-SEC1（従来挙動）。
+// 権限は role 列（'admin'|'member'）。役職(position)とは別軸。単一モードは role='admin'・
+// position は付けない（システム管理者の HR 役職は独立）。bulk は CSV の role を使う。
 const targets = isBulk
   ? parse(readFileSync(resolvePath(usersCsv), "utf8"), { columns: true, skip_empty_lines: true, trim: true }).map((r) => ({
       email: r.email,
       name: r.name,
       code: r.code,
       gotrueId: r.gotrue_id || undefined,
+      role: r.role || "member",
       positionCode: r.position_code,
       divisionCode: r.division_code,
       departmentCode: r.department_code,
       sectionCode: r.section_code,
     }))
-  : [{ email, name, code, gotrueId: undefined, positionCode: "999", divisionCode: "HQ", departmentCode: "DEPT1", sectionCode: "SEC1" }];
+  : [{ email, name, code, gotrueId: undefined, role: "admin", positionCode: "", divisionCode: "", departmentCode: "", sectionCode: "" }];
 
 // --- 3) 行単位で冪等に発行（既存は skip / DB insert 失敗時のみ GoTrue を cleanup） ---
 const credentials = []; // { email, password }
@@ -252,8 +254,8 @@ for (const t of targets) {
   // public.users に紐付け。失敗時は当該行の GoTrue を掃除して orphan を残さない。
   try {
     psql(`
-      INSERT INTO public.users (gotrue_id, code, name, email, position_id, division_id, department_id, section_id)
-      SELECT ${sqlStr(gotrueId)}::uuid, ${sqlStr(t.code)}, ${sqlStr(t.name)}, ${sqlStr(t.email)},
+      INSERT INTO public.users (gotrue_id, code, name, email, role, position_id, division_id, department_id, section_id)
+      SELECT ${sqlStr(gotrueId)}::uuid, ${sqlStr(t.code)}, ${sqlStr(t.name)}, ${sqlStr(t.email)}, ${sqlStr(t.role || "member")},
         ${refSub("positions", t.positionCode)}, ${refSub("divisions", t.divisionCode)},
         ${refSub("departments", t.departmentCode)}, ${refSub("sections", t.sectionCode)};
     `);

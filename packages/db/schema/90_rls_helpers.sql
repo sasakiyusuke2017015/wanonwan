@@ -6,16 +6,15 @@ CREATE OR REPLACE FUNCTION app.uid() RETURNS bigint
   LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, app
   AS $$ SELECT u.id FROM public.users u WHERE u.gotrue_id = app.current_user_id() $$;
 
--- 管理者判定（役職コード 990-999）。00_bootstrap の暫定 false を本実装へ差し替え。
+-- 管理者判定（認可ロール）。権限は役職(position)と別軸で users.role が源（30_users.sql）。
 CREATE OR REPLACE FUNCTION app.is_admin() RETURNS boolean
   LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, app
   AS $$
     SELECT EXISTS (
       SELECT 1
       FROM public.users u
-      JOIN public.positions p ON p.id = u.position_id
       WHERE u.gotrue_id = app.current_user_id()
-        AND p.code BETWEEN 990 AND 999
+        AND u.role = 'admin'
     )
   $$;
 
