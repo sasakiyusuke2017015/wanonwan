@@ -1,25 +1,29 @@
-// dev / stg / prod を空状態から初期化し、admin 1 名を発行する。
-//   1) 組織マスタ seed（00_org.sql）だけを適用（手書き UUID のユーザー seed は流さない）
-//   2) admin 1 名を GoTrue admin API で発行 → public.users に gotrue_id 付きで紐付け
-//   3) 初期パスワードを一度だけ表示
+// dev / stg / prod を空状態から初期化する。組織マスタを CSV から投入し、ユーザーを発行する。
+//   1) 組織マスタ seed を CSV ローダー（seed-from-csv.mjs --no-users・非空スキップ）で適用
+//   2) ユーザーを GoTrue admin API で発行 → public.users に gotrue_id 付きで紐付け（行単位で冪等）
+//   3) 一時 PW を 0600 ファイルへ書き出し（stdout/CI には出さない）。各ユーザーは初回ログインで PW 変更を強制
+//
+// 2 モード:
+//   - 単一 admin（--email）: 任意 email の admin を 1 名発行する（従来の ad-hoc 用途）。
+//   - 一括（--users-csv <path>）: 人員 CSV の全行を N 名一括発行（stg/prod の初期人員投入）。
 //
 // 使い方（host で実行。stack 起動 + migration 適用後）:
 //   dev:  pnpm provision:dev  --email padmin@example.com --code padmin
-//   stg:  pnpm provision:stg  --email admin@your-domain.jp
-//   prod: pnpm provision:prod --email admin@your-domain.jp
+//   stg:  pnpm provision:stg  --users-csv /secure/path/staff.csv   （実メールを含む CSV は VCS に置かない）
+//   prod: pnpm provision:prod --users-csv /secure/path/staff.csv
 //   先に migrate を流して public.users 等のテーブルを作っておくこと（未適用だと参照で落ちる）。
 //
-// dev の固定 4 ユーザ（admin/alice/bob/carol、RLS テスト用・dev:up 組込み）は scripts/seed-gotrue-dev.mjs
-// が担う。本スクリプトの dev モードは「任意 email の ad-hoc admin を 1 名発行する」用途で役割が異なる。
-// 本スクリプトは CI / dev:up には組み込まない（手動 ad-hoc 専用）。
+// dev の固定 5 ユーザ（admin/alice/bob/carol/dave、RLS テスト用・dev:up 組込み）は scripts/seed-gotrue-dev.mjs
+// が担う（users.csv 駆動）。本スクリプトは CI / dev:up には組み込まない（手動専用）。
 //
 // DB は postgres を直接公開しないため docker compose exec 経由。GoTrue(内部のみ)へは
 // compose ネットワーク上の使い捨て curl コンテナから到達する。
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync, chmodSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { createHmac, randomBytes } from "node:crypto";
 import { dirname, join, isAbsolute } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parse } from "csv-parse/sync";
 import { parseEnvFile } from "./lib/env.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -70,13 +74,17 @@ if (!isDev && composeFileRel === DEV_COMPOSE) {
 const email = flag("email");
 const name = flag("name") ?? "管理者";
 const code = flag("code") ?? "admin";
+// --users-csv: 人員 CSV を一括投入する bulk モード。未指定なら --email の単一 admin モード。
+const usersCsv = flag("users-csv");
+const isBulk = usersCsv !== undefined;
 // compose ネットワーク名（networks.waoon.name）。dev→waoon / prod→waoon-prod / stg→waoon-stg。
 // dev は無条件 waoon 強制（filename ヒューリスティックに頼らない）。
 const network = isDev
   ? DEV_NETWORK
   : (flag("network") ?? (composeFileRel.includes("prod") ? "waoon-prod" : "waoon-stg"));
 
-if (!email) die("--email は必須です（初期 admin のメールアドレス）");
+// bulk は CSV の各行が email/code を持つため --email 不要。単一モードのみ --email 必須。
+if (!isBulk && !email) die("--email は必須です（初期 admin のメールアドレス）。一括投入は --users-csv <path>");
 
 // 環境別に PG 接続情報と JWT_SECRET を決める。
 //   dev   : env ファイルを secret に使わない。process.env ?? dev 既定。psql も --env-file 無し。
@@ -161,103 +169,122 @@ function psql(sql, { capture = false } = {}) {
 }
 
 const sqlStr = (s) => `'${String(s).replace(/'/g, "''")}'`; // single quote エスケープ
+// 親 code を id へ解決するサブクエリ。空なら NULL（org 列は nullable）。
+const refSub = (table, c) =>
+  c === undefined || c === "" ? "NULL" : `(SELECT id FROM public.${table} WHERE code = ${sqlStr(c)})`;
 
-// --- 1) 組織マスタ seed（idempotent） ---
-console.log("• 組織マスタ seed を適用 (00_org.sql)");
-psql(readFileSync(join(root, "packages", "db", "seed", "00_org.sql"), "utf8"));
-
-// --- 既存チェック（GoTrue 発行前に email / code 双方を独立に弾く） ---
-// dev は seed の admin が code='admin' を使うため、既定 code=admin だと衝突する。--code で一意値を指定する。
-const emailExists = psql(`SELECT count(*) FROM public.users WHERE email = ${sqlStr(email)};`, {
-  capture: true,
-}).trim();
-if (emailExists !== "0") {
-  die(`${email} は既に public.users に存在します。provisioning を中止しました`);
-}
-const codeExists = psql(`SELECT count(*) FROM public.users WHERE code = ${sqlStr(code)};`, {
-  capture: true,
-}).trim();
-if (codeExists !== "0") {
-  die(`code=${code} は既に public.users に存在します。--code で一意な値を指定してください（例: --code padmin）`);
-}
-
-// --- 2) GoTrue identity を発行 ---
-console.log(`• GoTrue admin user を発行 (${email})`);
-const password = generateInitialPassword();
-const token = mintServiceRoleToken();
-const body = JSON.stringify({
-  email,
-  password,
-  email_confirm: true,
-  user_metadata: { name },
-});
-let gotrueId;
-try {
-  const res = execFileSync(
-    "docker",
-    [
-      "run",
-      "--rm",
-      "--network",
-      network,
-      "curlimages/curl:latest",
-      "-s",
-      "--fail-with-body",
-      "-X",
-      "POST",
-      "http://gotrue:9999/admin/users",
-      "-H",
-      `authorization: Bearer ${token}`,
-      "-H",
-      "content-type: application/json",
-      "-d",
-      body,
-    ],
-    { encoding: "utf8" },
-  );
-  gotrueId = JSON.parse(res).id;
-  if (!gotrueId) throw new Error(`unexpected GoTrue response: ${res}`);
-} catch (e) {
-  die(`GoTrue admin user の作成に失敗しました: ${e.stdout || e.message}`);
-}
-
-// --- 3) public.users に gotrue_id 付きで紐付け（admin: position 999 / HQ-DEPT1-SEC1） ---
-console.log("• public.users に admin を作成");
-try {
-  psql(`
-    INSERT INTO public.users (gotrue_id, code, name, email, position_id, division_id, department_id, section_id)
-    SELECT ${sqlStr(gotrueId)}::uuid, ${sqlStr(code)}, ${sqlStr(name)}, ${sqlStr(email)},
-      (SELECT id FROM public.positions   WHERE code = 999),
-      (SELECT id FROM public.divisions   WHERE code = 'HQ'),
-      (SELECT id FROM public.departments WHERE code = 'DEPT1'),
-      (SELECT id FROM public.sections    WHERE code = 'SEC1');
-  `);
-} catch (e) {
-  // DB insert 失敗時は GoTrue 側を掃除して orphan を残さない。
-  console.error("public.users への insert に失敗。GoTrue identity を掃除します");
-  try {
-    execFileSync("docker", [
-      "run",
-      "--rm",
-      "--network",
-      network,
-      "curlimages/curl:latest",
-      "-s",
-      "-X",
-      "DELETE",
-      `http://gotrue:9999/admin/users/${gotrueId}`,
-      "-H",
-      `authorization: Bearer ${mintServiceRoleToken()}`,
-    ]);
-  } catch {
-    console.error(`GoTrue orphan cleanup 失敗: gotrue_id=${gotrueId}（手動削除してください）`);
+// compose ネットワーク上の使い捨て curl コンテナで GoTrue admin API を叩く。
+// token は呼び出しごとに発行（60s 有効。N 名ループでの期限切れを避ける）。
+function curlGoTrue(method, path, bodyObj) {
+  const args = [
+    "run", "--rm", "--network", network, "curlimages/curl:latest",
+    "-s", "--fail-with-body", "-X", method, `http://gotrue:9999${path}`,
+    "-H", `authorization: Bearer ${mintServiceRoleToken()}`,
+  ];
+  if (bodyObj !== undefined) {
+    args.push("-H", "content-type: application/json", "-d", JSON.stringify(bodyObj));
   }
-  die(`insert に失敗しました: ${e.message}`);
+  return execFileSync("docker", args, { encoding: "utf8" });
 }
 
-console.log("\n✓ 初期 admin を作成しました（この情報は一度だけ表示されます）");
-console.log("────────────────────────────────────");
-console.log(`  email    : ${email}`);
-console.log(`  password : ${password}`);
-console.log("────────────────────────────────────");
-console.log("初回ログイン後にパスワードを変更してください。");
+// --- 1) 組織マスタ seed（CSV ローダー・非空スキップで冪等） ---
+console.log("• 組織マスタ seed を適用 (seed-from-csv.mjs --no-users)");
+const loaderArgs = [join(root, "scripts", "seed-from-csv.mjs"), "--no-users", "--compose-file", composeFileRel];
+if (envFile) loaderArgs.push("--env-file", envFile);
+execFileSync("node", loaderArgs, { stdio: "inherit" });
+
+// --- 2) 投入対象ユーザーの一覧を組み立てる（単一 admin or 人員 CSV の N 名） ---
+// 単一モードの既定 org は admin: 999 / HQ-DEPT1-SEC1（従来挙動）。
+const targets = isBulk
+  ? parse(readFileSync(resolvePath(usersCsv), "utf8"), { columns: true, skip_empty_lines: true, trim: true }).map((r) => ({
+      email: r.email,
+      name: r.name,
+      code: r.code,
+      gotrueId: r.gotrue_id || undefined,
+      positionCode: r.position_code,
+      divisionCode: r.division_code,
+      departmentCode: r.department_code,
+      sectionCode: r.section_code,
+    }))
+  : [{ email, name, code, gotrueId: undefined, positionCode: "999", divisionCode: "HQ", departmentCode: "DEPT1", sectionCode: "SEC1" }];
+
+// --- 3) 行単位で冪等に発行（既存は skip / DB insert 失敗時のみ GoTrue を cleanup） ---
+const credentials = []; // { email, password }
+let created = 0, skipped = 0, failed = 0;
+for (const t of targets) {
+  if (!t.email || !t.code) {
+    console.error(`✗ email / code が空の行をスキップ: ${JSON.stringify(t)}`);
+    failed++;
+    continue;
+  }
+  // 既存チェック（GoTrue 発行前に email / code を独立に確認。既存なら skip）。
+  const dup = psql(
+    `SELECT count(*) FROM public.users WHERE email = ${sqlStr(t.email)} OR code = ${sqlStr(t.code)};`,
+    { capture: true },
+  ).trim();
+  if (dup !== "0") {
+    console.log(`• 既存（スキップ）: ${t.email}`);
+    skipped++;
+    continue;
+  }
+
+  // GoTrue identity を発行（一時 PW + must_change_password で初回変更を強制）。
+  const password = generateInitialPassword();
+  let gotrueId;
+  try {
+    const reqBody = {
+      email: t.email,
+      password,
+      email_confirm: true,
+      user_metadata: { name: t.name },
+      app_metadata: { must_change_password: true },
+    };
+    if (t.gotrueId) reqBody.id = t.gotrueId; // dev は固定 UUID。stg/prod は GoTrue 採番
+    const res = curlGoTrue("POST", "/admin/users", reqBody);
+    gotrueId = JSON.parse(res).id;
+    if (!gotrueId) throw new Error(`unexpected GoTrue response: ${res}`);
+  } catch (e) {
+    console.error(`✗ ${t.email} の GoTrue 発行に失敗: ${e.stdout || e.message}`);
+    failed++;
+    continue;
+  }
+
+  // public.users に紐付け。失敗時は当該行の GoTrue を掃除して orphan を残さない。
+  try {
+    psql(`
+      INSERT INTO public.users (gotrue_id, code, name, email, position_id, division_id, department_id, section_id)
+      SELECT ${sqlStr(gotrueId)}::uuid, ${sqlStr(t.code)}, ${sqlStr(t.name)}, ${sqlStr(t.email)},
+        ${refSub("positions", t.positionCode)}, ${refSub("divisions", t.divisionCode)},
+        ${refSub("departments", t.departmentCode)}, ${refSub("sections", t.sectionCode)};
+    `);
+  } catch (e) {
+    console.error(`✗ ${t.email} の public.users insert に失敗。GoTrue を掃除します: ${e.message}`);
+    try {
+      curlGoTrue("DELETE", `/admin/users/${gotrueId}`);
+    } catch {
+      console.error(`  GoTrue orphan cleanup 失敗: gotrue_id=${gotrueId}（手動削除してください）`);
+    }
+    failed++;
+    continue;
+  }
+  console.log(`• 作成: ${t.email}`);
+  credentials.push({ email: t.email, password });
+  created++;
+}
+
+// --- 4) 一時 PW は stdout/CI に出さず 0600 ファイルへ。配布後は削除する運用。 ---
+if (credentials.length > 0) {
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const credPath = resolvePath(`provision-credentials-${stamp}.txt`);
+  const lines = [
+    "# 初期パスワード（一度きり・配布後にこのファイルを削除してください）",
+    "# 各ユーザーは初回ログイン時にパスワード変更を求められます（must_change_password）。",
+    ...credentials.map((c) => `${c.email}\t${c.password}`),
+  ];
+  writeFileSync(credPath, lines.join("\n") + "\n", { mode: 0o600 });
+  chmodSync(credPath, 0o600); // umask の影響を受けないよう明示
+  console.log(`\n✓ 初期パスワードを書き出しました（stdout には出しません）: ${credPath}`);
+}
+
+console.log(`\ndone: provision — created ${created}, skipped ${skipped}, failed ${failed}`);
+if (failed > 0) process.exit(1);

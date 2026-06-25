@@ -1,4 +1,6 @@
-// packages/db/seed/*.sql を昇順に適用する（冪等な ON CONFLICT 前提）。
+// seed を投入する。マスタ + dev users は CSV ローダー（seed-from-csv.mjs）、
+// RLS テスト兼デモ用フィクスチャは packages/db/seed/*.sql（昇順）を適用する。
+// CSV → SQL の順で流す（20_sample.sql は alice 等のユーザーを前提にするため）。
 // 使い方: pnpm db:seed
 import { readdirSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
@@ -11,6 +13,10 @@ const composeFile = join(root, "infra", "docker-compose.yml");
 const db = process.env.PG_DATABASE ?? "waoon";
 const user = process.env.PG_SUPERUSER ?? "postgres";
 
+// 1) マスタ + dev users を CSV から投入（非空スキップで冪等）。
+execFileSync("node", [join(root, "scripts", "seed-from-csv.mjs")], { stdio: "inherit" });
+
+// 2) フィクスチャ SQL を昇順に適用。
 const files = readdirSync(seedDir)
   .filter((f) => f.endsWith(".sql"))
   .sort();
@@ -25,4 +31,4 @@ for (const file of files) {
   );
   console.log("ok");
 }
-console.log(`done: ${files.length} seed file(s)`);
+console.log(`done: CSV master/users + ${files.length} seed SQL file(s)`);
