@@ -48,6 +48,16 @@ BEGIN
   END LOOP;
 END $$;
 
+-- ---- positions: admin 帯 (990-999) はアプリから不変（admin 自己昇格防止） ------
+-- app.is_admin() の唯一の源が positions.code 990-999（90_rls_helpers.sql）。マスタ画面/API で
+-- この帯を作成・更新・削除できると admin を自己付与できてしまうため、上の汎用 positions_write を
+-- 差し替え、990-999 を app_user の書込対象から外す。990-999 行は seed/provision が superuser で
+-- 投入し（RLS バイパス）、アプリ経由では作成も変更も削除もできない。
+DROP POLICY IF EXISTS positions_write ON public.positions;
+CREATE POLICY positions_write ON public.positions FOR ALL
+  USING (app.is_admin() AND code NOT BETWEEN 990 AND 999)
+  WITH CHECK (app.is_admin() AND code NOT BETWEEN 990 AND 999);
+
 -- ---- users: 認証済みは読める（ディレクトリ。階層絞りは API）/ 書きは admin ----
 DROP POLICY IF EXISTS users_select ON public.users;
 DROP POLICY IF EXISTS users_write  ON public.users;

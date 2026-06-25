@@ -1,0 +1,6 @@
+code,name,email,gotrue_id,position_code,division_code,department_code,section_code
+admin,管理者,admin@example.com,cb427b54-eaef-47df-916b-626321d23dc9,999,HQ,DEPT1,SEC1
+alice,アリス,alice@example.com,00000000-0000-0000-0000-0000000a11ce,300,,,SEC1
+bob,ボブ,bob@example.com,00000000-0000-0000-0000-0000000b0b00,500,,,SEC1
+carol,キャロル,carol@example.com,00000000-0000-0000-0000-0000000ca201,700,,,SEC1
+dave,デイブ,dave@example.com,00000000-0000-0000-0000-0000000da7e0,900,HQ,,

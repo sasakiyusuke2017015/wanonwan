@@ -36,6 +36,20 @@ export const NAV_ITEMS: readonly NavItemDef[] = [
     iconName: "chat",
     adminOnly: true,
   },
+  {
+    id: "admin-org",
+    href: "/admin/org",
+    label: "組織マスタ",
+    iconName: "folder",
+    adminOnly: true,
+  },
+  {
+    id: "admin-positions",
+    href: "/admin/positions",
+    label: "役職マスタ",
+    iconName: "employee",
+    adminOnly: true,
+  },
 ];
 
 /** pathname がナビ項目の配下かどうか（href 完全一致 or 配下プレフィックス）。 */

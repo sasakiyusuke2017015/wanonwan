@@ -16,6 +16,12 @@ coverage/
 !.env.*.example
 .claude/settings.local.json
 
+# provision の初期パスワード出力（一時 PW・配布後に削除する。VCS に入れない）
+provision-credentials-*.txt
+# stg/prod 人員 CSV（実メール = PII を VCS に入れない。--users-csv で外部パス指定）
+staff*.csv
+*-staff.csv
+
 # 旧 1on1 ソース（参照のみ・リポジトリには含めない。原本は docs/99_archive/1on1-main.zip）
 docs/99_archive/legacy-1on1/
 
