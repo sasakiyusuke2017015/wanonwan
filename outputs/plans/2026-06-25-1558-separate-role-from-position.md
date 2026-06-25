@@ -2,13 +2,13 @@
 
 | 項目 | 値 |
 |---|---|
-| ステータス | 🟡 計画中（未承認・実装未着手） |
+| ステータス | 🟣 マージ承認待ち（実装 + ローカル検証 + コードレビュー APPROVE 完了） |
 | slug | `separate-role-from-position` |
 | 作成 | 2026-06-25 15:58 JST |
 | 担当 | Claude Code + 笹木さん |
-| ブランチ | TBD（`feature/separate-role-from-position` 予定。develop `6ede703` 起点） |
-| 関連 PR | TBD |
-| レビュー | TBD |
+| ブランチ | `feature/separate-role-from-position`（develop `6ede703` 起点） |
+| 関連 PR | TBD（push 後に記録） |
+| レビュー | [コードレビュー](../reviews/2026-06-25-1627-separate-role-from-position-code-review.md)（**APPROVE**） |
 | 前提 | [#56](https://github.com/sasakiyusuke2017015/waoon/pull/56)（seed CSV化 + マスタ管理基盤）マージ済み。本 Plan はその続き |
 
 ## 目的
@@ -130,11 +130,13 @@
 
 ## ステータス
 
-- [ ] 計画レビュー（`/plan-review`）
-- [ ] Phase 1: スキーマ + is_admin 差し替え + role 保護トリガー
-- [ ] Phase 2: seed/provision/domain に role 反映・positions 999 廃止
-- [ ] Phase 3: UI 管理者トグル + pgTAP 更新
-- [ ] コードレビュー（`/pr-review`）
-- [ ] PR 作成（develop 向け）
+- [x] 計画承認（笹木さん）
+- [x] Phase 1: スキーマ + is_admin 差し替え + role 保護トリガー
+- [x] Phase 2: seed/provision/domain に role 反映・positions 999 廃止
+- [x] Phase 3: UI 管理者トグル + pgTAP 更新
+- [x] ローカル検証（pgTAP 7 / typecheck / build / API 実機: 昇格・最後のadmin保護409・帯ガード撤去）
+- [x] コードレビュー（[2026-06-25-1627](../reviews/2026-06-25-1627-separate-role-from-position-code-review.md)・**APPROVE**）→ 安価な指摘を反映済み
+- [ ] PR 作成（develop 向け・笹木さん確認待ち）
 
-> **未承認**。実装着手前に笹木さんの承認を待つ。
+> 実装 + 検証 + コードレビュー（APPROVE）完了。次は push + PR。
+> 残課題: bulk ローダーの role picklist 早期検証、複数 admin 同時降格の STATEMENT トリガー補強（任意）。
