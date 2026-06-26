@@ -8,7 +8,7 @@
 | ブランチ | `feature/provision-csv-only` |
 | 関連 PR | TBD |
 | レビュー種別 | 実装（コード） |
-| 対象差分 | `git diff develop...HEAD`（92bc6d0 撤去 / cf7248b レビュー対応） |
+| 対象差分 | `git diff develop...HEAD`（92bc6d0 撤去 / cf7248b レビュー対応 / e78a5bf dev サンプル CSV 同梱） |
 
 ## 判定
 
@@ -42,9 +42,19 @@
 - **セキュリティ**: 攻撃面は縮小（後退なし）。role は `sqlStr` エスケープ + DB CHECK の二重防御
 - **ドキュメント**: package.json scripts は `--email` 等を渡しておらず矛盾なし。コメントも新仕様に更新済み
 
+## 追記（e78a5bf: dev サンプル CSV 同梱）
+
+security review 後に、毎回 CSV を手書きしなくて済むよう以下を追加（dev 限定の利便性・機微情報なし）:
+- `infra/provision-users.example.csv`（`padmin=admin` / `pmember=member`、`@example.com` のサンプル・秘密情報なし）を同梱
+- dev は `--users-csv` 未指定なら同サンプルを既定使用（`isDev` 判定）。`--users-csv` 指定で上書き。**stg/prod は引き続き必須**（die）
+
+セキュリティ影響: なし（既定適用は dev のみ・サンプルは公開可能なダミー・stg/prod の必須化は不変）。
+
 ## 検証
 
 - [x] `node --check scripts/provision.mjs` OK
+- [x] `pnpm provision:dev`（引数なし）→ 既定サンプルで padmin/pmember 作成、再実行は skip（冪等）
+- [x] stg/prod 相当（非 dev）は `--users-csv` 未指定で die（既定は dev のみ）
 - [x] 引数なし → `--users-csv は必須です` で die
 - [x] `--users-csv` で一括投入（padmin=admin / pmember=member、role 列が反映）
 - [x] role typo（`Admin`）の行を投入前に弾く（failed 計上）/ 正常 role は created
