@@ -216,6 +216,12 @@ for (const t of targets) {
     failed++;
     continue;
   }
+  // role は 'admin' / 'member' のみ（DB CHECK の手前で typo を分かりやすく弾く）。
+  if (t.role !== "admin" && t.role !== "member") {
+    console.error(`✗ ${t.email}: role は admin / member のみ（指定: ${JSON.stringify(t.role)}）`);
+    failed++;
+    continue;
+  }
   // 既存チェック（GoTrue 発行前に email / code を独立に確認。既存なら skip）。
   const dup = psql(
     `SELECT count(*) FROM public.users WHERE email = ${sqlStr(t.email)} OR code = ${sqlStr(t.code)};`,
@@ -252,7 +258,7 @@ for (const t of targets) {
   try {
     psql(`
       INSERT INTO public.users (gotrue_id, code, name, email, role, position_id, division_id, department_id, section_id)
-      SELECT ${sqlStr(gotrueId)}::uuid, ${sqlStr(t.code)}, ${sqlStr(t.name)}, ${sqlStr(t.email)}, ${sqlStr(t.role || "member")},
+      SELECT ${sqlStr(gotrueId)}::uuid, ${sqlStr(t.code)}, ${sqlStr(t.name)}, ${sqlStr(t.email)}, ${sqlStr(t.role)},
         ${refSub("positions", t.positionCode)}, ${refSub("divisions", t.divisionCode)},
         ${refSub("departments", t.departmentCode)}, ${refSub("sections", t.sectionCode)};
     `);
