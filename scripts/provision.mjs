@@ -5,11 +5,14 @@
 //   3) 一時 PW を 0600 ファイルへ書き出し（stdout/CI には出さない）。各ユーザーは初回ログインで PW 変更を強制
 //
 // 投入は人員 CSV（--users-csv）の一括のみ。admin は CSV の role 列に 'admin' を指定する。
+// CSV 列: code,name,email,gotrue_id,role,position_code,division_code,department_code,section_code
+// （gotrue_id は空で GoTrue 採番。role は admin/member。org 系 code は既存マスタ参照・不要なら空）
 //
 // 使い方（host で実行。stack 起動 + migration 適用後）:
+//   dev:  pnpm provision:dev                                       （既定で infra/provision-users.example.csv を使う）
+//   dev:  pnpm provision:dev  --users-csv <path>                   （別 CSV を使う場合）
 //   stg:  pnpm provision:stg  --users-csv /secure/path/staff.csv   （実メールを含む CSV は VCS に置かない）
 //   prod: pnpm provision:prod --users-csv /secure/path/staff.csv
-//   dev:  pnpm provision:dev  --users-csv <path>                   （通常は seed:gotrue:dev で足りる）
 //   先に migrate を流して public.users 等のテーブルを作っておくこと（未適用だと参照で落ちる）。
 //
 // dev の固定 5 ユーザ（admin/alice/bob/carol/dave、RLS テスト用・dev:up 組込み）は scripts/seed-gotrue-dev.mjs
@@ -70,8 +73,11 @@ if (!isDev && composeFileRel === DEV_COMPOSE) {
   die(`dev compose (${DEV_COMPOSE}) を使うには --dev が必要です（stg/prod は provision:stg/prod）`);
 }
 
-// 投入対象は人員 CSV（--users-csv）のみ。各行が email/code/role/org を持つ。
-const usersCsv = flag("users-csv");
+// 投入対象は人員 CSV（--users-csv）。各行が email/code/role/org を持つ。
+// dev は既定でリポジトリ同梱のサンプル CSV を使う（`--users-csv` で上書き可）。
+// stg/prod は実メールを含むため --users-csv を必須にする（CSV は VCS に置かない）。
+const DEV_DEFAULT_USERS_CSV = "infra/provision-users.example.csv";
+const usersCsv = flag("users-csv") ?? (isDev ? DEV_DEFAULT_USERS_CSV : undefined);
 // compose ネットワーク名（networks.waoon.name）。dev→waoon / prod→waoon-prod / stg→waoon-stg。
 // dev は無条件 waoon 強制（filename ヒューリスティックに頼らない）。
 const network = isDev
@@ -79,7 +85,7 @@ const network = isDev
   : (flag("network") ?? (composeFileRel.includes("prod") ? "waoon-prod" : "waoon-stg"));
 
 if (!usersCsv) {
-  die("--users-csv は必須です（人員 CSV のパス）。dev の固定ユーザーは seed:gotrue:dev が担います");
+  die("--users-csv は必須です（stg/prod の人員 CSV パス。実メールを含むため VCS に置かない）");
 }
 
 // 環境別に PG 接続情報と JWT_SECRET を決める。
