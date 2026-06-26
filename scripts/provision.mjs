@@ -1,16 +1,15 @@
-// dev / stg / prod を空状態から初期化する。組織マスタを CSV から投入し、ユーザーを発行する。
+// dev / stg / prod を空状態から初期化する。組織マスタを CSV から投入し、人員 CSV のユーザーを発行する。
 //   1) 組織マスタ seed を CSV ローダー（seed-from-csv.mjs --no-users・非空スキップ）で適用
-//   2) ユーザーを GoTrue admin API で発行 → public.users に gotrue_id 付きで紐付け（行単位で冪等）
+//   2) 人員 CSV（--users-csv）の全行を GoTrue admin API で発行 → public.users に gotrue_id 付きで
+//      紐付け（行単位で冪等。既存は skip / DB insert 失敗時のみ GoTrue を cleanup）
 //   3) 一時 PW を 0600 ファイルへ書き出し（stdout/CI には出さない）。各ユーザーは初回ログインで PW 変更を強制
 //
-// 2 モード:
-//   - 単一 admin（--email）: 任意 email の admin を 1 名発行する（従来の ad-hoc 用途）。
-//   - 一括（--users-csv <path>）: 人員 CSV の全行を N 名一括発行（stg/prod の初期人員投入）。
+// 投入は人員 CSV（--users-csv）の一括のみ。admin は CSV の role 列に 'admin' を指定する。
 //
 // 使い方（host で実行。stack 起動 + migration 適用後）:
-//   dev:  pnpm provision:dev  --email padmin@example.com --code padmin
 //   stg:  pnpm provision:stg  --users-csv /secure/path/staff.csv   （実メールを含む CSV は VCS に置かない）
 //   prod: pnpm provision:prod --users-csv /secure/path/staff.csv
+//   dev:  pnpm provision:dev  --users-csv <path>                   （通常は seed:gotrue:dev で足りる）
 //   先に migrate を流して public.users 等のテーブルを作っておくこと（未適用だと参照で落ちる）。
 //
 // dev の固定 5 ユーザ（admin/alice/bob/carol/dave、RLS テスト用・dev:up 組込み）は scripts/seed-gotrue-dev.mjs
@@ -33,7 +32,7 @@ function hasFlag(name) {
   return process.argv.includes(`--${name}`);
 }
 // 値ありフラグ。値が欠落（次トークンが別フラグ or 末尾）なら undefined を返し、
-// `--email --code foo` のように次のフラグを値として誤認しない。
+// `--users-csv --dev` のように次のフラグを値として誤認しない。
 function flag(name) {
   const i = process.argv.indexOf(`--${name}`);
   if (i === -1) return undefined;
@@ -71,20 +70,17 @@ if (!isDev && composeFileRel === DEV_COMPOSE) {
   die(`dev compose (${DEV_COMPOSE}) を使うには --dev が必要です（stg/prod は provision:stg/prod）`);
 }
 
-const email = flag("email");
-const name = flag("name") ?? "管理者";
-const code = flag("code") ?? "admin";
-// --users-csv: 人員 CSV を一括投入する bulk モード。未指定なら --email の単一 admin モード。
+// 投入対象は人員 CSV（--users-csv）のみ。各行が email/code/role/org を持つ。
 const usersCsv = flag("users-csv");
-const isBulk = usersCsv !== undefined;
 // compose ネットワーク名（networks.waoon.name）。dev→waoon / prod→waoon-prod / stg→waoon-stg。
 // dev は無条件 waoon 強制（filename ヒューリスティックに頼らない）。
 const network = isDev
   ? DEV_NETWORK
   : (flag("network") ?? (composeFileRel.includes("prod") ? "waoon-prod" : "waoon-stg"));
 
-// bulk は CSV の各行が email/code を持つため --email 不要。単一モードのみ --email 必須。
-if (!isBulk && !email) die("--email は必須です（初期 admin のメールアドレス）。一括投入は --users-csv <path>");
+if (!usersCsv) {
+  die("--users-csv は必須です（人員 CSV のパス）。dev の固定ユーザーは seed:gotrue:dev が担います");
+}
 
 // 環境別に PG 接続情報と JWT_SECRET を決める。
 //   dev   : env ファイルを secret に使わない。process.env ?? dev 既定。psql も --env-file 無し。
@@ -193,22 +189,23 @@ const loaderArgs = [join(root, "scripts", "seed-from-csv.mjs"), "--no-users", "-
 if (envFile) loaderArgs.push("--env-file", envFile);
 execFileSync("node", loaderArgs, { stdio: "inherit" });
 
-// --- 2) 投入対象ユーザーの一覧を組み立てる（単一 admin or 人員 CSV の N 名） ---
-// 権限は role 列（'admin'|'member'）。役職(position)とは別軸。単一モードは role='admin'・
-// position は付けない（システム管理者の HR 役職は独立）。bulk は CSV の role を使う。
-const targets = isBulk
-  ? parse(readFileSync(resolvePath(usersCsv), "utf8"), { columns: true, skip_empty_lines: true, trim: true }).map((r) => ({
-      email: r.email,
-      name: r.name,
-      code: r.code,
-      gotrueId: r.gotrue_id || undefined,
-      role: r.role || "member",
-      positionCode: r.position_code,
-      divisionCode: r.division_code,
-      departmentCode: r.department_code,
-      sectionCode: r.section_code,
-    }))
-  : [{ email, name, code, gotrueId: undefined, role: "admin", positionCode: "", divisionCode: "", departmentCode: "", sectionCode: "" }];
+// --- 2) 投入対象ユーザーの一覧を人員 CSV から組み立てる ---
+// 権限は role 列（'admin'|'member'）。役職(position)とは別軸。
+const targets = parse(readFileSync(resolvePath(usersCsv), "utf8"), {
+  columns: true,
+  skip_empty_lines: true,
+  trim: true,
+}).map((r) => ({
+  email: r.email,
+  name: r.name,
+  code: r.code,
+  gotrueId: r.gotrue_id || undefined,
+  role: r.role || "member",
+  positionCode: r.position_code,
+  divisionCode: r.division_code,
+  departmentCode: r.department_code,
+  sectionCode: r.section_code,
+}));
 
 // --- 3) 行単位で冪等に発行（既存は skip / DB insert 失敗時のみ GoTrue を cleanup） ---
 const credentials = []; // { email, password }
