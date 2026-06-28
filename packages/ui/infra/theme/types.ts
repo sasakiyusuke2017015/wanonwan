@@ -74,9 +74,9 @@ export interface FullThemeSettings extends GlobalThemeSettings {
  * デフォルトのグローバルテーマ設定
  */
 export const DEFAULT_GLOBAL_THEME: GlobalThemeSettings = {
-  colorTheme: 'emerald',
-  shapeTheme: 'soft',
-  backgroundTheme: 'wood',
+  colorTheme: 'rose',
+  shapeTheme: 'sharp',
+  backgroundTheme: 'fabric',
 }
 
 /**
