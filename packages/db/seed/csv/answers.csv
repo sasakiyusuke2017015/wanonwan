@@ -1,0 +1,10 @@
+publication_title,respondent_code,status,satisfaction,workload,environment,relationship,stress,health_status,answered_at,interview_at,interview_method,interviewer_code,interview_memo,next_action
+2026年6月 月次1on1,demo01,100,,,,,,,,,,,,
+2026年6月 月次1on1,demo02,100,,,,,,,,,,,,
+2026年6月 月次1on1,demo03,200,4,3,4,5,2,300,2026-06-27,,,,,
+2026年6月 月次1on1,demo04,200,5,4,5,5,3,400,2026-06-27,,,,,
+2026年6月 月次1on1,demo05,400,3,4,4,4,2,500,2026-06-25,2026-07-01,2,demomgr,面談日程を調整済み。,来週フォローアップ予定
+2026年6月 月次1on1,demo06,900,4,3,5,5,2,300,2026-06-21,2026-06-26,1,demomgr,面談実施。状況は良好。,特になし
+2026年度 上期面談,demo01,200,4,3,4,4,2,300,2026-06-28,,,,,
+2026年度 上期面談,demo02,200,4,3,4,4,2,300,2026-06-28,,,,,
+2026年度 上期面談,demo03,200,4,3,4,4,2,300,2026-06-28,,,,,
