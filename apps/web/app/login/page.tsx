@@ -1,76 +1,164 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Input, Banner } from "@ui-catalog/core/molecules";
+import { Checkbox } from "@ui-catalog/core/atoms";
+import { AuthFormCard } from "@ui-catalog/core/organisms/AuthFormCard";
+import { LoginButton } from "@ui-catalog/core/organisms/LoginButton";
+import type { LoginButtonState } from "@ui-catalog/core/organisms/LoginButton";
 
+const REMEMBER_KEY = "waoon.rememberedEmail";
+
+// 旧 1on1 踏襲のログイン。@waoon/ui の用意済み部品（Input / Checkbox / Banner / LoginButton /
+// AuthFormCard）で構成。認証は waoon の email/password（/api/v1/auth/login）に合わせる。
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [btnState, setBtnState] = useState<LoginButtonState>("ready");
 
-  async function onSubmit(e: React.FormEvent) {
+  // 記憶したメールアドレスを復元（パスワードは保存しない）。
+  useEffect(() => {
+    const saved = localStorage.getItem(REMEMBER_KEY);
+    if (saved) {
+      setEmail(saved);
+      setRemember(true);
+    }
+  }, []);
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setLoading(true);
+    setShowPassword(false);
     setError(null);
+    setLoading(true);
+    setBtnState("authenticating");
+
     const res = await fetch("/api/v1/auth/login", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
-    setLoading(false);
+
     if (res.ok) {
+      if (remember) localStorage.setItem(REMEMBER_KEY, email);
+      else localStorage.removeItem(REMEMBER_KEY);
+      setBtnState("authenticated");
       router.replace(params.get("next") || "/");
       router.refresh();
       return;
     }
+
+    setLoading(false);
+    setBtnState("ready");
     const data = (await res.json().catch(() => ({}))) as { error?: string };
     setError(data.error ?? "ログインに失敗しました");
   }
 
   return (
-    <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4">
-      <h1 className="text-xl font-bold">waoon ログイン</h1>
-      <label className="block">
-        <span className="text-sm text-gray-600">メールアドレス</span>
-        <input
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
+    <>
+      <div>
+        <h2 className="text-2xl font-bold text-slate-800">ログイン</h2>
+        <p className="mt-2 text-sm text-slate-500">アカウント情報を入力してください</p>
+      </div>
+
+      <form className="space-y-6" onSubmit={onSubmit}>
+        <div className="space-y-4">
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="username"
+            required
+            placeholder="メールアドレス"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
+            size="large"
+          />
+          <Input
+            id="password"
+            name="password"
+            type={showPassword ? "text" : "password"}
+            autoComplete="current-password"
+            required
+            placeholder="パスワード"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
+            size="large"
+            icon={showPassword ? "eye-slashed" : "eye"}
+            iconPosition="right"
+            onIconClick={() => setShowPassword((v) => !v)}
+          />
+        </div>
+
+        <Checkbox
+          id="remember-me"
+          name="remember-me"
+          checked={remember}
+          onChange={(e) => setRemember(e.target.checked)}
+          label="メールアドレスを記憶"
+          size="large"
         />
-      </label>
-      <label className="block">
-        <span className="text-sm text-gray-600">パスワード</span>
-        <input
-          type="password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
-        />
-      </label>
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded bg-gray-900 px-3 py-2 text-white disabled:opacity-50"
-      >
-        {loading ? "ログイン中..." : "ログイン"}
-      </button>
-    </form>
+
+        {error && <Banner variant="error" message={error} />}
+
+        <LoginButton
+          type="submit"
+          state={btnState}
+          variant="primary"
+          fullWidth
+          disabled={loading}
+          loading={loading}
+          loadingText="認証中..."
+        >
+          {btnState === "authenticated" ? "認証完了" : "ログイン"}
+        </LoginButton>
+      </form>
+    </>
   );
 }
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center p-8">
-      <Suspense fallback={null}>
-        <LoginForm />
-      </Suspense>
-    </main>
+    <div className="flex min-h-screen">
+      {/* デスクトップ: 左ブランディングパネル */}
+      <div className="hidden flex-col justify-between bg-gradient-to-br from-rose-500 to-rose-600 p-12 md:flex md:w-1/2">
+        <span className="text-2xl font-bold text-white">waoon</span>
+        <div className="flex flex-1 flex-col items-center justify-center text-center">
+          <h1 className="text-3xl font-bold text-white">waoon へようこそ</h1>
+          <p className="mt-3 text-rose-100">効果的な 1on1 / アンケート / 面談を実現</p>
+        </div>
+        <div className="text-right text-xs text-rose-200">© 2026 waoon</div>
+      </div>
+
+      {/* デスクトップ: 右フォームパネル */}
+      <div className="hidden w-full flex-col justify-center bg-white px-6 py-12 md:flex md:w-1/2">
+        <div className="mx-auto w-full max-w-md space-y-8">
+          <Suspense fallback={null}>
+            <LoginForm />
+          </Suspense>
+        </div>
+      </div>
+
+      {/* モバイル: グラデーション背景 + カード型フォーム */}
+      <div className="flex w-full flex-col bg-gradient-to-br from-rose-500 to-rose-600 md:hidden">
+        <div className="flex flex-col items-center px-6 pb-4 pt-10 text-center">
+          <h1 className="text-xl font-bold text-white">waoon へようこそ</h1>
+          <p className="mt-1 text-sm text-rose-100">1on1 / アンケート / 面談</p>
+        </div>
+        <AuthFormCard copyrightText="© 2026 waoon">
+          <Suspense fallback={null}>
+            <LoginForm />
+          </Suspense>
+        </AuthFormCard>
+      </div>
+    </div>
   );
 }
