@@ -77,6 +77,9 @@ if (!isDev && composeFileRel === DEV_COMPOSE) {
 // dev は既定でリポジトリ同梱のサンプル CSV を使う（`--users-csv` で上書き可）。
 // stg/prod は実メールを含むため --users-csv を必須にする（CSV は VCS に置かない）。
 const DEV_DEFAULT_USERS_CSV = "infra/provision-users.example.csv";
+// dev は固定 PW で直接ログインできるようにする（localhost dev 限定の使い捨て。seed:gotrue:dev と同じ思想）。
+// stg/prod はランダム PW + must_change + 0600 ファイルのまま（本番で固定 PW にしない）。
+const DEV_FIXED_PASSWORD = "Admin1234!";
 const usersCsv = flag("users-csv") ?? (isDev ? DEV_DEFAULT_USERS_CSV : undefined);
 // compose ネットワーク名（networks.waoon.name）。dev→waoon / prod→waoon-prod / stg→waoon-stg。
 // dev は無条件 waoon 強制（filename ヒューリスティックに頼らない）。
@@ -239,8 +242,9 @@ for (const t of targets) {
     continue;
   }
 
-  // GoTrue identity を発行（一時 PW + must_change_password で初回変更を強制）。
-  const password = generateInitialPassword();
+  // GoTrue identity を発行。dev は固定 PW で直接ログイン可（must_change なし）。
+  // stg/prod はランダム一時 PW + must_change_password で初回変更を強制。
+  const password = isDev ? DEV_FIXED_PASSWORD : generateInitialPassword();
   let gotrueId;
   try {
     const reqBody = {
@@ -248,7 +252,7 @@ for (const t of targets) {
       password,
       email_confirm: true,
       user_metadata: { name: t.name },
-      app_metadata: { must_change_password: true },
+      app_metadata: { must_change_password: !isDev },
     };
     if (t.gotrueId) reqBody.id = t.gotrueId; // dev は固定 UUID。stg/prod は GoTrue 採番
     const res = curlGoTrue("POST", "/admin/users", reqBody);
@@ -283,8 +287,12 @@ for (const t of targets) {
   created++;
 }
 
-// --- 4) 一時 PW は stdout/CI に出さず 0600 ファイルへ。配布後は削除する運用。 ---
-if (credentials.length > 0) {
+// --- 4) PW の提示 ---
+// dev は固定 PW なので stdout に出して良い（localhost 限定の使い捨て・seed と同じ）。
+// stg/prod は一時 PW を stdout/CI に出さず 0600 ファイルへ（配布後に削除する運用）。
+if (created > 0 && isDev) {
+  console.log(`\n✓ dev ユーザーの初期パスワードは「${DEV_FIXED_PASSWORD}」（固定・直接ログイン可）`);
+} else if (credentials.length > 0) {
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
   const credPath = resolvePath(`provision-credentials-${stamp}.txt`);
   const lines = [
