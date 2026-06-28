@@ -15,8 +15,9 @@
 //   prod: pnpm provision:prod --users-csv /secure/path/staff.csv
 //   先に migrate を流して public.users 等のテーブルを作っておくこと（未適用だと参照で落ちる）。
 //
-// dev の固定 5 ユーザ（admin/alice/bob/carol/dave、RLS テスト用・dev:up 組込み）は scripts/seed-gotrue-dev.mjs
-// が担う（users.csv 駆動）。本スクリプトは CI / dev:up には組み込まない（手動専用）。
+// dev の seed は本スクリプト（provision:dev）が担う。RLS テスト用の固定 5 ユーザ
+// （admin/alice/bob/carol/dave、users.csv 駆動）は scripts/seed-gotrue-dev.mjs にあり、CI 用の db:seed と
+// 対で使う（手動の dev 起動では provision:dev を使う）。
 //
 // DB は postgres を直接公開しないため docker compose exec 経由。GoTrue(内部のみ)へは
 // compose ネットワーク上の使い捨て curl コンテナから到達する。

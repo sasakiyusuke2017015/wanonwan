@@ -26,31 +26,41 @@ env は未設定でも既定値で dev 動作する（[apps/web/.env.example](..
 [infra/.env.example](../infra/.env.example)）。上書きしたいときだけ
 `apps/web/.env.local` / `infra/.env` を作る。
 
-## 2. 起動（日常はこれ 1 本）
+## 2. 起動（2 コマンド）
+
+起動（DB + web）と seed（データ + ユーザ投入）を分けて回す。
+
+**端末 1 — インフラ + スキーマ + web を前面起動:**
 
 ```bash
-pnpm dev:up
+pnpm compose:dev:up
 ```
 
-`dev:up` は次を順に実行する:
+`compose:dev:up` は次を順に実行する:
 
-1. `compose:dev:up` — postgres + gotrue を起動し healthy まで待つ（`--wait`）
+1. `docker compose up -d --wait` — postgres + gotrue + minio を起動し healthy まで待つ
 2. `db:migrate` — スキーマ適用（冪等）
-3. `seed:gotrue:dev` — GoTrue に dev ユーザを作成（冪等。seed の固定 UUID と一致）
-4. `db:seed` — 初期データ投入（冪等: `ON CONFLICT`）
-5. `dev` — web を前面起動 → http://localhost:3000
+3. `dev` — web を前面起動 → http://localhost:3000（端末を専有する）
 
-seed 済みログイン: `admin@example.com` / `Admin1234!`（管理者）,
-`alice@example.com` / `Alice1234!`（一般）。dev ユーザは `pnpm dev:up`（内部で
-`seed:gotrue:dev`）が GoTrue に作成する。他に `bob` / `carol`（RLS 検証用）も同様。
+**端末 2 — 組織マスタ + ユーザを投入:**
+
+```bash
+pnpm provision:dev
+```
+
+`provision:dev` は組織マスタ seed と人員 CSV（既定 [infra/provision-users.example.csv](../infra/provision-users.example.csv)）の
+ユーザ発行を行う（行単位で冪等。再実行は skip）。別 CSV を使うなら
+`pnpm provision:dev --users-csv <path>`。
+
+seed 済みログイン: `padmin@example.com` / `Admin1234!`（管理者）,
+`pmember@example.com` / `Admin1234!`（一般）。
 
 ### 個別に回す
 
 | コマンド | 用途 |
 |---|---|
-| `pnpm compose:dev:up` | postgres + gotrue のみ（detached, healthy 待ち） |
 | `pnpm db:migrate` | スキーマ適用 |
-| `pnpm db:seed` | 初期データ投入 |
+| `pnpm provision:dev` | 組織マスタ + ユーザ投入 |
 | `pnpm dev` | web のみ（DB は起動済み前提） |
 | `pnpm compose:dev:down` | 停止（データは保持） |
 | `pnpm compose:dev:logs` | コンテナログ追従 |

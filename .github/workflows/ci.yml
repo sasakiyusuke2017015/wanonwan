@@ -38,7 +38,7 @@ jobs:
         run: pnpm compose:dev:build
 
       - name: Start DB stack
-        run: pnpm compose:dev:up
+        run: docker compose -f infra/docker-compose.yml up -d --wait
 
       - name: Wait for Postgres
         run: |

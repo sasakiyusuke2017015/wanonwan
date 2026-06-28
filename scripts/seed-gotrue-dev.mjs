@@ -2,14 +2,14 @@
 //
 // db:seed は public.users（gotrue_id 固定 UUID）だけを作るため、GoTrue 側の
 // auth.users を別途作らないとログインできない。本スクリプトは GoTrue admin API を
-// seed/csv/users.csv と同じ固定 UUID + email で叩き、クリーンな pnpm dev:up から
+// seed/csv/users.csv と同じ固定 UUID + email で叩き、db:seed と対で固定 5 ユーザを
 // ログインできる状態にする。ユーザー定義は users.csv を唯一のソースとし（二重管理を避ける）、
 // dev 固定パスワードだけ email→PW マップで本スクリプトが持つ（PW は CSV に置かない）。
 //
 // stg/prod は scripts/provision.mjs（ランダム PW・別管理）を使う。本スクリプトは
 // localhost の dev GoTrue 以外を対象にしない（下記の多層ガード）。
 //
-// 使い方: pnpm seed:gotrue:dev（GoTrue が healthy であること。dev:up が --wait で担保）
+// 使い方: pnpm seed:gotrue:dev（GoTrue が healthy であること。compose:dev:up が --wait で担保）
 import { createHmac } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
