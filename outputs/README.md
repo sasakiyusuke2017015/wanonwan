@@ -60,14 +60,13 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 ### ローカル起動メモ
 
 ```bash
-pnpm dev:up           # 日常: 起動(--wait) → migrate → seed(冪等) → web 前面（これ 1 本でOK）
+pnpm compose:dev:up   # 端末1: 起動(--wait) → migrate → web 前面（端末を専有）
+pnpm provision:dev    # 端末2: 組織マスタ + ユーザ投入（冪等）
 # 個別に回したいとき:
-pnpm compose:dev:up   # postgres + gotrue（detached, healthy まで待つ）
 pnpm db:migrate       # スキーマ適用（冪等）
-pnpm db:seed          # admin/member/alice 等（冪等: ON CONFLICT）
 pnpm test:db          # pgTAP(RLS)
 pnpm dev              # web のみ（env は apps/web/.env.example の既定で動く。差し替えは .env.local）
-# データ消去して作り直し: pnpm compose:dev:down -v → pnpm dev:up
+# データ消去して作り直し: pnpm compose:dev:down -v → compose:dev:up → provision:dev
 ```
 
-seed ログイン: `admin@example.com` / `Admin1234!`（管理者）, `alice@example.com` / `Alice1234!`（一般）
+seed ログイン: `padmin@example.com` / `Admin1234!`（管理者）, `pmember@example.com` / `Admin1234!`（一般）

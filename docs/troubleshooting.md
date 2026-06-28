@@ -9,15 +9,17 @@ DB ボリュームごと破棄して作り直す:
 
 ```bash
 pnpm compose:dev:down -v   # コンテナ + 名前付きボリューム(waoon_db-data) を削除
-pnpm dev:up                # 起動(--wait) → migrate → seed → web
+pnpm compose:dev:up        # 起動(--wait) → migrate → web（端末を専有）
+pnpm provision:dev         # 別端末で: 組織マスタ + ユーザ投入
 ```
 
 `-v` がデータ消去の肝。`-v` なしの `pnpm compose:dev:down` はコンテナを落とすだけで
-ボリューム（データ）は残る。
+ボリューム（データ）は残る。`compose:dev:down` は web（ポート 3000 を掴む `next dev`）も
+合わせて止める（web は Docker コンテナでないため別途 kill する）。
 
 ## 起動が固まる / postgres に繋がらない
 
-- `pnpm dev:up` は `--wait` で postgres / gotrue が healthy になるまで待つ。途中で
+- `pnpm compose:dev:up` は `--wait` で postgres / gotrue が healthy になるまで待つ。途中で
   失敗したら `pnpm compose:dev:logs` でコンテナログを確認する。
 - ポート競合（`5432` / `9999` / `3000` が他プロセスで使用中）の場合は、そのプロセスを
   止めるか、`infra/.env` で `PG_PORT` / `GOTRUE_PORT` を変える。

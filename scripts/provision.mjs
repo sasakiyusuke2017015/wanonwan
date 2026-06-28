@@ -1,20 +1,23 @@
-// dev / stg / prod を空状態から初期化する。組織マスタを CSV から投入し、ユーザーを発行する。
+// dev / stg / prod を空状態から初期化する。組織マスタを CSV から投入し、人員 CSV のユーザーを発行する。
 //   1) 組織マスタ seed を CSV ローダー（seed-from-csv.mjs --no-users・非空スキップ）で適用
-//   2) ユーザーを GoTrue admin API で発行 → public.users に gotrue_id 付きで紐付け（行単位で冪等）
+//   2) 人員 CSV（--users-csv）の全行を GoTrue admin API で発行 → public.users に gotrue_id 付きで
+//      紐付け（行単位で冪等。既存は skip / DB insert 失敗時のみ GoTrue を cleanup）
 //   3) 一時 PW を 0600 ファイルへ書き出し（stdout/CI には出さない）。各ユーザーは初回ログインで PW 変更を強制
 //
-// 2 モード:
-//   - 単一 admin（--email）: 任意 email の admin を 1 名発行する（従来の ad-hoc 用途）。
-//   - 一括（--users-csv <path>）: 人員 CSV の全行を N 名一括発行（stg/prod の初期人員投入）。
+// 投入は人員 CSV（--users-csv）の一括のみ。admin は CSV の role 列に 'admin' を指定する。
+// CSV 列: code,name,email,gotrue_id,role,position_code,division_code,department_code,section_code
+// （gotrue_id は空で GoTrue 採番。role は admin/member。org 系 code は既存マスタ参照・不要なら空）
 //
 // 使い方（host で実行。stack 起動 + migration 適用後）:
-//   dev:  pnpm provision:dev  --email padmin@example.com --code padmin
+//   dev:  pnpm provision:dev                                       （既定で infra/provision-users.example.csv を使う）
+//   dev:  pnpm provision:dev  --users-csv <path>                   （別 CSV を使う場合）
 //   stg:  pnpm provision:stg  --users-csv /secure/path/staff.csv   （実メールを含む CSV は VCS に置かない）
 //   prod: pnpm provision:prod --users-csv /secure/path/staff.csv
 //   先に migrate を流して public.users 等のテーブルを作っておくこと（未適用だと参照で落ちる）。
 //
-// dev の固定 5 ユーザ（admin/alice/bob/carol/dave、RLS テスト用・dev:up 組込み）は scripts/seed-gotrue-dev.mjs
-// が担う（users.csv 駆動）。本スクリプトは CI / dev:up には組み込まない（手動専用）。
+// dev の seed は本スクリプト（provision:dev）が担う。RLS テスト用の固定 5 ユーザ
+// （admin/alice/bob/carol/dave、users.csv 駆動）は scripts/seed-gotrue-dev.mjs にあり、CI 用の db:seed と
+// 対で使う（手動の dev 起動では provision:dev を使う）。
 //
 // DB は postgres を直接公開しないため docker compose exec 経由。GoTrue(内部のみ)へは
 // compose ネットワーク上の使い捨て curl コンテナから到達する。
@@ -33,7 +36,7 @@ function hasFlag(name) {
   return process.argv.includes(`--${name}`);
 }
 // 値ありフラグ。値が欠落（次トークンが別フラグ or 末尾）なら undefined を返し、
-// `--email --code foo` のように次のフラグを値として誤認しない。
+// `--users-csv --dev` のように次のフラグを値として誤認しない。
 function flag(name) {
   const i = process.argv.indexOf(`--${name}`);
   if (i === -1) return undefined;
@@ -71,20 +74,23 @@ if (!isDev && composeFileRel === DEV_COMPOSE) {
   die(`dev compose (${DEV_COMPOSE}) を使うには --dev が必要です（stg/prod は provision:stg/prod）`);
 }
 
-const email = flag("email");
-const name = flag("name") ?? "管理者";
-const code = flag("code") ?? "admin";
-// --users-csv: 人員 CSV を一括投入する bulk モード。未指定なら --email の単一 admin モード。
-const usersCsv = flag("users-csv");
-const isBulk = usersCsv !== undefined;
+// 投入対象は人員 CSV（--users-csv）。各行が email/code/role/org を持つ。
+// dev は既定でリポジトリ同梱のサンプル CSV を使う（`--users-csv` で上書き可）。
+// stg/prod は実メールを含むため --users-csv を必須にする（CSV は VCS に置かない）。
+const DEV_DEFAULT_USERS_CSV = "infra/provision-users.example.csv";
+// dev は固定 PW で直接ログインできるようにする（localhost dev 限定の使い捨て。seed:gotrue:dev と同じ思想）。
+// stg/prod はランダム PW + must_change + 0600 ファイルのまま（本番で固定 PW にしない）。
+const DEV_FIXED_PASSWORD = "Admin1234!";
+const usersCsv = flag("users-csv") ?? (isDev ? DEV_DEFAULT_USERS_CSV : undefined);
 // compose ネットワーク名（networks.waoon.name）。dev→waoon / prod→waoon-prod / stg→waoon-stg。
 // dev は無条件 waoon 強制（filename ヒューリスティックに頼らない）。
 const network = isDev
   ? DEV_NETWORK
   : (flag("network") ?? (composeFileRel.includes("prod") ? "waoon-prod" : "waoon-stg"));
 
-// bulk は CSV の各行が email/code を持つため --email 不要。単一モードのみ --email 必須。
-if (!isBulk && !email) die("--email は必須です（初期 admin のメールアドレス）。一括投入は --users-csv <path>");
+if (!usersCsv) {
+  die("--users-csv は必須です（stg/prod の人員 CSV パス。実メールを含むため VCS に置かない）");
+}
 
 // 環境別に PG 接続情報と JWT_SECRET を決める。
 //   dev   : env ファイルを secret に使わない。process.env ?? dev 既定。psql も --env-file 無し。
@@ -193,22 +199,23 @@ const loaderArgs = [join(root, "scripts", "seed-from-csv.mjs"), "--no-users", "-
 if (envFile) loaderArgs.push("--env-file", envFile);
 execFileSync("node", loaderArgs, { stdio: "inherit" });
 
-// --- 2) 投入対象ユーザーの一覧を組み立てる（単一 admin or 人員 CSV の N 名） ---
-// 権限は role 列（'admin'|'member'）。役職(position)とは別軸。単一モードは role='admin'・
-// position は付けない（システム管理者の HR 役職は独立）。bulk は CSV の role を使う。
-const targets = isBulk
-  ? parse(readFileSync(resolvePath(usersCsv), "utf8"), { columns: true, skip_empty_lines: true, trim: true }).map((r) => ({
-      email: r.email,
-      name: r.name,
-      code: r.code,
-      gotrueId: r.gotrue_id || undefined,
-      role: r.role || "member",
-      positionCode: r.position_code,
-      divisionCode: r.division_code,
-      departmentCode: r.department_code,
-      sectionCode: r.section_code,
-    }))
-  : [{ email, name, code, gotrueId: undefined, role: "admin", positionCode: "", divisionCode: "", departmentCode: "", sectionCode: "" }];
+// --- 2) 投入対象ユーザーの一覧を人員 CSV から組み立てる ---
+// 権限は role 列（'admin'|'member'）。役職(position)とは別軸。
+const targets = parse(readFileSync(resolvePath(usersCsv), "utf8"), {
+  columns: true,
+  skip_empty_lines: true,
+  trim: true,
+}).map((r) => ({
+  email: r.email,
+  name: r.name,
+  code: r.code,
+  gotrueId: r.gotrue_id || undefined,
+  role: r.role || "member",
+  positionCode: r.position_code,
+  divisionCode: r.division_code,
+  departmentCode: r.department_code,
+  sectionCode: r.section_code,
+}));
 
 // --- 3) 行単位で冪等に発行（既存は skip / DB insert 失敗時のみ GoTrue を cleanup） ---
 const credentials = []; // { email, password }
@@ -216,6 +223,12 @@ let created = 0, skipped = 0, failed = 0;
 for (const t of targets) {
   if (!t.email || !t.code) {
     console.error(`✗ email / code が空の行をスキップ: ${JSON.stringify(t)}`);
+    failed++;
+    continue;
+  }
+  // role は 'admin' / 'member' のみ（DB CHECK の手前で typo を分かりやすく弾く）。
+  if (t.role !== "admin" && t.role !== "member") {
+    console.error(`✗ ${t.email}: role は admin / member のみ（指定: ${JSON.stringify(t.role)}）`);
     failed++;
     continue;
   }
@@ -230,8 +243,9 @@ for (const t of targets) {
     continue;
   }
 
-  // GoTrue identity を発行（一時 PW + must_change_password で初回変更を強制）。
-  const password = generateInitialPassword();
+  // GoTrue identity を発行。dev は固定 PW で直接ログイン可（must_change なし）。
+  // stg/prod はランダム一時 PW + must_change_password で初回変更を強制。
+  const password = isDev ? DEV_FIXED_PASSWORD : generateInitialPassword();
   let gotrueId;
   try {
     const reqBody = {
@@ -239,7 +253,7 @@ for (const t of targets) {
       password,
       email_confirm: true,
       user_metadata: { name: t.name },
-      app_metadata: { must_change_password: true },
+      app_metadata: { must_change_password: !isDev },
     };
     if (t.gotrueId) reqBody.id = t.gotrueId; // dev は固定 UUID。stg/prod は GoTrue 採番
     const res = curlGoTrue("POST", "/admin/users", reqBody);
@@ -255,7 +269,7 @@ for (const t of targets) {
   try {
     psql(`
       INSERT INTO public.users (gotrue_id, code, name, email, role, position_id, division_id, department_id, section_id)
-      SELECT ${sqlStr(gotrueId)}::uuid, ${sqlStr(t.code)}, ${sqlStr(t.name)}, ${sqlStr(t.email)}, ${sqlStr(t.role || "member")},
+      SELECT ${sqlStr(gotrueId)}::uuid, ${sqlStr(t.code)}, ${sqlStr(t.name)}, ${sqlStr(t.email)}, ${sqlStr(t.role)},
         ${refSub("positions", t.positionCode)}, ${refSub("divisions", t.divisionCode)},
         ${refSub("departments", t.departmentCode)}, ${refSub("sections", t.sectionCode)};
     `);
@@ -274,8 +288,13 @@ for (const t of targets) {
   created++;
 }
 
-// --- 4) 一時 PW は stdout/CI に出さず 0600 ファイルへ。配布後は削除する運用。 ---
-if (credentials.length > 0) {
+// --- 4) PW の提示 ---
+// dev は固定 PW なので stdout に出して良い（localhost 限定の使い捨て・seed と同じ）。
+// stg/prod は一時 PW を stdout/CI に出さず 0600 ファイルへ（配布後に削除する運用）。
+if (isDev) {
+  // 新規作成が無くても（再実行で全員 skip でも）dev は固定 PW を毎回案内する。
+  console.log(`\n✓ dev ユーザーの初期パスワードは「${DEV_FIXED_PASSWORD}」（固定・直接ログイン可）`);
+} else if (credentials.length > 0) {
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
   const credPath = resolvePath(`provision-credentials-${stamp}.txt`);
   const lines = [

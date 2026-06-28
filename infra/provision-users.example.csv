@@ -1,0 +1,3 @@
+code,name,email,gotrue_id,role,position_code,division_code,department_code,section_code
+padmin,プロビ管理者,padmin@example.com,,admin,,HQ,DEPT1,SEC1
+pmember,プロビ一般,pmember@example.com,,member,300,,,SEC1
