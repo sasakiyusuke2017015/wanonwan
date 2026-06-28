@@ -10,8 +10,9 @@ import type { LoginButtonState } from "@ui-catalog/core/organisms/LoginButton";
 
 const REMEMBER_KEY = "waoon.rememberedEmail";
 
-// 旧 1on1 踏襲のログイン。@waoon/ui の用意済み部品（Input / Checkbox / Banner / LoginButton /
-// AuthFormCard）で構成。認証は waoon の email/password（/api/v1/auth/login）に合わせる。
+// 旧 1on1 の LoginLayout をそのまま踏襲（2カラム: 左ブランディング teal / 右フォーム）。
+// 旧はテーマに依らずログインだけ teal 固定。画像アセット（ロゴ/キャラ）は waoon に無いので省略。
+// 認証は waoon の email/password（/api/v1/auth/login）に合わせる。
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
@@ -23,7 +24,6 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [btnState, setBtnState] = useState<LoginButtonState>("ready");
 
-  // 記憶したメールアドレスを復元（パスワードは保存しない）。
   useEffect(() => {
     const saved = localStorage.getItem(REMEMBER_KEY);
     if (saved) {
@@ -67,11 +67,11 @@ function LoginForm() {
         <p className="mt-2 text-sm text-slate-500">アカウント情報を入力してください</p>
       </div>
 
-      <form className="space-y-6" onSubmit={onSubmit}>
+      <form className="space-y-4 sm:space-y-6" onSubmit={onSubmit}>
         <div className="space-y-4">
           <Input
             id="email"
-            name="email"
+            name="username"
             type="email"
             autoComplete="username"
             required
@@ -103,7 +103,7 @@ function LoginForm() {
           name="remember-me"
           checked={remember}
           onChange={(e) => setRemember(e.target.checked)}
-          label="メールアドレスを記憶"
+          label="ログイン情報を記憶"
           size="large"
         />
 
@@ -128,14 +128,14 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <div className="flex min-h-screen">
-      {/* デスクトップ: 左ブランディングパネル */}
-      <div className="hidden flex-col justify-between bg-gradient-to-br from-rose-500 to-rose-600 p-12 md:flex md:w-1/2">
-        <span className="text-2xl font-bold text-white">waoon</span>
+      {/* デスクトップ: 左ブランディングパネル（旧踏襲 teal） */}
+      <div className="hidden flex-col justify-between bg-gradient-to-br from-teal-500 to-teal-600 p-12 md:flex md:w-1/2">
+        <span className="text-2xl font-bold text-white">1on1</span>
         <div className="flex flex-1 flex-col items-center justify-center text-center">
-          <h1 className="text-3xl font-bold text-white">waoon へようこそ</h1>
-          <p className="mt-3 text-rose-100">効果的な 1on1 / アンケート / 面談を実現</p>
+          <h1 className="text-3xl font-bold text-white">1on1 へようこそ</h1>
+          <p className="mt-3 text-teal-100">効果的な 1on1 ミーティングを実現</p>
         </div>
-        <div className="text-right text-xs text-rose-200">© 2026 waoon</div>
+        <div className="text-right text-xs text-teal-200">© 2026 waoon</div>
       </div>
 
       {/* デスクトップ: 右フォームパネル */}
@@ -148,10 +148,10 @@ export default function LoginPage() {
       </div>
 
       {/* モバイル: グラデーション背景 + カード型フォーム */}
-      <div className="flex w-full flex-col bg-gradient-to-br from-rose-500 to-rose-600 md:hidden">
+      <div className="flex w-full flex-col bg-gradient-to-br from-teal-500 to-teal-600 md:hidden">
         <div className="flex flex-col items-center px-6 pb-4 pt-10 text-center">
-          <h1 className="text-xl font-bold text-white">waoon へようこそ</h1>
-          <p className="mt-1 text-sm text-rose-100">1on1 / アンケート / 面談</p>
+          <h1 className="text-xl font-bold text-white">1on1 へようこそ</h1>
+          <p className="mt-1 text-sm text-teal-100">効果的な 1on1 ミーティングを実現</p>
         </div>
         <AuthFormCard copyrightText="© 2026 waoon">
           <Suspense fallback={null}>

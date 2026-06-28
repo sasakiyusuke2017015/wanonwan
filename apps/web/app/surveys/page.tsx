@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { SurveyCard } from "@ui-catalog/core/molecules";
+import { SurveyCard, StatisticList } from "@ui-catalog/core/molecules";
 import { useTheme } from "@ui-catalog/core/infra/theme";
 import { apiGet } from "@/lib/api/client";
 
@@ -29,9 +29,27 @@ export default function SurveysPage() {
     queryFn: () => apiGet<{ data: Row[] }>("/api/v1/me/surveys"),
   });
 
+  const rows = data?.data ?? [];
+  const answered = rows.filter((r) => r.answerId).length;
+  const unanswered = rows.length - answered;
+
   return (
     <div className="mx-auto max-w-4xl">
       <h1 className="mb-4 text-xl font-bold">実施中のアンケート</h1>
+
+      {rows.length > 0 && (
+        <div className="mb-4">
+          <StatisticList
+            items={[
+              { label: "未回答", value: unanswered, dotColor: "bg-yellow-500", labelColor: "text-yellow-700" },
+              { label: "回答済", value: answered, dotColor: "bg-green-500", labelColor: "text-green-700" },
+            ]}
+            totalLabel="実施中"
+            totalValue={rows.length}
+            totalUnit="件"
+          />
+        </div>
+      )}
 
       {isLoading && <p className="text-sm text-gray-500">読み込み中...</p>}
       {isError && <p className="text-sm text-red-600">{(error as Error).message}</p>}

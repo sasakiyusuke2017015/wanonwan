@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Header } from "@ui-catalog/core/templates/Header";
 import { SubHeader } from "@ui-catalog/core/templates/SubHeader";
@@ -8,6 +9,9 @@ import { Footer } from "@ui-catalog/core/templates/Footer";
 import { BackgroundTexture } from "@ui-catalog/core/organisms/BackgroundTexture";
 import { BlurFade } from "@ui-catalog/core/organisms/BlurFade";
 import { FloatingMenuButton } from "@ui-catalog/core/organisms/FloatingMenuButton";
+import { DropdownMenu } from "@ui-catalog/core/organisms/DropdownMenu";
+import { MenuItemList } from "@ui-catalog/core/organisms/MenuItemList";
+import { Breadcrumb } from "@ui-catalog/core/molecules";
 import { Icon } from "@ui-catalog/core/atoms";
 import { LAYOUT_SIZES, getThemeConfig } from "@ui-catalog/core/constants";
 import { useTheme, useBackgroundTheme, DEFAULT_GLOBAL_THEME } from "@ui-catalog/core/infra/theme";
@@ -52,6 +56,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const showSideNav = items.length > 1;
   const sideShift = showSideNav && sideOpen ? SIDENAV_WIDTH : 0;
 
+  // 旧 AppHeader 踏襲のパンくず（ホーム + 現在のセクション）。
+  const activeItem = items.find((i) => i.active);
+  const crumbs = [{ label: "ホーム", href: "/" }];
+  if (activeItem && activeItem.href !== "/") crumbs.push({ label: activeItem.label, href: activeItem.href });
+
   return (
     <div className="relative flex h-screen flex-col overflow-hidden">
       <BackgroundTexture theme={background} />
@@ -62,12 +71,35 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         textColor={colors.primaryContrastText}
         borderColor={colors.primaryBorderColor}
         leftContent={
-          <span className="px-2 text-base font-bold" style={{ color: colors.primaryContrastText }}>
-            waoon
-          </span>
+          <div className="flex items-center gap-3 px-2">
+            <Link
+              href="/"
+              className="text-base font-bold transition-opacity hover:opacity-80"
+              style={{ color: colors.primaryContrastText }}
+            >
+              1on1
+            </Link>
+            <Breadcrumb
+              items={crumbs}
+              separator=">"
+              primaryContrastText={colors.primaryContrastText}
+            />
+          </div>
         }
         rightContent={
-          <div className="flex items-center px-2">
+          <div className="flex items-center gap-1 px-2">
+            <DropdownMenu
+              icon="bell"
+              menuWidth="w-60"
+              primaryContrastText={colors.primaryContrastText}
+              menuContent={() => (
+                <MenuItemList>
+                  <MenuItemList.Item>
+                    <span className="text-gray-500">お知らせはありません</span>
+                  </MenuItemList.Item>
+                </MenuItemList>
+              )}
+            />
             <HeaderUserMenu
               name={me?.name ?? null}
               email={me?.email ?? null}
