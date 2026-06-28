@@ -62,7 +62,7 @@ seed 済みログイン: `padmin@example.com` / `Admin1234!`（管理者）,
 | `pnpm db:migrate` | スキーマ適用 |
 | `pnpm provision:dev` | 組織マスタ + ユーザ投入 |
 | `pnpm dev` | web のみ（DB は起動済み前提） |
-| `pnpm compose:dev:down` | 停止（データは保持） |
+| `pnpm compose:dev:down` | 停止（web も止める。データは保持。`-v` でボリュームも削除） |
 | `pnpm compose:dev:logs` | コンテナログ追従 |
 
 ポート: web `3000` / postgres `5432` / gotrue `9999`。

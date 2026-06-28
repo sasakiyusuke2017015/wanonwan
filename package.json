@@ -20,7 +20,7 @@
     "clean:cache": "pnpm store prune",
     "compose:dev:build": "docker compose -f infra/docker-compose.yml build",
     "compose:dev:up": "docker compose -f infra/docker-compose.yml up -d --wait && pnpm run db:migrate && pnpm --filter @waoon/web dev",
-    "compose:dev:down": "docker compose -f infra/docker-compose.yml down",
+    "compose:dev:down": "node scripts/kill-web.mjs && docker compose -f infra/docker-compose.yml down",
     "compose:dev:logs": "docker compose -f infra/docker-compose.yml logs -f",
     "compose:ai:up": "docker compose -f infra/docker-compose.yml --profile ai up -d --wait",
     "worker:start": "pnpm --filter @waoon/worker start",

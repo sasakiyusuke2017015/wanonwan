@@ -14,7 +14,8 @@ pnpm provision:dev         # 別端末で: 組織マスタ + ユーザ投入
 ```
 
 `-v` がデータ消去の肝。`-v` なしの `pnpm compose:dev:down` はコンテナを落とすだけで
-ボリューム（データ）は残る。
+ボリューム（データ）は残る。`compose:dev:down` は web（ポート 3000 を掴む `next dev`）も
+合わせて止める（web は Docker コンテナでないため別途 kill する）。
 
 ## 起動が固まる / postgres に繋がらない
 
