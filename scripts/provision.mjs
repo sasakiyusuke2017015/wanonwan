@@ -290,7 +290,8 @@ for (const t of targets) {
 // --- 4) PW の提示 ---
 // dev は固定 PW なので stdout に出して良い（localhost 限定の使い捨て・seed と同じ）。
 // stg/prod は一時 PW を stdout/CI に出さず 0600 ファイルへ（配布後に削除する運用）。
-if (created > 0 && isDev) {
+if (isDev) {
+  // 新規作成が無くても（再実行で全員 skip でも）dev は固定 PW を毎回案内する。
   console.log(`\n✓ dev ユーザーの初期パスワードは「${DEV_FIXED_PASSWORD}」（固定・直接ログイン可）`);
 } else if (credentials.length > 0) {
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
