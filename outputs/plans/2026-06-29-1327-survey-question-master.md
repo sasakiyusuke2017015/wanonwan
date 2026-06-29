@@ -2,13 +2,13 @@
 
 | 項目 | 値 |
 |---|---|
-| ステータス | ⚪ 実装待ち — 再計画レビュー APPROVE。笹木さん着手承認待ち |
+| ステータス | 🟡 実装中 — PR-A(seed 文言) PR 提出済み(#60)。PR-B(設問マスタ本体) 実装着手 |
 | slug | `survey-question-master` |
 | 作成 | 2026-06-29 13:27 JST（改訂 14:10 JST） |
 | 担当 | Claude Code + 笹木さん |
-| ブランチ | `feature/survey-question-master`（TBD） |
-| 関連 PR | TBD |
-| レビュー | [計画(Claude)](../reviews/2026-06-29-1352-survey-question-master-review.md): NEEDS WORK / [計画(Codex)](../reviews/2026-06-29-1400-survey-question-master-review.md): NEEDS WORK / [再計画(Codex)](../reviews/2026-06-29-1410-survey-question-master-review.md): **APPROVE** |
+| ブランチ | PR-A `feature/survey-seed-choices` / PR-B `feature/survey-question-master` |
+| 関連 PR | PR-A: [#60](https://github.com/sasakiyusuke2017015/waoon/pull/60) / PR-B: TBD |
+| レビュー | [計画(Claude)](../reviews/2026-06-29-1352-survey-question-master-review.md): NEEDS WORK / [計画(Codex)](../reviews/2026-06-29-1400-survey-question-master-review.md): NEEDS WORK / [再計画(Codex)](../reviews/2026-06-29-1410-survey-question-master-review.md): **APPROVE** / [コード PR-A(Codex)](../reviews/2026-06-29-1438-survey-question-master-code-review.md): **APPROVE** |
 | git repo | `https://github.com/sasakiyusuke2017015/waoon.git` |
 
 ---
@@ -203,8 +203,8 @@ PR 分割: **PR-A = seed 文言（即出し可・独立）** / **PR-B = 設問�
 - [x] radio 文言を確定（同意度 5 段階）
 - [x] 計画レビュー 2 件（Claude / Codex）の指摘を反映
 - [x] 再計画レビュー（Codex）APPROVE
-- [ ] 笹木さん着手承認
-- [ ] PR-A: seed の choices 文言化
+- [x] 笹木さん着手承認（app-shell #59 先行マージ → develop 同期済み）
+- [x] PR-A: seed の choices 文言化（同意度 5 段階）→ コードレビュー APPROVE → [#60](https://github.com/sasakiyusuke2017015/waoon/pull/60)
 - [ ] PR-B: 設問マスタ UI（QuestionForm 切り出し + eval_item + 画面 + ナビ）
 - [ ] PR-B: API（questions 一覧・作成 / link / unlink）
 - [ ] PR-B: アンケート編集の「マスタから呼ぶ／外す」導線
