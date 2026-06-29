@@ -2,7 +2,7 @@
 
 | 項目 | 値 |
 |---|---|
-| ステータス | 🟣 マージ承認待ち — PR-A(#60)・PR-B(#61) 提出済み、コードレビュー APPROVE。笹木さんマージ待ち |
+| ステータス | 🟢 マージ済み（検証中）— PR-A(#60)・PR-B(#61) develop へマージ済み。残: dev 実機の検証 |
 | slug | `survey-question-master` |
 | 作成 | 2026-06-29 13:27 JST（改訂 14:10 JST） |
 | 担当 | Claude Code + 笹木さん |
@@ -210,5 +210,9 @@ PR 分割: **PR-A = seed 文言（即出し可・独立）** / **PR-B = 設問�
 - [x] PR-B: アンケート編集の「マスタから呼ぶ／外す」導線
 - [x] PR-B: コードレビュー（code-reviewer / security-reviewer）APPROVE → [#61](https://github.com/sasakiyusuke2017015/waoon/pull/61)
 - [x] 検証（typecheck / build / lint green）
-- [ ] **笹木さん #60 / #61 マージ承認**
-- [ ] マージ後検証（クリーン再投入で回答画面の文言表示 / 設問マスタ CRUD / マスタから追加・外す / 非 admin ガード）
+- [x] 笹木さん #60 / #61 マージ承認（develop へマージ済み）
+- [ ] マージ後検証（dev 実機）
+  - [ ] クリーン再投入で回答画面の radio が同意度 5 段階で表示
+  - [ ] 設問マスタ `/admin/questions` の CRUD（eval_item・選択肢の改行入力）
+  - [ ] アンケート編集で「マスタから追加」「外す(unlink)」が効く（他アンケートを巻き込まない）
+  - [ ] 非 admin で設問マスタ画面がガードされる（(admin)/layout.tsx + RLS）
