@@ -106,6 +106,7 @@ export function QuestionsEditor({ surveyId }: { surveyId: string }) {
                   await apiSend(`/api/v1/questions/${q.id}`, "PUT", questionDraftToPayload(draft));
                   setEditingId(null);
                   invalidate();
+                  qc.invalidateQueries({ queryKey: ["questions"] }); // マスタ一覧も整合
                 }}
               />
             ) : (

@@ -65,6 +65,7 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
         onSubmit={async (draft) => {
           await apiSend(`/api/v1/questions/${id}`, "PUT", questionDraftToPayload(draft));
           qc.invalidateQueries({ queryKey: ["questions"] });
+          qc.invalidateQueries({ queryKey: ["question", id] });
           router.push("/admin/questions");
         }}
       />
