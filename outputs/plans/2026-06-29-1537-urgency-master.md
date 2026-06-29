@@ -2,13 +2,13 @@
 
 | 項目 | 値 |
 |---|---|
-| ステータス | ⚪ 実装待ち — 計画レビュー APPROVE。笹木さん着手承認待ち |
+| ステータス | 🟡 実装中 — PR-1(マスタ本体) PR 提出済み(#62)。PR-2(配線+書き手UI) 実装着手 |
 | slug | `urgency-master` |
 | 作成 | 2026-06-29 15:37 JST |
 | 担当 | Claude Code + 笹木さん |
-| ブランチ | `feature/urgency-master`（TBD） |
-| 関連 PR | TBD |
-| レビュー | [計画レビュー(Claude)](../reviews/2026-06-29-1612-urgency-master-review.md): **APPROVE** |
+| ブランチ | `feature/urgency-master`（PR-1）/ PR-2 TBD |
+| 関連 PR | PR-1: [#62](https://github.com/sasakiyusuke2017015/waoon/pull/62) / PR-2: TBD |
+| レビュー | [計画(Claude)](../reviews/2026-06-29-1612-urgency-master-review.md): **APPROVE** / [コード PR-1(agent)](../reviews/2026-06-29-1631-urgency-master-code-review-pr1.md): **APPROVE** |
 | 親 Plan | [設問マスタ Phase 2](2026-06-29-1327-survey-question-master.md)（本 Plan へ分離） |
 | git repo | `https://github.com/sasakiyusuke2017015/waoon.git` |
 
@@ -145,12 +145,14 @@ PR 分割（dead column を避けるため、列追加と書き手 UI を同じ 
 
 ## ステータス
 
-- [ ] 未確定事項（code 割当 / answers 書き手範囲 / 一覧表示要否）を確定
-- [ ] PR-1: urgency_levels テーブル + RLS（ENABLE 明示）+ pgTAP
-- [ ] PR-1: domain（Create/Update）+ API（urgencies CRUD）
-- [ ] PR-1: MASTER_CONFIGS + /admin/urgencies + ナビ + seed
+- [x] code 割当（1=低/2=中/3=高）を採用
+- [x] PR-1: urgency_levels テーブル + RLS（ENABLE 明示）+ pgTAP
+- [x] PR-1: domain（Create/Update）+ API（urgencies CRUD）
+- [x] PR-1: MASTER_CONFIGS + /admin/urgencies + ナビ + seed
+- [x] PR-1: コードレビュー（code/security agent）APPROVE → [#62](https://github.com/sasakiyusuke2017015/waoon/pull/62)
+- [ ] 未確定（answers 書き手範囲＝面談側のみで進める / 一覧表示は別 Plan）
 - [ ] PR-2: surveys/answers の urgency_id 冪等 ALTER
 - [ ] PR-2: surveys 書き手（domain/API/SurveyForm）
 - [ ] PR-2: answers 書き手（RecordInterviewSchema/API/InterviewForm）
-- [ ] 計画レビュー → 実装 → コードレビュー → PR
+- [ ] PR-2: コードレビュー → PR
 - [ ] マージ後検証（dev 実機）
