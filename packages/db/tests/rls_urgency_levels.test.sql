@@ -6,6 +6,10 @@ SELECT plan(4);
 -- admin（role='admin'）として実行
 SET LOCAL app.user_id = 'cb427b54-eaef-47df-916b-626321d23dc9';
 
+-- テスト対象行を明示投入し seed 非依存にする（admin なので RLS write を通過）。
+INSERT INTO public.urgency_levels (code, name)
+VALUES (1, '低'), (3, '高') ON CONFLICT (code) DO NOTHING;
+
 -- 1) admin は緊急度を作成できる
 SELECT lives_ok(
   $$ INSERT INTO public.urgency_levels (code, name) VALUES (90, '緊急') $$,
