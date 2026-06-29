@@ -14,6 +14,7 @@ ALTER TABLE public.divisions                  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.departments                ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sections                   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.positions                  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.urgency_levels             ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.users                      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_interview_candidates  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.surveys                    ENABLE ROW LEVEL SECURITY;
@@ -35,7 +36,7 @@ DO $$
 DECLARE t text;
 BEGIN
   FOREACH t IN ARRAY ARRAY[
-    'divisions','departments','sections','positions',
+    'divisions','departments','sections','positions','urgency_levels',
     'surveys','questions','survey_questions','survey_targets','survey_publications'
   ]
   LOOP

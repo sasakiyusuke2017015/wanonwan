@@ -9,6 +9,8 @@ import {
   UpdateSectionSchema,
   CreatePositionSchema,
   UpdatePositionSchema,
+  CreateUrgencySchema,
+  UpdateUrgencySchema,
 } from "@waoon/domain";
 
 // マスタ管理画面（本部/部/課/役職）の共通設定。MasterListView / MasterForm が参照する。
@@ -109,6 +111,20 @@ export const MASTER_CONFIGS: Record<string, MasterConfig> = {
     updateSchema: UpdatePositionSchema,
     fields: [
       { key: "code", label: "コード（数値・990-999 は管理者帯で作成不可）", type: "number" },
+      { key: "name", label: "名前", type: "text" },
+    ],
+    columns: CODE_NAME_COLUMNS,
+    searchKeys: ["code", "name"],
+  },
+  urgency: {
+    key: "urgency",
+    title: "緊急度",
+    listPath: "/admin/urgencies",
+    endpoint: "/api/v1/urgencies",
+    createSchema: CreateUrgencySchema,
+    updateSchema: UpdateUrgencySchema,
+    fields: [
+      { key: "code", label: "コード（並び順・例 1=低 / 2=中 / 3=高）", type: "number" },
       { key: "name", label: "名前", type: "text" },
     ],
     columns: CODE_NAME_COLUMNS,
