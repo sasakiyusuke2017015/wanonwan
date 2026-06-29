@@ -13,7 +13,8 @@ export const GET = withActiveUser(async (_req, claims, { params }: Ctx) => {
   const rows = await withUser(claims.sub, (tx) => tx`
     select id, title, status, capacity,
            requires_auth as "requiresAuth",
-           uses_ai       as "usesAi"
+           uses_ai       as "usesAi",
+           urgency_id::int as "urgencyId"
     from public.surveys where id = ${Number(id)}
   `);
   if (rows.length === 0) return NextResponse.json({ error: "not found" }, { status: 404 });
@@ -33,6 +34,7 @@ export const PUT = withActiveUser(async (req, claims, { params }: Ctx) => {
   if (input.capacity !== undefined) set.capacity = input.capacity;
   if (input.requiresAuth !== undefined) set.requires_auth = input.requiresAuth;
   if (input.usesAi !== undefined) set.uses_ai = input.usesAi;
+  if (input.urgencyId !== undefined) set.urgency_id = input.urgencyId;
   if (Object.keys(set).length === 0) {
     return NextResponse.json({ error: "更新項目がありません" }, { status: 400 });
   }

@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { EVAL_ITEMS, HEALTH_STATUSES, INTERVIEW_METHODS } from "@waoon/domain";
 import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
 import { FormField, Input, Select } from "@ui-catalog/core/molecules";
 import { TextArea } from "@ui-catalog/core/atoms";
 import { useTheme } from "@ui-catalog/core/infra/theme";
-import { ApiError, apiSend } from "@/lib/api/client";
+import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import { FormActions } from "@/components/admin/FormActions";
 import { AttachmentsPanel } from "@/components/admin/AttachmentsPanel";
 import { InterviewSummary } from "@/components/admin/InterviewSummary";
@@ -21,7 +22,10 @@ type Initial = {
   evaluation: Record<string, number> | null;
   interviewMemo: string | null;
   nextAction: string | null;
+  urgencyId: number | null;
 };
+
+type UrgencyLevel = { id: string; code: number; name: string };
 
 const METHOD_OPTIONS = INTERVIEW_METHODS.map((m) => ({ value: String(m.value), label: m.label }));
 const HEALTH_OPTIONS = HEALTH_STATUSES.map((h) => ({ value: String(h.value), label: h.label }));
@@ -29,6 +33,11 @@ const HEALTH_OPTIONS = HEALTH_STATUSES.map((h) => ({ value: String(h.value), lab
 export function InterviewForm({ answerId, initial }: { answerId: string; initial: Initial }) {
   const router = useRouter();
   const { shapes } = useTheme();
+  const { data: urgencies } = useQuery({
+    queryKey: ["urgencies"],
+    queryFn: () => apiGet<{ data: UrgencyLevel[] }>("/api/v1/urgencies"),
+  });
+  const urgencyOptions = (urgencies?.data ?? []).map((u) => ({ value: String(u.id), label: u.name }));
   const [f, setF] = useState({
     interviewAt: utcIsoToJstInput(initial.interviewAt),
     interviewMethod: initial.interviewMethod == null ? "" : String(initial.interviewMethod),
@@ -36,6 +45,7 @@ export function InterviewForm({ answerId, initial }: { answerId: string; initial
     evaluation: { ...(initial.evaluation ?? {}) } as Record<string, number | string>,
     interviewMemo: initial.interviewMemo ?? "",
     nextAction: initial.nextAction ?? "",
+    urgencyId: initial.urgencyId == null ? "" : String(initial.urgencyId),
   });
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -59,6 +69,7 @@ export function InterviewForm({ answerId, initial }: { answerId: string; initial
         evaluation,
         interviewMemo: f.interviewMemo || null,
         nextAction: f.nextAction || null,
+        urgencyId: f.urgencyId ? Number(f.urgencyId) : null,
         status: 900,
       });
       setDone(true);
@@ -97,6 +108,16 @@ export function InterviewForm({ answerId, initial }: { answerId: string; initial
               options={HEALTH_OPTIONS}
               value={f.healthStatus || undefined}
               onChange={(v) => setF((s) => ({ ...s, healthStatus: v == null ? "" : String(v) }))}
+              allowEmpty
+              placeholder="（未選択）"
+              borderRadius={shapes.inputRadius}
+            />
+          </FormField>
+          <FormField label="緊急度">
+            <Select
+              options={urgencyOptions}
+              value={f.urgencyId || undefined}
+              onChange={(v) => setF((s) => ({ ...s, urgencyId: v == null ? "" : String(v) }))}
               allowEmpty
               placeholder="（未選択）"
               borderRadius={shapes.inputRadius}

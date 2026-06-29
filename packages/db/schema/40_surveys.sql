@@ -17,6 +17,10 @@ CREATE TABLE IF NOT EXISTS public.surveys (
   updated_at        timestamptz NOT NULL DEFAULT now()
 );
 
+-- 緊急度（urgency_levels, 35_urgency.sql）への参照。nullable。既存 DB へは冪等 ALTER で追加。
+ALTER TABLE public.surveys
+  ADD COLUMN IF NOT EXISTS urgency_id bigint REFERENCES public.urgency_levels(id);
+
 CREATE TABLE IF NOT EXISTS public.questions (
   id              bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   body            text   NOT NULL,                       -- 質問内容

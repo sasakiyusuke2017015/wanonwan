@@ -20,7 +20,10 @@ type SurveyDetail = {
   capacity: number | null;
   requiresAuth: boolean;
   usesAi: boolean;
+  urgencyId: number | null;
 };
+
+type UrgencyLevel = { id: string; code: number; name: string };
 
 const STATUS_LABEL: Record<string, string> = {
   draft: "下書き",
@@ -40,6 +43,7 @@ export function SurveyForm({ surveyId }: { surveyId?: string }) {
     capacity: "",
     requiresAuth: true,
     usesAi: false,
+    urgencyId: "",
   });
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -50,6 +54,15 @@ export function SurveyForm({ surveyId }: { surveyId?: string }) {
     enabled: Boolean(surveyId),
   });
 
+  // 緊急度セレクタの選択肢（マスタ）。
+  const { data: urgencies } = useQuery({
+    queryKey: ["urgencies"],
+    queryFn: () => apiGet<{ data: UrgencyLevel[] }>("/api/v1/urgencies"),
+  });
+  // 空 option は入れない（未ロード時 options.length===0 にして Select の自動フォールバックを避ける）。
+  // 「なし」は allowEmpty + placeholder で表現する。
+  const urgencyOptions = (urgencies?.data ?? []).map((u) => ({ value: String(u.id), label: u.name }));
+
   useEffect(() => {
     if (!existing?.data) return;
     const s = existing.data;
@@ -59,6 +72,7 @@ export function SurveyForm({ surveyId }: { surveyId?: string }) {
       capacity: s.capacity == null ? "" : String(s.capacity),
       requiresAuth: s.requiresAuth,
       usesAi: s.usesAi,
+      urgencyId: s.urgencyId == null ? "" : String(s.urgencyId),
     });
   }, [existing]);
 
@@ -71,6 +85,7 @@ export function SurveyForm({ surveyId }: { surveyId?: string }) {
       usesAi: form.usesAi,
     };
     if (form.capacity) payload.capacity = Number(form.capacity);
+    payload.urgencyId = form.urgencyId ? Number(form.urgencyId) : null;
     return payload;
   }
 
@@ -113,7 +128,7 @@ export function SurveyForm({ surveyId }: { surveyId?: string }) {
               borderRadius={shapes.inputRadius}
             />
           </FormField>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <FormField label="状態">
               <Select
                 options={STATUS_OPTIONS}
@@ -130,6 +145,16 @@ export function SurveyForm({ surveyId }: { surveyId?: string }) {
                 min={1}
                 value={form.capacity}
                 onChange={(e) => setForm((f) => ({ ...f, capacity: e.target.value }))}
+                borderRadius={shapes.inputRadius}
+              />
+            </FormField>
+            <FormField label="緊急度（任意）">
+              <Select
+                options={urgencyOptions}
+                value={form.urgencyId || undefined}
+                onChange={(v) => setForm((f) => ({ ...f, urgencyId: v == null ? "" : String(v) }))}
+                allowEmpty
+                placeholder="（なし）"
                 borderRadius={shapes.inputRadius}
               />
             </FormField>

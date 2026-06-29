@@ -25,6 +25,10 @@ CREATE TABLE IF NOT EXISTS public.answers (
   updated_at       timestamptz NOT NULL DEFAULT now()
 );
 
+-- 緊急度（urgency_levels, 35_urgency.sql）への参照。nullable。面談記録時に面談者 / admin が設定。
+ALTER TABLE public.answers
+  ADD COLUMN IF NOT EXISTS urgency_id bigint REFERENCES public.urgency_levels(id);
+
 CREATE INDEX IF NOT EXISTS idx_answers_publication ON public.answers(publication_id);
 CREATE INDEX IF NOT EXISTS idx_answers_respondent  ON public.answers(respondent_id);
 CREATE INDEX IF NOT EXISTS idx_answers_interviewer ON public.answers(interviewer_id);

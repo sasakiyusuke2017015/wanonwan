@@ -19,6 +19,7 @@ type Detail = {
     interviewAt: string | null;
     interviewMemo: string | null;
     nextAction: string | null;
+    urgencyId: number | null;
     evaluation: Record<string, number> | null;
   };
   questions: { id: string; body: string; answerType: string }[];
