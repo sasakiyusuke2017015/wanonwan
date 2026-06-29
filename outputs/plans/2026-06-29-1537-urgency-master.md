@@ -2,13 +2,13 @@
 
 | 項目 | 値 |
 |---|---|
-| ステータス | 🟡 実装中 — PR-1(マスタ本体) PR 提出済み(#62)。PR-2(配線+書き手UI) 実装着手 |
+| ステータス | 🟣 マージ承認待ち — PR-1(#62) merged。PR-2(#63) 提出済み・コードレビュー APPROVE。笹木さん #63 マージ待ち |
 | slug | `urgency-master` |
 | 作成 | 2026-06-29 15:37 JST |
 | 担当 | Claude Code + 笹木さん |
-| ブランチ | `feature/urgency-master`（PR-1）/ PR-2 TBD |
-| 関連 PR | PR-1: [#62](https://github.com/sasakiyusuke2017015/waoon/pull/62) / PR-2: TBD |
-| レビュー | [計画(Claude)](../reviews/2026-06-29-1612-urgency-master-review.md): **APPROVE** / [コード PR-1(agent)](../reviews/2026-06-29-1631-urgency-master-code-review-pr1.md): **APPROVE** |
+| ブランチ | PR-1 `feature/urgency-master`（merged）/ PR-2 `feature/urgency-wiring` |
+| 関連 PR | PR-1: [#62](https://github.com/sasakiyusuke2017015/waoon/pull/62)（merged）/ PR-2: [#63](https://github.com/sasakiyusuke2017015/waoon/pull/63) |
+| レビュー | [計画(Claude)](../reviews/2026-06-29-1612-urgency-master-review.md): **APPROVE** / [コード PR-1(agent)](../reviews/2026-06-29-1631-urgency-master-code-review-pr1.md): **APPROVE** / [コード PR-2(agent)](../reviews/2026-06-29-1708-urgency-master-code-review-pr2.md): **APPROVE**（BLOCKER 修正後） |
 | 親 Plan | [設問マスタ Phase 2](2026-06-29-1327-survey-question-master.md)（本 Plan へ分離） |
 | git repo | `https://github.com/sasakiyusuke2017015/waoon.git` |
 
@@ -150,9 +150,10 @@ PR 分割（dead column を避けるため、列追加と書き手 UI を同じ 
 - [x] PR-1: domain（Create/Update）+ API（urgencies CRUD）
 - [x] PR-1: MASTER_CONFIGS + /admin/urgencies + ナビ + seed
 - [x] PR-1: コードレビュー（code/security agent）APPROVE → [#62](https://github.com/sasakiyusuke2017015/waoon/pull/62)
-- [ ] 未確定（answers 書き手範囲＝面談側のみで進める / 一覧表示は別 Plan）
-- [ ] PR-2: surveys/answers の urgency_id 冪等 ALTER
-- [ ] PR-2: surveys 書き手（domain/API/SurveyForm）
-- [ ] PR-2: answers 書き手（RecordInterviewSchema/API/InterviewForm）
-- [ ] PR-2: コードレビュー → PR
-- [ ] マージ後検証（dev 実機）
+- [x] answers 書き手範囲＝面談側のみ（面談者/admin）で実装 / 一覧表示は別 Plan
+- [x] PR-2: surveys/answers の urgency_id 冪等 ALTER
+- [x] PR-2: surveys 書き手（domain/API/SurveyForm）
+- [x] PR-2: answers 書き手（RecordInterviewSchema/API/InterviewForm）
+- [x] PR-2: コードレビュー（code BLOCKER→修正→APPROVE / security APPROVE）→ [#63](https://github.com/sasakiyusuke2017015/waoon/pull/63)
+- [ ] 笹木さん #63 マージ承認
+- [ ] マージ後検証（dev 実機: 緊急度マスタ CRUD / SurveyForm・InterviewForm で設定・保持・クリア / 非 admin ガード）
