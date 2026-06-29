@@ -71,6 +71,13 @@ function sqlValOrNull(v) {
   return v === undefined || v === "" ? "NULL" : sqlStr(v);
 }
 
+// 文字列配列を jsonb 配列リテラルへ。要素は sqlStr でエスケープし text[] 経由で jsonb 化する。
+function jsonbStringArray(values) {
+  return values.length === 0
+    ? `'[]'::jsonb`
+    : `to_jsonb(ARRAY[${values.map(sqlStr).join(", ")}]::text[])`;
+}
+
 // 親 code を id へ解決するサブクエリ式。空なら NULL。
 function refSubquery(table, code) {
   return code === undefined || code === ""
@@ -245,7 +252,7 @@ function seedDemo() {
     ["body", "answer_type", "choices", "eval_item", "required", "sort_order"],
     (r) => [
       sqlStr(r.body), sqlStr(r.answer_type),
-      r.answer_type === "radio" ? `'["1","2","3","4","5"]'::jsonb` : `'[]'::jsonb`,
+      jsonbStringArray((r.choices ?? "").split("|").map((s) => s.trim()).filter(Boolean)),
       sqlValOrNull(r.eval_item),
       r.required === "true" ? "true" : "false",
       intLiteral(r.sort_order || "0", "questions.sort_order"),
