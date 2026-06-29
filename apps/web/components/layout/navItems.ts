@@ -56,6 +56,13 @@ export const NAV_ITEMS: readonly NavItemDef[] = [
     iconName: "employee",
     adminOnly: true,
   },
+  {
+    id: "admin-urgencies",
+    href: "/admin/urgencies",
+    label: "緊急度マスタ",
+    iconName: "info-triangle",
+    adminOnly: true,
+  },
 ];
 
 /** pathname がナビ項目の配下かどうか（href 完全一致 or 配下プレフィックス）。 */

@@ -126,6 +126,11 @@ const MASTER_TABLES = [
     columns: ["code", "name"],
     build: (r) => [intLiteral(r.code, "positions.code"), sqlStr(r.name)], // code は int
   },
+  {
+    table: "urgency_levels",
+    columns: ["code", "name"],
+    build: (r) => [intLiteral(r.code, "urgency_levels.code"), sqlStr(r.name)], // code は int
+  },
 ];
 
 // 1 テーブルを投入。非空ならスキップ。ON CONFLICT は同一実行内の重複 CSV 行対策。

@@ -9,3 +9,4 @@ export * from "./division";
 export * from "./department";
 export * from "./section";
 export * from "./position";
+export * from "./urgency";
