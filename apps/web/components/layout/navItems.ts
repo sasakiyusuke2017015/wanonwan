@@ -29,6 +29,13 @@ export const NAV_ITEMS: readonly NavItemDef[] = [
     adminOnly: true,
   },
   {
+    id: "admin-questions",
+    href: "/admin/questions",
+    label: "設問マスタ",
+    iconName: "file",
+    adminOnly: true,
+  },
+  {
     id: "admin-answers",
     href: "/admin/answers",
     label: "回答・面談",

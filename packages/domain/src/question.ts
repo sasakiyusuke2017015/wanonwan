@@ -56,3 +56,9 @@ export const ReorderQuestionsSchema = v.object({
   // 並び替え後の question id 順
   order: v.array(v.number()),
 });
+
+// 既存のマスタ設問をアンケートへリンクする（survey_questions に追加）。
+export const LinkQuestionSchema = v.object({
+  questionId: v.number(),
+});
+export type LinkQuestion = v.InferOutput<typeof LinkQuestionSchema>;
