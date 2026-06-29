@@ -26,9 +26,9 @@ export const POST = withActiveUser(async (req, claims) => {
 
   try {
     const rows = await withUser(claims.sub, (tx) => tx`
-      insert into public.surveys (title, status, capacity, requires_auth, uses_ai)
+      insert into public.surveys (title, status, capacity, requires_auth, uses_ai, urgency_id)
       values (${input.title}, ${input.status ?? "draft"}, ${input.capacity ?? null},
-              ${input.requiresAuth ?? true}, ${input.usesAi ?? false})
+              ${input.requiresAuth ?? true}, ${input.usesAi ?? false}, ${input.urgencyId ?? null})
       returning id, title, status
     `);
     return NextResponse.json({ data: rows[0] }, { status: 201 });

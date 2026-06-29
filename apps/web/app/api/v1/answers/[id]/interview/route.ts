@@ -40,6 +40,7 @@ export const PUT = withActiveUser(async (req, claims, { params }: Ctx) => {
           evaluation       = ${tx.json(input.evaluation ?? {})},
           interview_memo   = ${nz(input.interviewMemo)},
           next_action      = ${nz(input.nextAction)},
+          urgency_id       = ${input.urgencyId ?? null},
           status           = ${input.status ?? 900},
           updated_at       = now()
         where id = ${aid}

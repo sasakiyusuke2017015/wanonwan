@@ -12,6 +12,7 @@ export const SurveySchema = v.object({
   capacity: v.nullable(v.number()),
   requiresAuth: v.boolean(),
   usesAi: v.boolean(),
+  urgencyId: v.nullable(v.number()),
 });
 export type Survey = v.InferOutput<typeof SurveySchema>;
 
@@ -21,6 +22,7 @@ export const CreateSurveySchema = v.object({
   capacity: v.optional(v.pipe(v.number(), v.minValue(1, "定員は 1 以上で入力してください"))),
   requiresAuth: v.optional(v.boolean()),
   usesAi: v.optional(v.boolean()),
+  urgencyId: v.optional(v.nullable(v.number())),
 });
 export type CreateSurvey = v.InferOutput<typeof CreateSurveySchema>;
 

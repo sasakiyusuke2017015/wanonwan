@@ -60,6 +60,8 @@ export const RecordInterviewSchema = v.object({
   ),
   interviewMemo: v.optional(v.nullable(v.string())),
   nextAction: v.optional(v.nullable(v.string())),
+  // 緊急度マスタ(urgency_levels)への参照。未設定/クリアは null。
+  urgencyId: v.optional(v.nullable(v.number())),
   // 記録後の回答状況（既定 900 完了）
   status: v.optional(v.number()),
 });
