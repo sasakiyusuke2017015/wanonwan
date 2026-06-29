@@ -59,10 +59,9 @@ export function SurveyForm({ surveyId }: { surveyId?: string }) {
     queryKey: ["urgencies"],
     queryFn: () => apiGet<{ data: UrgencyLevel[] }>("/api/v1/urgencies"),
   });
-  const urgencyOptions = [
-    { value: "", label: "（なし）" },
-    ...(urgencies?.data ?? []).map((u) => ({ value: String(u.id), label: u.name })),
-  ];
+  // 空 option は入れない（未ロード時 options.length===0 にして Select の自動フォールバックを避ける）。
+  // 「なし」は allowEmpty + placeholder で表現する。
+  const urgencyOptions = (urgencies?.data ?? []).map((u) => ({ value: String(u.id), label: u.name }));
 
   useEffect(() => {
     if (!existing?.data) return;
@@ -152,8 +151,10 @@ export function SurveyForm({ surveyId }: { surveyId?: string }) {
             <FormField label="緊急度（任意）">
               <Select
                 options={urgencyOptions}
-                value={form.urgencyId}
+                value={form.urgencyId || undefined}
                 onChange={(v) => setForm((f) => ({ ...f, urgencyId: v == null ? "" : String(v) }))}
+                allowEmpty
+                placeholder="（なし）"
                 borderRadius={shapes.inputRadius}
               />
             </FormField>

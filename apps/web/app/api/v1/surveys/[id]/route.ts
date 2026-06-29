@@ -14,7 +14,7 @@ export const GET = withActiveUser(async (_req, claims, { params }: Ctx) => {
     select id, title, status, capacity,
            requires_auth as "requiresAuth",
            uses_ai       as "usesAi",
-           urgency_id    as "urgencyId"
+           urgency_id::int as "urgencyId"
     from public.surveys where id = ${Number(id)}
   `);
   if (rows.length === 0) return NextResponse.json({ error: "not found" }, { status: 404 });
