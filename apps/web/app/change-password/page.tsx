@@ -37,7 +37,7 @@ export default function ChangePasswordPage() {
       if (data.reauth) {
         router.replace("/login");
       } else {
-        router.replace("/");
+        router.replace("/dashboard");
         router.refresh();
       }
       return;

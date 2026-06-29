@@ -49,7 +49,7 @@ function LoginForm() {
       if (remember) localStorage.setItem(REMEMBER_KEY, email);
       else localStorage.removeItem(REMEMBER_KEY);
       setBtnState("authenticated");
-      router.replace(params.get("next") || "/");
+      router.replace(params.get("next") || "/dashboard");
       router.refresh();
       return;
     }

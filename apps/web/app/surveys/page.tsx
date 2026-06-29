@@ -34,7 +34,7 @@ export default function SurveysPage() {
   const unanswered = rows.length - answered;
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div>
       <h1 className="mb-4 text-xl font-bold">実施中のアンケート</h1>
 
       {rows.length > 0 && (

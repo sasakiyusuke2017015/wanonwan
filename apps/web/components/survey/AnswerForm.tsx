@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import type { AnswerType } from "@waoon/domain";
 import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
 import { FormField, Input, Select } from "@ui-catalog/core/molecules";
-import { Radio, Checkbox, TextArea } from "@ui-catalog/core/atoms";
+import { TextArea } from "@ui-catalog/core/atoms";
 import { useTheme } from "@ui-catalog/core/infra/theme";
 import { ApiError, apiSend } from "@/lib/api/client";
 import { requiredFieldErrors } from "@/lib/forms/field-errors";
@@ -34,7 +34,7 @@ export function AnswerForm({
   initial?: Values;
 }) {
   const router = useRouter();
-  const { shapes } = useTheme();
+  const { colors, shapes } = useTheme();
   const [values, setValues] = useState<Values>(initial ?? {});
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -53,17 +53,34 @@ export function AnswerForm({
     const strVal = typeof val === "string" ? val : "";
     switch (q.answerType) {
       case "radio":
+        // 旧 1on1 踏襲: 選択タイルのグリッド（選択時にテーマ色で塗る）。
         return (
-          <div className="space-y-1">
-            {q.choices.map((c) => (
-              <Radio
-                key={c}
-                name={q.id}
-                label={c}
-                checked={val === c}
-                onChange={() => setVal(q.id, c)}
-              />
-            ))}
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {q.choices.map((c) => {
+              const selected = val === c;
+              return (
+                <label
+                  key={c}
+                  className="flex cursor-pointer items-center gap-2 border px-3 py-2 text-sm transition-colors hover:bg-gray-50"
+                  style={{
+                    borderRadius: shapes.inputRadius,
+                    backgroundColor: selected ? colors.primaryBgColor : undefined,
+                    color: selected ? colors.primaryContrastText : undefined,
+                    borderColor: selected ? colors.primaryBgColor : colors.secondaryBorderColor,
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name={q.id}
+                    value={c}
+                    checked={selected}
+                    onChange={() => setVal(q.id, c)}
+                    className="h-4 w-4"
+                  />
+                  <span>{c}</span>
+                </label>
+              );
+            })}
           </div>
         );
       case "select":
@@ -78,17 +95,32 @@ export function AnswerForm({
           />
         );
       case "checkbox":
+        // 旧 1on1 踏襲: 選択タイルのグリッド（複数選択、選択時にテーマ色で塗る）。
         return (
-          <div className="space-y-1">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {q.choices.map((c) => {
               const arr = Array.isArray(val) ? val : [];
+              const checked = arr.includes(c);
               return (
-                <Checkbox
+                <label
                   key={c}
-                  label={c}
-                  checked={arr.includes(c)}
-                  onChange={(e) => toggleCheckbox(q.id, c, e.target.checked)}
-                />
+                  className="flex cursor-pointer items-center gap-2 border px-3 py-2 text-sm transition-colors hover:bg-gray-50"
+                  style={{
+                    borderRadius: shapes.inputRadius,
+                    backgroundColor: checked ? colors.primaryBgColor : undefined,
+                    color: checked ? colors.primaryContrastText : undefined,
+                    borderColor: checked ? colors.primaryBgColor : colors.secondaryBorderColor,
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    value={c}
+                    checked={checked}
+                    onChange={(e) => toggleCheckbox(q.id, c, e.target.checked)}
+                    className="h-4 w-4"
+                  />
+                  <span>{c}</span>
+                </label>
               );
             })}
           </div>
@@ -139,12 +171,13 @@ export function AnswerForm({
   }
 
   return (
-    <form onSubmit={submit} className="max-w-2xl space-y-4">
-      <ContentBlock title="設問">
-        <div className="space-y-5">
+    <form onSubmit={submit} className="space-y-4">
+      <ContentBlock>
+        <div className="space-y-6">
           {questions.map((q, i) => (
             <FormField
               key={q.id}
+              variant="question"
               label={`${i + 1}. ${q.body}`}
               required={q.required}
               error={fieldErrors[q.id]}

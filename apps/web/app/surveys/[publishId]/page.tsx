@@ -40,7 +40,7 @@ export default function AnswerPage({ params }: { params: Promise<{ publishId: st
 
   const d = data.data;
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
+    <div className="space-y-4">
       <BackButton label="一覧へ戻る" onClick={() => router.push("/surveys")} />
       <div>
         <h1 className="text-xl font-bold">

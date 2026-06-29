@@ -85,7 +85,7 @@ export default function ScheduleCalendar() {
     setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + n, 1));
 
   return (
-    <div className="mx-auto max-w-5xl space-y-3">
+    <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-xl font-bold">スケジュール</h1>
         <div className="flex items-center gap-2">

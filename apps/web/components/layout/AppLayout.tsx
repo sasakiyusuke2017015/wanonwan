@@ -13,6 +13,7 @@ import { DropdownMenu } from "@ui-catalog/core/organisms/DropdownMenu";
 import { MenuItemList } from "@ui-catalog/core/organisms/MenuItemList";
 import { Breadcrumb } from "@ui-catalog/core/molecules";
 import { Icon } from "@ui-catalog/core/atoms";
+import { useDevice } from "@ui-catalog/core/hooks/useDevice";
 import { LAYOUT_SIZES, getThemeConfig } from "@ui-catalog/core/constants";
 import { useTheme, useBackgroundTheme, DEFAULT_GLOBAL_THEME } from "@ui-catalog/core/infra/theme";
 import { useNavigationItems } from "./useNavigationItems";
@@ -55,11 +56,16 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   // ナビが 2 件以上のときだけサイドナビ / ハンバーガー / 下部タブを出す（旧踏襲）。
   const showSideNav = items.length > 1;
   const sideShift = showSideNav && sideOpen ? SIDENAV_WIDTH : 0;
+  // サイドナビはデスクトップのみ（モバイルは下部タブ）。chrome(SubHeader/Footer) の左寄せも
+  // モバイルでは 0 にする。mounted ガードで hydration mismatch を避ける。
+  const { isMobile } = useDevice();
+  const chromeShift = mounted && isMobile ? 0 : sideShift;
 
-  // 旧 AppHeader 踏襲のパンくず（ホーム + 現在のセクション）。
+  // 旧 AppHeader 踏襲のパンくず（ダッシュボードを起点 + 現在のセクション）。
   const activeItem = items.find((i) => i.active);
-  const crumbs = [{ label: "ホーム", href: "/" }];
-  if (activeItem && activeItem.href !== "/") crumbs.push({ label: activeItem.label, href: activeItem.href });
+  const crumbs = [{ label: "ホーム", href: "/dashboard" }];
+  if (activeItem && activeItem.href !== "/dashboard")
+    crumbs.push({ label: activeItem.label, href: activeItem.href });
 
   return (
     <div className="relative flex h-screen flex-col overflow-hidden">
@@ -73,7 +79,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         leftContent={
           <div className="flex items-center gap-3 px-2">
             <Link
-              href="/"
+              href="/dashboard"
               className="text-base font-bold transition-opacity hover:opacity-80"
               style={{ color: colors.primaryContrastText }}
             >
@@ -111,7 +117,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       />
 
       {/* サブヘッダー: 現在はアクティブ画面名のみ。タブ / パンくず供給は各画面側で別途。 */}
-      <SubHeader topOffset={HEADER_HEIGHT} leftOffset={sideShift}>
+      <SubHeader topOffset={HEADER_HEIGHT} leftOffset={chromeShift}>
         <div
           className="flex h-11 items-center px-4 text-sm font-medium transition-all duration-300"
           style={{ color: colors.secondaryTextColor }}
@@ -147,20 +153,21 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       )}
 
       <main
-        className="flex-grow overflow-y-auto transition-all duration-300"
+        className={`flex-grow overflow-y-auto transition-all duration-300 ${
+          showSideNav && sideOpen ? "md:pl-9" : ""
+        }`}
         style={{
           paddingTop: HEADER_HEIGHT + SUBHEADER_HEIGHT,
           paddingBottom: FOOTER_HEIGHT,
-          paddingLeft: sideShift,
         }}
       >
-        {/* 旧踏襲: 画面遷移ごとに本文を BlurFade で出現させる（pathname を key に再マウント）。 */}
-        <BlurFade key={pathname} className="mx-auto w-full max-w-5xl p-4 pb-24 sm:p-6 md:pb-6">
+        {/* 旧踏襲: 本文はほぼ全幅（px 余白のみ）。画面遷移ごとに BlurFade で出現（pathname key）。 */}
+        <BlurFade key={pathname} className="w-full px-3 pb-24 pt-2 sm:px-5 md:pb-6">
           {children}
         </BlurFade>
       </main>
 
-      <Footer height={FOOTER_HEIGHT} leftOffset={sideShift}>
+      <Footer height={FOOTER_HEIGHT} leftOffset={chromeShift}>
         <div
           className="flex h-full items-center justify-center text-xs transition-all duration-300"
           style={{ color: colors.secondaryTextColor }}
