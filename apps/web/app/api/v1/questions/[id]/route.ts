@@ -7,6 +7,18 @@ import { mapDbError } from "@/lib/db/errors";
 
 type Ctx = { params: Promise<{ id: string }> };
 
+// 設問マスタの 1 件取得（認証済みなら可。設問マスタ編集画面が使う）。
+export const GET = withActiveUser(async (_req, claims, { params }: Ctx) => {
+  const { id } = await params;
+  const rows = await withUser(claims.sub, (tx) => tx`
+    select id, body, answer_type as "answerType", choices, required,
+           has_extra_field as "hasExtraField", eval_item as "evalItem"
+    from public.questions where id = ${Number(id)}
+  `);
+  if (rows.length === 0) return NextResponse.json({ error: "not found" }, { status: 404 });
+  return NextResponse.json({ data: rows[0] });
+});
+
 // 設問を更新（全項目。RLS questions_write = admin）。
 export const PUT = withActiveUser(async (req, claims, { params }: Ctx) => {
   const { id } = await params;

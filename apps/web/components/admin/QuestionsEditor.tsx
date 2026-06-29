@@ -2,8 +2,13 @@
 
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CHOICE_TYPES, QUESTION_TYPES, type AnswerType } from "@waoon/domain";
-import { ApiError, apiGet, apiSend } from "@/lib/api/client";
+import { QUESTION_TYPES, type AnswerType } from "@waoon/domain";
+import { apiGet, apiSend } from "@/lib/api/client";
+import {
+  QuestionForm,
+  EMPTY_QUESTION,
+  questionDraftToPayload,
+} from "@/components/admin/QuestionForm";
 
 type Question = {
   id: string;
@@ -16,22 +21,17 @@ type Question = {
   sortOrder: number;
 };
 
-type Draft = {
+type MasterQuestion = {
+  id: string;
   body: string;
   answerType: AnswerType;
-  choicesText: string;
+  choices: string[];
   required: boolean;
+  hasExtraField: boolean;
+  evalItem: string | null;
 };
 
-const EMPTY: Draft = { body: "", answerType: "text", choicesText: "", required: false };
 const typeLabel = (t: string) => QUESTION_TYPES.find((x) => x.value === t)?.label ?? t;
-
-function draftToPayload(d: Draft) {
-  const choices = CHOICE_TYPES.includes(d.answerType)
-    ? d.choicesText.split("\n").map((s) => s.trim()).filter(Boolean)
-    : [];
-  return { body: d.body, answerType: d.answerType, choices, required: d.required };
-}
 
 export function QuestionsEditor({ surveyId }: { surveyId: string }) {
   const qc = useQueryClient();
@@ -40,18 +40,35 @@ export function QuestionsEditor({ surveyId }: { surveyId: string }) {
     queryKey: key,
     queryFn: () => apiGet<{ data: Question[] }>(`/api/v1/surveys/${surveyId}/questions`),
   });
+  // マスタから追加する候補（既にリンク済みは除外）。
+  const { data: master } = useQuery({
+    queryKey: ["questions"],
+    queryFn: () => apiGet<{ data: MasterQuestion[] }>(`/api/v1/questions`),
+  });
   const invalidate = () => qc.invalidateQueries({ queryKey: key });
 
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [pickId, setPickId] = useState<string>("");
   const questions = data?.data ?? [];
+  const linkedIds = new Set(questions.map((q) => q.id));
+  const masterOptions = (master?.data ?? []).filter((m) => !linkedIds.has(m.id));
 
   const reorder = useMutation({
     mutationFn: (order: number[]) => apiSend(`/api/v1/surveys/${surveyId}/questions/reorder`, "PUT", { order }),
     onSuccess: invalidate,
   });
-  const remove = useMutation({
-    mutationFn: (id: string) => apiSend(`/api/v1/questions/${id}`, "DELETE"),
+  // アンケートから「外す」= リンク解除（マスタ本体・他アンケートは残る）。
+  const unlink = useMutation({
+    mutationFn: (id: string) => apiSend(`/api/v1/surveys/${surveyId}/questions/${id}`, "DELETE"),
     onSuccess: invalidate,
+  });
+  const link = useMutation({
+    mutationFn: (questionId: number) =>
+      apiSend(`/api/v1/surveys/${surveyId}/questions/link`, "POST", { questionId }),
+    onSuccess: () => {
+      setPickId("");
+      invalidate();
+    },
   });
 
   function move(index: number, dir: -1 | 1) {
@@ -64,7 +81,11 @@ export function QuestionsEditor({ surveyId }: { surveyId: string }) {
 
   return (
     <section className="mt-8">
-      <h2 className="mb-3 text-lg font-bold">設問</h2>
+      <h2 className="mb-1 text-lg font-bold">設問</h2>
+      <p className="mb-3 text-xs text-gray-500">
+        「編集」はマスタ設問の編集です（この設問を使う他アンケートにも反映されます）。
+        このアンケートだけから外したいときは「外す」を使ってください。
+      </p>
       {isLoading && <p className="text-sm text-gray-500">読み込み中...</p>}
 
       <ol className="space-y-2">
@@ -77,13 +98,15 @@ export function QuestionsEditor({ surveyId }: { surveyId: string }) {
                   answerType: q.answerType,
                   choicesText: q.choices.join("\n"),
                   required: q.required,
+                  evalItem: q.evalItem ?? "",
                 }}
                 submitLabel="更新"
                 onCancel={() => setEditingId(null)}
                 onSubmit={async (draft) => {
-                  await apiSend(`/api/v1/questions/${q.id}`, "PUT", draftToPayload(draft));
+                  await apiSend(`/api/v1/questions/${q.id}`, "PUT", questionDraftToPayload(draft));
                   setEditingId(null);
                   invalidate();
+                  qc.invalidateQueries({ queryKey: ["questions"] }); // マスタ一覧も整合
                 }}
               />
             ) : (
@@ -101,7 +124,7 @@ export function QuestionsEditor({ surveyId }: { surveyId: string }) {
                   <button onClick={() => move(i, -1)} disabled={i === 0} className="disabled:opacity-30">↑</button>
                   <button onClick={() => move(i, 1)} disabled={i === questions.length - 1} className="disabled:opacity-30">↓</button>
                   <button onClick={() => setEditingId(q.id)} className="text-blue-600">編集</button>
-                  <button onClick={() => remove.mutate(q.id)} className="text-red-600">削除</button>
+                  <button onClick={() => unlink.mutate(q.id)} className="text-red-600">外す</button>
                 </div>
               </div>
             )}
@@ -113,12 +136,43 @@ export function QuestionsEditor({ surveyId }: { surveyId: string }) {
       </ol>
 
       <div className="mt-4 rounded border border-gray-200 p-3">
-        <h3 className="mb-2 text-sm font-semibold">設問を追加</h3>
+        <h3 className="mb-2 text-sm font-semibold">マスタから追加</h3>
+        {masterOptions.length === 0 ? (
+          <p className="text-xs text-gray-400">追加できるマスタ設問がありません。</p>
+        ) : (
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm"
+              value={pickId}
+              onChange={(e) => setPickId(e.target.value)}
+            >
+              <option value="">（設問を選択）</option>
+              {masterOptions.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.body}（{typeLabel(m.answerType)}）
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              disabled={!pickId || link.isPending}
+              onClick={() => pickId && link.mutate(Number(pickId))}
+              className="rounded bg-gray-900 px-3 py-1.5 text-sm text-white disabled:opacity-50"
+            >
+              追加
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="mt-3 rounded border border-gray-200 p-3">
+        <h3 className="mb-2 text-sm font-semibold">新規作成して追加</h3>
+        <p className="mb-2 text-xs text-gray-500">作成した設問はマスタにも登録されます。</p>
         <QuestionForm
-          initial={EMPTY}
+          initial={EMPTY_QUESTION}
           submitLabel="追加"
           onSubmit={async (draft) => {
-            await apiSend(`/api/v1/surveys/${surveyId}/questions`, "POST", draftToPayload(draft));
+            await apiSend(`/api/v1/surveys/${surveyId}/questions`, "POST", questionDraftToPayload(draft));
             invalidate();
           }}
         />
@@ -126,88 +180,3 @@ export function QuestionsEditor({ surveyId }: { surveyId: string }) {
     </section>
   );
 }
-
-function QuestionForm({
-  initial,
-  submitLabel,
-  onSubmit,
-  onCancel,
-}: {
-  initial: Draft;
-  submitLabel: string;
-  onSubmit: (draft: Draft) => Promise<void>;
-  onCancel?: () => void;
-}) {
-  const [draft, setDraft] = useState<Draft>(initial);
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  const needChoices = CHOICE_TYPES.includes(draft.answerType);
-
-  return (
-    <form
-      onSubmit={async (e) => {
-        e.preventDefault();
-        setError(null);
-        setBusy(true);
-        try {
-          await onSubmit(draft);
-          if (!onCancel) setDraft(initial); // 追加フォームはクリア
-        } catch (err) {
-          setError(err instanceof ApiError ? err.message : "保存に失敗しました");
-        } finally {
-          setBusy(false);
-        }
-      }}
-      className="space-y-2"
-    >
-      <input
-        className={cls}
-        placeholder="質問文"
-        value={draft.body}
-        onChange={(e) => setDraft((d) => ({ ...d, body: e.target.value }))}
-        required
-      />
-      <div className="flex gap-2">
-        <select
-          className={cls}
-          value={draft.answerType}
-          onChange={(e) => setDraft((d) => ({ ...d, answerType: e.target.value as AnswerType }))}
-        >
-          {QUESTION_TYPES.map((t) => (
-            <option key={t.value} value={t.value}>{t.label}</option>
-          ))}
-        </select>
-        <label className="flex items-center gap-1 whitespace-nowrap text-sm">
-          <input
-            type="checkbox"
-            checked={draft.required}
-            onChange={(e) => setDraft((d) => ({ ...d, required: e.target.checked }))}
-          />
-          必須
-        </label>
-      </div>
-      {needChoices && (
-        <textarea
-          className={cls}
-          rows={3}
-          placeholder="選択肢（1 行に 1 つ）"
-          value={draft.choicesText}
-          onChange={(e) => setDraft((d) => ({ ...d, choicesText: e.target.value }))}
-        />
-      )}
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <div className="flex gap-2">
-        <button type="submit" disabled={busy} className="rounded bg-gray-900 px-3 py-1.5 text-sm text-white disabled:opacity-50">
-          {busy ? "..." : submitLabel}
-        </button>
-        {onCancel && (
-          <button type="button" onClick={onCancel} className="rounded border px-3 py-1.5 text-sm">
-            キャンセル
-          </button>
-        )}
-      </div>
-    </form>
-  );
-}
-
-const cls = "w-full rounded border border-gray-300 px-3 py-2 text-sm";
