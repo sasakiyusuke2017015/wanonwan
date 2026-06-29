@@ -1,9 +1,10 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ANSWER_STATUSES, EVAL_ITEMS, healthLabel } from "@waoon/domain";
-import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
 import { RadarChart } from "@ui-catalog/core/organisms/RadarChart";
+import { NumberTicker, Badge } from "@ui-catalog/core/atoms";
 import { useTheme } from "@ui-catalog/core/infra/theme";
 import { apiGet } from "@/lib/api/client";
 
@@ -13,6 +14,38 @@ type Dashboard = {
   byStatus: Record<string, number>;
   health: { status: number; count: number }[];
   evaluation: Record<string, number | null>;
+};
+
+// 旧 1on1 Dashboard 踏襲: 番号付きセクションの白カードを縦に積む。
+const SECTION_BADGE: Record<number, string> = {
+  1: "bg-gradient-to-r from-rose-500 to-pink-500",
+  2: "bg-gradient-to-r from-violet-500 to-purple-500",
+  3: "bg-gradient-to-r from-amber-500 to-orange-500",
+  4: "bg-gradient-to-r from-indigo-500 to-blue-500",
+};
+
+function Section({ no, title, children }: { no: number; title: string; children: ReactNode }) {
+  return (
+    <section className="rounded-2xl border border-gray-200/50 bg-white/95 p-5 shadow-lg backdrop-blur-sm sm:p-6">
+      <h2 className="mb-3 flex items-center text-lg font-bold text-gray-800">
+        <span
+          className={`mr-3 flex h-8 w-8 items-center justify-center rounded-lg font-bold text-white shadow ${SECTION_BADGE[no]}`}
+        >
+          {no}
+        </span>
+        {title}
+      </h2>
+      {children}
+    </section>
+  );
+}
+
+const EVAL_COLOR: Record<string, "blue" | "green" | "orange"> = {
+  satisfaction: "blue",
+  workload: "green",
+  environment: "blue",
+  relationship: "blue",
+  stress: "orange",
 };
 
 export default function DashboardPage() {
@@ -33,10 +66,9 @@ export default function DashboardPage() {
 
   const d = data.data;
   const answered = d.total - (d.byStatus["100"] ?? 0);
-  const rate = (n: number) => (d.total === 0 ? 0 : Math.round((n / d.total) * 100));
-
-  const radar = EVAL_ITEMS.map((it) => ({ label: it.label, value: d.evaluation[it.key] ?? 0 }));
+  const responseRate = d.total === 0 ? 0 : Math.round((answered / d.total) * 100);
   const hasEval = EVAL_ITEMS.some((it) => d.evaluation[it.key] != null);
+  const radar = EVAL_ITEMS.map((it) => ({ label: it.label, value: d.evaluation[it.key] ?? 0 }));
 
   const Bar = ({ label, count, max }: { label: string; count: number; max: number }) => (
     <div className="flex items-center gap-3 text-sm">
@@ -47,10 +79,7 @@ export default function DashboardPage() {
       >
         <div
           className="h-full"
-          style={{
-            width: `${max === 0 ? 0 : (count / max) * 100}%`,
-            backgroundColor: colors.primaryBgColor,
-          }}
+          style={{ width: `${max === 0 ? 0 : (count / max) * 100}%`, backgroundColor: colors.primaryBgColor }}
         />
       </div>
       <span className="w-8 shrink-0 text-right tabular-nums">{count}</span>
@@ -61,46 +90,64 @@ export default function DashboardPage() {
   const healthMax = Math.max(1, ...d.health.map((h) => h.count));
 
   return (
-    <div className="mx-auto max-w-4xl space-y-4">
+    <div className="space-y-6">
       <h1 className="text-xl font-bold">ダッシュボード</h1>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="回答総数" value={d.total} />
-        <Stat label="回答済" value={answered} sub={`${rate(answered)}%`} />
-        <Stat label="面談実施" value={d.interviewed} sub={`${rate(d.interviewed)}%`} />
-        <Stat
-          label="完了"
-          value={d.byStatus["900"] ?? 0}
-          sub={`${rate(d.byStatus["900"] ?? 0)}%`}
-        />
-      </div>
-
-      <ContentBlock title="回答状況の内訳">
-        <div className="space-y-2">
-          {ANSWER_STATUSES.map((s) => (
-            <Bar
-              key={s.value}
-              label={s.label}
-              count={d.byStatus[String(s.value)] ?? 0}
-              max={statusMax}
-            />
-          ))}
+      <Section no={1} title="全社サマリー">
+        <div className="grid gap-4 md:grid-cols-5">
+          <div className="rounded-lg bg-green-50 p-4 md:col-span-1">
+            <h3 className="mb-2 text-sm font-semibold text-gray-700">回答率</h3>
+            <div className="flex items-baseline">
+              <span className="bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-3xl font-bold text-transparent">
+                <NumberTicker value={responseRate} suffix="%" delay={0.2} />
+              </span>
+              <span className="ml-2 text-xs text-gray-600">
+                ({answered}件/{d.total}件)
+              </span>
+            </div>
+          </div>
+          <div className="rounded-lg bg-slate-50 p-4 md:col-span-4">
+            <h3 className="mb-3 text-sm font-semibold text-gray-700">評価平均</h3>
+            <div className="flex flex-wrap items-center gap-3">
+              {EVAL_ITEMS.map((it) => (
+                <div key={it.key} className="flex items-center rounded-lg bg-white/70 px-3 py-1.5">
+                  <span className="mr-2 text-sm font-medium">{it.label}:</span>
+                  <Badge
+                    value={d.evaluation[it.key] != null ? d.evaluation[it.key]!.toFixed(1) : "—"}
+                    appearance="metric"
+                    styleVariant="gradient"
+                    color={EVAL_COLOR[it.key]}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      </ContentBlock>
+      </Section>
 
-      <ContentBlock title="健康状態の分布">
-        {d.health.length === 0 ? (
-          <p className="text-sm text-gray-400">データがありません</p>
-        ) : (
+      <div className="grid gap-6 md:grid-cols-2">
+        <Section no={2} title="回答状況の内訳">
           <div className="space-y-2">
-            {d.health.map((h) => (
-              <Bar key={h.status} label={healthLabel(h.status)} count={h.count} max={healthMax} />
+            {ANSWER_STATUSES.map((s) => (
+              <Bar key={s.value} label={s.label} count={d.byStatus[String(s.value)] ?? 0} max={statusMax} />
             ))}
           </div>
-        )}
-      </ContentBlock>
+        </Section>
 
-      <ContentBlock title="評価平均（0〜5）">
+        <Section no={3} title="健康状態の分布">
+          {d.health.length === 0 ? (
+            <p className="text-sm text-gray-400">データがありません</p>
+          ) : (
+            <div className="space-y-2">
+              {d.health.map((h) => (
+                <Bar key={h.status} label={healthLabel(h.status)} count={h.count} max={healthMax} />
+              ))}
+            </div>
+          )}
+        </Section>
+      </div>
+
+      <Section no={4} title="評価平均（レーダー）">
         {hasEval ? (
           <div className="flex justify-center py-2">
             <RadarChart
@@ -114,17 +161,7 @@ export default function DashboardPage() {
         ) : (
           <p className="text-sm text-gray-400">評価データがありません</p>
         )}
-      </ContentBlock>
-    </div>
-  );
-}
-
-function Stat({ label, value, sub }: { label: string; value: number; sub?: string }) {
-  return (
-    <div className="rounded border border-gray-200 p-3">
-      <div className="text-xs text-gray-500">{label}</div>
-      <div className="text-2xl font-bold tabular-nums">{value}</div>
-      {sub && <div className="text-xs text-gray-400">{sub}</div>}
+      </Section>
     </div>
   );
 }

@@ -1,0 +1,15 @@
+body,answer_type,eval_item,required,sort_order
+今の業務に満足していますか？,radio,satisfaction,true,1
+業務量は適切だと感じますか？,radio,workload,true,2
+職場環境に満足していますか？,radio,environment,true,3
+職場の人間関係は良好ですか？,radio,relationship,true,4
+最近ストレスを感じることはありますか？,radio,stress,true,5
+上長に相談したいこと・自由記述,textarea,,false,6
+上期の目標は達成できましたか？,radio,satisfaction,true,1
+業務にやりがいを感じていますか？,radio,relationship,true,2
+来期に挑戦したいことを教えてください,textarea,,false,3
+上長に相談したいこと（自由記述）,textarea,,false,4
+最近よく眠れていますか？,radio,stress,true,1
+仕事の負担が大きいと感じますか？,radio,workload,true,2
+職場で気軽に相談できる人がいますか？,radio,relationship,true,3
+体調面で気になることがあれば記入,textarea,,false,4

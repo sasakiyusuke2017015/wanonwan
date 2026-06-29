@@ -196,6 +196,7 @@ function curlGoTrue(method, path, bodyObj) {
 // --- 1) 組織マスタ seed（CSV ローダー・非空スキップで冪等） ---
 console.log("• 組織マスタ seed を適用 (seed-from-csv.mjs --no-users)");
 const loaderArgs = [join(root, "scripts", "seed-from-csv.mjs"), "--no-users", "--compose-file", composeFileRel];
+if (isDev) loaderArgs.push("--demo"); // dev のみデモデータ（アンケート/回答/スケジュール）を投入。本番には入れない。
 if (envFile) loaderArgs.push("--env-file", envFile);
 execFileSync("node", loaderArgs, { stdio: "inherit" });
 

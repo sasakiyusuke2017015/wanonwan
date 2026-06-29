@@ -2,36 +2,47 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Header } from "@ui-catalog/core/templates/Header";
 import { SubHeader } from "@ui-catalog/core/templates/SubHeader";
-import { SideNav } from "@ui-catalog/core/templates/SideNav";
 import { Footer } from "@ui-catalog/core/templates/Footer";
 import { BackgroundTexture } from "@ui-catalog/core/organisms/BackgroundTexture";
-import { NavItem } from "@ui-catalog/core/molecules";
+import { BlurFade } from "@ui-catalog/core/organisms/BlurFade";
+import { FloatingMenuButton } from "@ui-catalog/core/organisms/FloatingMenuButton";
+import { DropdownMenu } from "@ui-catalog/core/organisms/DropdownMenu";
+import { MenuItemList } from "@ui-catalog/core/organisms/MenuItemList";
+import { Breadcrumb } from "@ui-catalog/core/molecules";
 import { Icon } from "@ui-catalog/core/atoms";
+import { useDevice } from "@ui-catalog/core/hooks/useDevice";
+import { LAYOUT_SIZES, getThemeConfig } from "@ui-catalog/core/constants";
 import { useTheme, useBackgroundTheme, DEFAULT_GLOBAL_THEME } from "@ui-catalog/core/infra/theme";
-import { getThemeConfig } from "@ui-catalog/core/constants";
-import { LogoutButton } from "@/app/logout-button";
 import { useNavigationItems } from "./useNavigationItems";
+import { AppSideNav } from "./AppSideNav";
+import { HeaderUserMenu } from "./HeaderUserMenu";
 import { ThemeSettingsModal } from "./ThemeSettingsModal";
 
-const HEADER_HEIGHT = 56;
+const HEADER_HEIGHT = LAYOUT_SIZES.HEADER_HEIGHT;
 const SUBHEADER_HEIGHT = 44;
-const SIDENAV_WIDTH = 240;
-const FOOTER_HEIGHT = 36;
+const SIDENAV_WIDTH = LAYOUT_SIZES.LEFT_PANE_WIDTH;
+const FOOTER_HEIGHT = LAYOUT_SIZES.FOOTER_HEIGHT;
+const BOTTOM_TAB_HEIGHT = LAYOUT_SIZES.BOTTOM_TAB_HEIGHT;
 
 // SSR は既定テーマ、クライアント初期描画も既定テーマで一致させ、mount 後に保存テーマへ切り替える
 // （localStorage 由来のテーマで hydration mismatch を起こさないため）。既定値は ui-catalog の単一ソースを参照。
 const DEFAULT_THEME = getThemeConfig(DEFAULT_GLOBAL_THEME.colorTheme, DEFAULT_GLOBAL_THEME.shapeTheme);
 const DEFAULT_BACKGROUND = DEFAULT_GLOBAL_THEME.backgroundTheme;
 
-// アプリ共通シェル。@ui-catalog の templates(Header/SubHeader/SideNav/Footer) + テーマで chrome を構成する。
+// 旧 1on1 踏襲のアプリ共通シェル。
+// - サイドナビは折りたたみ式アイコンレール（FloatingMenuButton で開閉、本文が transition で寄る）
+// - ヘッダー右はユーザーメニュー（テーマ / PW変更 / ログアウトを集約、各項目を BlurFade）
+// - 本文は h-screen 内で内側スクロール（chrome は position:fixed）
 // /login など未認証ページは AppFrame 側でこのシェルを外す。
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { items, me } = useNavigationItems();
   const [mounted, setMounted] = useState(false);
+  const [sideOpen, setSideOpen] = useState(true);
   const [themeOpen, setThemeOpen] = useState(false);
   const liveTheme = useTheme();
   const [liveBackground] = useBackgroundTheme();
@@ -42,23 +53,22 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const background = mounted ? liveBackground : DEFAULT_BACKGROUND;
   const activeLabel = items.find((i) => i.active)?.label ?? "waoon";
 
-  const navList = (
-    <nav className="flex flex-col gap-1 p-2">
-      {items.map((item) => (
-        <NavItem
-          key={item.id}
-          label={item.label}
-          iconName={item.iconName}
-          selected={item.active}
-          accentColor="green"
-          onClick={() => router.push(item.href)}
-        />
-      ))}
-    </nav>
-  );
+  // ナビが 2 件以上のときだけサイドナビ / ハンバーガー / 下部タブを出す（旧踏襲）。
+  const showSideNav = items.length > 1;
+  const sideShift = showSideNav && sideOpen ? SIDENAV_WIDTH : 0;
+  // サイドナビはデスクトップのみ（モバイルは下部タブ）。chrome(SubHeader/Footer) の左寄せも
+  // モバイルでは 0 にする。mounted ガードで hydration mismatch を避ける。
+  const { isMobile } = useDevice();
+  const chromeShift = mounted && isMobile ? 0 : sideShift;
+
+  // 旧 AppHeader 踏襲のパンくず（ダッシュボードを起点 + 現在のセクション）。
+  const activeItem = items.find((i) => i.active);
+  const crumbs = [{ label: "ホーム", href: "/dashboard" }];
+  if (activeItem && activeItem.href !== "/dashboard")
+    crumbs.push({ label: activeItem.label, href: activeItem.href });
 
   return (
-    <div className="relative flex min-h-screen flex-col">
+    <div className="relative flex h-screen flex-col overflow-hidden">
       <BackgroundTexture theme={background} />
 
       <Header
@@ -67,70 +77,99 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         textColor={colors.primaryContrastText}
         borderColor={colors.primaryBorderColor}
         leftContent={
-          <span className="px-2 text-base font-bold" style={{ color: colors.primaryContrastText }}>
-            waoon
-          </span>
-        }
-        rightContent={
           <div className="flex items-center gap-3 px-2">
-            {me?.name && (
-              <span
-                className="hidden text-sm sm:inline"
-                style={{ color: colors.primaryContrastText }}
-              >
-                {me.name}
-              </span>
-            )}
-            <button
-              type="button"
-              aria-label="表示テーマ"
-              onClick={() => setThemeOpen(true)}
-              className="rounded p-1.5"
+            <Link
+              href="/dashboard"
+              className="text-base font-bold transition-opacity hover:opacity-80"
               style={{ color: colors.primaryContrastText }}
             >
-              <Icon name="gear" size={20} />
-            </button>
-            <Link
-              href="/change-password"
-              className="rounded border border-gray-300 px-3 py-1.5 text-sm"
-            >
-              パスワード変更
+              1on1
             </Link>
-            <LogoutButton />
+            <Breadcrumb
+              items={crumbs}
+              separator=">"
+              primaryContrastText={colors.primaryContrastText}
+            />
+          </div>
+        }
+        rightContent={
+          <div className="flex items-center gap-1 px-2">
+            <DropdownMenu
+              icon="bell"
+              menuWidth="w-60"
+              primaryContrastText={colors.primaryContrastText}
+              menuContent={() => (
+                <MenuItemList>
+                  <MenuItemList.Item>
+                    <span className="text-gray-500">お知らせはありません</span>
+                  </MenuItemList.Item>
+                </MenuItemList>
+              )}
+            />
+            <HeaderUserMenu
+              name={me?.name ?? null}
+              email={me?.email ?? null}
+              primaryContrastText={colors.primaryContrastText}
+              onOpenTheme={() => setThemeOpen(true)}
+            />
           </div>
         }
       />
 
-      <SubHeader topOffset={HEADER_HEIGHT}>
+      {/* サブヘッダー: 現在はアクティブ画面名のみ。タブ / パンくず供給は各画面側で別途。 */}
+      <SubHeader topOffset={HEADER_HEIGHT} leftOffset={chromeShift}>
         <div
-          className="flex h-11 items-center px-4 text-sm font-medium"
+          className="flex h-11 items-center px-4 text-sm font-medium transition-all duration-300"
           style={{ color: colors.secondaryTextColor }}
         >
           {activeLabel}
         </div>
       </SubHeader>
 
-      {/* デスクトップ: 左サイドナビ。モバイルは下部タブバーへ。 */}
-      <SideNav
-        className="hidden md:block"
-        width={SIDENAV_WIDTH}
-        topOffset={HEADER_HEIGHT + SUBHEADER_HEIGHT}
-        isOpen
-        bgColor={colors.secondaryBgColor}
-      >
-        {navList}
-      </SideNav>
+      {showSideNav && (
+        <AppSideNav
+          items={items}
+          isOpen={sideOpen}
+          width={SIDENAV_WIDTH}
+          topOffset={HEADER_HEIGHT}
+          colors={colors}
+        />
+      )}
+
+      {/* デスクトップ: サイドナビ開閉ハンバーガー。モバイルは下部タブのため非表示。 */}
+      {showSideNav && (
+        <div className="hidden md:block">
+          <FloatingMenuButton
+            isOpen={sideOpen}
+            onToggle={() => setSideOpen((v) => !v)}
+            position="bottom-left"
+            backgroundColor={colors.primaryBgColor}
+            borderColor={colors.primaryBorderColor}
+            color={colors.primaryContrastText}
+            openIcon="hamburger"
+            closeIcon="x"
+          />
+        </div>
+      )}
 
       <main
-        className="flex-grow pb-24 md:pb-12 md:pl-60"
-        style={{ paddingTop: HEADER_HEIGHT + SUBHEADER_HEIGHT }}
+        className={`flex-grow overflow-y-auto transition-all duration-300 ${
+          showSideNav && sideOpen ? "md:pl-9" : ""
+        }`}
+        style={{
+          paddingTop: HEADER_HEIGHT + SUBHEADER_HEIGHT,
+          paddingBottom: FOOTER_HEIGHT,
+        }}
       >
-        <div className="mx-auto w-full max-w-5xl p-4 sm:p-6">{children}</div>
+        {/* 旧踏襲: 本文はほぼ全幅（px 余白のみ）。画面遷移ごとに BlurFade で出現（pathname key）。 */}
+        <BlurFade key={pathname} className="w-full px-3 pb-24 pt-2 sm:px-5 md:pb-6">
+          {children}
+        </BlurFade>
       </main>
 
-      <Footer height={FOOTER_HEIGHT} leftOffset={0}>
+      <Footer height={FOOTER_HEIGHT} leftOffset={chromeShift}>
         <div
-          className="flex h-9 items-center justify-center text-xs"
+          className="flex h-full items-center justify-center text-xs transition-all duration-300"
           style={{ color: colors.secondaryTextColor }}
         >
           waoon — 1on1 アンケート / 面談
@@ -138,29 +177,33 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       </Footer>
 
       {/* モバイル: 下部タブバー。 */}
-      <nav
-        className="fixed inset-x-0 bottom-0 z-30 flex items-stretch justify-around border-t md:hidden"
-        style={{
-          backgroundColor: colors.secondaryBgColor,
-          borderColor: colors.secondaryBorderColor,
-        }}
-      >
-        {items.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => router.push(item.href)}
-            className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px]"
-            style={{
-              color: item.active ? colors.primaryBgColor : colors.secondaryTextColor,
-              borderRadius: shapes.buttonRadius,
-            }}
-          >
-            <Icon name={item.iconName} size={20} />
-            <span className="truncate">{item.label}</span>
-          </button>
-        ))}
-      </nav>
+      {showSideNav && (
+        <nav
+          className="fixed inset-x-0 bottom-0 z-30 flex items-stretch justify-around border-t md:hidden"
+          style={{
+            height: BOTTOM_TAB_HEIGHT,
+            backgroundColor: colors.primaryBgColor,
+            borderColor: colors.primaryBorderColor,
+          }}
+        >
+          {items.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => router.push(item.href)}
+              className="flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] transition-colors"
+              style={{
+                color: item.active ? colors.navActiveTextColor : colors.primaryContrastText,
+                backgroundColor: item.active ? colors.navActiveBgColor : undefined,
+                borderRadius: shapes.buttonRadius,
+              }}
+            >
+              <Icon name={item.iconName} size={20} />
+              <span className="truncate">{item.label}</span>
+            </button>
+          ))}
+        </nav>
+      )}
 
       <ThemeSettingsModal isOpen={themeOpen} onClose={() => setThemeOpen(false)} />
     </div>

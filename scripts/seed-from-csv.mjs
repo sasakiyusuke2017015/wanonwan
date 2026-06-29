@@ -176,6 +176,134 @@ function seedUsersTable(rows) {
   return rows.length;
 }
 
+// ===== デモ（dev 表示用）データ =====
+// アンケート/質問/掲載/回答/スケジュール + 非ログインのデモ回答者（gotrue_id NULL）。
+// 画面が空だと見た目を確認できないため「ひととおり」の実データを投入する。
+// FK は title / body / code で解決し、各テーブルは非空スキップ（初回投入専用）。
+
+// 自然キー（title/body）で id を引くサブクエリ。col は固定識別子、val はエスケープ。
+function refByValue(table, col, val) {
+  return val === undefined || val === ""
+    ? "NULL"
+    : `(SELECT id FROM public.${table} WHERE ${col} = ${sqlStr(val)} ORDER BY id LIMIT 1)`;
+}
+function intOrNull(raw, label) {
+  return raw === undefined || raw === "" ? "NULL" : intLiteral(raw, label);
+}
+function tsOrNull(raw) {
+  return raw === undefined || raw === "" ? "NULL" : `${sqlStr(raw)}::timestamptz`;
+}
+// 評価 jsonb（満足度/業務負荷/職場環境/人間関係/ストレス）。全列空なら NULL。
+function evalJson(r) {
+  const keys = ["satisfaction", "workload", "environment", "relationship", "stress"];
+  const present = keys.filter((k) => r[k] !== undefined && r[k] !== "");
+  if (present.length === 0) return "NULL";
+  const pairs = present.map((k) => `'${k}', ${intLiteral(r[k], `answers.${k}`)}`).join(", ");
+  return `jsonb_build_object(${pairs})`;
+}
+
+// デモ用の汎用テーブル投入。非空スキップ。自然キー制約が無いので ON CONFLICT は使わない。
+function seedDemoTable(table, columns, build) {
+  const existing = rowCount(table);
+  if (existing > 0) {
+    console.log(`• ${table}: 既存 ${existing} 行 → スキップ`);
+    return 0;
+  }
+  const rows = readCsv(join(csvDir, `${table}.csv`));
+  for (const r of rows) {
+    psql(`INSERT INTO public.${table} (${columns.join(", ")}) VALUES (${build(r).join(", ")});`);
+  }
+  console.log(`• ${table}: ${rows.length} 行を投入`);
+  return rows.length;
+}
+
+function seedDemo() {
+  let n = 0;
+
+  // 1) デモ回答者（gotrue_id NULL = ログイン不可の表示用レコード）。demo01 の有無で冪等判定。
+  const demoUsers = readCsv(join(csvDir, "demo_users.csv"));
+  const exists = psql(`SELECT count(*) FROM public.users WHERE code = 'demo01';`, { capture: true }).trim();
+  if (exists === "0") {
+    for (const r of demoUsers) {
+      const values = [
+        sqlStr(r.code), sqlStr(r.name), sqlStr(r.email), sqlStr(r.role || "member"),
+        refSubquery("positions", r.position_code), refSubquery("sections", r.section_code),
+      ].join(", ");
+      psql(`INSERT INTO public.users (code, name, email, role, position_id, section_id)
+            VALUES (${values}) ON CONFLICT (email) DO NOTHING;`);
+    }
+    console.log(`• demo_users: ${demoUsers.length} 行を投入`);
+    n += demoUsers.length;
+  } else {
+    console.log("• demo_users: 既存 → スキップ");
+  }
+
+  n += seedDemoTable("surveys", ["title", "status"], (r) => [sqlStr(r.title), sqlStr(r.status || "draft")]);
+
+  n += seedDemoTable(
+    "questions",
+    ["body", "answer_type", "choices", "eval_item", "required", "sort_order"],
+    (r) => [
+      sqlStr(r.body), sqlStr(r.answer_type),
+      r.answer_type === "radio" ? `'["1","2","3","4","5"]'::jsonb` : `'[]'::jsonb`,
+      sqlValOrNull(r.eval_item),
+      r.required === "true" ? "true" : "false",
+      intLiteral(r.sort_order || "0", "questions.sort_order"),
+    ],
+  );
+
+  n += seedDemoTable(
+    "survey_questions",
+    ["survey_id", "question_id", "sort_order"],
+    (r) => [
+      refByValue("surveys", "title", r.survey_title),
+      refByValue("questions", "body", r.question_body),
+      intLiteral(r.sort_order || "0", "survey_questions.sort_order"),
+    ],
+  );
+
+  n += seedDemoTable(
+    "survey_publications",
+    ["survey_id", "title", "body", "status", "start_at", "end_at"],
+    (r) => [
+      refByValue("surveys", "title", r.survey_title),
+      sqlStr(r.title), sqlValOrNull(r.body),
+      intLiteral(r.status || "100", "publications.status"),
+      tsOrNull(r.start_at), tsOrNull(r.end_at),
+    ],
+  );
+
+  n += seedDemoTable(
+    "answers",
+    ["publication_id", "respondent_id", "status", "evaluation", "health_status",
+     "answered_at", "interview_at", "interview_method", "interviewer_id", "interview_memo", "next_action"],
+    (r) => [
+      refByValue("survey_publications", "title", r.publication_title),
+      refSubquery("users", r.respondent_code),
+      intLiteral(r.status || "100", "answers.status"),
+      evalJson(r),
+      intOrNull(r.health_status, "answers.health_status"),
+      tsOrNull(r.answered_at), tsOrNull(r.interview_at),
+      intOrNull(r.interview_method, "answers.interview_method"),
+      r.interviewer_code ? refSubquery("users", r.interviewer_code) : "NULL",
+      sqlValOrNull(r.interview_memo), sqlValOrNull(r.next_action),
+    ],
+  );
+
+  n += seedDemoTable(
+    "schedules",
+    ["title", "body", "start_at", "end_at", "event_type", "color", "created_by"],
+    (r) => [
+      sqlStr(r.title), sqlValOrNull(r.body),
+      tsOrNull(r.start_at), tsOrNull(r.end_at),
+      sqlValOrNull(r.event_type), sqlValOrNull(r.color),
+      r.created_by_code ? refSubquery("users", r.created_by_code) : "NULL",
+    ],
+  );
+
+  return n;
+}
+
 let total = 0;
 for (const def of MASTER_TABLES) {
   const rows = readCsv(join(csvDir, `${def.table}.csv`));
@@ -183,5 +311,9 @@ for (const def of MASTER_TABLES) {
 }
 if (seedUsers) {
   total += seedUsersTable(readCsv(usersCsv));
+}
+// デモデータは opt-in（--demo）。stg/prod の provision からは渡さないので本番には入らない。
+if (hasFlag("demo")) {
+  total += seedDemo();
 }
 console.log(`done: seed-from-csv — ${total} 行投入（compose=${composeFile}）`);

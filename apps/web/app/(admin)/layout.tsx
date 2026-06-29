@@ -20,8 +20,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return (
       <div className="p-8">
         <p className="text-sm">この画面は管理者のみ利用できます。</p>
-        <Link href="/" className="text-sm text-blue-600 underline">
-          ホームへ戻る
+        <Link href="/dashboard" className="text-sm text-blue-600 underline">
+          ダッシュボードへ戻る
         </Link>
       </div>
     );

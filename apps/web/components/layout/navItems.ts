@@ -11,7 +11,6 @@ export type NavItemDef = {
 
 // アプリ共通のナビゲーション定義。AppLayout の SideNav / BottomTabBar の単一ソース。
 export const NAV_ITEMS: readonly NavItemDef[] = [
-  { id: "home", href: "/", label: "ホーム", iconName: "home" },
   { id: "dashboard", href: "/dashboard", label: "ダッシュボード", iconName: "dashboard" },
   { id: "surveys", href: "/surveys", label: "アンケート", iconName: "survey" },
   { id: "schedule", href: "/schedule", label: "スケジュール", iconName: "calendar" },
@@ -54,6 +53,5 @@ export const NAV_ITEMS: readonly NavItemDef[] = [
 
 /** pathname がナビ項目の配下かどうか（href 完全一致 or 配下プレフィックス）。 */
 export function isNavItemActive(href: string, pathname: string): boolean {
-  if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
 }

@@ -1,0 +1,8 @@
+code,name,email,role,position_code,section_code
+demo01,山田 太郎,demo01@example.com,member,300,SEC1
+demo02,佐藤 花子,demo02@example.com,member,300,SEC1
+demo03,鈴木 一郎,demo03@example.com,member,300,SEC1
+demo04,田中 美咲,demo04@example.com,member,300,SEC1
+demo05,高橋 健,demo05@example.com,member,300,SEC1
+demo06,伊藤 さくら,demo06@example.com,member,300,SEC1
+demomgr,渡辺 課長,demomgr@example.com,member,500,SEC1

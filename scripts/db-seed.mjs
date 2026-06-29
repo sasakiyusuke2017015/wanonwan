@@ -13,8 +13,8 @@ const composeFile = join(root, "infra", "docker-compose.yml");
 const db = process.env.PG_DATABASE ?? "waoon";
 const user = process.env.PG_SUPERUSER ?? "postgres";
 
-// 1) マスタ + dev users を CSV から投入（非空スキップで冪等）。
-execFileSync("node", [join(root, "scripts", "seed-from-csv.mjs")], { stdio: "inherit" });
+// 1) マスタ + dev users + デモデータ（--demo）を CSV から投入（非空スキップで冪等）。
+execFileSync("node", [join(root, "scripts", "seed-from-csv.mjs"), "--demo"], { stdio: "inherit" });
 
 // 2) フィクスチャ SQL を昇順に適用。
 const files = readdirSync(seedDir)
