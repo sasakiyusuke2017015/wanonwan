@@ -2,7 +2,7 @@
 
 | 項目 | 値 |
 |---|---|
-| ステータス | 🟣 マージ承認待ち — PR-1(#62) merged。PR-2(#63) 提出済み・コードレビュー APPROVE。笹木さん #63 マージ待ち |
+| ステータス | 🟢 マージ済み（検証中）— PR-1(#62)・PR-2(#63) ともに develop へマージ済み。残: dev 実機検証 |
 | slug | `urgency-master` |
 | 作成 | 2026-06-29 15:37 JST |
 | 担当 | Claude Code + 笹木さん |
@@ -155,5 +155,10 @@ PR 分割（dead column を避けるため、列追加と書き手 UI を同じ 
 - [x] PR-2: surveys 書き手（domain/API/SurveyForm）
 - [x] PR-2: answers 書き手（RecordInterviewSchema/API/InterviewForm）
 - [x] PR-2: コードレビュー（code BLOCKER→修正→APPROVE / security APPROVE）→ [#63](https://github.com/sasakiyusuke2017015/waoon/pull/63)
-- [ ] 笹木さん #63 マージ承認
-- [ ] マージ後検証（dev 実機: 緊急度マスタ CRUD / SurveyForm・InterviewForm で設定・保持・クリア / 非 admin ガード）
+- [x] 笹木さん #62 / #63 マージ承認（develop へマージ済み）
+- [ ] マージ後検証（dev 実機）
+  - [ ] `/admin/urgencies` の CRUD（非 admin でガード）
+  - [ ] SurveyForm で緊急度を設定 → 保存 → 再表示で保持（編集時に勝手にクリアされない）
+  - [ ] 面談記録（InterviewForm）で緊急度を設定 → 保存 → 保持
+  - [ ] 未設定（null）で保存できる / 設定済みを「なし」にしてクリアできる
+  - [ ] 使用中の緊急度をマスタ削除しようとすると 409
