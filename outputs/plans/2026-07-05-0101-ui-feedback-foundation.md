@@ -1,13 +1,13 @@
 # Plan: UI フィードバック基盤（Toast 配線・削除確認・ルート境界）
 
-> ステータス: 🟦 コードレビュー完了（APPROVE）・PR 化待ち
+> ステータス: 🟣 マージ承認待ち（PR #64・CI green）
 
 | 項目 | 値 |
 |---|---|
 | 作成日時 | 2026-07-05 01:01 JST |
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | `feature/ui-feedback-foundation` |
-| 関連 PR | TBD |
+| 関連 PR | [#64](https://github.com/sasakiyusuke2017015/waoon/pull/64) |
 | レビュー | [計画レビュー](../reviews/2026-07-05-0115-ui-feedback-foundation-review.md): APPROVE / [コードレビュー](../reviews/2026-07-05-0210-ui-feedback-foundation-code-review.md): APPROVE |
 
 ## 目的
@@ -137,5 +137,11 @@ UI/UX 監査（2026-07-05 チャット内）で High と判定された 3 ギャ
 - [x] Plan 承認（計画レビュー APPROVE 2026-07-05）
 - [x] 実装完了（typecheck / web lint / test 69 / build すべて green）
 - [x] コードレビュー完了（APPROVE 2026-07-05・NICE-TO-HAVE 反映済み）
-- [ ] PR 作成・merge
+- [x] PR 作成（[#64](https://github.com/sasakiyusuke2017015/waoon/pull/64)・CI green）
+- [ ] merge（笹木さん承認）
 - [ ] マージ後検証（手動確認チェックを消化）
+  - [ ] 保存成功トーストが遷移後の画面で表示される（SurveyForm → 一覧）
+  - [ ] 失敗（error）トーストが自動で閉じない
+  - [ ] 設問「外す」/ 掲載・添付の削除で ConfirmDialog が出て、キャンセルで何も起きない
+  - [ ] 存在しない URL で not-found 画面が出る
+  - [ ] ページ内エラーで error.tsx（シェル維持 + 再試行）が出る
