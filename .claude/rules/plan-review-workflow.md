@@ -22,6 +22,12 @@ PR を出す。Review は **計画レビュー**（Plan 完成後）と **コー
 （実装完了後）の 2 段階で Codex に依頼する。Claude Code 自身でも軽い
 self-review はするが、saved Review file の作成は Codex が一次担当。
 
+> **Codex レビューの起動は笹木さん（レビュー依頼元）が手動で行う。** Claude Code は
+> self-review（チャット内）までを担当し、`codex` CLI を自分から起動しない。
+> Claude Code は笹木さんが回した Codex の結果（`outputs/reviews/` に配置された
+> Review ファイル）を受け取り、指摘反映と Plan / dashboard への反映のみ引き取る。
+> 例外は、ユーザーが当該タスクで明示的に「Codex を起動して」と指示した場合に限る。
+
 ## Storage
 
 | Artifact | Path |
