@@ -129,6 +129,8 @@ UI/UX 監査（2026-07-05 チャット内）で High と判定された 3 ギャ
 | 2026-07-05 | 計画レビュー APPROVE（[Review](../reviews/2026-07-05-0115-ui-feedback-foundation-review.md)）。NICE-TO-HAVE N-1〜N-4 を実装計画・検証に反映 | duration の default 委譲 / Toast z-index / "use client" 明記 / ui package lint 追加 |
 | 2026-07-05 | N-4 の ui package lint は実行不能と判明（eslint 未導入）。残課題化し typecheck で代替 | packages/ui は typecheck のみ CI 対象。eslint 導入は別タスク |
 | 2026-07-05 | コードレビュー APPROVE（[Review](../reviews/2026-07-05-0210-ui-feedback-foundation-code-review.md)）。NICE-TO-HAVE（添付の失敗時 error トースト欠落）を反映済み | AttachmentsPanel の catch で inline error に加え error トーストも表示（Plan 文言と一致させた） |
+| 2026-07-05 | develop が大幅前進（#50〜#63）していたため rebase で追従。QuestionsEditor は設問マスタ化で「削除」が「外す」（リンク解除）に変わっており、確認ダイアログ/トースト文言を「外す」意味論に適応（`外しました`）。providers.tsx は RouterProvider と共存 | 統一 3 文言の例外。マスタは残るのに「削除しました」と出すのは誤誘導のため |
+| 2026-07-05 | 残課題だった ui package lint は #50 で eslint 整備済みと判明。rebase 後は `pnpm lint`（turbo）で web + ui 両方 green | 残課題クローズ |
 
 ## ステータス
 
