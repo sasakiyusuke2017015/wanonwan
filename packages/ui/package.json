@@ -45,6 +45,7 @@
     "./templates/ArticleLayout": "./core/templates/ArticleLayout/index.ts",
     "./templates/EditorLayout": "./core/templates/EditorLayout/index.ts",
     "./templates": "./core/templates/index.ts",
+    "./providers": "./core/providers/index.ts",
     "./hooks": "./core/hooks/index.ts",
     "./hooks/useDevice": "./core/hooks/useDevice.ts",
     "./hooks/router": "./core/hooks/router/index.ts",

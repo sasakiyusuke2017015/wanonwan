@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
 import { FormField, Input, Select, Button } from "@ui-catalog/core/molecules";
 import { useTheme } from "@ui-catalog/core/infra/theme";
+import { useAppToast } from "@ui-catalog/core/providers";
 import { CreateUserSchema, UpdateUserSchema, type UserRole } from "@waoon/domain";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import { fieldErrorsOf } from "@/lib/forms/field-errors";
@@ -57,6 +58,7 @@ export function UserForm({ userId }: { userId?: string }) {
   const router = useRouter();
   const qc = useQueryClient();
   const { shapes } = useTheme();
+  const { showToast } = useAppToast();
   const [form, setForm] = useState(EMPTY);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -116,6 +118,7 @@ export function UserForm({ userId }: { userId?: string }) {
     },
     onSuccess: (result) => {
       qc.invalidateQueries({ queryKey: ["users"] });
+      showToast("保存しました", { type: "success" });
       // 新規作成時は初期パスワードを一度だけ表示する（遷移しない）。
       if (!userId && result.initialPassword) {
         setCreated({ email: form.email, password: result.initialPassword, kind: "created" });

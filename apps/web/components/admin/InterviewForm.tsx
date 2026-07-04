@@ -8,6 +8,7 @@ import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
 import { FormField, Input, Select } from "@ui-catalog/core/molecules";
 import { TextArea } from "@ui-catalog/core/atoms";
 import { useTheme } from "@ui-catalog/core/infra/theme";
+import { useAppToast } from "@ui-catalog/core/providers";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import { FormActions } from "@/components/admin/FormActions";
 import { AttachmentsPanel } from "@/components/admin/AttachmentsPanel";
@@ -49,12 +50,11 @@ export function InterviewForm({ answerId, initial }: { answerId: string; initial
   });
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState(false);
+  const { showToast } = useAppToast();
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setDone(false);
     setBusy(true);
     const evaluation: Record<string, number> = {};
     for (const it of EVAL_ITEMS) {
@@ -72,7 +72,7 @@ export function InterviewForm({ answerId, initial }: { answerId: string; initial
         urgencyId: f.urgencyId ? Number(f.urgencyId) : null,
         status: 900,
       });
-      setDone(true);
+      showToast("保存しました", { type: "success" });
       router.refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "保存に失敗しました");
@@ -172,7 +172,6 @@ export function InterviewForm({ answerId, initial }: { answerId: string; initial
       <AttachmentsPanel entityType="answer" entityId={Number(answerId)} title="回答の添付ファイル" />
 
       {error && <p className="text-sm text-red-600">{error}</p>}
-      {done && <p className="text-sm text-green-600">面談を記録しました（完了）。</p>}
 
       <FormActions submitLabel="面談を記録（完了にする）" pendingLabel="保存中..." pending={busy} />
     </form>

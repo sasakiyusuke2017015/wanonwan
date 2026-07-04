@@ -8,6 +8,7 @@ import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
 import { FormField, Input, Select } from "@ui-catalog/core/molecules";
 import { Checkbox } from "@ui-catalog/core/atoms";
 import { useTheme } from "@ui-catalog/core/infra/theme";
+import { useAppToast } from "@ui-catalog/core/providers";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import { fieldErrorsOf } from "@/lib/forms/field-errors";
 import { FormActions } from "@/components/admin/FormActions";
@@ -47,6 +48,7 @@ export function SurveyForm({ surveyId }: { surveyId?: string }) {
   });
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const { showToast } = useAppToast();
 
   const { data: existing } = useQuery({
     queryKey: ["survey", surveyId],
@@ -98,6 +100,8 @@ export function SurveyForm({ surveyId }: { surveyId?: string }) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["surveys"] });
+      // Toast は Providers 直下の ToastProvider が表示主体のため、遷移後も表示され続ける。
+      showToast("保存しました", { type: "success" });
       router.push("/admin/surveys");
       router.refresh();
     },
