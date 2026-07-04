@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ConfirmDialog } from "@ui-catalog/core/organisms";
+import { useConfirm } from "@ui-catalog/core/hooks/ui";
+import { useAppToast } from "@ui-catalog/core/providers";
 import { PUBLICATION_STATUSES, publicationStatusLabel } from "@waoon/domain";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import { formatJstDateTime, jstInputToUtcIso, utcIsoToJstInput } from "@/lib/datetime";
@@ -40,10 +43,17 @@ export function PublicationsEditor({ surveyId }: { surveyId: string }) {
   });
   const invalidate = () => qc.invalidateQueries({ queryKey: key });
   const [editingId, setEditingId] = useState<string | null>(null);
+  const { showToast } = useAppToast();
+  const { confirmState, showConfirm, handleConfirm, handleCancel } = useConfirm();
 
   const remove = useMutation({
     mutationFn: (id: string) => apiSend(`/api/v1/publications/${id}`, "DELETE"),
-    onSuccess: invalidate,
+    onSuccess: () => {
+      invalidate();
+      showToast("削除しました", { type: "success" });
+    },
+    onError: (err) =>
+      showToast(err instanceof ApiError ? err.message : "削除に失敗しました", { type: "error" }),
   });
 
   const publications = data?.data ?? [];
@@ -70,6 +80,7 @@ export function PublicationsEditor({ surveyId }: { surveyId: string }) {
                   await apiSend(`/api/v1/publications/${p.id}`, "PUT", draftToPayload(d));
                   setEditingId(null);
                   invalidate();
+                  showToast("保存しました", { type: "success" });
                 }}
               />
             ) : (
@@ -89,7 +100,17 @@ export function PublicationsEditor({ surveyId }: { surveyId: string }) {
                   <button onClick={() => setEditingId(p.id)} className="text-blue-600">
                     編集
                   </button>
-                  <button onClick={() => remove.mutate(p.id)} className="text-red-600">
+                  <button
+                    onClick={() =>
+                      showConfirm(`掲載「${p.title || "（無題）"}」を削除しますか？`, {
+                        title: "掲載の削除",
+                        type: "danger",
+                        confirmText: "削除",
+                        onConfirm: () => remove.mutate(p.id),
+                      })
+                    }
+                    className="text-red-600"
+                  >
                     削除
                   </button>
                 </div>
@@ -112,9 +133,12 @@ export function PublicationsEditor({ surveyId }: { surveyId: string }) {
           onSubmit={async (d) => {
             await apiSend(`/api/v1/surveys/${surveyId}/publications`, "POST", draftToPayload(d));
             invalidate();
+            showToast("保存しました", { type: "success" });
           }}
         />
       </div>
+
+      <ConfirmDialog {...confirmState} onConfirm={handleConfirm} onCancel={handleCancel} />
     </section>
   );
 }

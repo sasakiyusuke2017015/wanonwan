@@ -7,6 +7,7 @@ import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
 import { FormField, Input, Select } from "@ui-catalog/core/molecules";
 import { TextArea } from "@ui-catalog/core/atoms";
 import { useTheme } from "@ui-catalog/core/infra/theme";
+import { useAppToast } from "@ui-catalog/core/providers";
 import { ApiError, apiSend } from "@/lib/api/client";
 import { requiredFieldErrors } from "@/lib/forms/field-errors";
 import { FormActions } from "@/components/admin/FormActions";
@@ -35,6 +36,7 @@ export function AnswerForm({
 }) {
   const router = useRouter();
   const { colors, shapes } = useTheme();
+  const { showToast } = useAppToast();
   const [values, setValues] = useState<Values>(initial ?? {});
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -157,6 +159,7 @@ export function AnswerForm({
     setBusy(true);
     try {
       await apiSend(`/api/v1/publications/${publicationId}/answer`, "POST", { answers: values });
+      showToast("保存しました", { type: "success" });
       router.push("/surveys");
       router.refresh();
     } catch (err) {

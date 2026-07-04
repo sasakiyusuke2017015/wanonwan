@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ConfirmDialog } from "@ui-catalog/core/organisms";
+import { useConfirm } from "@ui-catalog/core/hooks/ui";
+import { useAppToast } from "@ui-catalog/core/providers";
 import { QUESTION_TYPES, type AnswerType } from "@waoon/domain";
-import { apiGet, apiSend } from "@/lib/api/client";
+import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import {
   QuestionForm,
   EMPTY_QUESTION,
@@ -32,6 +35,7 @@ type MasterQuestion = {
 };
 
 const typeLabel = (t: string) => QUESTION_TYPES.find((x) => x.value === t)?.label ?? t;
+const truncate = (s: string, max = 24) => (s.length > max ? `${s.slice(0, max)}…` : s);
 
 export function QuestionsEditor({ surveyId }: { surveyId: string }) {
   const qc = useQueryClient();
@@ -52,6 +56,8 @@ export function QuestionsEditor({ surveyId }: { surveyId: string }) {
   const questions = data?.data ?? [];
   const linkedIds = new Set(questions.map((q) => q.id));
   const masterOptions = (master?.data ?? []).filter((m) => !linkedIds.has(m.id));
+  const { showToast } = useAppToast();
+  const { confirmState, showConfirm, handleConfirm, handleCancel } = useConfirm();
 
   const reorder = useMutation({
     mutationFn: (order: number[]) => apiSend(`/api/v1/surveys/${surveyId}/questions/reorder`, "PUT", { order }),
@@ -60,7 +66,12 @@ export function QuestionsEditor({ surveyId }: { surveyId: string }) {
   // アンケートから「外す」= リンク解除（マスタ本体・他アンケートは残る）。
   const unlink = useMutation({
     mutationFn: (id: string) => apiSend(`/api/v1/surveys/${surveyId}/questions/${id}`, "DELETE"),
-    onSuccess: invalidate,
+    onSuccess: () => {
+      invalidate();
+      showToast("外しました", { type: "success" });
+    },
+    onError: (err) =>
+      showToast(err instanceof ApiError ? err.message : "外すのに失敗しました", { type: "error" }),
   });
   const link = useMutation({
     mutationFn: (questionId: number) =>
@@ -107,6 +118,7 @@ export function QuestionsEditor({ surveyId }: { surveyId: string }) {
                   setEditingId(null);
                   invalidate();
                   qc.invalidateQueries({ queryKey: ["questions"] }); // マスタ一覧も整合
+                  showToast("保存しました", { type: "success" });
                 }}
               />
             ) : (
@@ -124,7 +136,22 @@ export function QuestionsEditor({ surveyId }: { surveyId: string }) {
                   <button onClick={() => move(i, -1)} disabled={i === 0} className="disabled:opacity-30">↑</button>
                   <button onClick={() => move(i, 1)} disabled={i === questions.length - 1} className="disabled:opacity-30">↓</button>
                   <button onClick={() => setEditingId(q.id)} className="text-blue-600">編集</button>
-                  <button onClick={() => unlink.mutate(q.id)} className="text-red-600">外す</button>
+                  <button
+                    onClick={() =>
+                      showConfirm(
+                        `設問「${truncate(q.body)}」をこのアンケートから外しますか？（マスタ設問は残ります）`,
+                        {
+                          title: "設問を外す",
+                          type: "warning",
+                          confirmText: "外す",
+                          onConfirm: () => unlink.mutate(q.id),
+                        },
+                      )
+                    }
+                    className="text-red-600"
+                  >
+                    外す
+                  </button>
                 </div>
               </div>
             )}
@@ -174,9 +201,12 @@ export function QuestionsEditor({ surveyId }: { surveyId: string }) {
           onSubmit={async (draft) => {
             await apiSend(`/api/v1/surveys/${surveyId}/questions`, "POST", questionDraftToPayload(draft));
             invalidate();
+            showToast("保存しました", { type: "success" });
           }}
         />
       </div>
+
+      <ConfirmDialog {...confirmState} onConfirm={handleConfirm} onCancel={handleCancel} />
     </section>
   );
 }

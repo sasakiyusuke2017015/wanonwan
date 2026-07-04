@@ -119,8 +119,10 @@ export const Toast: FC<ToastProps> = ({
 
   return createPortal(
     <div
-      className={`fixed z-50 ${positionStyles[position]}`}
+      className={`fixed ${positionStyles[position]}`}
       style={{
+        // Dialog/Modal（zIndex: 10000）より上。確認ダイアログ表示中でも通知が隠れない。
+        zIndex: 10010,
         transform: getTransform(),
         transition: 'transform 300ms ease-in-out',
       }}

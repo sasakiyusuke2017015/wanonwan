@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
+import { ConfirmDialog } from "@ui-catalog/core/organisms";
+import { useConfirm } from "@ui-catalog/core/hooks/ui";
+import { useAppToast } from "@ui-catalog/core/providers";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 
 export type AttachmentEntity = "answer" | "interview" | "user_avatar" | "survey";
@@ -28,6 +31,8 @@ export function AttachmentsPanel({
   const [items, setItems] = useState<Attachment[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { showToast } = useAppToast();
+  const { confirmState, showConfirm, handleConfirm, handleCancel } = useConfirm();
 
   async function reload() {
     const res = await apiGet<{ data: Attachment[] }>(
@@ -61,10 +66,12 @@ export function AttachmentsPanel({
       // 確定はサーバが MinIO の実オブジェクトを検証して size を確定する（client 申告は送らない）。
       await apiSend(`/api/v1/attachments/${data.id}`, "PATCH");
       await reload();
+      showToast("アップロードしました", { type: "success" });
     } catch (err) {
-      setError(
-        err instanceof ApiError ? err.message : err instanceof Error ? err.message : "アップロードに失敗しました",
-      );
+      const message =
+        err instanceof ApiError ? err.message : err instanceof Error ? err.message : "アップロードに失敗しました";
+      setError(message);
+      showToast(message, { type: "error" });
     } finally {
       setBusy(false);
       e.target.value = "";
@@ -85,8 +92,11 @@ export function AttachmentsPanel({
     try {
       await apiSend(`/api/v1/attachments/${id}`, "DELETE");
       await reload();
+      showToast("削除しました", { type: "success" });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "削除に失敗しました");
+      const message = err instanceof ApiError ? err.message : "削除に失敗しました";
+      setError(message);
+      showToast(message, { type: "error" });
     }
   }
 
@@ -105,7 +115,18 @@ export function AttachmentsPanel({
               >
                 {a.filename}
               </button>
-              <button type="button" className="text-red-600" onClick={() => onDelete(a.id)}>
+              <button
+                type="button"
+                className="text-red-600"
+                onClick={() =>
+                  showConfirm(`添付「${a.filename}」を削除しますか？`, {
+                    title: "添付の削除",
+                    type: "danger",
+                    confirmText: "削除",
+                    onConfirm: () => void onDelete(a.id),
+                  })
+                }
+              >
                 削除
               </button>
             </li>
@@ -113,6 +134,7 @@ export function AttachmentsPanel({
           {items.length === 0 && <li className="text-gray-400">添付はありません</li>}
         </ul>
       </div>
+      <ConfirmDialog {...confirmState} onConfirm={handleConfirm} onCancel={handleCancel} />
     </ContentBlock>
   );
 }
