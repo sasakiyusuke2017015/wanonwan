@@ -1,6 +1,6 @@
 # Plan: UI フィードバック基盤（Toast 配線・削除確認・ルート境界）
 
-> ステータス: 🔵 計画レビュー待ち（Codex 計画レビューは笹木さんが手動起動）
+> ステータス: 🟦 コードレビュー完了（APPROVE）・PR 化待ち
 
 | 項目 | 値 |
 |---|---|
@@ -8,7 +8,7 @@
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | `feature/ui-feedback-foundation` |
 | 関連 PR | TBD |
-| レビュー | TBD |
+| レビュー | [計画レビュー](../reviews/2026-07-05-0115-ui-feedback-foundation-review.md): APPROVE / [コードレビュー](../reviews/2026-07-05-0210-ui-feedback-foundation-code-review.md): APPROVE |
 
 ## 目的
 
@@ -69,10 +69,16 @@ UI/UX 監査（2026-07-05 チャット内）で High と判定された 3 ギャ
 1. **catalog: ToastProvider / useAppToast**（`packages/ui/core/providers/`）
    - 既存 `Toast` organism + `useToast` の state 形をそのまま context に持ち上げる
      （表示 API は `showToast(message, { type })` 互換。新規部品は作らず配線層のみ追加）。
+   - **duration は Provider で埋めない**（`useToast` のように 3000ms を固定注入せず
+     undefined のまま `Toast` へ渡し、error/warning=自動クローズなしの Toast 側 default を
+     活かす）。（レビュー N-1）
+   - **Toast の z-index を Dialog/Modal（zIndex 10000 系）より上に固定**する
+     （現行 `z-50` のままでは確認ダイアログの下に潜る）。（レビュー N-2）
    - `packages/ui` の exports に `./providers` を追加、barrel 更新。
    - 新規 UI ロジックは catalog に置く（CLAUDE.md「新規 UI 部品は原則 ui-catalog に吸収」）。
 2. **アプリ配線**: `app/providers.tsx` の QueryClientProvider 内側に ToastProvider を追加。
-3. **ルート境界ファイル**
+3. **ルート境界ファイル**（`global-error.tsx` / `error.tsx` は `reset()` を持つため
+   **`"use client"` を明記**。`global-error.tsx` は `<html>/<body>` を自前で描画する）（レビュー N-3）
    - `app/global-error.tsx`: 素の Tailwind のみで描画（root layout が死んだ状態で呼ばれる
      ため、テーマ atom / catalog に依存しない）。`error.digest` をエラー ID として表示 + 再試行。
    - `app/error.tsx`: シェル内エラー境界。メッセージ + 「再試行」(`reset()`) + ダッシュボードへ戻る。
@@ -93,8 +99,12 @@ UI/UX 監査（2026-07-05 チャット内）で High と判定された 3 ギャ
 ## 検証
 
 - `pnpm -r typecheck` / `pnpm lint` / `pnpm --filter @waoon/web test`
+- `pnpm --filter @ui-catalog/core lint`（root `pnpm lint` は web のみのため個別実行。レビュー N-4）
+  - **残課題**: packages/ui には lint script はあるが eslint 本体が devDependencies に無く実行不能
+    （ベンダリング時からの既存状態）。eslint 導入は別タスクとする
 - 手動確認（dev compose 起動）:
   - [ ] 保存成功トーストが**遷移後の画面で**表示される（SurveyForm → 一覧）
+  - [ ] 失敗（error）トーストが**自動で閉じない**（レビュー N-1）
   - [ ] 設問/掲載/添付の削除で ConfirmDialog が出て、キャンセルで何も起きない
   - [ ] 存在しない URL で not-found 画面が出る
   - [ ] ページ内で throw させると error.tsx（シェル維持 + 再試行）が出る
@@ -116,11 +126,14 @@ UI/UX 監査（2026-07-05 チャット内）で High と判定された 3 ギャ
 | 2026-07-05 | UI/UX 改善はテーマ1（フィードバック基盤）から着手 | ユーザー選択。既存 catalog 部品の配線が中心で工数小・High 3 件解消 |
 | 2026-07-05 | Toast はコンポーネントローカルでなく app Provider 方式 | 保存成功後に `router.push` するフォームではローカル Toast が遷移で消えるため |
 | 2026-07-05 | ToastProvider は catalog（packages/ui）側に置く | 「新規 UI 部品は原則 ui-catalog に吸収」方針。アプリ固有依存なしで実装可能 |
+| 2026-07-05 | 計画レビュー APPROVE（[Review](../reviews/2026-07-05-0115-ui-feedback-foundation-review.md)）。NICE-TO-HAVE N-1〜N-4 を実装計画・検証に反映 | duration の default 委譲 / Toast z-index / "use client" 明記 / ui package lint 追加 |
+| 2026-07-05 | N-4 の ui package lint は実行不能と判明（eslint 未導入）。残課題化し typecheck で代替 | packages/ui は typecheck のみ CI 対象。eslint 導入は別タスク |
+| 2026-07-05 | コードレビュー APPROVE（[Review](../reviews/2026-07-05-0210-ui-feedback-foundation-code-review.md)）。NICE-TO-HAVE（添付の失敗時 error トースト欠落）を反映済み | AttachmentsPanel の catch で inline error に加え error トーストも表示（Plan 文言と一致させた） |
 
 ## ステータス
 
-- [ ] Plan 承認（笹木さん / ユーザー）
-- [ ] 実装完了
-- [ ] コードレビュー完了
+- [x] Plan 承認（計画レビュー APPROVE 2026-07-05）
+- [x] 実装完了（typecheck / web lint / test 69 / build すべて green）
+- [x] コードレビュー完了（APPROVE 2026-07-05・NICE-TO-HAVE 反映済み）
 - [ ] PR 作成・merge
 - [ ] マージ後検証（手動確認チェックを消化）
