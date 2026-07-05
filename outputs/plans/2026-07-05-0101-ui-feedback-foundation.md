@@ -1,6 +1,6 @@
 # Plan: UI フィードバック基盤（Toast 配線・削除確認・ルート境界）
 
-> ステータス: 🟣 マージ承認待ち（PR #64・CI green）
+> ステータス: 🟢 マージ済み（検証中）— PR #64 merged。マージ後検証チェックが残り
 
 | 項目 | 値 |
 |---|---|
@@ -138,7 +138,7 @@ UI/UX 監査（2026-07-05 チャット内）で High と判定された 3 ギャ
 - [x] 実装完了（typecheck / web lint / test 69 / build すべて green）
 - [x] コードレビュー完了（APPROVE 2026-07-05・NICE-TO-HAVE 反映済み）
 - [x] PR 作成（[#64](https://github.com/sasakiyusuke2017015/waoon/pull/64)・CI green）
-- [ ] merge（笹木さん承認）
+- [x] merge 済み（PR #64）
 - [ ] マージ後検証（手動確認チェックを消化）
   - [ ] 保存成功トーストが遷移後の画面で表示される（SurveyForm → 一覧）
   - [ ] 失敗（error）トーストが自動で閉じない
