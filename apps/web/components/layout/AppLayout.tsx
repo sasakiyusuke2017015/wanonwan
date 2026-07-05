@@ -17,6 +17,7 @@ import { LAYOUT_SIZES, getThemeConfig } from "@ui-catalog/core/constants";
 import { useTheme, useBackgroundTheme, DEFAULT_GLOBAL_THEME } from "@ui-catalog/core/infra/theme";
 import { useNavigationItems } from "./useNavigationItems";
 import { useGuardedNavigate } from "@/hooks/useGuardedNavigate";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { AppSideNav } from "./AppSideNav";
 import { HeaderUserMenu } from "./HeaderUserMenu";
 import { ThemeSettingsModal } from "./ThemeSettingsModal";
@@ -52,6 +53,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const { colors, shapes } = mounted ? liveTheme : DEFAULT_THEME;
   const background = mounted ? liveBackground : DEFAULT_BACKGROUND;
   const activeLabel = items.find((i) => i.active)?.label ?? "waoon";
+  // 認証ページ全体のタブタイトルを現在セクション名に（"use client" のため document.title 直設定）。
+  useDocumentTitle(activeLabel);
 
   // ナビが 2 件以上のときだけサイドナビ / ハンバーガー / 下部タブを出す（旧踏襲）。
   const showSideNav = items.length > 1;
