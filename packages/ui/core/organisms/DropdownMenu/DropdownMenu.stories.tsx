@@ -30,6 +30,13 @@ const meta: Meta<typeof DropdownMenu> = {
     label: {
       control: 'text',
     },
+    animation: {
+      control: { type: 'select' },
+      options: ['expandFromTrigger', 'slideDown', 'fadeIn', 'scaleY', 'none'],
+    },
+    viewportMargin: {
+      control: { type: 'number', min: 0, max: 64, step: 1 },
+    },
   },
 };
 
@@ -489,6 +496,68 @@ export const WithCardDealAnimation: Story = {
           </MenuItemList>
         )}
       />
+    </div>
+  ),
+};
+
+// ========================================
+// animation variant 比較 (Plan 2026-05-22-1848 で追加)
+// ========================================
+
+export const AnimationVariantComparison: Story = {
+  render: () => (
+    <div className="grid grid-cols-2 gap-12 p-8">
+      {(['expandFromTrigger', 'slideDown', 'fadeIn', 'scaleY'] as const).map((variant) => (
+        <div key={variant} className="flex flex-col items-start gap-2">
+          <div className="text-fluid-sm font-semibold text-white">animation = "{variant}"</div>
+          <DropdownMenu
+            icon={'bell'}
+            label={variant}
+            variant="outline"
+            menuWidth="w-60"
+            animation={variant}
+            menuContent={(closeMenu) => (
+              <MenuItemList
+                menuItems={[
+                  { label: 'お知らせ１' },
+                  { label: 'お知らせ２' },
+                  { label: 'お知らせ３' },
+                ]}
+                onClose={closeMenu}
+              />
+            )}
+          />
+        </div>
+      ))}
+    </div>
+  ),
+};
+
+export const ExpandFromTriggerPlacements: Story = {
+  render: () => (
+    <div className="grid grid-cols-2 gap-12 p-8">
+      {(['bottom-end', 'bottom-start', 'top-end', 'top-start'] as const).map((placement) => (
+        <div key={placement} className="flex flex-col items-start gap-2">
+          <div className="text-fluid-sm font-semibold text-white">placement = "{placement}"</div>
+          <DropdownMenu
+            icon={'bell'}
+            label={placement}
+            variant="outline"
+            menuWidth="w-60"
+            animation="expandFromTrigger"
+            placement={placement}
+            menuContent={(closeMenu) => (
+              <MenuItemList
+                menuItems={[
+                  { label: 'アイテム１' },
+                  { label: 'アイテム２' },
+                ]}
+                onClose={closeMenu}
+              />
+            )}
+          />
+        </div>
+      ))}
     </div>
   ),
 };

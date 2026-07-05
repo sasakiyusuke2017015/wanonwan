@@ -111,6 +111,15 @@
 
   --color-focus-ring: rgba(100, 116, 139, 0.5);
 
+  /* Interaction / surface tokens（DataTable 等の移植部品が参照。値は upstream catalog と同一） */
+  --color-hover-bg: rgba(79, 70, 229, 0.1);
+  --color-selected-bg: rgba(79, 70, 229, 0.18);
+  --color-bg-subtle: #f8fafc;
+  --color-bg-surface: #ffffff;
+  --color-border-light: #f1f5f9;
+  --color-error: #dc2626;
+  --color-error-bg: #fee2e2;
+
   /* Calendar: today highlight */
   --color-today-bg: rgba(251, 191, 36, 0.15);
   --color-today-bg-strong: rgba(251, 191, 36, 0.22);

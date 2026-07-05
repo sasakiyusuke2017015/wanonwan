@@ -357,6 +357,44 @@ const ICON_PATHS: Record<string, (props: PathRenderProps) => React.ReactElement>
       d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V20l-4 4v-10.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
     />
   ),
+  ['plus']: () => (
+    <path
+      className={styles.stroke}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M12 5v14M5 12h14"
+    />
+  ),
+  ['pencil']: () => (
+    <path
+      className={styles.stroke}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
+    />
+  ),
+  ['copy']: () => (
+    <g className={styles.stroke} strokeLinecap="round" strokeLinejoin="round">
+      <rect x="9" y="9" width="13" height="13" rx="2" />
+      <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+    </g>
+  ),
+  ['ban']: () => (
+    <g className={styles.stroke} strokeLinecap="round">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M5.6 5.6l12.8 12.8" />
+    </g>
+  ),
+  ['grip']: () => (
+    <g fill="currentColor">
+      <circle cx="9" cy="5" r="1.4" />
+      <circle cx="9" cy="12" r="1.4" />
+      <circle cx="9" cy="19" r="1.4" />
+      <circle cx="15" cy="5" r="1.4" />
+      <circle cx="15" cy="12" r="1.4" />
+      <circle cx="15" cy="19" r="1.4" />
+    </g>
+  ),
   ['gear']: () => (
     <g className={styles.body}>
       <path

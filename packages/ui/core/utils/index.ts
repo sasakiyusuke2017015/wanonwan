@@ -4,6 +4,7 @@
 
 // Core Utils
 export { cn } from './cn'
+export { isModifiedClick } from './isModifiedClick'
 export { isNullish } from './isNullish'
 
 // Debug Utils

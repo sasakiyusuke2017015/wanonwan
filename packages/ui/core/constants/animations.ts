@@ -55,7 +55,7 @@ export interface AnimationConfig {
  * 'none' = アニメーションなし
  */
 export type CardAnimationVariant = 'none' | 'slideRight' | 'slideRightFast' | 'slideDown' | 'slideDownFast' | 'fadeIn' | 'scaleUp' | 'bounceIn';
-export type DropMenuAnimationVariant = 'none' | 'slideDown' | 'fadeIn' | 'scaleY';
+export type DropMenuAnimationVariant = 'none' | 'slideDown' | 'fadeIn' | 'scaleY' | 'expandFromTrigger';
 export type TableRowAnimationVariant = 'none' | 'slideDown' | 'slideDownFast' | 'fadeIn' | 'slideLeft';
 
 // ============================================
@@ -119,6 +119,8 @@ const CSS_KEYFRAMES = {
   DROP_MENU_FADE_IN: 'dropMenuFadeIn',
   /** DropMenu: 縦方向拡大 */
   DROP_MENU_SCALE_Y: 'dropMenuScaleY',
+  /** DropMenu: trigger 中心から拡大 (transform-origin は呼び出し側 inline style で指定) */
+  DROP_MENU_EXPAND_FROM_TRIGGER: 'dropMenuExpandFromTrigger',
 } as const;
 
 /**
@@ -215,6 +217,17 @@ const DROP_MENU_ANIMATION = {
   /** 縦方向拡大 */
   scaleY: {
     name: CSS_KEYFRAMES.DROP_MENU_SCALE_Y,
+    duration: ANIMATION_DURATION.FAST,
+    delay: ANIMATION_DELAY.DROP_MENU,
+    easing: ANIMATION_EASING.SMOOTH,
+  },
+  /** trigger 中心から拡大
+   * transform-origin は keyframe には書かない設計。呼び出し側 (DropdownMenu) が
+   * inline style で trigger 中心座標を指定することで「押した場所から開く」見た目に
+   * なる。既存 scaleY は keyframe 内に transform-origin: top を持つ別流儀なので
+   * 混同しないこと。 */
+  expandFromTrigger: {
+    name: CSS_KEYFRAMES.DROP_MENU_EXPAND_FROM_TRIGGER,
     duration: ANIMATION_DURATION.FAST,
     delay: ANIMATION_DELAY.DROP_MENU,
     easing: ANIMATION_EASING.SMOOTH,

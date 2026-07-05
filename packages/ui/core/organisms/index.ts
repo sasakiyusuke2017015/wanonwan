@@ -24,7 +24,14 @@ export * from './LoadingZone'
 export * from './EmptyState'
 
 // Data
-export * from './DataTable'
+// DataTable の Column は barrel からは出さず subpath (`./DataTable`) から取得する
+// （InteractiveTable の Column と名前が衝突するため）
+export {
+  DataTable,
+  type DataTableProps,
+  type ClientDataTableProps,
+  type ServerDataTableProps,
+} from './DataTable'
 
 // Content
 export * from './ContentBlock'

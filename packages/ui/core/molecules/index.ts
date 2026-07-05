@@ -20,10 +20,12 @@ export * from './Breadcrumb'
 export * from './ActionBreadcrumb'
 export * from './ContextMenu'
 export * from './MenuItem'
+export * from './Pagination'
 export * from './ProjectItem'
 export * from './TabBar'
 export * from './Tabs'
 export * from './TagItem'
+export * from './Toggleable'
 
 // Indicators
 export * from './StarRating'

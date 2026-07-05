@@ -1,24 +1,58 @@
 .wrapper {
+  // ボディ行や header/footer は transparent もしくは未定義トークン (--color-bg-surface 等は
+  // tokens.css に無く透明にフォールバック) のため、ルートに定義済みの面色を敷かないと
+  // 下地 (ページ背景) が透けて半透明に見える。不透明な面として独立させる。
+  background-color: var(--color-surface, #ffffff);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-default);
-  overflow: hidden;
   display: flex;
   flex-direction: column;
-  min-height: 0;
-  max-height: 100%;
+
+  // ヘッダ (toolbar + 黒帯) はページスクロールに追従して上端へ吸着させる
+  // (position: sticky)。sticky は最寄りの「スクロールコンテナ」を基準にするため、
+  // overflow を scroll/auto/hidden にすると wrapper 自身がコンテナ化してページ追従が
+  // 壊れる。overflow-x: clip はスクロールコンテナを作らず横はみ出し (横長テーブル) だけを
+  // 角丸ごと切り取る。縦は visible にしてスクロール基準を document に通す。
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+// flush: 親のカード / パネル (folder タブのクリーム面等) に埋め込む形態。
+// 枠は親が持つので wrapper 自身の枠線・角丸を外し、親の面 (クリーム帯) との
+// 境目に上辺ヘアラインだけ残す。
+.wrapperFlush {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  border-radius: 0;
 }
 
 // -----------------------------------------------------------------------------
 // Toolbar
 // -----------------------------------------------------------------------------
 .toolbar {
+  // ページスクロール時、TopBar (fixed, 高さ --topbar-h) の直下へ吸着させる。
+  // 黒帯ヘッダ (.th) はさらにこの toolbar の真下に積むため、toolbar 実高を
+  // --dt-toolbar-h として測って th の top に足し込む (useStickyToolbarOffset)。
+  position: sticky;
+  top: var(--topbar-h, 0);
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-1) var(--spacing-2);
-  background-color: var(--color-bg);
+  // sticky でスクロール中の行の上に重なるため、不透明な面色が必須。
+  // --color-bg は未定義トークンで transparent に落ちると行が透けるので、
+  // wrapper と同じ不透明サーフェスへフォールバックさせる。
+  background-color: var(--color-bg, var(--color-surface, #ffffff));
   border-bottom: 1px solid var(--color-border);
   gap: var(--spacing-2);
+
+  // collapsible 時は Toggleable のラッパー div が summary を内包する。
+  // flex: 1 で toolbar 全幅まで伸ばし、内側のリセットを右端まで寄せられるようにする。
+  > [data-component='toggleable'] {
+    flex: 1;
+    min-width: 0;
+  }
 }
 
 .toolbarLeft {
@@ -34,6 +68,88 @@
   align-items: center;
   gap: var(--spacing-1);
   flex-shrink: 0;
+}
+
+// リセット / 最小化ボタンを toolbarLeft の右端に寄せるためのラッパー。
+// 検索 / filter 群との間に視覚的な余白を作る。
+.toolbarFilterControls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+// funnel アイコンボタン (collapsible Toolbar の trigger) のラッパー。
+// flex-shrink: 0 で他要素 (chips / controls) の伸縮に押されないよう固定。
+.filterToggleButton {
+  flex-shrink: 0;
+}
+
+// collapsible Toolbar の常時表示行: [funnel] [チップ要約] [件数] [リセット]。
+// 最小化 (入力を畳んだ) 状態でもこの行は常に見える。
+.toolbarSummary {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex: 1;
+  min-width: 0;
+}
+
+// 折りたたみ対象の入力行 (検索 + filter select 群)。
+.toolbarInputs {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+}
+
+// 適用中フィルタのチップ群。
+.filterChips {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.filterChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 220px;
+  padding: 1px 4px 1px 8px;
+  border-radius: 9999px;
+  background-color: var(--color-bg-muted, var(--color-hover-bg));
+  border: 1px solid var(--color-border);
+  font-size: var(--font-size-xs);
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.filterChipLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filterChipRemove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--color-hover-bg);
+    color: var(--color-text);
+  }
 }
 
 .searchInput {
@@ -59,63 +175,143 @@
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
   white-space: nowrap;
+  flex-shrink: 0;
+}
+
+// collapsible summary の gear + リセットを横並びにして右端へ寄せるラッパー。
+.toolbarResetControl {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 // -----------------------------------------------------------------------------
-// Column picker
+// Column picker (DropdownMenu の menuContent 内に描画される中身)
+// 配置 / overflow / 外側クリックは DropdownMenu organism が担うため、ここでは
+// 中身のレイアウトだけを定義する。
 // -----------------------------------------------------------------------------
-.pickerContainer {
-  position: relative;
-}
-
-.gearButton {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  padding: 2px 4px;
-  border-radius: 3px;
-  color: var(--color-text-muted);
-  transition: background-color var(--transition-duration-150) var(--transition-ease-in-out);
-
-  &:hover {
-    background-color: var(--color-hover-bg);
-    color: var(--color-text);
-  }
-}
-
 .picker {
-  position: absolute;
-  right: 0;
-  top: 100%;
-  z-index: 10;
-  min-width: 160px;
-  max-height: 240px;
+  padding: var(--spacing-1) 0 0;
+}
+
+.pickerList {
+  max-height: 280px;
   overflow-y: auto;
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-default);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: var(--spacing-1) 0;
+  padding-bottom: var(--spacing-1);
 }
 
 .pickerItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2);
-  padding: var(--spacing-1) var(--spacing-2);
+  gap: var(--spacing-1);
+  padding: 5px var(--spacing-3) 5px var(--spacing-2);
+  margin: 0 var(--spacing-2);
+  border-radius: var(--border-radius-md, 8px);
   font-size: var(--font-size-xs);
   color: var(--color-text);
-  cursor: pointer;
+
+  // ラベル wrapper (Toggle の label) をラベル幅いっぱいに広げる。
+  > label {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+// 並べ替え行の Toggle: ラベルを左、スイッチを右端へ寄せる。
+.pickerToggle {
+  justify-content: space-between;
+}
+
+// ロック列のラベル (Checkbox ではなく素のラベル + 右端に鍵アイコン)。
+.pickerLockLabel {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.7;
+}
+
+// ロック列: トグルの代わりに同じ幅 (size="small" = 2rem) の枠へ鍵アイコンを中央配置。
+// 右端で toggleable 行のトグルと整列する。
+.pickerLockIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+// ドラッグで並べ替え可能な toggleable 行。
+.pickerItemDraggable {
+  cursor: grab;
 
   &:hover {
     background-color: var(--color-hover-bg);
   }
 
-  input[type='checkbox'] {
-    width: 14px;
-    height: 14px;
-    flex-shrink: 0;
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+// ドラッグ中の本体（薄く）。
+.pickerItemDragging {
+  opacity: 0.4;
+}
+
+// ドロップ先候補のインジケータ。ドラッグ方向で上端 / 下端を出し分け、
+// 線の位置と実際の落ち先 (moveColumnKey) を一致させる。
+.pickerItemDragOverTop {
+  box-shadow: inset 0 2px 0 0 var(--color-primary-500, var(--color-accent));
+}
+
+.pickerItemDragOverBottom {
+  box-shadow: inset 0 -2px 0 0 var(--color-primary-500, var(--color-accent));
+}
+
+// 6 点グリップ（ドラッグつまみ）。
+.pickerGrip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  opacity: 0.55;
+}
+
+.pickerGripSvg {
+  display: block;
+}
+
+// フッター: 既定に戻す / 完了。
+.pickerFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-bg-muted, rgba(148, 163, 184, 0.06));
+}
+
+.pickerReset {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px;
+  border: none;
+  background: transparent;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-text);
   }
 }
 
@@ -123,9 +319,10 @@
 // Table
 // -----------------------------------------------------------------------------
 .tableScroll {
-  overflow: auto;
-  flex: 1;
-  min-height: 0;
+  // 縦スクロールはページ (document) に委ねる。ここで overflow を auto/hidden にすると
+  // スクロールコンテナ化して .th / .toolbar のページ追従 sticky が壊れる。横はみ出しは
+  // 親 .wrapper の overflow-x: clip が角丸ごと切り取る (横スクロールバーは出さない)。
+  overflow: visible;
 }
 
 .table {
@@ -134,33 +331,108 @@
   font-size: var(--font-size-xs);
 }
 
+// 列間の縦罫線。最終列は border-right を消す。
+.tableBordered {
+  .th,
+  .td {
+    border-right: 1px solid var(--color-border-light, var(--color-border));
+  }
+
+  .th:last-child,
+  .td:last-child {
+    border-right: none;
+  }
+}
+
+// 偶数行 zebra。selected / hover は specificity を上げてここに勝たせる必要がある (下記)
+.tableStriped {
+  .tr:nth-child(even) > .td {
+    background-color: var(--color-bg-subtle, var(--color-bg-muted, transparent));
+  }
+
+  // selected を stripe より優先 (.tr:nth-child(even) > .td の specificity (0,1,2) を上回る)
+  .trSelected > .td,
+  .trSelected:nth-child(even) > .td {
+    background-color: var(--color-selected-bg);
+  }
+
+  // hover を stripe より優先
+  .tr:hover > .td,
+  .tr:nth-child(even):hover > .td {
+    background-color: var(--color-hover-bg);
+  }
+}
+
+// plain variant: 埋め込みサブテーブル向けの軽量版。ヘッダを淡色 + 通常文字にして
+// 濃色ヘッダの主一覧と差別化する (背景・文字・ソート指標・hover を上書き)。
+.tablePlain {
+  .th {
+    color: var(--color-text-muted, var(--color-text));
+    // sticky でスクロール中の行に重なるため不透明にする (rgba フォールバックだと透ける)。
+    background-color: var(--color-bg-muted, #eef1f5);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .thSortable:hover {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.04));
+  }
+
+  .sortIcon {
+    color: var(--color-text);
+  }
+}
+
+// ヘッダ列はダーク (既定): 濃色背景 + 反転文字。
 .th {
+  // ページスクロール時、TopBar (--topbar-h) + toolbar 実高 (--dt-toolbar-h) の直下へ吸着。
+  // toolbar が無いテーブルでは --dt-toolbar-h=0px なので TopBar 直下に吸着する。
+  // テーブル最下部までスクロールすると、sticky の制約矩形 (table) を抜けて一緒に流れる。
   position: sticky;
-  top: 0;
+  top: calc(var(--topbar-h, 0px) + var(--dt-toolbar-h, 0px));
   padding: var(--spacing-1) var(--spacing-2);
   text-align: left;
   font-weight: var(--font-weight-medium);
-  color: var(--color-text-muted);
-  background-color: var(--color-bg);
+  color: var(--color-text-inverse);
+  background-color: var(--color-text);
   border-bottom: 1px solid var(--color-border);
   white-space: nowrap;
-  z-index: 1;
+  z-index: 2;
+}
+
+// th 内側の flex ラッパ (th 自体は table-cell のまま)。ラベルを伸ばして
+// ソート指標 (.sortIcon) をカラム右端へ寄せる。
+.thInner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+// ラベルは利用可能幅いっぱいに広げ、ソート指標を右端へ押し出す。
+// text-align (alignLeft/Right/Center) はラベル内の文字寄せに使う。
+.thLabel {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .thSortable {
   cursor: pointer;
   user-select: none;
 
+  // ダークヘッダの背景色 (var(--color-text)) は保ったまま、薄い白を「重ねる」。
+  // background-color を半透明で上書きすると下地が透けて真っ白に見えるため、
+  // background-image (linear-gradient) でオーバーレイして明度だけ上げる。
   &:hover {
-    color: var(--color-text);
-    background-color: var(--color-hover-bg);
+    background-image: linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12));
   }
 }
 
+// active なソート列の指標 (順位 ①②… + ▲▼)。ダークヘッダ上で常にはっきり見える色。
+// カラム右端に配置 (.thInner の flex で右へ寄る)。
 .sortIcon {
-  margin-left: var(--spacing-1);
-  font-size: 8px;
-  color: var(--color-accent);
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--color-text-inverse);
+  white-space: nowrap;
 }
 
 .tr {
@@ -171,6 +443,16 @@
 
 .trClickable {
   cursor: pointer;
+  // 持ち上げ / 色変化を滑らかに。animated 版は motion の whileHover が transform を
+  // 担うため (inline transform が CSS を上書きする)、この transform は plain 版に効く。
+  transition:
+    transform 0.08s ease,
+    background-color 0.12s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    background-color: var(--color-hover-bg);
+  }
 }
 
 .trSelected {
@@ -181,10 +463,7 @@
   padding: var(--spacing-1) var(--spacing-2);
   border-bottom: 1px solid var(--color-border-light, var(--color-border));
   color: var(--color-text);
-  white-space: nowrap;
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  vertical-align: middle;
 }
 
 .emptyRow {
@@ -192,6 +471,21 @@
   text-align: center;
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
+}
+
+// -----------------------------------------------------------------------------
+// Align utilities (column.align で適用される)
+// -----------------------------------------------------------------------------
+.alignLeft {
+  text-align: left;
+}
+
+.alignRight {
+  text-align: right;
+}
+
+.alignCenter {
+  text-align: center;
 }
 
 // -----------------------------------------------------------------------------
