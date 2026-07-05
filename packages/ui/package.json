@@ -9,6 +9,7 @@
     "./atoms": "./core/atoms/index.ts",
     "./molecules": "./core/molecules/index.ts",
     "./organisms": "./core/organisms/index.ts",
+    "./organisms/DataTable": "./core/organisms/DataTable/index.ts",
     "./organisms/Modal": "./core/organisms/Modal/index.ts",
     "./organisms/BackgroundTexture": "./core/organisms/BackgroundTexture/index.ts",
     "./organisms/BlurFade": "./core/organisms/BlurFade/index.ts",

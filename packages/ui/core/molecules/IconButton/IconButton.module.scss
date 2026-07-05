@@ -1,0 +1,34 @@
+// -----------------------------------------------------------------------------
+// Shimmer: hover 時に斜めの光沢が一度サッと走る
+// 光沢バンドを translateX で左外 → 右外へ 1 回スライドさせる（hover 中は右端で停止）。
+// SVG 自体には ::before を載せられないため、ボタン領域に重ねる。
+// -----------------------------------------------------------------------------
+.shimmer {
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 38%,
+      rgba(255, 255, 255, 0.55) 50%,
+      transparent 62%
+    );
+    transform: translateX(-130%);
+    transition: transform 0.55s var(--transition-ease-in-out);
+    pointer-events: none;
+  }
+
+  &:hover::before {
+    transform: translateX(130%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::before {
+      display: none;
+    }
+  }
+}

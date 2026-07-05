@@ -32,6 +32,8 @@ interface SelectBaseProps<T = string | number> {
   name?: string;
   width?: string;
   allowEmpty?: boolean;
+  /** 空(未選択)オプション行のラベル。未指定時は placeholder を流用 */
+  emptyLabel?: string;
   /** borderRadius（形状設定用） - Layout から props で渡す */
   borderRadius?: string;
 }
@@ -112,6 +114,7 @@ export const Select = <T extends string | number = string>(props: SelectProps<T>
     name,
     width = 'w-[180px]',
     allowEmpty = true,
+    emptyLabel,
     borderRadius = '0.375rem',
   } = props;
 
@@ -410,7 +413,7 @@ export const Select = <T extends string | number = string>(props: SelectProps<T>
               aria-selected={(props as SingleSelectProps<T>).value === undefined}
               tabIndex={0}
             >
-              {placeholder}
+              {emptyLabel ?? placeholder}
             </li>
           )}
           {options.map((option, index) => {

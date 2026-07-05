@@ -73,6 +73,15 @@ body {
   100% { opacity: 1; transform: scaleY(1); transform-origin: top; }
 }
 
+/* DropMenu: trigger 中心から拡大。transform-origin は keyframe に書かず、
+ * 呼び出し側 (DropdownMenu) が inline style で trigger 中心座標を指定する。
+ * keyframe 内に書くと inline style override が効かなくなるため (dropMenuScaleY は
+ * 逆に keyframe 内に transform-origin を固定している別流儀)。 */
+@keyframes dropMenuExpandFromTrigger {
+  0% { opacity: 0; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
 /* シマーエフェクト（スケルトンUI用） */
 @keyframes shimmer {
   0% { transform: translateX(-100%); }
