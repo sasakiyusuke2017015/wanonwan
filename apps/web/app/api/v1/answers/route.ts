@@ -8,6 +8,8 @@ export const GET = withActiveUser(async (_req, claims) => {
     select a.id, a.status,
            a.health_status as "healthStatus",
            a.interview_at  as "interviewAt",
+           ul.name         as "urgencyName",
+           ul.code::int    as "urgencyCode",
            u.name          as "respondentName",
            s.title         as "surveyTitle",
            p.title         as "publicationTitle"
@@ -15,6 +17,7 @@ export const GET = withActiveUser(async (_req, claims) => {
     join public.users u               on u.id = a.respondent_id
     join public.survey_publications p on p.id = a.publication_id
     join public.surveys s             on s.id = p.survey_id
+    left join public.urgency_levels ul on ul.id = a.urgency_id
     order by a.id desc
   `);
   return NextResponse.json({ data: rows });
