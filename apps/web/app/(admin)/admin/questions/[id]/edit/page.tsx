@@ -4,6 +4,7 @@ import { use } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type AnswerType } from "@waoon/domain";
+import { useAppToast } from "@ui-catalog/core/providers";
 import { apiGet, apiSend } from "@/lib/api/client";
 import {
   QuestionForm,
@@ -24,6 +25,7 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
   const { id } = use(params);
   const router = useRouter();
   const qc = useQueryClient();
+  const { showToast } = useAppToast();
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["question", id],
@@ -66,6 +68,7 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
           await apiSend(`/api/v1/questions/${id}`, "PUT", questionDraftToPayload(draft));
           qc.invalidateQueries({ queryKey: ["questions"] });
           qc.invalidateQueries({ queryKey: ["question", id] });
+          showToast("保存しました", { type: "success" });
           router.push("/admin/questions");
         }}
       />
