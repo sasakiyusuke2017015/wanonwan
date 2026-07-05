@@ -6,6 +6,7 @@ import { RouterProvider } from "@ui-catalog/core/hooks/router";
 import { useState } from "react";
 import { ToastProvider } from "@ui-catalog/core/providers";
 import { nextRouterAdapter } from "@/components/router/nextRouterAdapter";
+import { NavigationGuardProvider } from "@/components/navigation/NavigationGuardProvider";
 
 // アプリ全体の Provider。テーマ(Jotai, @ui-catalog の theme atom) + サーバ状態(TanStack Query)
 // + @ui-catalog の router 抽象を Next.js に橋渡しする RouterProvider
@@ -18,7 +19,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <JotaiProvider>
       <QueryClientProvider client={queryClient}>
         <RouterProvider adapter={nextRouterAdapter}>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            <NavigationGuardProvider>{children}</NavigationGuardProvider>
+          </ToastProvider>
         </RouterProvider>
       </QueryClientProvider>
     </JotaiProvider>

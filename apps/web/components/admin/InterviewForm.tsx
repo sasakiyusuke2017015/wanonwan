@@ -10,7 +10,9 @@ import { TextArea } from "@ui-catalog/core/atoms";
 import { useTheme } from "@ui-catalog/core/infra/theme";
 import { useAppToast } from "@ui-catalog/core/providers";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
+import { isDirtyPayload } from "@/lib/forms/dirty";
 import { FormActions } from "@/components/admin/FormActions";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { AttachmentsPanel } from "@/components/admin/AttachmentsPanel";
 import { InterviewSummary } from "@/components/admin/InterviewSummary";
 import { InterviewMentor } from "@/components/admin/InterviewMentor";
@@ -39,7 +41,7 @@ export function InterviewForm({ answerId, initial }: { answerId: string; initial
     queryFn: () => apiGet<{ data: UrgencyLevel[] }>("/api/v1/urgencies"),
   });
   const urgencyOptions = (urgencies?.data ?? []).map((u) => ({ value: String(u.id), label: u.name }));
-  const [f, setF] = useState({
+  const initialValues = {
     interviewAt: utcIsoToJstInput(initial.interviewAt),
     interviewMethod: initial.interviewMethod == null ? "" : String(initial.interviewMethod),
     healthStatus: initial.healthStatus == null ? "" : String(initial.healthStatus),
@@ -47,10 +49,14 @@ export function InterviewForm({ answerId, initial }: { answerId: string; initial
     interviewMemo: initial.interviewMemo ?? "",
     nextAction: initial.nextAction ?? "",
     urgencyId: initial.urgencyId == null ? "" : String(initial.urgencyId),
-  });
+  };
+  const [f, setF] = useState(initialValues);
+  const [baseline, setBaseline] = useState(initialValues);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const { showToast } = useAppToast();
+
+  useUnsavedChangesGuard(isDirtyPayload(f, baseline));
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -72,6 +78,7 @@ export function InterviewForm({ answerId, initial }: { answerId: string; initial
         urgencyId: f.urgencyId ? Number(f.urgencyId) : null,
         status: 900,
       });
+      setBaseline(f); // 保存成功で baseline をリセット（同一画面に留まるため離脱ガードを解く）
       showToast("保存しました", { type: "success" });
       router.refresh();
     } catch (err) {

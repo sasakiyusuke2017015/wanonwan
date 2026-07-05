@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { CHOICE_TYPES, EVAL_ITEMS, QUESTION_TYPES, type AnswerType } from "@waoon/domain";
 import { ApiError } from "@/lib/api/client";
+import { isDirtyPayload } from "@/lib/forms/dirty";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 
 export type QuestionDraft = {
   body: string;
@@ -53,6 +55,8 @@ export function QuestionForm({
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const needChoices = CHOICE_TYPES.includes(draft.answerType);
+
+  useUnsavedChangesGuard(isDirtyPayload(draft, initial));
 
   return (
     <form

@@ -6,6 +6,7 @@ import { DropdownMenu } from "@ui-catalog/core/organisms/DropdownMenu";
 import { MenuItemList } from "@ui-catalog/core/organisms/MenuItemList";
 import { BlurFade } from "@ui-catalog/core/organisms/BlurFade";
 import { Icon } from "@ui-catalog/core/atoms";
+import { useNavigationGuard } from "@/components/navigation/NavigationGuardProvider";
 
 type Props = {
   name: string | null;
@@ -18,9 +19,12 @@ type Props = {
 // テーマ設定 / パスワード変更 / ログアウトを集約し、各項目を BlurFade で段差フェードインさせる。
 export function HeaderUserMenu({ name, email, primaryContrastText, onOpenTheme }: Props) {
   const router = useRouter();
+  const { guardedNavigate, confirmLeave } = useNavigationGuard();
   const [loggingOut, setLoggingOut] = useState(false);
 
   async function logout() {
+    // 未保存の編集があるときはログアウト前に確認する（セッション破棄後だと引き返せないため先に確認）。
+    if (!(await confirmLeave())) return;
     setLoggingOut(true);
     try {
       await fetch("/api/v1/auth/logout", { method: "POST" });
@@ -56,7 +60,7 @@ export function HeaderUserMenu({ name, email, primaryContrastText, onOpenTheme }
             </BlurFade>
           </MenuItemList.Item>
 
-          <MenuItemList.Item onClick={() => router.push("/change-password")}>
+          <MenuItemList.Item onClick={() => guardedNavigate("/change-password")}>
             <BlurFade delay={0.15}>
               <div className="flex items-center gap-2">
                 <Icon name="lock" size={20} hover="auto" />
