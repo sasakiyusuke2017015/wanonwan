@@ -163,4 +163,4 @@ Phase 1/2 は判断不要で着手可。以下は各 epic の**サブ Plan 着�
   - [x] **SurveyCard の期間ヘッダーが白地白文字で不可視のバグを発見**（headerColor の契約不一致・従来から）→ 同 fix ブランチで修正・実機再確認済み
   - [x] **ログイン画面のメール欄 blur で InvalidStateError**（笹木さん報告・catalog `Input` が type を問わず `setSelectionRange` を呼ぶ・テーマ4 由来）→ 同 fix ブランチで selection 対応 type に限定 + 回帰テスト・実機再確認済み
   - [ ] 空状態（EmptyState）: 掲載ゼロの状態が必要なため未検証（seed 環境では常に掲載あり。笹木さん判断でスキップ可）
-  - [ ] followup fix（タイトル上書き / 期間ヘッダー / Input blur）の PR merge
+  - [x] followup fix（タイトル上書き / 期間ヘッダー / Input blur）の PR merge（[#78](https://github.com/sasakiyusuke2017015/waoon/pull/78)）
