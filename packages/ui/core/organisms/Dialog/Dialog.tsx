@@ -1,9 +1,10 @@
 'use client'
 
 // src/components/common/molecules/Dialog.tsx
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useId } from 'react';
 
 import { createPortal } from 'react-dom';
+import { FocusTrap } from 'focus-trap-react';
 
 import { Button } from '../../molecules/Button';
 import { Icon } from '../../atoms/Icon';
@@ -90,6 +91,8 @@ export const Dialog: FC<DialogProps> = (props) => {
 
   const log = useOperationLog('Dialog');
   const isConfirm = variant === 'confirm';
+  const titleId = useId();
+  const messageId = useId();
 
   // ダイアログの開閉をログ
   useEffect(() => {
@@ -150,58 +153,78 @@ export const Dialog: FC<DialogProps> = (props) => {
   };
 
   return createPortal(
-    <div
-      className="fixed inset-0 flex items-center justify-center bg-black/30"
-      style={{ zIndex: 10000 }}
-      onClick={handleBackgroundClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Escape') {
-          handleClose('escape');
-        }
+    <FocusTrap
+      active={isOpen}
+      focusTrapOptions={{
+        // confirm は誤確定防止のためキャンセルボタンに初期フォーカス
+        // （Button は forwardRef 未対応のため data 属性の CSS selector で指定）。
+        ...(isConfirm ? { initialFocus: '[data-dialog-cancel]' } : {}),
+        // フォーカス可能要素が見つからない環境（jsdom 等）向けのフォールバック。
+        fallbackFocus: '[role="dialog"]',
+        // ESC / 背景クリックは既存の handleClose 経路で処理する（trap 側と二重発火させない）。
+        escapeDeactivates: false,
+        clickOutsideDeactivates: false,
       }}
-      role="button"
-      tabIndex={-1}
-      aria-label="ダイアログを閉じる"
-      data-component="dialog"
-      data-variant={variant}
-      data-type={type}
     >
-      <div className="bg-white shadow-xl" style={{ borderRadius, width: 480, maxWidth: '90%' }}>
-        {/* ヘッダー */}
-        {title && (
-          <div className={`flex items-center gap-3 px-6 py-4 ${config.headerBg}`}>
-            <Icon name={config.icon} size={24} className={config.iconColor} />
-            <Text as="h3" size="lg" weight="bold" className="text-gray-800">{title}</Text>
-          </div>
-        )}
-
-        {/* メッセージ */}
-        <div className="px-6 py-4">
-          {!title && (
-            <div className="mb-3 flex justify-center">
-              <Icon name={config.icon} size={48} className={config.iconColor} />
+      <div
+        className="fixed inset-0 flex items-center justify-center bg-black/30"
+        style={{ zIndex: 10000 }}
+        onClick={handleBackgroundClick}
+        data-component="dialog"
+        data-variant={variant}
+        data-type={type}
+      >
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={title ? titleId : undefined}
+          aria-label={!title ? message : undefined}
+          aria-describedby={messageId}
+          tabIndex={-1}
+          className="bg-white shadow-xl"
+          style={{ borderRadius, width: 480, maxWidth: '90%' }}
+        >
+          {/* ヘッダー */}
+          {title && (
+            <div className={`flex items-center gap-3 px-6 py-4 ${config.headerBg}`}>
+              <Icon name={config.icon} size={24} className={config.iconColor} />
+              <Text as="h3" size="lg" weight="bold" className="text-gray-800" id={titleId}>{title}</Text>
             </div>
           )}
-          <Text as="p" className="whitespace-pre-wrap text-gray-700">{message}</Text>
-        </div>
 
-        {/* ボタン */}
-        <div className="flex justify-end gap-2 px-6 py-4">
-          {isConfirm && (
-            <Button variant="secondary" size="small" onClick={() => handleClose('button')}>
-              {cancelText}
+          {/* メッセージ */}
+          <div className="px-6 py-4">
+            {!title && (
+              <div className="mb-3 flex justify-center">
+                <Icon name={config.icon} size={48} className={config.iconColor} />
+              </div>
+            )}
+            <Text as="p" className="whitespace-pre-wrap text-gray-700" id={messageId}>{message}</Text>
+          </div>
+
+          {/* ボタン */}
+          <div className="flex justify-end gap-2 px-6 py-4">
+            {isConfirm && (
+              <Button
+                variant="secondary"
+                size="small"
+                onClick={() => handleClose('button')}
+                data-dialog-cancel
+              >
+                {cancelText}
+              </Button>
+            )}
+            <Button
+              variant={type === 'danger' ? 'danger' : 'primary'}
+              size="small"
+              onClick={handleConfirm}
+            >
+              {confirmText}
             </Button>
-          )}
-          <Button
-            variant={type === 'danger' ? 'danger' : 'primary'}
-            size="small"
-            onClick={handleConfirm}
-          >
-            {confirmText}
-          </Button>
+          </div>
         </div>
       </div>
-    </div>,
+    </FocusTrap>,
     document.body
   );
 };
