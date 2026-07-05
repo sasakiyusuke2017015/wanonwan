@@ -126,6 +126,7 @@ Phase 1 → 2（polish・低〜中リスク）を先に回し、Phase 3（ダー
 | 2026-07-05 | Chromatic は採用せず reg-suit 路線（残置依存は整理対象）| 技術選定メモの SaaS 非採用方針と整合 |
 | 2026-07-05 | 計画レビュー（代行 planner + architect）: Phase1/2 APPROVE / Phase3/4 は NEEDS WORK を反映（[Review](../reviews/2026-07-05-2040-finishing-touches-review.md)）| ダーク方式を三層モデルに置換 / FOUC・body 地色・`@custom-variant dark`・背景軸×dark をリスク/要判断に追加 / VRT の安全網主張を「light 不変の担保」に修正 + 4-light→3→4-dark の additive 順序 / MinIO CI 到達性を決定項目化 |
 | 2026-07-05 | **epic 2 本（ダーク/VRT）は着手時に独立サブ Plan 化**（`…-dark-mode.md` / `…-vrt.md`）。本 Plan は roadmap + Phase1/2 実装 Plan + Phase3/4 意図の位置づけ | 各々 goal/scope/risk/verification を持つ単独 Plan 相当の規模。判断ログ追記では実装ゲートの情報量が不足（architect #C）|
+| 2026-07-05 | Phase 1 実装: ルート metadata に `title.template="%s ｜ waoon"` + `useDocumentTitle` フック新設。**AppLayout で `activeLabel`（現在セクション名）を document.title に一括設定** + login/change-password は個別 | 認証ページは全て AppLayout 配下で NAV_ITEMS の prefix match により意味あるセクション名にマップされる（一覧/編集/新規/マスタ配下すべて）。30 ページ個別編集を回避。ページ個別タイトル（編集 vs 一覧）が要る箇所は将来 useDocumentTitle を個別追加 |
 
 ## 要ユーザー判断
 
@@ -146,7 +147,9 @@ Phase 1/2 は判断不要で着手可。以下は各 epic の**サブ Plan 着�
 ## ステータス
 
 - [x] 計画レビュー（代行 planner + architect）: Phase1/2 APPROVE / Phase3/4 設計指摘を反映（[Review](../reviews/2026-07-05-2040-finishing-touches-review.md)）
-- [ ] Phase 1（ページタイトル）実装・レビュー・merge
+- [x] Phase 1（ページタイトル）実装完了（title.template + useDocumentTitle + AppLayout 一括・typecheck/lint/build/test green）
+- [x] Phase 1 コードレビュー（代行 code-reviewer・APPROVE・[Review](../reviews/2026-07-05-2226-finishing-touches-code-review.md)）
+- [ ] Phase 1 merge（笹木さん承認）
 - [ ] Phase 2（公開一覧 UX）実装・レビュー・merge
 - [ ] Phase 3（ダークモード）: 独立サブ Plan 作成 + 要判断確定 → 実装（複数 PR）・レビュー・merge
 - [ ] Phase 4（VRT）: 独立サブ Plan 作成 + 要判断確定 → 実装・レビュー・merge
