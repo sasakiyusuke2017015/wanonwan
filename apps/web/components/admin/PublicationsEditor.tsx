@@ -3,13 +3,16 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ConfirmDialog } from "@ui-catalog/core/organisms";
+import { FormField, Input, Select } from "@ui-catalog/core/molecules";
 import { useConfirm } from "@ui-catalog/core/hooks/ui";
+import { useTheme } from "@ui-catalog/core/infra/theme";
 import { useAppToast } from "@ui-catalog/core/providers";
 import { PUBLICATION_STATUSES, publicationStatusLabel } from "@waoon/domain";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import { formatJstDateTime, jstInputToUtcIso, utcIsoToJstInput } from "@/lib/datetime";
 import { isDirtyPayload } from "@/lib/forms/dirty";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
+import { FormActions } from "@/components/admin/FormActions";
 
 type Publication = {
   id: string;
@@ -156,6 +159,7 @@ function PublicationForm({
   onSubmit: (d: Draft) => Promise<void>;
   onCancel?: () => void;
 }) {
+  const { shapes } = useTheme();
   const [draft, setDraft] = useState<Draft>(initial);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -177,62 +181,43 @@ function PublicationForm({
           setBusy(false);
         }
       }}
-      className="space-y-2"
+      className="space-y-3"
     >
-      <input
-        className={cls}
-        placeholder="掲載タイトル（任意）"
-        value={draft.title}
-        onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
-      />
-      <div className="flex flex-wrap gap-2">
-        <select
-          className={cls + " max-w-40"}
-          value={draft.status}
-          onChange={(e) => setDraft((d) => ({ ...d, status: Number(e.target.value) }))}
-        >
-          {PUBLICATION_STATUSES.map((s) => (
-            <option key={s.value} value={s.value}>
-              {s.label}
-            </option>
-          ))}
-        </select>
-        <label className="text-xs text-gray-500">
-          開始
-          <input
+      <FormField label="掲載タイトル（任意）">
+        <Input
+          value={draft.title}
+          onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
+          borderRadius={shapes.inputRadius}
+        />
+      </FormField>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <FormField label="状態">
+          <Select
+            options={PUBLICATION_STATUSES.map((s) => ({ value: String(s.value), label: s.label }))}
+            value={String(draft.status)}
+            onChange={(v) => setDraft((d) => ({ ...d, status: v == null ? d.status : Number(v) }))}
+            borderRadius={shapes.inputRadius}
+          />
+        </FormField>
+        <FormField label="開始">
+          <Input
             type="datetime-local"
-            className={cls}
             value={draft.startAt}
             onChange={(e) => setDraft((d) => ({ ...d, startAt: e.target.value }))}
+            borderRadius={shapes.inputRadius}
           />
-        </label>
-        <label className="text-xs text-gray-500">
-          終了
-          <input
+        </FormField>
+        <FormField label="終了">
+          <Input
             type="datetime-local"
-            className={cls}
             value={draft.endAt}
             onChange={(e) => setDraft((d) => ({ ...d, endAt: e.target.value }))}
+            borderRadius={shapes.inputRadius}
           />
-        </label>
+        </FormField>
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
-      <div className="flex gap-2">
-        <button
-          type="submit"
-          disabled={busy}
-          className="rounded bg-gray-900 px-3 py-1.5 text-sm text-white disabled:opacity-50"
-        >
-          {busy ? "..." : submitLabel}
-        </button>
-        {onCancel && (
-          <button type="button" onClick={onCancel} className="rounded border px-3 py-1.5 text-sm">
-            キャンセル
-          </button>
-        )}
-      </div>
+      <FormActions submitLabel={submitLabel} pending={busy} onCancel={onCancel} />
     </form>
   );
 }
-
-const cls = "rounded border border-gray-300 px-3 py-2 text-sm";

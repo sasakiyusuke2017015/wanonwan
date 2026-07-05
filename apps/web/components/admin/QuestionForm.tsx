@@ -1,9 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { CHOICE_TYPES, EVAL_ITEMS, QUESTION_TYPES, type AnswerType } from "@waoon/domain";
+import {
+  CHOICE_TYPES,
+  CreateQuestionSchema,
+  EVAL_ITEMS,
+  QUESTION_TYPES,
+  type AnswerType,
+} from "@waoon/domain";
+import { FormField, Input, Select } from "@ui-catalog/core/molecules";
+import { TextArea, Checkbox } from "@ui-catalog/core/atoms";
+import { useTheme } from "@ui-catalog/core/infra/theme";
 import { ApiError } from "@/lib/api/client";
+import { fieldErrorsOf } from "@/lib/forms/field-errors";
 import { isDirtyPayload } from "@/lib/forms/dirty";
+import { FormActions } from "@/components/admin/FormActions";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 
 export type QuestionDraft = {
@@ -37,7 +48,8 @@ export function questionDraftToPayload(d: QuestionDraft) {
   };
 }
 
-const cls = "w-full rounded border border-gray-300 px-3 py-2 text-sm";
+const TYPE_OPTIONS = QUESTION_TYPES.map((t) => ({ value: t.value, label: t.label }));
+const EVAL_OPTIONS = EVAL_ITEMS.map((it) => ({ value: it.key, label: it.label }));
 
 // 設問の作成 / 編集フォーム。設問マスタ画面とアンケート編集内の双方で使う共通部品。
 export function QuestionForm({
@@ -51,8 +63,10 @@ export function QuestionForm({
   onSubmit: (draft: QuestionDraft) => Promise<void>;
   onCancel?: () => void;
 }) {
+  const { shapes } = useTheme();
   const [draft, setDraft] = useState<QuestionDraft>(initial);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const needChoices = CHOICE_TYPES.includes(draft.answerType);
 
@@ -62,6 +76,12 @@ export function QuestionForm({
     <form
       onSubmit={async (e) => {
         e.preventDefault();
+        const errs = fieldErrorsOf(CreateQuestionSchema, questionDraftToPayload(draft));
+        setFieldErrors(errs);
+        if (Object.keys(errs).length > 0) {
+          setError(null);
+          return;
+        }
         setError(null);
         setBusy(true);
         try {
@@ -73,65 +93,53 @@ export function QuestionForm({
           setBusy(false);
         }
       }}
-      className="space-y-2"
+      className="space-y-3"
     >
-      <input
-        className={cls}
-        placeholder="質問文"
-        value={draft.body}
-        onChange={(e) => setDraft((d) => ({ ...d, body: e.target.value }))}
-        required
-      />
-      <div className="flex flex-wrap gap-2">
-        <select
-          className={cls + " sm:w-auto"}
-          value={draft.answerType}
-          onChange={(e) => setDraft((d) => ({ ...d, answerType: e.target.value as AnswerType }))}
-        >
-          {QUESTION_TYPES.map((t) => (
-            <option key={t.value} value={t.value}>{t.label}</option>
-          ))}
-        </select>
-        <select
-          className={cls + " sm:w-auto"}
-          value={draft.evalItem}
-          onChange={(e) => setDraft((d) => ({ ...d, evalItem: e.target.value }))}
-          aria-label="評価項目"
-        >
-          <option value="">評価項目なし</option>
-          {EVAL_ITEMS.map((it) => (
-            <option key={it.key} value={it.key}>{it.label}</option>
-          ))}
-        </select>
-        <label className="flex items-center gap-1 whitespace-nowrap text-sm">
-          <input
-            type="checkbox"
-            checked={draft.required}
-            onChange={(e) => setDraft((d) => ({ ...d, required: e.target.checked }))}
-          />
-          必須
-        </label>
-      </div>
-      {needChoices && (
-        <textarea
-          className={cls}
-          rows={3}
-          placeholder="選択肢（1 行に 1 つ）"
-          value={draft.choicesText}
-          onChange={(e) => setDraft((d) => ({ ...d, choicesText: e.target.value }))}
+      <FormField label="質問文" required error={fieldErrors.body}>
+        <Input
+          value={draft.body}
+          onChange={(e) => setDraft((d) => ({ ...d, body: e.target.value }))}
+          borderRadius={shapes.inputRadius}
         />
+      </FormField>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <FormField label="回答形式">
+          <Select
+            options={TYPE_OPTIONS}
+            value={draft.answerType}
+            onChange={(v) => setDraft((d) => ({ ...d, answerType: (v ?? "text") as AnswerType }))}
+            borderRadius={shapes.inputRadius}
+          />
+        </FormField>
+        <FormField label="評価項目">
+          <Select
+            options={EVAL_OPTIONS}
+            value={draft.evalItem || undefined}
+            onChange={(v) => setDraft((d) => ({ ...d, evalItem: v == null ? "" : String(v) }))}
+            allowEmpty
+            emptyLabel="評価項目なし"
+            placeholder="評価項目なし"
+            borderRadius={shapes.inputRadius}
+          />
+        </FormField>
+      </div>
+      <Checkbox
+        label="必須"
+        checked={draft.required}
+        onChange={(e) => setDraft((d) => ({ ...d, required: e.target.checked }))}
+      />
+      {needChoices && (
+        <FormField label="選択肢（1 行に 1 つ）">
+          <TextArea
+            value={draft.choicesText}
+            onChange={(e) => setDraft((d) => ({ ...d, choicesText: e.target.value }))}
+            rows={3}
+            borderRadius={shapes.inputRadius}
+          />
+        </FormField>
       )}
       {error && <p className="text-sm text-red-600">{error}</p>}
-      <div className="flex gap-2">
-        <button type="submit" disabled={busy} className="rounded bg-gray-900 px-3 py-1.5 text-sm text-white disabled:opacity-50">
-          {busy ? "..." : submitLabel}
-        </button>
-        {onCancel && (
-          <button type="button" onClick={onCancel} className="rounded border px-3 py-1.5 text-sm">
-            キャンセル
-          </button>
-        )}
-      </div>
+      <FormActions submitLabel={submitLabel} pending={busy} onCancel={onCancel} />
     </form>
   );
 }
