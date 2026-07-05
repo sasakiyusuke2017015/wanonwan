@@ -180,8 +180,9 @@ PR-A / C / D:
 - [x] Plan 再確認・承認（PR 数 3→4 の変更含む・笹木さん承認 2026-07-05）
 - [x] PR-A 実装完了（保存トースト 3 箇所）→ [#71](https://github.com/sasakiyusuke2017015/waoon/pull/71) merged
 - [x] PR-B 実装完了（未保存ガード基盤・7 フォーム配線・typecheck/lint/build/test green・web test 71）
-- [x] PR-B コードレビュー（代行 code-reviewer + architect・BLOCKER 2 件反映・[Review](../reviews/2026-07-05-1852-form-ux-unification-review.md)）→ 提出
-- [ ] PR-B merge（笹木さん承認）
+- [x] PR-B コードレビュー（代行 code-reviewer + architect・BLOCKER 2 件反映・[Review](../reviews/2026-07-05-1852-form-ux-unification-review.md)）
+- [x] PR-B merge（[#72](https://github.com/sasakiyusuke2017015/waoon/pull/72)・develop 49289cb・CI green）
+- [ ] PR-B マージ後の対話挙動を手動検証（サイドナビ離脱 / 戻る / 暴発なし / beforeunload・要 dev 起動）
 - [ ] PR-C 実装・レビュー・merge
 - [ ] PR-D 実装・レビュー・merge
 - [ ] マージ後検証（手動確認チェックを消化）
