@@ -1,13 +1,13 @@
 # Plan: カタログ堅牢化（MarkdownPreview XSS 修正 + モーダルの focus-trap / ARIA）
 
-> ステータス: 🟦 コードレビュー完了（APPROVE・NICE-TO-HAVE 反映済み）・PR 化待ち
+> ステータス: 🟢 マージ済み（検証中）— PR #66 merged。マージ後検証チェックが残り
 
 | 項目 | 値 |
 |---|---|
 | 作成日時 | 2026-07-05 08:35 JST |
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | `fix/ui-catalog-hardening` |
-| 関連 PR | TBD |
+| 関連 PR | [#66](https://github.com/sasakiyusuke2017015/waoon/pull/66) |
 | レビュー | [計画レビュー](../reviews/2026-07-05-0840-ui-catalog-hardening-review.md): APPROVE / [コードレビュー](../reviews/2026-07-05-0904-ui-catalog-hardening-code-review.md): APPROVE |
 
 ## 目的
@@ -146,5 +146,5 @@ ConfirmDialog / AlertDialog は Dialog の薄いラッパのため自動的に�
 - [x] Plan 承認（計画レビュー APPROVE 2026-07-05）
 - [x] 実装完了（typecheck / lint web+ui / web test 69 / build green・MarkdownPreview テスト 5 件追加）
 - [x] コードレビュー完了（APPROVE 2026-07-05・NICE-TO-HAVE 2 件反映済み）
-- [ ] PR 作成・merge
+- [x] PR 作成・merge 済み（[#66](https://github.com/sasakiyusuke2017015/waoon/pull/66)）
 - [ ] マージ後検証（手動確認チェックを消化）

@@ -34,7 +34,11 @@ M-2 列ヘッダ非連動ソート・M-3 リトライ導線なし）を、ai_edu
 
 - ServerDataTable（server モード）の**アプリ側採用**（organism としては移植するが、現行データ規模では
   client モードで足りる。API 側の limit/offset 対応はデータ増加時の別 Plan）
-- InteractiveTable のリファクタ（本来のスプレッドシート用途に戻すだけで、コードは触らない）
+- InteractiveTable のリファクタ・**DataTable への機能吸収（部品レベルの一本化）**。
+  セル選択・列リサイズ・仮想化は表計算用の機能で、一覧用 DataTable にオプションとして
+  足すと ai_edu が意図的に分けた役割分担を壊して肥大化する。アプリ利用の一本化（上記 PR-B）で
+  目的は達成される。PR-B 後に InteractiveTable のアプリ利用がゼロになるため、
+  **catalog から削除するか（evergreen）Storybook 資産として残すかは別途判断**（残課題）
 - 公開側一覧（`/surveys`）のカード UI 変更（テーマ5 以降）
 - ui テストスイート既存破損の全体修復（テーマ2 の残課題のまま。ただし移植テストが
   `__tests__/helpers` を要する場合、**helpers の移植は本 Plan に含める**＝残課題の一部が自然解消）
@@ -53,12 +57,18 @@ M-2 列ヘッダ非連動ソート・M-3 リトライ導線なし）を、ai_edu
 | barrel / exports | organisms・molecules の index 更新 + `./organisms/DataTable` subpath 追加 |
 | テスト / stories | `DataTable.test.tsx`（1,593 行）・`columnVisibility.test.ts`・`useDragAutoScroll.test.ts`・stories を移植。**移植分のテストが waoon の vitest で green になること**を PR-A の完了条件にする |
 
-### PR-B: admin 一覧の乗り換え（`feature/datatable-adoption`）
+### PR-B: admin 一覧の乗り換え = **アプリのテーブル UI を DataTable に一本化**（`feature/datatable-adoption`）
+
+アプリの InteractiveTable 参照は **AdminListTable / MasterListView 経由 + 型 import
+（`Column` / `TableRowData`）のみ**であることを確認済み（2026-07-05）。したがって
+AdminListTable のアダプタ化で、admin 4 一覧 + マスタ画面（org×3 / positions / urgencies /
+設問マスタ）が**すべて DataTable に乗り換わり、apps/web の InteractiveTable 参照はゼロ**になる。
+これを PR-B の完了条件とする。
 
 | 対象 | 変更 |
 |---|---|
 | `apps/web/components/admin/AdminListTable.tsx` | InteractiveTable 流用をやめ、**新 DataTable（client モード）への薄いアダプタ**に置換。既存の props 面（`searchKeys` / `sortable` / 行クリック）は互換を保ちつつ、列ヘッダソート・ページネーション・件数表示を解放 |
-| `app/(admin)/admin/{users,surveys,answers,questions}/page.tsx` | 列定義を `Column<TRow>` 形式へ移行 |
+| `app/(admin)/admin/{users,surveys,answers,questions}/page.tsx` + `lib/admin/master-config.ts` | 列定義と型 import（`Column`/`TableRowData` → DataTable の `Column<TRow>`）を移行。マスタ画面は MasterListView → AdminListTable 経由のため自動で乗り換え |
 | エラー時のリトライ導線（監査 M-3） | アダプタのエラー表示に「再試行」ボタン（`refetch`）を追加 |
 | `lib/table/filter-sort.ts` | DataTable 内蔵の検索/ソートに置き換えられた場合は削除（unit test ごと。evergreen） |
 
@@ -100,6 +110,7 @@ M-2 列ヘッダ非連動ソート・M-3 リトライ導線なし）を、ai_edu
 | 2026-07-05 | ai_edu DataTable を organism ごと移植（部分移植・独自再実装は不採用） | waoon 側 DataTable は死蔵で置換リスクゼロ。依存一致・SCSS/CSS 変数基盤共通・16 テーブル + 1,593 行テストの実戦品質。InteractiveTable への機能追加は表計算と一覧の捻れを悪化させる |
 | 2026-07-05 | 2 PR 分割（catalog 移植 → アプリ乗り換え） | 移植 5,600 行超を 1 PR にするとレビュー不能。PR-A はアプリ影響ゼロで安全に入れられる |
 | 2026-07-05 | server モードは移植するがアプリ採用は見送り | 現行データ規模では client で足りる。API の limit/offset 対応はデータ増加時の別 Plan |
+| 2026-07-05 | 「一本化」はアプリ利用レベルで実施（部品レベルの機能統合は不採用） | アプリの InteractiveTable 参照は AdminListTable/MasterListView 経由 + 型 import のみと確認。アダプタ置換で全一覧（admin 4 + マスタ 6 画面）が DataTable 化し参照ゼロになる。表計算機能を DataTable にオプション追加する統合は役割分担を壊すため不採用 |
 
 ## ステータス
 
