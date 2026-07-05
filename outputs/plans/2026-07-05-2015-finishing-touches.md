@@ -1,14 +1,14 @@
 # Plan: 仕上げ（テーマ5・ページタイトル / 公開一覧 UX / ダークモード / VRT）
 
-> ステータス: 🟠 計画レビュー反映済み（Phase 1/2 は着手可・Phase 3/4 は設計ゲート待ち）
+> ステータス: 🟡 実装中（Phase 1/2 マージ済み・検証中 / Phase 3/4 は着手時に独立サブ Plan）
 
 | 項目 | 値 |
 |---|---|
 | 作成日時 | 2026-07-05 20:15 JST |
 | 担当 | Claude Code + 笹木さん |
-| ブランチ | Phase 別（下記）・TBD |
-| 関連 PR | TBD |
-| レビュー | [計画レビュー](../reviews/2026-07-05-2040-finishing-touches-review.md): Phase1/2 APPROVE / Phase3/4 は設計指摘反映（代行 planner + architect） |
+| ブランチ | Phase 別（Phase1: `feature/page-titles` / Phase2: `feature/public-list-ux` / Phase3・4: TBD） |
+| 関連 PR | Phase1: [#76](https://github.com/sasakiyusuke2017015/waoon/pull/76) merged / Phase2: [#77](https://github.com/sasakiyusuke2017015/waoon/pull/77) merged |
+| レビュー | [計画レビュー](../reviews/2026-07-05-2040-finishing-touches-review.md): Phase1/2 APPROVE / Phase3/4 は設計指摘反映（代行 planner + architect） / [Phase1 コードレビュー](../reviews/2026-07-05-2226-finishing-touches-code-review.md): APPROVE / [Phase2 コードレビュー](../reviews/2026-07-05-2300-finishing-touches-phase2-code-review.md): NEEDS WORK→APPROVE |
 | 前提 | テーマ1〜4 マージ済み。**テーマは 2 系統**（A: `design.ts` の JS/HSL → inline style / B: `tokens.css` の semantic CSS 変数）。ダーク設計はこの 2 系統 + ハードコード色 114 箇所の三層で考える（計画レビューで確定） |
 
 ## 目的
@@ -127,6 +127,7 @@ Phase 1 → 2（polish・低〜中リスク）を先に回し、Phase 3（ダー
 | 2026-07-05 | 計画レビュー（代行 planner + architect）: Phase1/2 APPROVE / Phase3/4 は NEEDS WORK を反映（[Review](../reviews/2026-07-05-2040-finishing-touches-review.md)）| ダーク方式を三層モデルに置換 / FOUC・body 地色・`@custom-variant dark`・背景軸×dark をリスク/要判断に追加 / VRT の安全網主張を「light 不変の担保」に修正 + 4-light→3→4-dark の additive 順序 / MinIO CI 到達性を決定項目化 |
 | 2026-07-05 | **epic 2 本（ダーク/VRT）は着手時に独立サブ Plan 化**（`…-dark-mode.md` / `…-vrt.md`）。本 Plan は roadmap + Phase1/2 実装 Plan + Phase3/4 意図の位置づけ | 各々 goal/scope/risk/verification を持つ単独 Plan 相当の規模。判断ログ追記では実装ゲートの情報量が不足（architect #C）|
 | 2026-07-05 | Phase 1 実装: ルート metadata に `title.template="%s ｜ waoon"` + `useDocumentTitle` フック新設。**AppLayout で `activeLabel`（現在セクション名）を document.title に一括設定** + login/change-password は個別 | 認証ページは全て AppLayout 配下で NAV_ITEMS の prefix match により意味あるセクション名にマップされる（一覧/編集/新規/マスタ配下すべて）。30 ページ個別編集を回避。ページ個別タイトル（編集 vs 一覧）が要る箇所は将来 useDocumentTitle を個別追加 |
+| 2026-07-05 | Phase 2 実装: 回答状態は `answers.status >= 200` で提出判定（100=下書き扱い・「続きから回答」導線）。締切訴求は日付粒度・閲覧者ローカル TZ の `deadlineInfo`（本日締切/あとN日/締切超過・提出済みには非表示）。`me/surveys` の order を `end_at asc nulls last` に。スケルトンは `SurveyCardSkeleton` として catalog に吸収 | ドメイン定数 `ANSWER_STATUSES`（100/200/400/900）と整合。コードレビュー初回 NEEDS WORK（BLOCKER: テストが `+09:00` 固定で UTC CI で落ちる）→ テストを TZ 非依存（オフセットなしローカル時刻）に修正して APPROVE。`TZ` env 固定は Windows Node で効かないため不採用 |
 
 ## 要ユーザー判断
 
@@ -149,8 +150,11 @@ Phase 1/2 は判断不要で着手可。以下は各 epic の**サブ Plan 着�
 - [x] 計画レビュー（代行 planner + architect）: Phase1/2 APPROVE / Phase3/4 設計指摘を反映（[Review](../reviews/2026-07-05-2040-finishing-touches-review.md)）
 - [x] Phase 1（ページタイトル）実装完了（title.template + useDocumentTitle + AppLayout 一括・typecheck/lint/build/test green）
 - [x] Phase 1 コードレビュー（代行 code-reviewer・APPROVE・[Review](../reviews/2026-07-05-2226-finishing-touches-code-review.md)）
-- [ ] Phase 1 merge（笹木さん承認）
-- [ ] Phase 2（公開一覧 UX）実装・レビュー・merge
+- [x] Phase 1 merge（笹木さん承認・[#76](https://github.com/sasakiyusuke2017015/waoon/pull/76)）
+- [x] Phase 2（公開一覧 UX）実装・コードレビュー（代行・初回 NEEDS WORK→修正反映→APPROVE・[Review](../reviews/2026-07-05-2300-finishing-touches-phase2-code-review.md)）・merge（[#77](https://github.com/sasakiyusuke2017015/waoon/pull/77)）
 - [ ] Phase 3（ダークモード）: 独立サブ Plan 作成 + 要判断確定 → 実装（複数 PR）・レビュー・merge
 - [ ] Phase 4（VRT）: 独立サブ Plan 作成 + 要判断確定 → 実装・レビュー・merge
-- [ ] マージ後検証
+- [ ] **マージ後検証（Phase 1/2・dev 実機目視）**
+  - [ ] ページタイトル: 各ページのタブ表示が差別化される（初期表示 + クライアント遷移後の title 更新も確認）
+  - [ ] 公開一覧: 空状態（EmptyState + 再読み込み）/ スケルトン / エラー再試行 / 締切バッジ（本日締切・あとN日）/ 下書きの「続きから回答」導線 / lg 多カラム
+  - [ ] 回答ページ: 期間・締切・回答状態バッジの再掲 / ローディング・エラー体裁
