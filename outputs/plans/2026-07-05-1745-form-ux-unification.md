@@ -1,6 +1,6 @@
 # Plan: フォーム UX 統一（テーマ4）
 
-> ステータス: 🟡 実装中（PR-A merged / PR-B 実装完了・コードレビュー代行 APPROVE 相当・提出。PR-C〜D 残り）
+> ステータス: 🟢 マージ済み（検証中）（PR-A〜D すべて merged・develop CI green。dev での手動検証が残る）
 
 | 項目 | 値 |
 |---|---|
@@ -194,7 +194,7 @@ PR-A / C / D:
   - [x] C2 実装完了（AnswerForm radio/checkbox + QuestionsEditor マスタ追加 select/button・typecheck/lint/build/test green）
   - [x] C2 コードレビュー（代行 code-reviewer・APPROVE・NICE #1 反映・[Review](../reviews/2026-07-05-1930-form-ux-unification-review.md)）
   - [ ] C2 merge（笹木さん承認）
-- [x] PR-D 実装完了（change-password 成功トースト・login は teal 固定据え置き・typecheck/lint/build/test green）
-- [ ] PR-D レビュー・merge
+- [x] PR-D 実装完了（change-password 成功トースト・login は teal 固定据え置き）→ [#75](https://github.com/sasakiyusuke2017015/waoon/pull/75) merged
+- [ ] マージ後の手動検証（下記まとめ）
 - [ ] 残課題: AttachmentsPanel の file input / QuestionsEditor の並べ替え・行アクションの catalog 化（別途）
 - [ ] マージ後検証（手動確認チェックを消化）
