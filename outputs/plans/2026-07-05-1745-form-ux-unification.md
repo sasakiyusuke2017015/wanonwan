@@ -1,6 +1,6 @@
 # Plan: フォーム UX 統一（テーマ4）
 
-> ステータス: 🟡 実装中（PR-A 提出・self-review 済み。PR-B〜D 残り）
+> ステータス: 🟡 実装中（PR-A merged / PR-B 実装完了・コードレビュー代行 APPROVE 相当・提出。PR-C〜D 残り）
 
 | 項目 | 値 |
 |---|---|
@@ -169,15 +169,19 @@ PR-A / C / D:
 | 2026-07-05 | dirty ベースラインは既存 submit payload ビルダーを流用 | 正規化済みの同一形状を安定 stringify で比較でき落とし穴が少ない |
 | 2026-07-05 | **3 PR → 4 PR に再分割**: 膨らんだ未保存ガードを独立 PR-B に切り出し、低リスクのフィードバック統一（PR-A）を先行 | 計画レビューで PR-A が過小（ナビ移行が抜け）と判明。高リスクのガードを隔離し、トースト追加は独立で先に入れられる |
 | 2026-07-05 | `InterviewForm` の field error UI 欠落は本テーマ対象外（別 Plan）| 既にカタログ化済みで PR-C の対象に入らず、valibot schema 新設は影響大 |
+| 2026-07-05 | PR-B 実装: catalog `useUnsavedGuard`（beforeunload）+ apps `NavigationGuardProvider`/`useGuardedNavigate`/`useUnsavedChangesGuard` + `isDirtyPayload`。シェルナビ + 7 フォーム配線 | 計画レビューの設計どおり。dirty はフォーム state の安定 stringify 比較・成功時 baseline リセット |
+| 2026-07-05 | ConfirmDialog を `@ui-catalog/core/organisms/ConfirmDialog` の narrow import に変更（バレル回避）+ 同サブパスを package.json exports に追加 | root providers に入るため静的プリレンダ経路に乗り、バレル `@ui-catalog/core/organisms` 経由だと window を触る兄弟モジュールで build が `window is not defined` になったため |
+| 2026-07-05 | PR-B コードレビュー（代行 code-reviewer + architect）で **BLOCKER 2 件を反映**（[Review](../reviews/2026-07-05-1852-form-ux-unification-review.md)）| (1) パンくず「ホーム」が catalog Breadcrumb の素の SPA Link で未ガード → アプリ層でガード付き描画に置換。(2) popstate 確認中の多重 back で resolver 上書き・すり抜け → in-flight Promise 再利用 + 確認中フラグ |
 
 ## ステータス
 
 - [x] 要ユーザー判断 4 点の確定（2026-07-05）
 - [x] 計画レビュー（エージェント代行・NEEDS WORK）→ BLOCKER + NICE-TO-HAVE を Plan に反映（2026-07-05・[Review](../reviews/2026-07-05-1810-form-ux-unification-review.md)）
 - [x] Plan 再確認・承認（PR 数 3→4 の変更含む・笹木さん承認 2026-07-05）
-- [x] PR-A 実装完了（保存トースト 3 箇所・typecheck/lint/build/test green・self-review）→ PR 提出
-- [ ] PR-A merge（笹木さん承認）
-- [ ] PR-B 実装・レビュー・merge
+- [x] PR-A 実装完了（保存トースト 3 箇所）→ [#71](https://github.com/sasakiyusuke2017015/waoon/pull/71) merged
+- [x] PR-B 実装完了（未保存ガード基盤・7 フォーム配線・typecheck/lint/build/test green・web test 71）
+- [x] PR-B コードレビュー（代行 code-reviewer + architect・BLOCKER 2 件反映・[Review](../reviews/2026-07-05-1852-form-ux-unification-review.md)）→ 提出
+- [ ] PR-B merge（笹木さん承認）
 - [ ] PR-C 実装・レビュー・merge
 - [ ] PR-D 実装・レビュー・merge
 - [ ] マージ後検証（手動確認チェックを消化）
