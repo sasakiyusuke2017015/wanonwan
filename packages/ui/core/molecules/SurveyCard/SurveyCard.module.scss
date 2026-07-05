@@ -33,6 +33,9 @@
 
 .statusWrap {
   margin-bottom: var(--spacing-4);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
 }
 
 .title {
@@ -73,4 +76,51 @@
   background-color: var(--color-gray-50);
   padding: var(--spacing-3);
   text-align: right;
+}
+
+// ---- スケルトン（SurveyCardSkeleton） ----
+
+@keyframes surveyCardPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.skeletonBlock {
+  border-radius: var(--border-radius-default, 0.25rem);
+  background-color: var(--color-gray-200);
+  animation: surveyCardPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.skeletonHeader {
+  composes: skeletonBlock;
+  height: 2.75rem;
+  border-radius: 0;
+}
+
+.skeletonBadge {
+  composes: skeletonBlock;
+  margin-bottom: var(--spacing-4);
+  height: 1.25rem;
+  width: 4rem;
+  border-radius: var(--border-radius-full, 9999px);
+}
+
+.skeletonLine {
+  composes: skeletonBlock;
+  margin-bottom: var(--spacing-2);
+  height: 1.25rem;
+  width: 80%;
+}
+
+.skeletonLineShort {
+  composes: skeletonBlock;
+  height: 0.875rem;
+  width: 55%;
+}
+
+.skeletonButton {
+  composes: skeletonBlock;
+  display: inline-block;
+  height: 2rem;
+  width: 7rem;
 }

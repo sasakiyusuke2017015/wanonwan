@@ -12,6 +12,7 @@ export const GET = withActiveUser(async (_req, claims, { params }: Ctx) => {
   const result = await withUser(claims.sub, async (tx) => {
     const [publication] = await tx`
       select p.id as "publicationId", p.title as "publicationTitle", p.status,
+             p.start_at as "startAt", p.end_at as "endAt",
              s.id as "surveyId", s.title as "surveyTitle"
       from public.survey_publications p
       join public.surveys s on s.id = p.survey_id

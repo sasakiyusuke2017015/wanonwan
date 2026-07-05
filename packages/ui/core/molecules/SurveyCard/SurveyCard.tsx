@@ -18,6 +18,9 @@ export interface SurveyCardProps {
   period: string;
   status: string;
   statusColor: 'blue' | 'green' | 'red' | 'yellow' | 'gray' | 'orange';
+  /** 締切訴求バッジ（「本日締切」「あと3日」等）。未指定なら非表示 */
+  deadlineLabel?: string;
+  deadlineColor?: 'blue' | 'green' | 'red' | 'yellow' | 'gray' | 'orange';
   headerColor: string;
   buttonVariant: 'primary' | 'danger' | 'outline';
   buttonText: string;
@@ -38,6 +41,8 @@ export const SurveyCard: FC<SurveyCardProps> = ({
   period,
   status,
   statusColor,
+  deadlineLabel,
+  deadlineColor = 'red',
   headerColor,
   buttonVariant,
   buttonText,
@@ -67,6 +72,14 @@ export const SurveyCard: FC<SurveyCardProps> = ({
               size="small"
               appearance="status"
             />
+            {deadlineLabel && (
+              <Badge
+                value={deadlineLabel}
+                color={deadlineColor}
+                size="small"
+                appearance="status"
+              />
+            )}
           </div>
 
           {/* タイトル */}

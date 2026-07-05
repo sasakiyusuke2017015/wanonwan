@@ -38,4 +38,14 @@ describe('SurveyCard', () => {
     render(<SurveyCard {...defaultProps} description="アンケートの説明" />);
     expect(screen.getByText('アンケートの説明')).toBeInTheDocument();
   });
+
+  it('締切バッジが表示される', () => {
+    render(<SurveyCard {...defaultProps} deadlineLabel="本日締切" deadlineColor="red" />);
+    expect(screen.getByText('本日締切')).toBeInTheDocument();
+  });
+
+  it('deadlineLabel 未指定なら締切バッジは出ない', () => {
+    render(<SurveyCard {...defaultProps} />);
+    expect(screen.queryByText('本日締切')).not.toBeInTheDocument();
+  });
 });
