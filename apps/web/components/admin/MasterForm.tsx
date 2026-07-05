@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
 import { FormField, Input, Select } from "@ui-catalog/core/molecules";
+import { useAppToast } from "@ui-catalog/core/providers";
 import { useTheme } from "@ui-catalog/core/infra/theme";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import { fieldErrorsOf } from "@/lib/forms/field-errors";
@@ -18,6 +19,7 @@ type Detail = Record<string, unknown>;
 export function MasterForm({ config, id }: { config: MasterConfig; id?: string }) {
   const router = useRouter();
   const qc = useQueryClient();
+  const { showToast } = useAppToast();
   const { shapes } = useTheme();
   const [form, setForm] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
@@ -79,6 +81,7 @@ export function MasterForm({ config, id }: { config: MasterConfig; id?: string }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [config.key] });
+      showToast("保存しました", { type: "success" });
       router.push(config.listPath);
       router.refresh();
     },

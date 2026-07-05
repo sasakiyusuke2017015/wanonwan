@@ -1,6 +1,6 @@
 # Plan: フォーム UX 統一（テーマ4）
 
-> ステータス: ⚪ 実装待ち（計画レビュー反映済み・笹木さん承認済み。PR-A から着手）
+> ステータス: 🟡 実装中（PR-A 提出・self-review 済み。PR-B〜D 残り）
 
 | 項目 | 値 |
 |---|---|
@@ -175,7 +175,8 @@ PR-A / C / D:
 - [x] 要ユーザー判断 4 点の確定（2026-07-05）
 - [x] 計画レビュー（エージェント代行・NEEDS WORK）→ BLOCKER + NICE-TO-HAVE を Plan に反映（2026-07-05・[Review](../reviews/2026-07-05-1810-form-ux-unification-review.md)）
 - [x] Plan 再確認・承認（PR 数 3→4 の変更含む・笹木さん承認 2026-07-05）
-- [ ] PR-A 実装・レビュー・merge
+- [x] PR-A 実装完了（保存トースト 3 箇所・typecheck/lint/build/test green・self-review）→ PR 提出
+- [ ] PR-A merge（笹木さん承認）
 - [ ] PR-B 実装・レビュー・merge
 - [ ] PR-C 実装・レビュー・merge
 - [ ] PR-D 実装・レビュー・merge

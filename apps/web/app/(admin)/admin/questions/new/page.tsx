@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import { useAppToast } from "@ui-catalog/core/providers";
 import { apiSend } from "@/lib/api/client";
 import {
   QuestionForm,
@@ -12,6 +13,7 @@ import {
 export default function NewQuestionPage() {
   const router = useRouter();
   const qc = useQueryClient();
+  const { showToast } = useAppToast();
 
   return (
     <div className="max-w-2xl">
@@ -23,6 +25,7 @@ export default function NewQuestionPage() {
         onSubmit={async (draft) => {
           await apiSend("/api/v1/questions", "POST", questionDraftToPayload(draft));
           qc.invalidateQueries({ queryKey: ["questions"] });
+          showToast("保存しました", { type: "success" });
           router.push("/admin/questions");
         }}
       />
