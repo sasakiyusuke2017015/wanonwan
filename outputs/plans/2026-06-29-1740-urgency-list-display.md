@@ -2,14 +2,14 @@
 
 | 項目 | 値 |
 |---|---|
-| ステータス | 🟡 実装完了（検証 green・self-review 済み・PR 前） |
+| ステータス | 🟣 コードレビュー APPROVE（PR 前・笹木さんマージ承認待ち） |
 | slug | `urgency-list-display` |
 | 作成 | 2026-06-29 17:40 JST |
 | 更新 | 2026-07-06 JST（色付き Badge / 両画面で確定、前提を最新 develop に更新） |
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | `feature/urgency-list-display`（TBD） |
 | 関連 PR | TBD |
-| レビュー | TBD |
+| レビュー | [コードレビュー](../reviews/2026-07-06-0739-urgency-list-display-review.md)（APPROVE）+ security レビュー（APPROVE） |
 | 前提 Plan | [緊急度マスタ](2026-06-29-1537-urgency-master.md)（#62/#63 マージ済み） |
 | git repo | `https://github.com/sasakiyusuke2017015/waoon.git` |
 
@@ -127,6 +127,16 @@
 | 2026-07-06 | 緊急度列の**名前検索は非対応**にする | `DataTable` は列の生値でソート/検索する（[ClientDataTable.tsx:190-240](../../packages/ui/core/organisms/DataTable/ClientDataTable.tsx#L190-L240)）。ソート順（code）を優先し `key="urgencyCode"`（数値）にしたため名前検索は効かない。緊急度は少数値でソートすれば足りるため許容 |
 | 2026-07-06 | 未設定はソート用 code を `9999` に正規化 | `render` は表示専用でソートは生値依存。未設定（null）を数値ソートで末尾へ寄せるための番兵。表示は `urgencyName` の null で "—" 判定（`9999` は表示に出さない） |
 
+## 残課題（NICE-TO-HAVE / 後追い）
+
+コードレビュー / security レビューで挙がった非ブロッキング項目。差し戻し不要、後続タスク化。
+
+- **2 ページ間のロジック重複**: `UrgencyLevel` 型 / `urgencies` useQuery / `sortedCodes` / 緊急度列 render が
+  surveys・answers でほぼ同一。3 画面目が出るなら `lib/urgency/` に列 factory / フック抽出を検討（現状 2 箇所なので必須でない）。
+- **フロント型 `UrgencyLevel.id: string` とスキーマ `bigint` の不一致**: `id` は色算出（code ベース）に未使用で実害なし。
+- **番兵 `9999` が全文検索にヒットしうる**: 全文検索が可視列の生値（`String(urgencyCode)`）を対象にするため
+  `9` 検索で未設定行が付随ヒット。既存の `publicationCount` 数値列も同挙動で一貫。名前検索非対応は合意済みのトレードオフ範囲内。
+
 ## ステータス
 - [x] 未確定事項（表示方法 / 対象画面）を確定 → 色付き Badge / surveys・answers 両方
 - [x] API（surveys / answers GET に urgency join）
@@ -134,7 +144,8 @@
 - [x] surveys 一覧ページに緊急度カラム（Badge）
 - [x] answers 一覧ページに緊急度カラム（Badge）
 - [x] 検証: typecheck / lint / build / vitest すべて green、self-review 済み
-- [ ] コードレビュー（Codex）→ PR
+- [x] コードレビュー（code-reviewer / security-reviewer エージェント）→ 両者 APPROVE
+- [ ] PR 作成 → 笹木さんマージ承認
 - [ ] マージ後検証（dev 実機）
   - [ ] surveys/answers 一覧に緊急度 Badge が出る（高=赤 / 中=黄 / 低=緑、未設定は "—"）
   - [ ] 緊急度でソートできる（低↔高、未設定は端）
