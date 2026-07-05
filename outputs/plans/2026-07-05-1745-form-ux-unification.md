@@ -177,6 +177,7 @@ PR-A / C / D:
 | 2026-07-05 | PR-C2 実装: `AnswerForm` の radio/checkbox 生 input を catalog `Radio`/`Checkbox`（label なし=コントロールのみ）に差し替え（タイルの `<span>` とテーマ塗りは維持）、`QuestionsEditor` の「マスタから追加」を catalog `Select`+`Button` に | catalog Radio/Checkbox は label 未指定でコントロールのみ描画するため、タイルのレイアウト/体験を変えずに差し替え可能 |
 | 2026-07-05 | `AttachmentsPanel` の file input と `QuestionsEditor` の並べ替え ↑↓ / 行アクション（編集・外す・削除）の catalog 化は**見送り（残課題）** | catalog に file input 部品が無く、無理な Button 化は体験劣化。並べ替え ↑↓ は隣接する行アクションのテキストリンク群と混在させると視覚的に不整合になるため、bespoke クラスタとして一括で別途検討 |
 | 2026-07-05 | PR-C2 コードレビュー（代行 code-reviewer）APPROVE（[Review](../reviews/2026-07-05-1930-form-ux-unification-review.md)）。NICE #1 反映 | catalog Select が既定 180px 固定で `flex-1` が効かず縮む視覚後退を `width="w-full"` で解消。追加ボタン色はアプリ他ボタン（FormActions default）と揃える判断で据え置き |
+| 2026-07-05 | PR-D は **change-password の成功トースト追加のみ**に縮小。**login の teal 固定は据え置き**（笹木さん判断） | 精読の結果、change-password は既に `FormField`/`Input`/`Button`/`useTheme` でカタログ化 + テーマ追従済みで、gap は成功トースト無しのみ。login の teal 固定はコードコメント通り**意図的な旧 1on1 踏襲**で、テーマ追従化は設計変更 + 見た目未検証のため見送り。送信ボタン様式（login=状態機械 `LoginButton` / change-password=汎用 `Button`）も現状維持で妥当 |
 
 ## ステータス
 
@@ -193,6 +194,7 @@ PR-A / C / D:
   - [x] C2 実装完了（AnswerForm radio/checkbox + QuestionsEditor マスタ追加 select/button・typecheck/lint/build/test green）
   - [x] C2 コードレビュー（代行 code-reviewer・APPROVE・NICE #1 反映・[Review](../reviews/2026-07-05-1930-form-ux-unification-review.md)）
   - [ ] C2 merge（笹木さん承認）
-- [ ] PR-D 実装・レビュー・merge
+- [x] PR-D 実装完了（change-password 成功トースト・login は teal 固定据え置き・typecheck/lint/build/test green）
+- [ ] PR-D レビュー・merge
 - [ ] 残課題: AttachmentsPanel の file input / QuestionsEditor の並べ替え・行アクションの catalog 化（別途）
 - [ ] マージ後検証（手動確認チェックを消化）
