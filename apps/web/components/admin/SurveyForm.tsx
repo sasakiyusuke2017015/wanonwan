@@ -11,8 +11,11 @@ import { useTheme } from "@ui-catalog/core/infra/theme";
 import { useAppToast } from "@ui-catalog/core/providers";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import { fieldErrorsOf } from "@/lib/forms/field-errors";
+import { isDirtyPayload } from "@/lib/forms/dirty";
 import { FormActions } from "@/components/admin/FormActions";
 import { AttachmentsPanel } from "@/components/admin/AttachmentsPanel";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
+import { useGuardedNavigate } from "@/hooks/useGuardedNavigate";
 
 type SurveyDetail = {
   id: string;
@@ -34,21 +37,27 @@ const STATUS_LABEL: Record<string, string> = {
 
 const STATUS_OPTIONS = SURVEY_STATUSES.map((s) => ({ value: s, label: STATUS_LABEL[s] ?? s }));
 
+const EMPTY_FORM = {
+  title: "",
+  status: "draft",
+  capacity: "",
+  requiresAuth: true,
+  usesAi: false,
+  urgencyId: "",
+};
+
 export function SurveyForm({ surveyId }: { surveyId?: string }) {
   const router = useRouter();
   const qc = useQueryClient();
+  const guardedNavigate = useGuardedNavigate();
   const { shapes } = useTheme();
-  const [form, setForm] = useState({
-    title: "",
-    status: "draft",
-    capacity: "",
-    requiresAuth: true,
-    usesAi: false,
-    urgencyId: "",
-  });
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [initialForm, setInitialForm] = useState(EMPTY_FORM);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { showToast } = useAppToast();
+
+  useUnsavedChangesGuard(isDirtyPayload(form, initialForm));
 
   const { data: existing } = useQuery({
     queryKey: ["survey", surveyId],
@@ -68,14 +77,16 @@ export function SurveyForm({ surveyId }: { surveyId?: string }) {
   useEffect(() => {
     if (!existing?.data) return;
     const s = existing.data;
-    setForm({
+    const next = {
       title: s.title,
       status: s.status,
       capacity: s.capacity == null ? "" : String(s.capacity),
       requiresAuth: s.requiresAuth,
       usesAi: s.usesAi,
       urgencyId: s.urgencyId == null ? "" : String(s.urgencyId),
-    });
+    };
+    setForm(next);
+    setInitialForm(next);
   }, [existing]);
 
   // 送信用 payload を組む。フィールド検証と mutation の両方で同じ payload を使う。
@@ -100,6 +111,7 @@ export function SurveyForm({ surveyId }: { surveyId?: string }) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["surveys"] });
+      setInitialForm(form); // 保存成功で baseline をリセット（離脱ガードが暴発しないように）
       // Toast は Providers 直下の ToastProvider が表示主体のため、遷移後も表示され続ける。
       showToast("保存しました", { type: "success" });
       router.push("/admin/surveys");
@@ -190,7 +202,7 @@ export function SurveyForm({ surveyId }: { surveyId?: string }) {
       <FormActions
         submitLabel="保存"
         pending={mutation.isPending}
-        onCancel={() => router.push("/admin/surveys")}
+        onCancel={() => guardedNavigate("/admin/surveys")}
       />
     </form>
   );

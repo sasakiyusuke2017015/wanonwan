@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { SideNav } from "@ui-catalog/core/templates/SideNav";
 import { Icon } from "@ui-catalog/core/atoms";
 import type { ThemeConfig } from "@ui-catalog/core/constants";
 import type { ResolvedNavItem } from "./useNavigationItems";
+import { useGuardedNavigate } from "@/hooks/useGuardedNavigate";
 
 type ColorConfig = ThemeConfig["colors"];
 
@@ -22,7 +22,7 @@ type Props = {
 // 旧 1on1 踏襲: アイコン主体の細い縦レール。ホバーでツールチップ（レール外に fixed 表示）。
 // SideNav テンプレートは left を isOpen で出し入れし、scss の transition で開閉アニメする。
 export function AppSideNav({ items, isOpen, width, topOffset, colors }: Props) {
-  const router = useRouter();
+  const guardedNavigate = useGuardedNavigate();
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const itemRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
 
@@ -56,7 +56,7 @@ export function AppSideNav({ items, isOpen, width, topOffset, colors }: Props) {
                 }}
                 onClick={() => {
                   handleLeave();
-                  router.push(item.href);
+                  guardedNavigate(item.href);
                 }}
                 onMouseEnter={() => handleEnter(item.id, item.label)}
                 onMouseLeave={handleLeave}

@@ -8,6 +8,8 @@ import { useAppToast } from "@ui-catalog/core/providers";
 import { PUBLICATION_STATUSES, publicationStatusLabel } from "@waoon/domain";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import { formatJstDateTime, jstInputToUtcIso, utcIsoToJstInput } from "@/lib/datetime";
+import { isDirtyPayload } from "@/lib/forms/dirty";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 
 type Publication = {
   id: string;
@@ -157,6 +159,8 @@ function PublicationForm({
   const [draft, setDraft] = useState<Draft>(initial);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  useUnsavedChangesGuard(isDirtyPayload(draft, initial));
 
   return (
     <form

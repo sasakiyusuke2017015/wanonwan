@@ -9,11 +9,13 @@ import {
   EMPTY_QUESTION,
   questionDraftToPayload,
 } from "@/components/admin/QuestionForm";
+import { useGuardedNavigate } from "@/hooks/useGuardedNavigate";
 
 export default function NewQuestionPage() {
   const router = useRouter();
   const qc = useQueryClient();
   const { showToast } = useAppToast();
+  const guardedNavigate = useGuardedNavigate();
 
   return (
     <div className="max-w-2xl">
@@ -21,7 +23,7 @@ export default function NewQuestionPage() {
       <QuestionForm
         initial={EMPTY_QUESTION}
         submitLabel="作成"
-        onCancel={() => router.push("/admin/questions")}
+        onCancel={() => guardedNavigate("/admin/questions")}
         onSubmit={async (draft) => {
           await apiSend("/api/v1/questions", "POST", questionDraftToPayload(draft));
           qc.invalidateQueries({ queryKey: ["questions"] });

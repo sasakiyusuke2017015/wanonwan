@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Header } from "@ui-catalog/core/templates/Header";
 import { SubHeader } from "@ui-catalog/core/templates/SubHeader";
 import { Footer } from "@ui-catalog/core/templates/Footer";
@@ -11,12 +11,12 @@ import { BlurFade } from "@ui-catalog/core/organisms/BlurFade";
 import { FloatingMenuButton } from "@ui-catalog/core/organisms/FloatingMenuButton";
 import { DropdownMenu } from "@ui-catalog/core/organisms/DropdownMenu";
 import { MenuItemList } from "@ui-catalog/core/organisms/MenuItemList";
-import { Breadcrumb } from "@ui-catalog/core/molecules";
 import { Icon } from "@ui-catalog/core/atoms";
 import { useDevice } from "@ui-catalog/core/hooks/useDevice";
 import { LAYOUT_SIZES, getThemeConfig } from "@ui-catalog/core/constants";
 import { useTheme, useBackgroundTheme, DEFAULT_GLOBAL_THEME } from "@ui-catalog/core/infra/theme";
 import { useNavigationItems } from "./useNavigationItems";
+import { useGuardedNavigate } from "@/hooks/useGuardedNavigate";
 import { AppSideNav } from "./AppSideNav";
 import { HeaderUserMenu } from "./HeaderUserMenu";
 import { ThemeSettingsModal } from "./ThemeSettingsModal";
@@ -38,7 +38,7 @@ const DEFAULT_BACKGROUND = DEFAULT_GLOBAL_THEME.backgroundTheme;
 // - 本文は h-screen 内で内側スクロール（chrome は position:fixed）
 // /login など未認証ページは AppFrame 側でこのシェルを外す。
 export function AppLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
+  const guardedNavigate = useGuardedNavigate();
   const pathname = usePathname();
   const { items, me } = useNavigationItems();
   const [mounted, setMounted] = useState(false);
@@ -82,14 +82,41 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               href="/dashboard"
               className="text-base font-bold transition-opacity hover:opacity-80"
               style={{ color: colors.primaryContrastText }}
+              onNavigate={(e) => {
+                // 未保存ガードに合流（modifier クリック等のネイティブ動作は onNavigate では発火しない）。
+                e.preventDefault();
+                guardedNavigate("/dashboard");
+              }}
             >
               1on1
             </Link>
-            <Breadcrumb
-              items={crumbs}
-              separator=">"
-              primaryContrastText={colors.primaryContrastText}
-            />
+            {/* パンくずはアプリ層で描画し、リンク遷移を未保存ガードに合流させる
+                （catalog Breadcrumb は素の SPA Link のため dirty なフォームから確認なしに離脱してしまう）。 */}
+            <nav
+              aria-label="breadcrumb"
+              className="flex items-center gap-1 text-sm"
+              style={{ color: colors.primaryContrastText }}
+            >
+              {crumbs.map((c, i) => {
+                const isLast = i === crumbs.length - 1;
+                return (
+                  <span key={c.href} className="flex items-center gap-1">
+                    {isLast ? (
+                      <span>{c.label}</span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => guardedNavigate(c.href)}
+                        className="transition-opacity hover:opacity-80"
+                      >
+                        {c.label}
+                      </button>
+                    )}
+                    {!isLast && <span aria-hidden>{">"}</span>}
+                  </span>
+                );
+              })}
+            </nav>
           </div>
         }
         rightContent={
@@ -190,7 +217,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <button
               key={item.id}
               type="button"
-              onClick={() => router.push(item.href)}
+              onClick={() => guardedNavigate(item.href)}
               className="flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] transition-colors"
               style={{
                 color: item.active ? colors.navActiveTextColor : colors.primaryContrastText,

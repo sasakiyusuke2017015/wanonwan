@@ -9,7 +9,10 @@ import { useAppToast } from "@ui-catalog/core/providers";
 import { useTheme } from "@ui-catalog/core/infra/theme";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import { fieldErrorsOf } from "@/lib/forms/field-errors";
+import { isDirtyPayload } from "@/lib/forms/dirty";
 import { FormActions } from "@/components/admin/FormActions";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
+import { useGuardedNavigate } from "@/hooks/useGuardedNavigate";
 import type { MasterConfig } from "@/lib/admin/master-config";
 
 type ParentItem = { id: string; code: string; name: string };
@@ -20,10 +23,14 @@ export function MasterForm({ config, id }: { config: MasterConfig; id?: string }
   const router = useRouter();
   const qc = useQueryClient();
   const { showToast } = useAppToast();
+  const guardedNavigate = useGuardedNavigate();
   const { shapes } = useTheme();
   const [form, setForm] = useState<Record<string, string>>({});
+  const [initialForm, setInitialForm] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  useUnsavedChangesGuard(isDirtyPayload(form, initialForm));
 
   const set = (key: string, value: string) => setForm((f) => ({ ...f, [key]: value }));
 
@@ -57,6 +64,7 @@ export function MasterForm({ config, id }: { config: MasterConfig; id?: string }
       next[parent.key] = v == null ? "" : String(v);
     }
     setForm(next);
+    setInitialForm(next);
   }, [existing, config.fields, parent]);
 
   function buildPayload(): Record<string, unknown> {
@@ -81,6 +89,7 @@ export function MasterForm({ config, id }: { config: MasterConfig; id?: string }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [config.key] });
+      setInitialForm(form); // 保存成功で baseline をリセット（離脱ガードが暴発しないように）
       showToast("保存しました", { type: "success" });
       router.push(config.listPath);
       router.refresh();
@@ -132,7 +141,7 @@ export function MasterForm({ config, id }: { config: MasterConfig; id?: string }
       <FormActions
         submitLabel="保存"
         pending={mutation.isPending}
-        onCancel={() => router.push(config.listPath)}
+        onCancel={() => guardedNavigate(config.listPath)}
       />
     </form>
   );

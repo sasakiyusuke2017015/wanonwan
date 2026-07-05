@@ -10,7 +10,9 @@ import { useTheme } from "@ui-catalog/core/infra/theme";
 import { useAppToast } from "@ui-catalog/core/providers";
 import { ApiError, apiSend } from "@/lib/api/client";
 import { requiredFieldErrors } from "@/lib/forms/field-errors";
+import { isDirtyPayload } from "@/lib/forms/dirty";
 import { FormActions } from "@/components/admin/FormActions";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 
 export type AnswerQuestion = {
   id: string;
@@ -38,9 +40,12 @@ export function AnswerForm({
   const { colors, shapes } = useTheme();
   const { showToast } = useAppToast();
   const [values, setValues] = useState<Values>(initial ?? {});
+  const [baseline, setBaseline] = useState<Values>(initial ?? {});
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
+
+  useUnsavedChangesGuard(isDirtyPayload(values, baseline));
 
   const setVal = (qid: string, val: string | string[]) =>
     setValues((prev) => ({ ...prev, [qid]: val }));
@@ -159,6 +164,7 @@ export function AnswerForm({
     setBusy(true);
     try {
       await apiSend(`/api/v1/publications/${publicationId}/answer`, "POST", { answers: values });
+      setBaseline(values); // 送信成功で baseline をリセット（離脱ガードが暴発しないように）
       showToast("保存しました", { type: "success" });
       router.push("/surveys");
       router.refresh();

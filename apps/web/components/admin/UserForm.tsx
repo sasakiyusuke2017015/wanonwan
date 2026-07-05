@@ -10,8 +10,11 @@ import { useAppToast } from "@ui-catalog/core/providers";
 import { CreateUserSchema, UpdateUserSchema, type UserRole } from "@waoon/domain";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import { fieldErrorsOf } from "@/lib/forms/field-errors";
+import { isDirtyPayload } from "@/lib/forms/dirty";
 import { FormActions } from "@/components/admin/FormActions";
 import { AttachmentsPanel } from "@/components/admin/AttachmentsPanel";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
+import { useGuardedNavigate } from "@/hooks/useGuardedNavigate";
 
 type OrgItem = { id: string; code: string; name: string };
 type Org = {
@@ -57,11 +60,15 @@ type SaveResult = { data: unknown; initialPassword?: string };
 export function UserForm({ userId }: { userId?: string }) {
   const router = useRouter();
   const qc = useQueryClient();
+  const guardedNavigate = useGuardedNavigate();
   const { shapes } = useTheme();
   const { showToast } = useAppToast();
   const [form, setForm] = useState(EMPTY);
+  const [initialForm, setInitialForm] = useState(EMPTY);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  useUnsavedChangesGuard(isDirtyPayload(form, initialForm));
   // 作成 / リセット成功時、サーバ生成の初期パスワードを一度だけ表示するための状態。
   const [created, setCreated] = useState<{
     email: string;
@@ -82,7 +89,7 @@ export function UserForm({ userId }: { userId?: string }) {
   useEffect(() => {
     if (!existing?.data) return;
     const u = existing.data;
-    setForm({
+    const next = {
       code: u.code,
       name: u.name,
       email: u.email,
@@ -91,7 +98,9 @@ export function UserForm({ userId }: { userId?: string }) {
       divisionId: u.divisionId ?? "",
       departmentId: u.departmentId ?? "",
       sectionId: u.sectionId ?? "",
-    });
+    };
+    setForm(next);
+    setInitialForm(next);
   }, [existing]);
 
   // 送信用 payload を組む。org フィールドは未選択なら省略、選択時のみ Number 化。
@@ -118,6 +127,7 @@ export function UserForm({ userId }: { userId?: string }) {
     },
     onSuccess: (result) => {
       qc.invalidateQueries({ queryKey: ["users"] });
+      setInitialForm(form); // 保存成功で baseline をリセット（作成後のパネル表示でも離脱ガードが残らないように）
       showToast("保存しました", { type: "success" });
       // 新規作成時は初期パスワードを一度だけ表示する（遷移しない）。
       if (!userId && result.initialPassword) {
@@ -312,7 +322,7 @@ export function UserForm({ userId }: { userId?: string }) {
       <FormActions
         submitLabel="保存"
         pending={mutation.isPending}
-        onCancel={() => router.push("/admin/users")}
+        onCancel={() => guardedNavigate("/admin/users")}
       />
     </form>
   );

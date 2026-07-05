@@ -11,6 +11,7 @@ import {
   questionDraftToPayload,
   type QuestionDraft,
 } from "@/components/admin/QuestionForm";
+import { useGuardedNavigate } from "@/hooks/useGuardedNavigate";
 
 type MasterQuestion = {
   id: string;
@@ -26,6 +27,7 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
   const router = useRouter();
   const qc = useQueryClient();
   const { showToast } = useAppToast();
+  const guardedNavigate = useGuardedNavigate();
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["question", id],
@@ -63,7 +65,7 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
       <QuestionForm
         initial={initial}
         submitLabel="更新"
-        onCancel={() => router.push("/admin/questions")}
+        onCancel={() => guardedNavigate("/admin/questions")}
         onSubmit={async (draft) => {
           await apiSend(`/api/v1/questions/${id}`, "PUT", questionDraftToPayload(draft));
           qc.invalidateQueries({ queryKey: ["questions"] });
