@@ -4,10 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FormField, Input, Banner, Button } from "@ui-catalog/core/molecules";
 import { useTheme } from "@ui-catalog/core/infra/theme";
+import { useAppToast } from "@ui-catalog/core/providers";
 
 export default function ChangePasswordPage() {
   const router = useRouter();
   const { shapes } = useTheme();
+  const { showToast } = useAppToast();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -33,6 +35,8 @@ export default function ChangePasswordPage() {
     });
     setLoading(false);
     if (res.ok) {
+      // Toast は ToastProvider が表示主体のため、遷移後（/login も /dashboard も）表示され続ける。
+      showToast("パスワードを変更しました", { type: "success" });
       const data = (await res.json().catch(() => ({}))) as { reauth?: boolean };
       if (data.reauth) {
         router.replace("/login");
