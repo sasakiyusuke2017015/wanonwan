@@ -1,6 +1,6 @@
 # Plan: DataTable 移植（ai_edu 版）+ admin 一覧の乗り換え
 
-> ステータス: 🟣 PR-A マージ承認待ち（コードレビュー APPROVE。PR #68）
+> ステータス: 🟣 PR-B マージ承認待ち（PR-A #68 マージ済み。PR-B 実装完了・コードレビュー APPROVE（代行））
 
 | 項目 | 値 |
 |---|---|
@@ -96,6 +96,7 @@ AdminListTable のアダプタ化で、admin 4 一覧 + マスタ画面（org×3
 - [ ] テーマ切替（色・形・テクスチャ）に DataTable の見た目が追従する
 - [ ] キーボードで列ヘッダソート・ページ移動が操作できる
 - [ ] **ヘッダメニュー / ユーザーメニューの開閉見た目に退行がない**（PR-A コードレビュー N-1: 新 DropdownMenu の既定アニメが `expandFromTrigger` に変わったため。退行があれば既定アニメを明示指定して修正）
+- [ ] **列ピッカー（歯車）と件数セレクトの新規出現が意図どおり**（PR-B 代行レビュー: DataTable 既定で出現。不要なら `disableColumnPicker`。列表示の localStorage 永続が pathname 単位で効くか）
 
 ## リスク
 
@@ -119,10 +120,26 @@ AdminListTable のアダプタ化で、admin 4 一覧 + マスタ画面（org×3
 | 2026-07-05 | PR-A 実装で判明した catalog API 乖離への対応方針 | IconButton は fork 版を移植（href/shimmer/primary variant。spinOnClick のみ Icon 全面刷新を要するため除外し DataTable 側 2 箇所から外した）/ DropdownMenu は prop 上位互換のため fork 版に置換（MenuItemList テストの失敗は baseline 比較で既存 stale と確認）/ Select は emptyLabel を additive 追加 / 不足アイコン 5 種（plus/pencil/copy/ban/grip）は lucide-react 依存を持ち込まず手書き SVG で追加 / animations.ts は純増のため fork 版に更新 |
 | 2026-07-05 | 不足 CSS トークンは 7 種のみ additive 追加（hover-bg/selected-bg/bg-subtle/bg-surface/border-light/error/error-bg） | fork 設計では bg 系はフォールバック付きの任意トークン。--color-bg-surface はフォールバック無しで透明化するため waoon では #ffffff を定義。既存トークンの差し替えはゼロ |
 | 2026-07-05 | PR-A コードレビュー APPROVE（[Review](../reviews/2026-07-05-1510-datatable-port-code-review.md)・エージェント代行）。NICE-TO-HAVE 2 件はコード変更せず残課題化 | N-1（DropdownMenu 既定アニメ変化）は移植の忠実性を優先し PR-B 手動確認へ / N-2（tableCells の `'use client'` 無し）は移植元と同一・実害ゼロのため将来の server import 時に対応 |
+| 2026-07-05 | PR-B: AdminListTable を DataTable（client）の薄いアダプタに置換し、admin 4 一覧 + マスタ 5 画面を `Column<TRow>` へ移行。`InteractiveTable` 参照は apps/web で 0 件化 | 参照は AdminListTable / MasterListView + 型 import のみだったため、アダプタ置換で全一覧が乗り換わり機械的ゴール（`rg InteractiveTable apps/web` = 0）を達成。列ヘッダソート・全文検索・内蔵ページネーション・件数表示・空状態出し分けを解放 |
+| 2026-07-05 | テーマ追従は **「アダプタに scoped 注入」方式を採用**（笹木さん選択。infra/theme グローバルブリッジ案は不採用） | アプリの DataTable 利用は全て AdminListTable 経由のため、ラッパ div への CSS 変数注入で全カバーでき、blast radius が最小。DataTable は CSS 変数駆動だがアプリのテーマは `useTheme()` の runtime prop 方式で、両者を繋ぐブリッジが無いことを実装前に確認した |
+| 2026-07-05 | テーマ追従の実装で DataTable SCSS に **ヘッダ専用フック `--dt-header-bg` / `--dt-header-text` を additive 追加**（未注入時は従来の `--color-text(-inverse)` にフォールバック=既存利用に無影響） | `.th` の背景が `--color-text`（セル本文の文字色と同一トークン）を流用しているため、ラッパで `--color-text` を上書きすると light テーマ（ヘッダ背景が明色）でセル本文が不可視化する。ヘッダ専用フックで分離し、AdminListTable が `tableHeaderBgColor` / `tableHeaderTextColor` / `cardRadius` を注入して追従させる |
+| 2026-07-05 | ページネーション既定 `pageSize=20`（overridable）/ 検索は client 全文検索で表示列横断 / `lib/table/filter-sort.ts`（+ test 7 件）は削除 | H-4（ページネーション皆無）を実データで可視化するため既定を小さめに。検索・ソートは DataTable 内蔵に置き換わったため filter-sort util は不要（evergreen）。web test は 69→62（削除した util の 7 件ぶん・退行なし） |
+| 2026-07-05 | PR-B コードレビュー APPROVE（[Review](../reviews/2026-07-05-1720-datatable-port-code-review-prb.md)・エージェント代行 code-reviewer + architect 並列・BLOCKER なし）。NICE-TO-HAVE のうち API 誤読と memo を反映 | `searchKeys`（内容無視で誤読）→ `searchable?: boolean`・dead 定数削除 / `sortable` を key の `string[]` に簡素化（未使用 label 除去）/ `themeVars` を useMemo 化。残りの NICE-TO-HAVE は下記「残課題」へ |
 
-## 残課題（PR-A コードレビューより）
+## 残課題
+
+PR-A コードレビューより:
 
 - **N-2**: `packages/ui/core/organisms/DataTable/tableCells.tsx` に `'use client'` が無い（移植元 ai_edu と同一状態・実害ゼロ）。将来 server component から直接 import する場合に付与する。
+
+PR-B コードレビュー（代行）より:
+
+- テーマ写像（theme→`--dt-*`）を再利用可能な primitive（`useDataTableThemeVars()` フック or `ThemedDataTable` 薄ラッパ）に括り出す。2 人目の DataTable 直利用が出たときのコピペ再発防止。単一利用の現状は YAGNI で見送り可。
+- `--dt-header-*` の注入契約を DataTable の stories / 型 doc に一行記載（catalog-only 消費者が発見できるように）。
+- **列ピッカー（gear）と件数セレクトが admin 一覧に新規出現**（DataTable 既定）。意図どおりか要確認。不要なら `disableColumnPicker` を渡す。→ マージ後検証項目に含めた。
+- portal 要素（列ピッカー popover 等）は wrapper の CSS 変数を継承せず角丸だけテーマ非追従（scoped 注入の既知の代償・実害軽微）。
+- `.thSortable:hover` の白オーバーレイが light テーマ（明色ヘッダ）で視認弱い（PR-A 本体側・別 Issue）。
+- InteractiveTable の catalog 残置/削除を無期限保留にせず期限付き yes/no へ格上げ（役割は DataTable と非冗長。需要が無ければ evergreen で削除）。
 
 ## ステータス
 
@@ -130,6 +147,8 @@ AdminListTable のアダプタ化で、admin 4 一覧 + マスタ画面（org×3
 - [x] #66 マージ済み（実装着手の前提）
 - [x] PR-A 実装完了（typecheck / lint / 移植テスト 217 green・既存比の新規失敗ゼロ・web test 69 / build green）
 - [x] PR-A コードレビュー APPROVE（2026-07-05・エージェント代行）・[PR #68](https://github.com/sasakiyusuke2017015/waoon/pull/68) 提出
-- [ ] PR-A merge（笹木さん承認）
-- [ ] PR-B 実装・レビュー・merge
+- [x] PR-A merge（笹木さん承認・2026-07-05・develop 53e8533）
+- [x] PR-B 実装完了（typecheck / lint / build green・web test 62・`InteractiveTable` 参照 0 件・self-review 済み）
+- [x] PR-B コードレビュー APPROVE（2026-07-05・エージェント代行・[Review](../reviews/2026-07-05-1720-datatable-port-code-review-prb.md)）
+- [ ] PR-B merge（笹木さん承認）
 - [ ] マージ後検証（手動確認チェックを消化）

@@ -1,4 +1,4 @@
-import type { Column, TableRowData } from "@ui-catalog/core/organisms/InteractiveTable";
+import type { Column } from "@ui-catalog/core/organisms/DataTable";
 import type { GenericSchema } from "valibot";
 import {
   CreateDivisionSchema,
@@ -36,15 +36,14 @@ export type MasterConfig = {
   updateSchema: GenericSchema;
   fields: MasterField[];
   parent?: MasterParent;
-  columns: Column[];
-  searchKeys: string[];
+  columns: Column<MasterRow>[];
 };
 
-export type MasterRow = TableRowData & { id: string; code: string; name: string };
+export type MasterRow = { id: string; code: string; name: string };
 
-const CODE_NAME_COLUMNS: Column[] = [
-  { accessor: "code", label: "コード", proportion: 30, dataAlign: "left" },
-  { accessor: "name", label: "名前", proportion: 70, dataAlign: "left" },
+const CODE_NAME_COLUMNS: Column<MasterRow>[] = [
+  { key: "code", label: "コード", width: "30%", align: "left" },
+  { key: "name", label: "名前", width: "70%", align: "left" },
 ];
 
 export const MASTER_CONFIGS: Record<string, MasterConfig> = {
@@ -60,7 +59,6 @@ export const MASTER_CONFIGS: Record<string, MasterConfig> = {
       { key: "name", label: "名前", type: "text" },
     ],
     columns: CODE_NAME_COLUMNS,
-    searchKeys: ["code", "name"],
   },
   departments: {
     key: "departments",
@@ -80,7 +78,6 @@ export const MASTER_CONFIGS: Record<string, MasterConfig> = {
       queryKey: "divisions",
     },
     columns: CODE_NAME_COLUMNS,
-    searchKeys: ["code", "name"],
   },
   sections: {
     key: "sections",
@@ -100,7 +97,6 @@ export const MASTER_CONFIGS: Record<string, MasterConfig> = {
       queryKey: "departments",
     },
     columns: CODE_NAME_COLUMNS,
-    searchKeys: ["code", "name"],
   },
   positions: {
     key: "positions",
@@ -114,7 +110,6 @@ export const MASTER_CONFIGS: Record<string, MasterConfig> = {
       { key: "name", label: "名前", type: "text" },
     ],
     columns: CODE_NAME_COLUMNS,
-    searchKeys: ["code", "name"],
   },
   urgency: {
     key: "urgency",
@@ -128,6 +123,5 @@ export const MASTER_CONFIGS: Record<string, MasterConfig> = {
       { key: "name", label: "名前", type: "text" },
     ],
     columns: CODE_NAME_COLUMNS,
-    searchKeys: ["code", "name"],
   },
 };

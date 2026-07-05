@@ -3,38 +3,31 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import type { Column, TableRowData } from "@ui-catalog/core/organisms/InteractiveTable";
+import type { Column } from "@ui-catalog/core/organisms/DataTable";
 import { StatisticList } from "@ui-catalog/core/molecules";
 import { apiGet } from "@/lib/api/client";
 import { AdminListTable } from "@/components/admin/AdminListTable";
 
-type UserRow = {
+type Row = {
   id: string;
   code: string;
   name: string;
   email: string;
 };
 
-type Row = TableRowData & UserRow;
-
-const COLUMNS: Column[] = [
-  { accessor: "code", label: "コード", proportion: 16, dataAlign: "left" },
-  { accessor: "name", label: "名前", proportion: 28, dataAlign: "left" },
-  { accessor: "email", label: "メール", proportion: 56, dataAlign: "left" },
+const COLUMNS: Column<Row>[] = [
+  { key: "code", label: "コード", width: "16%", align: "left" },
+  { key: "name", label: "名前", width: "28%", align: "left" },
+  { key: "email", label: "メール", width: "56%", align: "left" },
 ];
 
-const SEARCH_KEYS: (keyof Row & string)[] = ["code", "name", "email"];
-const SORTABLE = [
-  { key: "code", label: "コード" },
-  { key: "name", label: "名前" },
-  { key: "email", label: "メール" },
-];
+const SORTABLE = ["code", "name", "email"];
 
 export default function UsersListPage() {
   const router = useRouter();
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["users"],
-    queryFn: () => apiGet<{ data: UserRow[] }>("/api/v1/users"),
+    queryFn: () => apiGet<{ data: Row[] }>("/api/v1/users"),
   });
 
   const rows: Row[] = (data?.data ?? []).map((u) => ({ ...u }));
@@ -62,9 +55,9 @@ export default function UsersListPage() {
         data={rows}
         loading={isLoading}
         error={isError ? (error as Error).message : null}
+        onRetry={() => refetch()}
         emptyMessage="ユーザーがいません"
         onRowClick={(row) => router.push(`/admin/users/${row.id}/edit`)}
-        searchKeys={SEARCH_KEYS}
         sortable={SORTABLE}
       />
     </div>
