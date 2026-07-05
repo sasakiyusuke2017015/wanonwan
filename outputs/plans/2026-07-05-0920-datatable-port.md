@@ -1,13 +1,13 @@
 # Plan: DataTable 移植（ai_edu 版）+ admin 一覧の乗り換え
 
-> ステータス: 🟣 PR-B マージ承認待ち（PR-A #68 マージ済み。PR-B 実装完了・コードレビュー APPROVE（代行））
+> ステータス: 🟢 マージ済み（検証中）（PR-A #68 / PR-B #70 ともマージ済み・develop CI green。マージ後手動検証が残る）
 
 | 項目 | 値 |
 |---|---|
 | 作成日時 | 2026-07-05 09:20 JST |
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | PR-A: `feature/datatable-port` / PR-B: `feature/datatable-adoption` |
-| 関連 PR | PR-A: [#68](https://github.com/sasakiyusuke2017015/waoon/pull/68) |
+| 関連 PR | PR-A: [#68](https://github.com/sasakiyusuke2017015/waoon/pull/68)（merged）/ PR-B: [#70](https://github.com/sasakiyusuke2017015/waoon/pull/70)（merged） |
 | レビュー | [計画レビュー](../reviews/2026-07-05-0925-datatable-port-review.md): APPROVE / [PR-A コードレビュー](../reviews/2026-07-05-1510-datatable-port-code-review.md): APPROVE（エージェント代行） |
 | 前提 | **#66（カタログ堅牢化）マージ後に実装着手**（同じ catalog organisms を触るため） |
 
@@ -150,5 +150,5 @@ PR-B コードレビュー（代行）より:
 - [x] PR-A merge（笹木さん承認・2026-07-05・develop 53e8533）
 - [x] PR-B 実装完了（typecheck / lint / build green・web test 62・`InteractiveTable` 参照 0 件・self-review 済み）
 - [x] PR-B コードレビュー APPROVE（2026-07-05・エージェント代行・[Review](../reviews/2026-07-05-1720-datatable-port-code-review-prb.md)）
-- [ ] PR-B merge（笹木さん承認）
+- [x] PR-B merge（笹木さん承認・2026-07-05・[#70](https://github.com/sasakiyusuke2017015/waoon/pull/70)・develop ea6e139・CI green）
 - [ ] マージ後検証（手動確認チェックを消化）
