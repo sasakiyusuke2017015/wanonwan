@@ -8,7 +8,7 @@ const defaultProps = {
   period: '2026/01/01 〜 2026/01/31',
   status: '実施中',
   statusColor: 'green' as const,
-  headerColor: 'bg-blue-500',
+  headerColor: '#3b82f6',
   buttonVariant: 'primary' as const,
   buttonText: '回答する',
 };
@@ -37,6 +37,11 @@ describe('SurveyCard', () => {
   it('説明文が表示される', () => {
     render(<SurveyCard {...defaultProps} description="アンケートの説明" />);
     expect(screen.getByText('アンケートの説明')).toBeInTheDocument();
+  });
+
+  it('headerColor が期間ヘッダーの背景色に反映される', () => {
+    render(<SurveyCard {...defaultProps} />);
+    expect(screen.getByText(/期間:/)).toHaveStyle({ backgroundColor: '#3b82f6' });
   });
 
   it('締切バッジが表示される', () => {

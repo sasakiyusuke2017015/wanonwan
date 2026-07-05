@@ -129,6 +129,8 @@ Phase 1 → 2（polish・低〜中リスク）を先に回し、Phase 3（ダー
 | 2026-07-05 | Phase 1 実装: ルート metadata に `title.template="%s ｜ waoon"` + `useDocumentTitle` フック新設。**AppLayout で `activeLabel`（現在セクション名）を document.title に一括設定** + login/change-password は個別 | 認証ページは全て AppLayout 配下で NAV_ITEMS の prefix match により意味あるセクション名にマップされる（一覧/編集/新規/マスタ配下すべて）。30 ページ個別編集を回避。ページ個別タイトル（編集 vs 一覧）が要る箇所は将来 useDocumentTitle を個別追加 |
 | 2026-07-05 | Phase 2 実装: 回答状態は `answers.status >= 200` で提出判定（100=下書き扱い・「続きから回答」導線）。締切訴求は日付粒度・閲覧者ローカル TZ の `deadlineInfo`（本日締切/あとN日/締切超過・提出済みには非表示）。`me/surveys` の order を `end_at asc nulls last` に。スケルトンは `SurveyCardSkeleton` として catalog に吸収 | ドメイン定数 `ANSWER_STATUSES`（100/200/400/900）と整合。コードレビュー初回 NEEDS WORK（BLOCKER: テストが `+09:00` 固定で UTC CI で落ちる）→ テストを TZ 非依存（オフセットなしローカル時刻）に修正して APPROVE。`TZ` env 固定は Windows Node で効かないため不採用 |
 
+| 2026-07-05 | マージ後検証（dev + headless chromium）で 2 バグ発見 → `fix/finishing-touches-followups` | (1) フルロード時に Next のストリーミング metadata が `useDocumentTitle` の設定を約 7ms 後に上書き（MutationObserver 実測）→ hook を head 監視の再設定方式に。(2) SurveyCard の headerColor が CSS クラス名前提でアプリはカラー値を渡しており期間ヘッダーが白地白文字で不可視（従来から）→ 契約を CSS カラー値 + inline style に変更（[followup レビュー](../reviews/2026-07-05-2343-finishing-touches-followups-review.md): APPROVE）|
+
 ## 要ユーザー判断
 
 Phase 1/2 は判断不要で着手可。以下は各 epic の**サブ Plan 着手時**に確定（本 Plan の判断ログに追記しつつサブ Plan へ）。
@@ -154,7 +156,11 @@ Phase 1/2 は判断不要で着手可。以下は各 epic の**サブ Plan 着�
 - [x] Phase 2（公開一覧 UX）実装・コードレビュー（代行・初回 NEEDS WORK→修正反映→APPROVE・[Review](../reviews/2026-07-05-2300-finishing-touches-phase2-code-review.md)）・merge（[#77](https://github.com/sasakiyusuke2017015/waoon/pull/77)）
 - [ ] Phase 3（ダークモード）: 独立サブ Plan 作成 + 要判断確定 → 実装（複数 PR）・レビュー・merge
 - [ ] Phase 4（VRT）: 独立サブ Plan 作成 + 要判断確定 → 実装・レビュー・merge
-- [ ] **マージ後検証（Phase 1/2・dev 実機目視）**
-  - [ ] ページタイトル: 各ページのタブ表示が差別化される（初期表示 + クライアント遷移後の title 更新も確認）
-  - [ ] 公開一覧: 空状態（EmptyState + 再読み込み）/ スケルトン / エラー再試行 / 締切バッジ（本日締切・あとN日）/ 下書きの「続きから回答」導線 / lg 多カラム
-  - [ ] 回答ページ: 期間・締切・回答状態バッジの再掲 / ローディング・エラー体裁
+- [ ] **マージ後検証（Phase 1/2・dev 実機。2026-07-05 に Claude Code が headless chromium で実施）**
+  - [x] ページタイトル: クライアント遷移は正常（`アンケート ｜ waoon`）。**フルロード/リロードで metadata に上書きされ "waoon" に戻るバグを発見** → `fix/finishing-touches-followups` で修正・実機再確認済み
+  - [x] 公開一覧: スケルトン / エラー再試行（abort→再試行→復帰）/ 締切バッジ（あと1日・あと2日・遠い締切と提出済みは非表示）/ 下書きの「続きから回答」導線 / 3 カラム / 締切昇順 / StatisticList 3 値
+  - [x] 回答ページ: 期間・締切・下書きバッジの再掲 / ローディング・エラー体裁
+  - [x] **SurveyCard の期間ヘッダーが白地白文字で不可視のバグを発見**（headerColor の契約不一致・従来から）→ 同 fix ブランチで修正・実機再確認済み
+  - [x] **ログイン画面のメール欄 blur で InvalidStateError**（笹木さん報告・catalog `Input` が type を問わず `setSelectionRange` を呼ぶ・テーマ4 由来）→ 同 fix ブランチで selection 対応 type に限定 + 回帰テスト・実機再確認済み
+  - [ ] 空状態（EmptyState）: 掲載ゼロの状態が必要なため未検証（seed 環境では常に掲載あり。笹木さん判断でスキップ可）
+  - [ ] followup fix（タイトル上書き / 期間ヘッダー / Input blur）の PR merge
