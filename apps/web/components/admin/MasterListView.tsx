@@ -10,7 +10,7 @@ import type { MasterConfig, MasterRow } from "@/lib/admin/master-config";
 // マスタ一覧の汎用ビュー。config に従って一覧 + 新規作成リンクを描画する。
 export function MasterListView({ config }: { config: MasterConfig }) {
   const router = useRouter();
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: [config.key],
     queryFn: () => apiGet<{ data: MasterRow[] }>(config.endpoint),
   });
@@ -33,9 +33,9 @@ export function MasterListView({ config }: { config: MasterConfig }) {
         data={rows}
         loading={isLoading}
         error={isError ? (error as Error).message : null}
+        onRetry={() => refetch()}
         emptyMessage={`${config.title}がありません`}
         onRowClick={(row) => router.push(`${config.listPath}/${row.id}/edit`)}
-        searchKeys={config.searchKeys as (keyof MasterRow & string)[]}
       />
     </div>
   );

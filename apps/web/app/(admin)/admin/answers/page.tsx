@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { ANSWER_STATUSES, answerStatusLabel, healthLabel } from "@waoon/domain";
-import type { Column, TableRowData } from "@ui-catalog/core/organisms/InteractiveTable";
+import type { Column } from "@ui-catalog/core/organisms/DataTable";
 import { StatisticList } from "@ui-catalog/core/molecules";
 import { apiGet } from "@/lib/api/client";
 import { AdminListTable } from "@/components/admin/AdminListTable";
@@ -17,7 +17,7 @@ type AnswerRow = {
   publicationTitle: string | null;
 };
 
-type Row = TableRowData & {
+type Row = {
   id: string;
   respondentName: string;
   surveyLabel: string;
@@ -25,19 +25,14 @@ type Row = TableRowData & {
   healthLabel: string;
 };
 
-const COLUMNS: Column[] = [
-  { accessor: "respondentName", label: "回答者", proportion: 24, dataAlign: "left" },
-  { accessor: "surveyLabel", label: "アンケート", proportion: 40, dataAlign: "left" },
-  { accessor: "statusLabel", label: "状況", proportion: 18, dataAlign: "left" },
-  { accessor: "healthLabel", label: "健康状態", proportion: 18, dataAlign: "left" },
+const COLUMNS: Column<Row>[] = [
+  { key: "respondentName", label: "回答者", width: "24%", align: "left" },
+  { key: "surveyLabel", label: "アンケート", width: "40%", align: "left" },
+  { key: "statusLabel", label: "状況", width: "18%", align: "left" },
+  { key: "healthLabel", label: "健康状態", width: "18%", align: "left" },
 ];
 
-const SEARCH_KEYS: (keyof Row & string)[] = ["respondentName", "surveyLabel", "statusLabel"];
-const SORTABLE = [
-  { key: "respondentName", label: "回答者" },
-  { key: "surveyLabel", label: "アンケート" },
-  { key: "statusLabel", label: "状況" },
-];
+const SORTABLE = ["respondentName", "surveyLabel", "statusLabel"];
 
 // 回答状況の status 別の色。
 const STATUS_COLOR: Record<number, { dot: string; label: string }> = {
@@ -49,7 +44,7 @@ const STATUS_COLOR: Record<number, { dot: string; label: string }> = {
 
 export default function AnswersListPage() {
   const router = useRouter();
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["answers"],
     queryFn: () => apiGet<{ data: AnswerRow[] }>("/api/v1/answers"),
   });
@@ -90,9 +85,9 @@ export default function AnswersListPage() {
         data={rows}
         loading={isLoading}
         error={isError ? (error as Error).message : null}
+        onRetry={() => refetch()}
         emptyMessage="回答がありません"
         onRowClick={(row) => router.push(`/admin/answers/${row.id}`)}
-        searchKeys={SEARCH_KEYS}
         sortable={SORTABLE}
       />
     </div>

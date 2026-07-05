@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { SURVEY_STATUSES } from "@waoon/domain";
-import type { Column, TableRowData } from "@ui-catalog/core/organisms/InteractiveTable";
+import type { Column } from "@ui-catalog/core/organisms/DataTable";
 import { StatisticList } from "@ui-catalog/core/molecules";
 import { apiGet } from "@/lib/api/client";
 import { AdminListTable } from "@/components/admin/AdminListTable";
@@ -30,13 +30,9 @@ const STATUS_COLOR: Record<string, { dot: string; label: string }> = {
   closed: { dot: "bg-gray-400", label: "text-gray-600" },
 };
 
-const SORTABLE = [
-  { key: "title", label: "タイトル" },
-  { key: "statusLabel", label: "状態" },
-  { key: "publicationCount", label: "掲載数" },
-];
+const SORTABLE = ["title", "statusLabel", "publicationCount"];
 
-type Row = TableRowData & {
+type Row = {
   id: string;
   title: string;
   statusLabel: string;
@@ -44,18 +40,16 @@ type Row = TableRowData & {
   publicationCount: number;
 };
 
-const COLUMNS: Column[] = [
-  { accessor: "title", label: "タイトル", proportion: 48, dataAlign: "left" },
-  { accessor: "statusLabel", label: "状態", proportion: 16, dataAlign: "left" },
-  { accessor: "capacityLabel", label: "定員", proportion: 16, dataAlign: "right" },
-  { accessor: "publicationCount", label: "掲載数", proportion: 20, dataAlign: "right" },
+const COLUMNS: Column<Row>[] = [
+  { key: "title", label: "タイトル", width: "48%", align: "left" },
+  { key: "statusLabel", label: "状態", width: "16%", align: "left" },
+  { key: "capacityLabel", label: "定員", width: "16%", align: "right" },
+  { key: "publicationCount", label: "掲載数", width: "20%", align: "right" },
 ];
-
-const SEARCH_KEYS: (keyof Row & string)[] = ["title", "statusLabel"];
 
 export default function SurveysListPage() {
   const router = useRouter();
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["surveys"],
     queryFn: () => apiGet<{ data: SurveyRow[] }>("/api/v1/surveys"),
   });
@@ -104,9 +98,9 @@ export default function SurveysListPage() {
         data={rows}
         loading={isLoading}
         error={isError ? (error as Error).message : null}
+        onRetry={() => refetch()}
         emptyMessage="アンケートがありません"
         onRowClick={(row) => router.push(`/admin/surveys/${row.id}/edit`)}
-        searchKeys={SEARCH_KEYS}
         sortable={SORTABLE}
       />
     </div>

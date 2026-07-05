@@ -1,16 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
-import {
-  InteractiveTable,
-  type Column,
-  type TableRowData,
-} from "@ui-catalog/core/organisms/InteractiveTable";
-import { Input, Select, Button } from "@ui-catalog/core/molecules";
-import { useTheme } from "@ui-catalog/core/infra/theme";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { DataTable, type Column } from "@ui-catalog/core/organisms/DataTable";
+import { Button } from "@ui-catalog/core/molecules";
+import { useTheme, DEFAULT_GLOBAL_THEME } from "@ui-catalog/core/infra/theme";
 import { getThemeConfig } from "@ui-catalog/core/constants";
-import { DEFAULT_GLOBAL_THEME } from "@ui-catalog/core/infra/theme";
-import { filterRows, sortRows, type SortDir } from "@/lib/table/filter-sort";
 
 // SSR/初回描画を既定テーマに揃え、mount 後に保存テーマへ（hydration mismatch 回避。AppLayout と同方針）。
 const DEFAULT_THEME = getThemeConfig(
@@ -18,123 +12,105 @@ const DEFAULT_THEME = getThemeConfig(
   DEFAULT_GLOBAL_THEME.shapeTheme,
 );
 
-type SortOption = { key: string; label: string };
-
-type Props<T extends TableRowData> = {
-  columns: Column[];
+type Props<T extends { id?: string }> = {
+  columns: Column<T>[];
   data: T[];
   loading?: boolean;
   error?: string | null;
+  /** エラー時の再取得ハンドラ。渡すとエラー表示に「再試行」ボタンが出る（監査 M-3）。 */
+  onRetry?: () => void;
   emptyMessage: string;
   /** 行クリック時の遷移など。row はそのまま渡す（id 等の非表示フィールドも含む）。 */
   onRowClick?: (row: T) => void;
-  /** ビューポート高からの差し引き（chrome 分）。既定はシェル(header+subheader+footer+タイトル)相当。 */
-  heightOffsetCss?: string;
-  /** 与えると検索ボックスを表示し、これらの列を横断 client フィルタする。 */
-  searchKeys?: (keyof T & string)[];
-  /** 与えるとソート UI（列選択 + 昇順/降順）を表示し client ソートする。 */
-  sortable?: SortOption[];
+  /** 検索ボックスを表示する（既定 true）。client 全文検索は表示中の全列を横断する（列は絞らない）。 */
+  searchable?: boolean;
+  /** ヘッダクリックソートを付与する列の key 群。 */
+  sortable?: string[];
   /** 検索ボックスの placeholder。 */
   searchPlaceholder?: string;
+  /** 1 ページあたりの行数（既定 20）。 */
+  pageSize?: number;
 };
 
-// 管理画面の一覧の定石ラッパ。@ui-catalog の InteractiveTable をテーマ適用して使う。
-// 各ページは列定義(columns)と行データ(data)を渡すだけ。任意で searchKeys / sortable を
-// 渡すと client-side のフィルタ/ソート UI が付く（データ量が小さい前提）。
-export function AdminListTable<T extends TableRowData>({
+// 管理画面の一覧の定石ラッパ。@ui-catalog の DataTable（client モード）を薄く包み、
+// テーマ追従（ヘッダ色・角丸）を scoped に注入する。各ページは列定義(columns)と
+// 行データ(data)を渡すだけで、列ヘッダソート・全文検索・ページネーション・件数表示が付く
+// （データ量が小さい前提の client モード）。
+export function AdminListTable<T extends { id?: string }>({
   columns,
   data,
   loading = false,
   error = null,
+  onRetry,
   emptyMessage,
   onRowClick,
-  heightOffsetCss = "16rem",
-  searchKeys,
+  searchable = true,
   sortable,
   searchPlaceholder = "検索",
+  pageSize = 20,
 }: Props<T>) {
   const [mounted, setMounted] = useState(false);
   const liveTheme = useTheme();
   useEffect(() => setMounted(true), []);
   const { colors, shapes } = mounted ? liveTheme : DEFAULT_THEME;
 
-  const [query, setQuery] = useState("");
-  const [sortKey, setSortKey] = useState<string | null>(null);
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  // sortable に挙げた列だけヘッダクリックソートを解放する。
+  const sortableKeys = useMemo(() => new Set(sortable ?? []), [sortable]);
+  const effectiveColumns = useMemo<Column<T>[]>(
+    () =>
+      sortableKeys.size === 0
+        ? columns
+        : columns.map((c) => (sortableKeys.has(c.key) ? { ...c, sortable: true } : c)),
+    [columns, sortableKeys],
+  );
 
-  const view = useMemo(() => {
-    const filtered = searchKeys ? filterRows(data, query, searchKeys) : data;
-    return sortable ? sortRows(filtered, sortKey as keyof T | null, sortDir) : filtered;
-  }, [data, query, sortKey, sortDir, searchKeys, sortable]);
+  // DataTable は CSS 変数駆動。ヘッダ色・角丸を runtime テーマから scoped に注入して追従させる。
+  // --dt-header-* は DataTable SCSS のヘッダ専用フックで、セル本文の --color-text とは分離されている
+  // （light テーマ等でヘッダ背景が明色でも本文が壊れない）。
+  const themeVars = useMemo(
+    () =>
+      ({
+        "--dt-header-bg": colors.tableHeaderBgColor,
+        "--dt-header-text": colors.tableHeaderTextColor,
+        "--border-radius-default": shapes.cardRadius,
+      }) as CSSProperties,
+    [colors, shapes],
+  );
 
-  const toolbar = searchKeys || sortable ? (
-    <div className="mb-3 flex flex-wrap items-center gap-2">
-      {searchKeys && (
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={searchPlaceholder}
-          borderRadius={shapes.inputRadius}
-        />
-      )}
-      {sortable && (
-        <>
-          <Select
-            options={sortable.map((s) => ({ value: s.key, label: s.label }))}
-            value={sortKey ?? undefined}
-            onChange={(v) => setSortKey(v == null ? null : String(v))}
-            allowEmpty
-            placeholder="並び替え"
-            borderRadius={shapes.inputRadius}
-          />
-          <Button
-            variant="secondary"
-            onClick={() => setSortDir((d) => (d === "asc" ? "desc" : "asc"))}
-            disabled={!sortKey}
-            borderRadius={shapes.buttonRadius}
-          >
-            {sortDir === "asc" ? "昇順 ↑" : "降順 ↓"}
-          </Button>
-        </>
-      )}
-    </div>
-  ) : null;
-
-  let body: ReactNode;
   if (error) {
-    body = <p className="text-sm text-red-600">{error}</p>;
-  } else if (!loading && view.length === 0) {
-    body = (
+    return (
       <div
-        className="rounded border border-dashed p-6 text-center text-sm text-gray-400"
+        className="rounded border border-dashed border-red-300 p-6 text-center"
         style={{ borderRadius: shapes.cardRadius }}
       >
-        {query ? "条件に一致する項目がありません" : emptyMessage}
+        <p className="text-sm text-red-600">{error}</p>
+        {onRetry && (
+          <div className="mt-3">
+            <Button variant="secondary" onClick={onRetry} borderRadius={shapes.buttonRadius}>
+              再試行
+            </Button>
+          </div>
+        )}
       </div>
-    );
-  } else {
-    body = (
-      <InteractiveTable
-        columns={columns}
-        data={view}
-        loading={loading}
-        enableRowHighlight
-        onCellClick={onRowClick ? (_r, _c, _col, row) => onRowClick(row as T) : undefined}
-        headerBgColor={colors.tableHeaderBgColor}
-        headerTextColor={colors.tableHeaderTextColor}
-        tableHeaderBgColor={colors.tableHeaderBgColor}
-        tableHeaderTextColor={colors.tableHeaderTextColor}
-        borderRadius={shapes.cardRadius}
-        heightPercent={100}
-        heightOffsetCss={heightOffsetCss}
-      />
     );
   }
 
   return (
-    <div>
-      {toolbar}
-      {body}
+    <div style={themeVars}>
+      <DataTable
+        mode="client"
+        columns={effectiveColumns}
+        rows={data}
+        loading={loading}
+        emptyMessage={emptyMessage}
+        emptyFilteredMessage="条件に一致する項目がありません"
+        onRowClick={onRowClick ? (row) => onRowClick(row) : undefined}
+        getRowKey={(row, i) => row.id ?? i}
+        showSearch={searchable}
+        searchPlaceholder={searchPlaceholder}
+        showPagination
+        pageSize={pageSize}
+      />
     </div>
   );
 }
