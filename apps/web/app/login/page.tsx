@@ -7,6 +7,7 @@ import { Checkbox } from "@ui-catalog/core/atoms";
 import { AuthFormCard } from "@ui-catalog/core/organisms/AuthFormCard";
 import { LoginButton } from "@ui-catalog/core/organisms/LoginButton";
 import type { LoginButtonState } from "@ui-catalog/core/organisms/LoginButton";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 const REMEMBER_KEY = "waoon.rememberedEmail";
 
@@ -126,6 +127,7 @@ function LoginForm() {
 }
 
 export default function LoginPage() {
+  useDocumentTitle("ログイン");
   return (
     <div className="flex min-h-screen">
       {/* デスクトップ: 左ブランディングパネル（旧踏襲 teal） */}

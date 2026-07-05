@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { FormField, Input, Banner, Button } from "@ui-catalog/core/molecules";
 import { useTheme } from "@ui-catalog/core/infra/theme";
 import { useAppToast } from "@ui-catalog/core/providers";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 export default function ChangePasswordPage() {
   const router = useRouter();
   const { shapes } = useTheme();
   const { showToast } = useAppToast();
+  useDocumentTitle("パスワードの変更");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirm, setConfirm] = useState("");

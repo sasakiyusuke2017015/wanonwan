@@ -4,7 +4,7 @@ import { Providers } from "./providers";
 import { AppFrame } from "@/components/layout/AppFrame";
 
 export const metadata: Metadata = {
-  title: "waoon",
+  title: { default: "waoon", template: "%s ｜ waoon" },
   description: "1on1 アンケート / 面談アプリ（再構築）",
 };
 
