@@ -82,4 +82,4 @@ nginx (TLS終端・ルーティング)
 - **ホスト**: GitHub（`origin = https://github.com/sasakiyusuke2017015/waoon.git`）。CI は `.github/workflows/`。
 - **ブランチ戦略**: [git-workflow.md](.claude/rules/git-workflow.md) の **3 層 `feature→develop→main`** に統一
   （技術選定メモの GitHub Flow は不採用）。
-- **`docs/99_archive/legacy-1on1/` は `.gitignore`**（参照のみ。原本は `docs/99_archive/1on1-main.zip`）。
+- **`docs/99_archive/legacy-1on1/` は `.gitignore`**（参照のみ。zip 原本もリポジトリには含めない）。
