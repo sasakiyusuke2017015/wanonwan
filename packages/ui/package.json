@@ -78,7 +78,6 @@
     "storybook:build": "storybook build -o storybook-static",
     "storybook:deploy": "node --env-file=.env.local node_modules/chromatic/dist/bin.js --build-script-name=storybook:build",
     "storybook:deploy:ghpages": "pnpm clean && pnpm storybook:build && rm -rf node_modules/.cache/gh-pages && gh-pages -d storybook-static",
-    "test": "vitest run",
     "test:storybook": "vitest --project storybook",
     "export-versions": "npx tsx infra/version/export-versions-cli.ts"
   },
