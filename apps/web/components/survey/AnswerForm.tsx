@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import type { AnswerType } from "@waoon/domain";
 import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
 import { FormField, Input, Select } from "@ui-catalog/core/molecules";
-import { TextArea } from "@ui-catalog/core/atoms";
+import { TextArea, Radio, Checkbox } from "@ui-catalog/core/atoms";
 import { useTheme } from "@ui-catalog/core/infra/theme";
 import { useAppToast } from "@ui-catalog/core/providers";
 import { ApiError, apiSend } from "@/lib/api/client";
@@ -76,13 +76,12 @@ export function AnswerForm({
                     borderColor: selected ? colors.primaryBgColor : colors.secondaryBorderColor,
                   }}
                 >
-                  <input
-                    type="radio"
+                  <Radio
                     name={q.id}
                     value={c}
                     checked={selected}
                     onChange={() => setVal(q.id, c)}
-                    className="h-4 w-4"
+                    size="small"
                   />
                   <span>{c}</span>
                 </label>
@@ -119,12 +118,11 @@ export function AnswerForm({
                     borderColor: checked ? colors.primaryBgColor : colors.secondaryBorderColor,
                   }}
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     value={c}
                     checked={checked}
                     onChange={(e) => toggleCheckbox(q.id, c, e.target.checked)}
-                    className="h-4 w-4"
+                    size="small"
                   />
                   <span>{c}</span>
                 </label>

@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ConfirmDialog } from "@ui-catalog/core/organisms";
+import { Select, Button } from "@ui-catalog/core/molecules";
 import { useConfirm } from "@ui-catalog/core/hooks/ui";
+import { useTheme } from "@ui-catalog/core/infra/theme";
 import { useAppToast } from "@ui-catalog/core/providers";
 import { QUESTION_TYPES, type AnswerType } from "@waoon/domain";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
@@ -51,6 +53,7 @@ export function QuestionsEditor({ surveyId }: { surveyId: string }) {
   });
   const invalidate = () => qc.invalidateQueries({ queryKey: key });
 
+  const { shapes } = useTheme();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pickId, setPickId] = useState<string>("");
   const questions = data?.data ?? [];
@@ -168,26 +171,27 @@ export function QuestionsEditor({ surveyId }: { surveyId: string }) {
           <p className="text-xs text-gray-400">追加できるマスタ設問がありません。</p>
         ) : (
           <div className="flex flex-wrap items-center gap-2">
-            <select
-              className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm"
-              value={pickId}
-              onChange={(e) => setPickId(e.target.value)}
-            >
-              <option value="">（設問を選択）</option>
-              {masterOptions.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.body}（{typeLabel(m.answerType)}）
-                </option>
-              ))}
-            </select>
-            <button
-              type="button"
+            <div className="flex-1">
+              <Select
+                options={masterOptions.map((m) => ({
+                  value: m.id,
+                  label: `${m.body}（${typeLabel(m.answerType)}）`,
+                }))}
+                value={pickId || undefined}
+                onChange={(v) => setPickId(v == null ? "" : String(v))}
+                allowEmpty
+                placeholder="（設問を選択）"
+                width="w-full"
+                borderRadius={shapes.inputRadius}
+              />
+            </div>
+            <Button
               disabled={!pickId || link.isPending}
               onClick={() => pickId && link.mutate(Number(pickId))}
-              className="rounded bg-gray-900 px-3 py-1.5 text-sm text-white disabled:opacity-50"
+              borderRadius={shapes.buttonRadius}
             >
               追加
-            </button>
+            </Button>
           </div>
         )}
       </div>
