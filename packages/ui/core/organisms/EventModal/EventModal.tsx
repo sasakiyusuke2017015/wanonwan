@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, useId } from 'react'
+import { FocusTrap } from 'focus-trap-react'
 import { useAtom, useSetAtom, useAtomValue } from 'jotai'
 import { eventModalAtom, activeSlotAtom, eventsAtom } from '../../hooks/calendar/calendar'
 import { format } from 'date-fns'
@@ -32,6 +33,7 @@ export function EventModal({ persistEvent, removeEvent }: EventModalProps) {
   const allEvents = useAtomValue(eventsAtom)
   const titleRef = useRef<HTMLInputElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
+  const headingId = useId()
 
   const [title, setTitle] = useState('')
   const [startDateStr, setStartDateStr] = useState('')
@@ -234,20 +236,35 @@ export function EventModal({ persistEvent, removeEvent }: EventModalProps) {
     : { width: '380px', maxHeight: '80vh' }
 
   return (
-    <div
-      data-component="EventModal"
-      style={{
-        position: 'fixed', inset: 0, display: 'flex',
-        alignItems: pos ? 'flex-start' : 'center',
-        justifyContent: pos ? 'flex-start' : 'center',
-        backgroundColor: posReady ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0)',
-        transition: 'background-color 0.2s ease-out', zIndex: 10000,
+    <FocusTrap
+      active={modal.isOpen}
+      focusTrapOptions={{
+        // 初期フォーカスは既存の requestAnimationFrame → titleRef.focus() に委ねる
+        // （trap 起動時は先頭のフォーカス可能要素に当たり、直後にタイトル入力へ移る）。
+        fallbackFocus: '[role="dialog"]',
+        // ESC / 背景クリックは既存の close 経路で処理する（trap 側と二重発火させない）。
+        escapeDeactivates: false,
+        clickOutsideDeactivates: false,
       }}
-      onClick={(e) => { if (e.target === e.currentTarget) close() }}
     >
       <div
-        ref={panelRef}
+        data-component="EventModal"
         style={{
+          position: 'fixed', inset: 0, display: 'flex',
+          alignItems: pos ? 'flex-start' : 'center',
+          justifyContent: pos ? 'flex-start' : 'center',
+          backgroundColor: posReady ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0)',
+          transition: 'background-color 0.2s ease-out', zIndex: 10000,
+        }}
+        onClick={(e) => { if (e.target === e.currentTarget) close() }}
+      >
+        <div
+          ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={headingId}
+          tabIndex={-1}
+          style={{
           ...panelStyle,
           background: '#fff', borderRadius: '16px',
           boxShadow: '0 24px 48px rgba(0,0,0,0.2)', overflow: 'hidden',
@@ -259,12 +276,13 @@ export function EventModal({ persistEvent, removeEvent }: EventModalProps) {
       >
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: `1px solid ${colors.border.primary}` }}>
-          <h3 style={{ fontSize: '18px', fontWeight: 700, color: colors.text.primary, margin: 0 }}>
+          <h3 id={headingId} style={{ fontSize: '18px', fontWeight: 700, color: colors.text.primary, margin: 0 }}>
             {modal.editingEvent ? 'イベントを編集' : 'イベントを追加'}
           </h3>
           <button
             type="button"
             onClick={close}
+            aria-label="閉じる"
             className="flex items-center justify-center w-8 h-8 border-none bg-transparent cursor-pointer rounded-lg text-text-secondary hover:bg-surface-hover transition-colors text-lg"
           >
             &times;
@@ -398,7 +416,8 @@ export function EventModal({ persistEvent, removeEvent }: EventModalProps) {
             </div>
           </form>
         </div>
+        </div>
       </div>
-    </div>
+    </FocusTrap>
   )
 }
