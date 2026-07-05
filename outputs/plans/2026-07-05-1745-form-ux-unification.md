@@ -174,6 +174,9 @@ PR-A / C / D:
 | 2026-07-05 | PR-B コードレビュー（代行 code-reviewer + architect）で **BLOCKER 2 件を反映**（[Review](../reviews/2026-07-05-1852-form-ux-unification-review.md)）| (1) パンくず「ホーム」が catalog Breadcrumb の素の SPA Link で未ガード → アプリ層でガード付き描画に置換。(2) popstate 確認中の多重 back で resolver 上書き・すり抜け → in-flight Promise 再利用 + 確認中フラグ |
 | 2026-07-05 | PR-C を **C1 / C2 に 2 分割**（笹木さん選択）。C1=`QuestionForm`/`PublicationForm` のカタログ化 / C2=`AnswerForm` radio-checkbox + `QuestionsEditor`/`AttachmentsPanel` の生 select/button | 分量が大きくレビューを分けるため。C1 は SurveyForm 様式に揃える純カタログ化 |
 | 2026-07-05 | PR-C1 実装: `QuestionForm` を `FormField`/`Input`/`Select`/`TextArea`/`Checkbox`/`FormActions` + `fieldErrorsOf(CreateQuestionSchema)` 化、`PublicationForm` を catalog 化。dirty ガードは挙動不変で維持 | 生 UI（`cls` 直書き）を廃し、body 必須検証をブラウザ標準 → FormField フィールドエラーに。既存の onSubmit/onCancel/追加時クリアの挙動は不変 |
+| 2026-07-05 | PR-C2 実装: `AnswerForm` の radio/checkbox 生 input を catalog `Radio`/`Checkbox`（label なし=コントロールのみ）に差し替え（タイルの `<span>` とテーマ塗りは維持）、`QuestionsEditor` の「マスタから追加」を catalog `Select`+`Button` に | catalog Radio/Checkbox は label 未指定でコントロールのみ描画するため、タイルのレイアウト/体験を変えずに差し替え可能 |
+| 2026-07-05 | `AttachmentsPanel` の file input と `QuestionsEditor` の並べ替え ↑↓ / 行アクション（編集・外す・削除）の catalog 化は**見送り（残課題）** | catalog に file input 部品が無く、無理な Button 化は体験劣化。並べ替え ↑↓ は隣接する行アクションのテキストリンク群と混在させると視覚的に不整合になるため、bespoke クラスタとして一括で別途検討 |
+| 2026-07-05 | PR-C2 コードレビュー（代行 code-reviewer）APPROVE（[Review](../reviews/2026-07-05-1930-form-ux-unification-review.md)）。NICE #1 反映 | catalog Select が既定 180px 固定で `flex-1` が効かず縮む視覚後退を `width="w-full"` で解消。追加ボタン色はアプリ他ボタン（FormActions default）と揃える判断で据え置き |
 
 ## ステータス
 
@@ -186,8 +189,10 @@ PR-A / C / D:
 - [x] PR-B merge（[#72](https://github.com/sasakiyusuke2017015/waoon/pull/72)・develop 49289cb・CI green）
 - [ ] PR-B マージ後の対話挙動を手動検証（サイドナビ離脱 / 戻る / 暴発なし / beforeunload・要 dev 起動）
 - [ ] PR-C（C1/C2 に分割）
-  - [x] C1 実装完了（QuestionForm/PublicationForm カタログ化・typecheck/lint/build/test green）
-  - [ ] C1 レビュー・merge
-  - [ ] C2 実装（AnswerForm radio-checkbox + 生 select/button）・レビュー・merge
+  - [x] C1 実装完了（QuestionForm/PublicationForm カタログ化）→ [#73](https://github.com/sasakiyusuke2017015/waoon/pull/73) merged
+  - [x] C2 実装完了（AnswerForm radio/checkbox + QuestionsEditor マスタ追加 select/button・typecheck/lint/build/test green）
+  - [x] C2 コードレビュー（代行 code-reviewer・APPROVE・NICE #1 反映・[Review](../reviews/2026-07-05-1930-form-ux-unification-review.md)）
+  - [ ] C2 merge（笹木さん承認）
 - [ ] PR-D 実装・レビュー・merge
+- [ ] 残課題: AttachmentsPanel の file input / QuestionsEditor の並べ替え・行アクションの catalog 化（別途）
 - [ ] マージ後検証（手動確認チェックを消化）
