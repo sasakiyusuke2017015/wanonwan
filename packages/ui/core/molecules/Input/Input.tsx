@@ -15,6 +15,10 @@ import { Icon } from '../../atoms/Icon'
 
 import styles from './Input.module.scss'
 
+// setSelectionRange が使える input type（WHATWG 仕様）。email / number 等で呼ぶと
+// InvalidStateError になるため、blur 時の「先頭に巻き戻す」処理はこの型に限定する。
+const SELECTABLE_TYPES = new Set(['text', 'search', 'url', 'tel', 'password'])
+
 interface InputProps
   extends Omit<
     InputHTMLAttributes<HTMLInputElement>,
@@ -177,7 +181,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         }}
         onBlur={(e) => {
           log('blur', { variant, size })
-          e.target.setSelectionRange(0, 0)
+          if (SELECTABLE_TYPES.has(e.target.type)) {
+            e.target.setSelectionRange(0, 0)
+          }
           e.target.scrollLeft = 0
           onBlur?.(e)
         }}

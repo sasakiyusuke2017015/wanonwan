@@ -21,6 +21,7 @@ export interface SurveyCardProps {
   /** 締切訴求バッジ（「本日締切」「あと3日」等）。未指定なら非表示 */
   deadlineLabel?: string;
   deadlineColor?: 'blue' | 'green' | 'red' | 'yellow' | 'gray' | 'orange';
+  /** 期間ヘッダーの背景色（CSS カラー値。テーマの primaryBgColor 等を渡す） */
   headerColor: string;
   buttonVariant: 'primary' | 'danger' | 'outline';
   buttonText: string;
@@ -58,7 +59,7 @@ export const SurveyCard: FC<SurveyCardProps> = ({
     <div className={styles.col} data-component="survey-card">
       <div className={styles.card} style={{ borderRadius: cardRadius }}>
         {/* 期間ヘッダー */}
-        <div className={`${styles.header} ${headerColor}`}>
+        <div className={styles.header} style={{ backgroundColor: headerColor }}>
           期間: {period}
         </div>
 

@@ -82,6 +82,19 @@ describe('Input', () => {
     expect(handleBlur).toHaveBeenCalled();
   });
 
+  it('type="email" でも blur で例外にならず onBlur が発火する', async () => {
+    const handleBlur = vi.fn();
+    const user = userEvent.setup();
+
+    render(<Input type="email" placeholder="Email blur" value="user@example.com" onChange={() => {}} onBlur={handleBlur} />);
+    const input = screen.getByPlaceholderText('Email blur');
+
+    await user.click(input);
+    await user.tab(); // setSelectionRange 非対応 type で InvalidStateError にならないこと
+
+    expect(handleBlur).toHaveBeenCalled();
+  });
+
   it('onKeyDown イベントが発火する', async () => {
     const handleKeyDown = vi.fn();
     const user = userEvent.setup();
