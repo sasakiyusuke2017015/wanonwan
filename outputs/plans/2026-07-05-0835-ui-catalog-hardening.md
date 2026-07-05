@@ -140,6 +140,7 @@ ConfirmDialog / AlertDialog は Dialog の薄いラッパのため自動的に�
 | 2026-07-05 | ui テストスイートに既存破損が多数と判明（N-1 実施時）。`user-event` devDep 追加で import 失敗群のみ本 PR で解消し、スイート全体の修復は残課題化 | baseline 比較（stash）で本 PR の新規失敗ゼロを確認。stale テストの修復は XSS/a11y と無関係のスコープ外作業 |
 | 2026-07-05 | Dialog の初期フォーカスは confirm variant 全般でキャンセルボタンに | 計画では danger のみ想定だったが、confirm はすべて「誤確定を防ぐ」性質のため一律に適用（alert は従来通り先頭ボタン） |
 | 2026-07-05 | コードレビュー APPROVE（[Review](../reviews/2026-07-05-0904-ui-catalog-hardening-code-review.md)）。NICE-TO-HAVE 2 件を反映 | catch フォールバック経路の専用回帰テスト追加（marked.parse を mock して悪意ある message を注入）/ confirm キャンセル初期フォーカス方針を検証観点に明文化 |
+| 2026-07-05 | 本 PR で追加した `packages/ui` の `"test": "vitest run"` を削除し、CI から `ui#test` を除外（`fix/ci-ui-test-exclude`） | CI は `pnpm turbo run typecheck lint build test`。test script を足したことで turbo が既存破損の ui スイート全体を回し、#66 マージ（cdcea98）以降 develop が赤化。本 Plan の方針「CI への `ui test` 組み込みはスイート修復後」と矛盾していたため、script を消して turbo に `ui#test` をスキップさせ緑化（web#test 69 / worker#test のみ実行）。**ui スイート全体の修復＋test script 復活＋CI 組み込みは残課題のまま** |
 
 ## ステータス
 
