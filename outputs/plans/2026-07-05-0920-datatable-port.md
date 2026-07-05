@@ -1,14 +1,14 @@
 # Plan: DataTable 移植（ai_edu 版）+ admin 一覧の乗り換え
 
-> ステータス: 🟡 実装中（PR-A 実装完了・検証 green・コミット/PR 待ち）
+> ステータス: 🟣 PR-A マージ承認待ち（コードレビュー APPROVE。PR #68）
 
 | 項目 | 値 |
 |---|---|
 | 作成日時 | 2026-07-05 09:20 JST |
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | PR-A: `feature/datatable-port` / PR-B: `feature/datatable-adoption` |
-| 関連 PR | TBD |
-| レビュー | [計画レビュー](../reviews/2026-07-05-0925-datatable-port-review.md): APPROVE |
+| 関連 PR | PR-A: [#68](https://github.com/sasakiyusuke2017015/waoon/pull/68) |
+| レビュー | [計画レビュー](../reviews/2026-07-05-0925-datatable-port-review.md): APPROVE / [PR-A コードレビュー](../reviews/2026-07-05-1510-datatable-port-code-review.md): APPROVE（エージェント代行） |
 | 前提 | **#66（カタログ堅牢化）マージ後に実装着手**（同じ catalog organisms を触るため） |
 
 ## 目的
@@ -95,6 +95,7 @@ AdminListTable のアダプタ化で、admin 4 一覧 + マスタ画面（org×3
 - [ ] 空状態（0 件 / 検索 0 件）の文言が出し分けられる
 - [ ] テーマ切替（色・形・テクスチャ）に DataTable の見た目が追従する
 - [ ] キーボードで列ヘッダソート・ページ移動が操作できる
+- [ ] **ヘッダメニュー / ユーザーメニューの開閉見た目に退行がない**（PR-A コードレビュー N-1: 新 DropdownMenu の既定アニメが `expandFromTrigger` に変わったため。退行があれば既定アニメを明示指定して修正）
 
 ## リスク
 
@@ -117,12 +118,18 @@ AdminListTable のアダプタ化で、admin 4 一覧 + マスタ画面（org×3
 | 2026-07-05 | 計画レビュー APPROVE（[Review](../reviews/2026-07-05-0925-datatable-port-review.md)）。N-1〜N-3 を反映 | InteractiveTable 参照ゼロの機械確認 + マスタ画面の手動確認追加 / onRetry prop 明記 / トークン補完は additive 限定 + CSS 変数注入層は catalog 側と事前固定 |
 | 2026-07-05 | PR-A 実装で判明した catalog API 乖離への対応方針 | IconButton は fork 版を移植（href/shimmer/primary variant。spinOnClick のみ Icon 全面刷新を要するため除外し DataTable 側 2 箇所から外した）/ DropdownMenu は prop 上位互換のため fork 版に置換（MenuItemList テストの失敗は baseline 比較で既存 stale と確認）/ Select は emptyLabel を additive 追加 / 不足アイコン 5 種（plus/pencil/copy/ban/grip）は lucide-react 依存を持ち込まず手書き SVG で追加 / animations.ts は純増のため fork 版に更新 |
 | 2026-07-05 | 不足 CSS トークンは 7 種のみ additive 追加（hover-bg/selected-bg/bg-subtle/bg-surface/border-light/error/error-bg） | fork 設計では bg 系はフォールバック付きの任意トークン。--color-bg-surface はフォールバック無しで透明化するため waoon では #ffffff を定義。既存トークンの差し替えはゼロ |
+| 2026-07-05 | PR-A コードレビュー APPROVE（[Review](../reviews/2026-07-05-1510-datatable-port-code-review.md)・エージェント代行）。NICE-TO-HAVE 2 件はコード変更せず残課題化 | N-1（DropdownMenu 既定アニメ変化）は移植の忠実性を優先し PR-B 手動確認へ / N-2（tableCells の `'use client'` 無し）は移植元と同一・実害ゼロのため将来の server import 時に対応 |
+
+## 残課題（PR-A コードレビューより）
+
+- **N-2**: `packages/ui/core/organisms/DataTable/tableCells.tsx` に `'use client'` が無い（移植元 ai_edu と同一状態・実害ゼロ）。将来 server component から直接 import する場合に付与する。
 
 ## ステータス
 
 - [x] Plan 承認（計画レビュー APPROVE 2026-07-05）
 - [x] #66 マージ済み（実装着手の前提）
 - [x] PR-A 実装完了（typecheck / lint / 移植テスト 217 green・既存比の新規失敗ゼロ・web test 69 / build green）
-- [ ] PR-A コードレビュー・PR・merge
+- [x] PR-A コードレビュー APPROVE（2026-07-05・エージェント代行）・[PR #68](https://github.com/sasakiyusuke2017015/waoon/pull/68) 提出
+- [ ] PR-A merge（笹木さん承認）
 - [ ] PR-B 実装・レビュー・merge
 - [ ] マージ後検証（手動確認チェックを消化）
