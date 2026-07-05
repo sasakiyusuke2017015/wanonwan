@@ -30,6 +30,17 @@ export const Default: Story = {
   },
 };
 
+export const DeadlineSoon: Story = {
+  args: {
+    ...Default.args,
+    id: '3',
+    status: '未回答',
+    statusColor: 'yellow',
+    deadlineLabel: '本日締切',
+    deadlineColor: 'red',
+  },
+};
+
 export const Closed: Story = {
   args: {
     id: '2',

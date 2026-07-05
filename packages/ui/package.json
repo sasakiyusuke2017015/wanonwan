@@ -37,6 +37,7 @@
     "./organisms/ArticleCard": "./core/organisms/ArticleCard/index.ts",
     "./organisms/ProfileMenu": "./core/organisms/ProfileMenu/index.ts",
     "./organisms/SiteHeaderShell": "./core/organisms/SiteHeaderShell/index.ts",
+    "./organisms/EmptyState": "./core/organisms/EmptyState/index.ts",
     "./atoms/Switch": "./core/atoms/Switch/index.ts",
     "./atoms/CheckBadge": "./core/atoms/CheckBadge/index.ts",
     "./templates/Header": "./core/templates/Header/index.ts",

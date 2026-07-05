@@ -19,7 +19,7 @@ export const GET = withActiveUser(async (_req, claims) => {
     left join public.answers a
       on a.publication_id = p.id and a.respondent_id = app.uid()
     where p.status = 200
-    order by p.id desc
+    order by p.end_at asc nulls last, p.id desc
   `);
   return NextResponse.json({ data: rows });
 });
