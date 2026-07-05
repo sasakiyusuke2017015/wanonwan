@@ -172,6 +172,8 @@ PR-A / C / D:
 | 2026-07-05 | PR-B 実装: catalog `useUnsavedGuard`（beforeunload）+ apps `NavigationGuardProvider`/`useGuardedNavigate`/`useUnsavedChangesGuard` + `isDirtyPayload`。シェルナビ + 7 フォーム配線 | 計画レビューの設計どおり。dirty はフォーム state の安定 stringify 比較・成功時 baseline リセット |
 | 2026-07-05 | ConfirmDialog を `@ui-catalog/core/organisms/ConfirmDialog` の narrow import に変更（バレル回避）+ 同サブパスを package.json exports に追加 | root providers に入るため静的プリレンダ経路に乗り、バレル `@ui-catalog/core/organisms` 経由だと window を触る兄弟モジュールで build が `window is not defined` になったため |
 | 2026-07-05 | PR-B コードレビュー（代行 code-reviewer + architect）で **BLOCKER 2 件を反映**（[Review](../reviews/2026-07-05-1852-form-ux-unification-review.md)）| (1) パンくず「ホーム」が catalog Breadcrumb の素の SPA Link で未ガード → アプリ層でガード付き描画に置換。(2) popstate 確認中の多重 back で resolver 上書き・すり抜け → in-flight Promise 再利用 + 確認中フラグ |
+| 2026-07-05 | PR-C を **C1 / C2 に 2 分割**（笹木さん選択）。C1=`QuestionForm`/`PublicationForm` のカタログ化 / C2=`AnswerForm` radio-checkbox + `QuestionsEditor`/`AttachmentsPanel` の生 select/button | 分量が大きくレビューを分けるため。C1 は SurveyForm 様式に揃える純カタログ化 |
+| 2026-07-05 | PR-C1 実装: `QuestionForm` を `FormField`/`Input`/`Select`/`TextArea`/`Checkbox`/`FormActions` + `fieldErrorsOf(CreateQuestionSchema)` 化、`PublicationForm` を catalog 化。dirty ガードは挙動不変で維持 | 生 UI（`cls` 直書き）を廃し、body 必須検証をブラウザ標準 → FormField フィールドエラーに。既存の onSubmit/onCancel/追加時クリアの挙動は不変 |
 
 ## ステータス
 
@@ -183,6 +185,9 @@ PR-A / C / D:
 - [x] PR-B コードレビュー（代行 code-reviewer + architect・BLOCKER 2 件反映・[Review](../reviews/2026-07-05-1852-form-ux-unification-review.md)）
 - [x] PR-B merge（[#72](https://github.com/sasakiyusuke2017015/waoon/pull/72)・develop 49289cb・CI green）
 - [ ] PR-B マージ後の対話挙動を手動検証（サイドナビ離脱 / 戻る / 暴発なし / beforeunload・要 dev 起動）
-- [ ] PR-C 実装・レビュー・merge
+- [ ] PR-C（C1/C2 に分割）
+  - [x] C1 実装完了（QuestionForm/PublicationForm カタログ化・typecheck/lint/build/test green）
+  - [ ] C1 レビュー・merge
+  - [ ] C2 実装（AnswerForm radio-checkbox + 生 select/button）・レビュー・merge
 - [ ] PR-D 実装・レビュー・merge
 - [ ] マージ後検証（手動確認チェックを消化）
