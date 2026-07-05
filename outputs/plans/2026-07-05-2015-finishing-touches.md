@@ -1,6 +1,6 @@
 # Plan: 仕上げ（テーマ5・ページタイトル / 公開一覧 UX / ダークモード / VRT）
 
-> ステータス: 🔵 計画レビュー待ち（ドラフト・要ユーザー判断あり）
+> ステータス: 🟠 計画レビュー反映済み（Phase 1/2 は着手可・Phase 3/4 は設計ゲート待ち）
 
 | 項目 | 値 |
 |---|---|
@@ -8,8 +8,8 @@
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | Phase 別（下記）・TBD |
 | 関連 PR | TBD |
-| レビュー | TBD |
-| 前提 | テーマ1〜4 マージ済み。テーマ3 で「アプリのテーマは `useTheme()` の runtime prop 方式・catalog は CSS 変数駆動」の食い違いが判明済み（ダークモード設計に直結） |
+| レビュー | [計画レビュー](../reviews/2026-07-05-2040-finishing-touches-review.md): Phase1/2 APPROVE / Phase3/4 は設計指摘反映（代行 planner + architect） |
+| 前提 | テーマ1〜4 マージ済み。**テーマは 2 系統**（A: `design.ts` の JS/HSL → inline style / B: `tokens.css` の semantic CSS 変数）。ダーク設計はこの 2 系統 + ハードコード色 114 箇所の三層で考える（計画レビューで確定） |
 
 ## 目的
 
@@ -70,21 +70,25 @@ UI/UX 改善テーマ5「仕上げ」。ロードマップの 4 項目を扱う�
 | 締切・回答状態 | `answerStatus`（下書き/提出）を活かし「続きから回答」導線・締切強調（本日締切等）・締切順の並び。サーバ `me/surveys` の order を `end_at` 考慮に |
 | `[publishId]/page.tsx` | 締切/回答済みバッジの再掲・ローディング/エラーの体裁統一 |
 
-### Phase 3: ダークモード（epic・要個別設計・`feature/dark-mode-*`）
+### Phase 3: ダークモード（epic・**着手時に独立サブ Plan** `…-dark-mode.md` を新規作成・`feature/dark-mode-*`）
 
-**着手時に §要ユーザー判断 の設計を確定してから。** 想定サブステップ:
-- 3a. **トークンのセマンティック 2 系統化**: `tokens.css` に light/dark の `--color-surface`/`--color-text-*`/`--color-border-*`/`--color-bg-*` を定義し、`:root[data-theme-mode="dark"]`（または `.dark`）で上書き。
-- 3b. **colorScheme 軸の追加**: `infra/theme` に `colorSchemeAtom`（light/dark/system）+ storage + `<html>` への `data-theme-mode` 付与 + `ThemeSettingsModal` トグル。
-- 3c. **design.ts のダーク対応**: `generateColorConfig` に isDark 分岐（前景/背景の明度反転）または CSS 変数化。
-- 3d. **ハードコード色の CSS 変数化**: 34 ファイル・114 箇所をセマンティックトークン/`dark:` バリアントへ（最大の作業量・複数 PR に分割）。
+計画レビューで確定した**三層モデル**（反転境界は semantic トークン層 B）:
+- 3a. **反転境界 = System B（semantic トークン）**: `tokens.css` の `--color-surface`/`--color-text-*`/`--color-border-*`/`--color-bg-*` を `[data-theme-mode="dark"]` で上書き。**まず単独 PR で landing し、トグルで catalog（DataTable 等・テーマ3 の scoped 注入もこの層）が反転することを検証**してから 114 へ。
+- 3b. **body 地色の semantic 化**: `apps/web/app/globals.css` の `body { background: var(--color-white) }` は反転しない → `--color-bg-primary` 等の semantic surface トークンへ張替（114 の前の土台）。
+- 3c. **colorScheme 軸 + FOUC 対策**: `infra/theme` に `colorSchemeAtom`（light/dark/system）+ storage + `ThemeSettingsModal` トグル。**FOUC 対策必須**: `layout.tsx` の `<head>` に pre-paint inline script（localStorage + `matchMedia` を読み paint 前に `<html>` へ `data-theme-mode` 付与）+ `<html suppressHydrationWarning>`。Tailwind v4 の `@custom-variant dark (&:where([data-theme-mode="dark"] *))` を配線（手動トグル + system 選択と `dark:` を両立）。
+- 3d. **System A（design.ts inline）は前景のみ調整**: `generateColorConfig(base, isDark)` で前景/neutral のコントラストだけダーク調整し**ブランド色相は保持**（非目標の HSL 非改修と両立）。`themeConfigAtom` の入力に colorScheme を足し inline のまま追従。
+- 3e. **ハードコード色 114 箇所**: **semantic トークンへ repoint を第一選択**、`dark:` バリアントは semantic トークンが無い一点ものに限定（golden hammer 回避）。画面群ごとに複数 PR。
 
-### Phase 4: VRT（epic・要個別設計・`feature/vrt-*`）
+### Phase 4: VRT（epic・**着手時に独立サブ Plan** `…-vrt.md` を新規作成・`feature/vrt-*`）
 
-**着手時に §要ユーザー判断 の路線を確定してから。** reg-suit 路線（方針準拠）の想定:
-- 4a. 撮影層（Playwright or `@storybook/test-runner` で storybook-static の各 story を撮影）。
-- 4b. reg-suit 設定（`regconfig.json` + keygen/notify/publisher）。ベースライン保管（MinIO 流用 or GH Actions artifact）。
-- 4c. CI workflow（storybook build → 撮影 → reg-suit compare → 差分レポート）。
+reg-suit 路線（方針準拠）。**Phase 3 と interleave**（下記順序）:
+- 4a. **撮影層**: **storycap**（reg-suit 定番・storybook-static を全撮り）を第一候補。**Storybook 10.2 系互換は要 spike**。NG 時は `index.json` + `iframe.html?id=` を Playwright で撮る薄いスクリプトにフォールバック。flaky 対策（アニメ無効化・日付固定・font 待ち）を同梱。
+- 4b. **reg-suit 設定**: `reg-keygen-git-hash` + `reg-notify-github` + `reg-publish-s3-plugin`（`customEndpoint` で MinIO）。**baseline の CI 到達性を先に決める**（公開到達可能な stg MinIO バケット + Secrets or 専用 S3。GH artifact は reg-suit のモデルに不適）。
+- 4c. **CI workflow**（storybook build → 撮影 → reg-suit compare → 差分レポート）。
 - 4d. 残置 chromatic 依存/script/README 記述の整理（削除 or 明示的 deprecated）。
+- 4e. **VRT 被覆の決定**（§要判断）: catalog 141 stories のみか、app ページ（Playwright スクショ）まで含むか。**114 箇所は app 側で story 0** のため、catalog VRT では 114 置換を守れない。
+
+**Phase 3 × 4 の順序（安全網が効く interleave）**: **4-light（light で baseline 確立）→ Phase 3 を additive 実装（light レンダリング不変）→ 4-dark（ダーク撮影を新規 image キーで加算）**。安全網の本質は「dark 自体」ではなく「トークン化/置換しても **light が不変**」の担保。ダーク撮影を既存 baseline の上書きでなく新規キー加算にすれば全 story 差分爆発を回避。
 
 ## 実装計画
 
@@ -102,9 +106,15 @@ Phase 1 → 2（polish・低〜中リスク）を先に回し、Phase 3（ダー
 
 | リスク | 対応 |
 |---|---|
-| **ダークは「JS inline style テーマ → CSS 変数テーマ」の設計転換を含み大きい**（テーマ3 で判明した runtime prop vs CSS 変数の食い違いの本丸）| Phase 3 着手前に「inline style を残しつつ dark を CSS 変数で被せる」か「CSS 変数へ全面移行」かを設計判断（§要ユーザー判断）。段階移行を優先 |
-| ハードコード色 114 箇所の一括置換は差分が巨大 | Phase 3d を画面群ごとに複数 PR へ分割。VRT（Phase 4）を先に入れられれば置換の安全網になる（順序の検討余地） |
-| VRT は撮影/ストレージ/CI が丸ごと新規で重い | reg-suit 路線を確定し、MinIO 流用で新規インフラを最小化。まず一部 stories で PoC |
+| ダークは 2 系統（A inline / B semantic）+ 114 箇所の三層 | 反転境界を B（semantic トークン）に引くハイブリッドで段階移行（Phase 3 の三層モデル）。System A は前景のみ isDark 調整 |
+| **FOUC / hydration flash**: Jotai は hydration 後 → 初回明色フラッシュ | `layout.tsx` の pre-paint inline script + `suppressHydrationWarning`（Phase 3c）|
+| **body 地色が `--color-white` 固定で反転しない** | semantic surface トークンへ張替（Phase 3b・114 の前の土台）|
+| **背景テーマ(9) × dark 軸の相互作用**が未定義 | dark を背景軸に直交させるか上書きかを §要判断 で決定 |
+| ハードコード色 114 箇所の一括置換は差分が巨大 | Phase 3e を画面群ごとに複数 PR。安全網は「VRT が dark を守る」ではなく「置換しても **light が不変**」の担保（下記順序）|
+| **VRT の安全網が 114 に効かない**（114 は app 側・story 0、VRT は catalog 141 stories のみ）| §要判断 で「app ページ Playwright VRT を足す」か「114 は目視+手動確認」を決定 |
+| **VRT の CI→MinIO 到達性**（GH runner は private MinIO 不達・service container は run 跨ぎで消える）| baseline を公開到達可能な stg バケット + Secrets か専用 S3 に。`reg-publish-s3` の `customEndpoint`。GH artifact は不適 |
+| **VRT flaky**（アニメ・live date・font）で偽陽性 diff | アニメ無効化・日付固定・font 待ちを撮影層に同梱（Phase 4a）|
+| VRT × ダークの順序で全 story 差分爆発 | 4-light → Phase3 additive → 4-dark（新規 image キー加算）で回避 |
 | `"use client"` ページに metadata を付けられない | server layout で被せる / `useDocumentTitle` フック。動的は generateMetadata を server 側に置ける形へ |
 | 公開一覧のサーバ order 変更が既存挙動に影響 | `me/surveys` の order 変更は API テストで担保。締切順は UI 側ソートでも可 |
 
@@ -113,21 +123,31 @@ Phase 1 → 2（polish・低〜中リスク）を先に回し、Phase 3（ダー
 | 日付 | 判断 | 理由 |
 |---|---|---|
 | 2026-07-05 | テーマ5 に polish（タイトル/公開一覧）+ epic（ダーク/VRT）を**全部含める**（笹木さん選択）。ただしフェーズ分割し epic は着手前に個別設計 | ロードマップの「仕上げ」を一体で追う。ただしダーク/VRT は各々単独 Plan 相当の規模のため、フェーズと要判断で分離 |
-| 2026-07-05 | Chromatic は採用せず reg-suit 路線（残置依存は整理対象）| 技術選定メモの SaaS 非採用方針 [[ci-ui-test-exclusion]] と整合 |
+| 2026-07-05 | Chromatic は採用せず reg-suit 路線（残置依存は整理対象）| 技術選定メモの SaaS 非採用方針と整合 |
+| 2026-07-05 | 計画レビュー（代行 planner + architect）: Phase1/2 APPROVE / Phase3/4 は NEEDS WORK を反映（[Review](../reviews/2026-07-05-2040-finishing-touches-review.md)）| ダーク方式を三層モデルに置換 / FOUC・body 地色・`@custom-variant dark`・背景軸×dark をリスク/要判断に追加 / VRT の安全網主張を「light 不変の担保」に修正 + 4-light→3→4-dark の additive 順序 / MinIO CI 到達性を決定項目化 |
+| 2026-07-05 | **epic 2 本（ダーク/VRT）は着手時に独立サブ Plan 化**（`…-dark-mode.md` / `…-vrt.md`）。本 Plan は roadmap + Phase1/2 実装 Plan + Phase3/4 意図の位置づけ | 各々 goal/scope/risk/verification を持つ単独 Plan 相当の規模。判断ログ追記では実装ゲートの情報量が不足（architect #C）|
 
-## 要ユーザー判断（各 Phase 着手前に確定）
+## 要ユーザー判断
 
-1. **Phase 順序**: polish 先行（1→2）で確定。ダーク（3）と VRT（4）の順序は？（VRT を先に入れるとダークの色置換の回帰安全網になる／ダークを先に入れると VRT の baseline がダーク込みになる）
-2. **ダークの設計方式**（Phase 3 着手前）: (A) 既存 inline style を残し dark を CSS 変数で被せる段階移行 / (B) テーマを CSS 変数へ全面移行。
-3. **VRT の路線・ストレージ**（Phase 4 着手前）: reg-suit + 撮影層（Playwright vs storybook test-runner）+ baseline 保管（MinIO 流用 vs GH artifact）。
-4. **ページタイトルの実現手段**: server layout 群 vs client `useDocumentTitle` フック（混在可）。
+Phase 1/2 は判断不要で着手可。以下は各 epic の**サブ Plan 着手時**に確定（本 Plan の判断ログに追記しつつサブ Plan へ）。
+
+**ダーク（Phase 3 サブ Plan 着手前）**
+1. 背景テーマ(9) と dark 軸の関係: **直交**（背景はそのまま・前景/面だけ反転）か、dark 時は背景を上書きするか。
+2. FOUC 対策: pre-paint inline script を入れる（推奨）か、初回フラッシュを許容するか。
+3. a11y/コントラスト目標: WCAG AA 準拠を目標にするか、今回は目視のみ（AA は別 Plan）か。
+
+**VRT（Phase 4 サブ Plan 着手前）**
+4. **被覆範囲**: catalog 141 stories のみか、**app ページ（Playwright スクショ）まで含むか**。「114 置換の安全網が欲しい」なら app 撮影が必須＝スコープ拡大。
+5. baseline 保管の CI 到達性: 公開到達可能な stg MinIO バケット + Secrets か、専用 S3 か。
+6. 撮影層: storycap（SB10 互換 spike 前提）か Playwright 薄スクリプトか。
+
+**ページタイトル（Phase 1）**: server layout はセクション単位まで（`(admin)/layout.tsx` が client のため）。ページ個別化は `useDocumentTitle` 併用が実質必須 — 併用で確定。
 
 ## ステータス
 
-- [ ] Plan 承認（計画レビュー）
-- [ ] 要ユーザー判断（Phase 順序・ダーク方式・VRT 路線・タイトル手段）
+- [x] 計画レビュー（代行 planner + architect）: Phase1/2 APPROVE / Phase3/4 設計指摘を反映（[Review](../reviews/2026-07-05-2040-finishing-touches-review.md)）
 - [ ] Phase 1（ページタイトル）実装・レビュー・merge
 - [ ] Phase 2（公開一覧 UX）実装・レビュー・merge
-- [ ] Phase 3（ダークモード）設計 → 実装（複数 PR）・レビュー・merge
-- [ ] Phase 4（VRT）設計 → 実装・レビュー・merge
+- [ ] Phase 3（ダークモード）: 独立サブ Plan 作成 + 要判断確定 → 実装（複数 PR）・レビュー・merge
+- [ ] Phase 4（VRT）: 独立サブ Plan 作成 + 要判断確定 → 実装・レビュー・merge
 - [ ] マージ後検証
