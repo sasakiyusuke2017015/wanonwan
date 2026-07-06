@@ -4,6 +4,7 @@
 
 | 項目 | 値 |
 |---|---|
+| 概要 | UI/UX 改善テーマ3。ai_edu 実戦検証済みの DataTable（列ヘッダソート/ページネーション/フィルタ/ColumnPicker/行アクション、テスト 1,593 行）を catalog へ移植（PR-A・死蔵の旧 DataTable を置換）→ AdminListTable をアダプタ化して admin 4 一覧 + マスタ 5 画面を乗り換え、apps/web の InteractiveTable 参照をゼロに（PR-B・テーマ追従はアダプタ scoped 注入） |
 | 作成日時 | 2026-07-05 09:20 JST |
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | PR-A: `feature/datatable-port` / PR-B: `feature/datatable-adoption` |

@@ -2,6 +2,7 @@
 
 | 項目 | 値 |
 |---|---|
+| 概要 | 親 Plan「認証の残」A+B。admin の email/password 変更を GoTrue へ同期（admin client に updateUser 追加）+ 初回 PW の強制変更（force-change を API 層ゲートで enforce、middleware はページ誘導） |
 | ステータス | 🟢 マージ済み（検証中）（[PR #25](https://github.com/sasakiyusuke2017015/waoon/pull/25) merged・受け入れ検証 B-0 他が残る） |
 | slug | `auth-gotrue-sync-force-change` |
 | 作成 | 2026-06-14 14:55 JST |

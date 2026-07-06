@@ -4,6 +4,7 @@
 
 | 項目 | 値 |
 |---|---|
+| 概要 | UI/UX 改善テーマ5「仕上げ」。**フェーズ分割**: Phase1 ページタイトル・Phase2 公開一覧 UX（polish・**マージ済み・検証中**）/ Phase3 ダークモード（epic・三層モデル: semantic トークン反転境界 + design.ts 前景調整 + 114 箇所 repoint・FOUC 対策要）/ Phase4 VRT（epic・reg-suit + storycap + MinIO baseline・4-light→3→4-dark の additive 順序）。epic 2 本は着手時に独立サブ Plan 化 |
 | 作成日時 | 2026-07-05 20:15 JST |
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | Phase 別（Phase1: `feature/page-titles` / Phase2: `feature/public-list-ux` / Phase3・4: TBD） |

@@ -2,6 +2,7 @@
 
 | 項目 | 値 |
 |---|---|
+| 概要 | `packages/ui`（`@ui-catalog/core`）の `lint` script は `eslint . --ext .ts,.tsx` だが、 |
 | 作成日時 | 2026-06-22 16:26 JST |
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | `feature/ui-eslint` |

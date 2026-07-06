@@ -2,6 +2,7 @@
 
 | 項目 | 値 |
 |---|---|
+| 概要 | api-route-helpers 残課題。apps/web に Vitest を導入し parseBody / withActiveUser / checkRateLimit / withServiceRole / metadata の unit テスト（5 files / 13 tests）。test-only |
 | ステータス | ✅ 検証完了（[PR #27](https://github.com/sasakiyusuke2017015/waoon/pull/27) merged・test green が検証） |
 | slug | `web-vitest-helper-tests` |
 | 作成 | 2026-06-15 17:25 JST |

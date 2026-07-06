@@ -2,6 +2,7 @@
 
 | 項目 | 値 |
 |---|---|
+| 概要 | admin 判定を positions.code 990-999 → `users.role='admin'` へ移行。positions は純粋 HR マスタ化（999 廃止・#56 の昇格ガード撤去）。最後の admin を 0 人にする操作を DB トリガーで拒否。多層防御（RLS + valibot picklist + DB CHECK + トリガー）を pgTAP で担保 |
 | ステータス | 🟢 マージ済み（検証中）— #57 merged。残: 権限トグルのブラウザ手動確認 |
 | slug | `separate-role-from-position` |
 | 作成 | 2026-06-25 15:58 JST |

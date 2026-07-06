@@ -2,6 +2,7 @@
 
 | 項目 | 値 |
 |---|---|
+| 概要 | クリーンな `pnpm dev:up`（特に `compose:dev:down -v` で volume 破棄した後）から |
 | 作成日時 | 2026-06-23 00:05 JST |
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | `feature/dev-gotrue-users`（予定） |

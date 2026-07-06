@@ -2,6 +2,7 @@
 
 | 項目 | 値 |
 |---|---|
+| 概要 | 旧 1on1 を新スタック(Next.js/Postgres/GoTrue/RLS)で再構築。Phase 0–5 + 見た目踏襲 + provisioning/レートリミット/日時tz + Dashboard/Schedule までマージ済。残=デプロイ基盤（別 Plan へ分離） |
 | ステータス | 🟡 実装中: Phase 0–5 完了（+ 見た目踏襲 / GoTrue provisioning / レートリミット / 日時tz）。残 = Phase 6 デプロイ基盤（CI ✅ / stg・prod compose・nginx 未）。一次ソースは末尾「ステータス」と [README ダッシュボード](../README.md) |
 | slug | `pleasanter-exit-1on1-rebuild` |
 | 作成 | 2026-06-11 17:30 JST |

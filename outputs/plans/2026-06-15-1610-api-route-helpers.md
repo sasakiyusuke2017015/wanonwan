@@ -2,6 +2,7 @@
 
 | 項目 | 値 |
 |---|---|
+| 概要 | force-change PR の per-route ガード直書きを関数合成で集約し、認可ガードを構造的に忘れられなくする pure refactor。withActiveUser / parseBody / withServiceRole / checkRateLimit に集約（27 ファイル・純減 117 行） |
 | ステータス | 🟢 マージ済み（検証中）（[PR #26](https://github.com/sasakiyusuke2017015/waoon/pull/26) merged・runtime スモークのみ残） |
 | slug | `api-route-helpers` |
 | 作成 | 2026-06-15 16:10 JST |

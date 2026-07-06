@@ -4,6 +4,7 @@
 
 | 項目 | 値 |
 |---|---|
+| 概要 | UI/UX 改善テーマ4。3 本柱: (1) 未保存変更の離脱警告（目玉・`beforeunload` + apps の `NavigationGuardProvider`/`useGuardedNavigate` でプログラム遷移集約 + popstate。catalog は beforeunload+dirty のみ）、(2) 成功/エラーフィードバック統一（MasterForm・設問マスタ単体にトースト・エラーはフォーム=インライン/行アクション=トースト）、(3) 生 UI フォームのカタログ化（QuestionForm・PublicationForm・AnswerForm radio/checkbox・認証）。要判断 4 点確定・**計画レビューで 3→4 PR に再分割**・笹木さん承認済み |
 | 作成日時 | 2026-07-05 17:45 JST（計画レビュー反映: 18:15） |
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | PR-A: `feature/form-feedback-unify` / PR-B: `feature/form-unsaved-guard` / PR-C: `feature/form-catalog-adoption` / PR-D: `feature/auth-form-unify`（予定・TBD） |

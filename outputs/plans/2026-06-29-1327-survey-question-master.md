@@ -2,6 +2,7 @@
 
 | 項目 | 値 |
 |---|---|
+| 概要 | 設問を `/admin/questions` のマスタに昇格＋アンケート編集はマスタ設問を「呼ぶ／外す」形へ（link/unlink API・eval_item 入力追加）。radio seed を同意度 5 段階で文言化。緊急度マスタは Phase2/別 Plan に分離（値域 code+label 確定） |
 | ステータス | 🟢 マージ済み（検証中）— PR-A(#60)・PR-B(#61) develop へマージ済み。残: dev 実機の検証 |
 | slug | `survey-question-master` |
 | 作成 | 2026-06-29 13:27 JST（改訂 14:10 JST） |

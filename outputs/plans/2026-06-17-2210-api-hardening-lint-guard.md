@@ -5,6 +5,7 @@
 
 | 項目 | 値 |
 |---|---|
+| 概要 | api-route-helpers 残課題。認証プリミティブ（getCurrentClaims/getAccessToken/getRefreshToken/verifyAccessToken）の直 import を `no-restricted-imports` で禁止（認可漏れの構造的防止）+ 挙動不変 integration test。前提として apps/web に ESLint flat config を新設し root lint/CI に配線 |
 | 一次情報 | [api-route-helpers Plan §残課題](2026-06-15-1610-api-route-helpers.md) / [withActiveUser](../../apps/web/lib/auth/route.ts) / CI [.github/workflows/ci.yml](../../.github/workflows/ci.yml) |
 | 関連 Review | （未） |
 | 関連 PR | （未） |

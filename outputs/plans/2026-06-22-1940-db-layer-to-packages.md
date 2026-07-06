@@ -2,6 +2,7 @@
 
 | 項目 | 値 |
 |---|---|
+| 概要 | DDL / RLS / seed / pgTAP の実体が `outputs/infra-data/` に置かれているが、`outputs/` は本来 |
 | 作成日時 | 2026-06-22 19:40 JST |
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | `feature/db-to-packages`（予定） |

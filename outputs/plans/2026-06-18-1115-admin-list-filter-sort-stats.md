@@ -5,6 +5,7 @@
 
 | 項目 | 値 |
 |---|---|
+| 概要 | 見た目磨き込み #2。AdminListTable に client-side 検索/ソート（`searchKeys`/`sortable`）を汎用追加 + 集計パネル。ロジックは純関数 `filterRows`/`sortRows`（unit test 7 件）。users/surveys/answers 全一覧に適用 + status 別集計を `StatisticList` で表示（StatisticPanel の pie は分析側に委ね軽量化） |
 | 一次情報 | [AdminListTable](../../apps/web/components/admin/AdminListTable.tsx) / [InteractiveTable](../../packages/ui/core/organisms/InteractiveTable/InteractiveTable.tsx) / [StatisticPanel](../../packages/ui/core/organisms/StatisticPanel/StatisticPanel.tsx) / 一覧ページ `apps/web/app/(admin)/admin/{users,surveys,answers}/page.tsx` |
 | 関連 Review | （未） |
 | 関連 PR | （未） |

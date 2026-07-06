@@ -2,6 +2,7 @@
 
 | 項目 | 値 |
 |---|---|
+| 概要 | monorepo のタスク実行を **turbo (Turborepo)** に統一し、`build` / `lint` / `typecheck` / |
 | 作成日時 | 2026-06-22 14:47 JST |
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | `feature/turbo-monorepo` |

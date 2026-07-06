@@ -4,6 +4,7 @@
 
 | 項目 | 値 |
 |---|---|
+| 概要 | UI/UX 改善テーマ1。catalog 実装済みの Toast/ConfirmDialog をアプリ配線（保存/削除の成功トースト・破壊的操作の確認ダイアログ）+ `global-error`/`error`/`not-found`/`loading` のルート境界新設。Toast は遷移をまたぐ app Provider 方式（catalog に ToastProvider 追加・zIndex 10010） |
 | 作成日時 | 2026-07-05 01:01 JST |
 | 担当 | Claude Code + 笹木さん |
 | ブランチ | `feature/ui-feedback-foundation` |

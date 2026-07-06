@@ -5,6 +5,7 @@
 
 | 項目 | 値 |
 |---|---|
+| 概要 | 見た目磨き込み #2。送信時の入力エラーを各 `FormField` 下に日本語表示。`fieldErrorsOf`（静的: safeParse+flatten）+ `requiredFieldErrors`（動的: 設問駆動）+ domain 日本語メッセージ。User/Survey/Answer 全フォーム対応（InterviewForm は全 optional で対象外） |
 | 一次情報 | [FormField (error prop 既存)](../../packages/ui/core/molecules/FormField/FormField.tsx) / [domain schemas](../../packages/domain/src/user.ts) / [UserForm](../../apps/web/components/admin/UserForm.tsx) |
 | 関連 Review | （未） |
 | 関連 PR | （未） |

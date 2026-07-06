@@ -2,6 +2,7 @@
 
 | 項目 | 値 |
 |---|---|
+| 概要 | seed を手書き SQL から CSV 化し FK 依存順ローダー（非空スキップ=初回投入専用）で投入。provision を 2 モード化（単一 admin / `--users-csv` の N 名一括・行単位冪等・一時 PW を 0600 ファイル + must_change）。組織/役職マスタの CRUD 管理画面（`/admin/org`・`/admin/positions`）を新設 |
 | ステータス | 🟢 マージ済み（検証中）— #56 merged。残: 管理画面のブラウザ手動確認 |
 | slug | `seed-csv-master-admin` |
 | 作成 | 2026-06-25 10:25 JST |

@@ -5,6 +5,7 @@
 
 | 項目 | 値 |
 |---|---|
+| 概要 | presigned URL でブラウザが MinIO へ直接 up/down、API は認可+メタのみ。単一 `attachments` 表(polymorphic)+entity_type 別 RLS。Phase1=storage lib+MinIO compose+表/RLS/pgTAP+面談添付 API/UI。Phase2=回答/資料/アバター+`AttachmentsPanel`共通化。Phase3=stg/prod に MinIO + nginx の storage サブドメイン配線 |
 | 一次情報 | [evergreen.md の STORAGE_ENDPOINT 例](../../.claude/rules/evergreen.md#L126) / [dev compose](../../infra/docker-compose.yml) / [data-access.md](../../.claude/rules/data-access.md) / 添付先テーブル: `answers` / interview 関連 / `users` / `survey_publications` |
 | 関連 Review | （未） |
 | 関連 PR | （未） |

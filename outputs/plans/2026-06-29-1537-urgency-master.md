@@ -2,6 +2,7 @@
 
 | 項目 | 値 |
 |---|---|
+| 概要 | 緊急度（高/中/低）を共通マスタ化。PR-1=urgency_levels テーブル+RLS+`/admin/urgencies`+API+seed+pgTAP / PR-2=surveys・answers に urgency_id 配線（SurveyForm・InterviewForm に書き手 UI）。設問マスタ Phase2 から分離 |
 | ステータス | 🟢 マージ済み（検証中）— PR-1(#62)・PR-2(#63) ともに develop へマージ済み。残: dev 実機検証 |
 | slug | `urgency-master` |
 | 作成 | 2026-06-29 15:37 JST |
