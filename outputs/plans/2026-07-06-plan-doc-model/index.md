@@ -6,10 +6,10 @@
 
 ## 現在地
 
-**Step 2（あるべき姿の原則）確定 → Step 3 認識合わせへ。**
-Step 1 成果: [01-current.md](01-current.md) / [01a-by-document.md](01a-by-document.md) / [01b-by-information.md](01b-by-information.md)。
-Step 2 成果: [02-target.md](02-target.md)。
-確定結論: **drift は〈状態機械 × 複製〉に集中** → **不変=複製可 / 状態機械=一次1つ+リンク（P3: 一次はフェーズで移動）**。
+**Step 0–5 の設計完了 → 残るは Step 6（実装）。**
+Step 1: [01-current](01-current.md)/[01a](01a-by-document.md)/[01b](01b-by-information.md)。Step 2: [02-target](02-target.md)。
+Step 3: [03-new-plan-template](03-new-plan-template.md)。Step 4: [04-review-and-readme](04-review-and-readme.md)。Step 5: [05-migration](05-migration.md)。
+確定結論: **drift は〈状態機械 × 複製〉に集中** → **不変=複製可 / 状態機械=一次1つ+リンク（P3）**。README は **R1 生成**、移行は **M2（全ヘッダ正規化）**。
 
 ## スコープ
 
@@ -21,10 +21,10 @@ Plan 単体には閉じない。理由は判断ログ D3。
 - [x] **Step 0** スコープ・器を確定（このディレクトリ）
 - [x] **Step 1** 現状整理を「合意された事実」として固定（結論: 〈状態機械 × 複製〉が drift の源）
 - [x] **Step 2** 設計原則を合意（背骨: 不変=複製可 / 状態機械=一次1つ+リンク。配置: P3 フェーズで移動）
-- [ ] **Step 3** セクション単位の仕分け（凍結 / リンク / 外部へ）★02-target にプレビュー済み
-- [ ] **Step 4** Review・README ダッシュボードの役割再定義
-- [ ] **Step 5** 移行方針（既存 Plan の扱い）
-- [ ] **Step 6** 設計メモ → rules 反映 + テンプレ整備
+- [x] **Step 3** 新 Plan テンプレ提案（[03-new-plan-template](03-new-plan-template.md)）— 確定（ヘッダ状態欄廃止 / 定型削除 / 未確定事項は判断ログへ）
+- [x] **Step 4** Review テンプレ新設 + README = R1 生成（[04-review-and-readme](04-review-and-readme.md)）
+- [x] **Step 5** 移行方針＝ M2（全ヘッダ正規化＋凍結印。本文は書き直さない）（[05-migration](05-migration.md)）
+- [ ] **Step 6** 実装: `_template.md` 改訂 / `reviews/_template.md` 新設 / 全 Plan ヘッダ正規化 / README 生成スクリプト / `plan-review-workflow.md` 反映
 
 ## 検討中の原則（未確定・Step 2 で決める）
 
@@ -51,6 +51,9 @@ Plan 単体には閉じない。理由は判断ログ D3。
 | D4 | 2026-07-06 | 「設計判断（議論記録）」と「rules 反映（実装）」を分け、前者を先に固める | 混ぜると壁打ちが発散。分離すること自体が本作業で定義する原則の実践になる |
 | D5 | 2026-07-06 | 内部構造は最小（`index.md` 1 枚）から開始。現状 / あるべきは必要時に分割 | 「少なくする」方針。器を先に作り込まない |
 | D6 | 2026-07-06 | 背骨: 不変=複製可 / 状態機械=一次1つ+リンク。状態機械の配置は **P3（一次はフェーズで移動、移動元はリンク化）** | Step 1 で drift が〈状態機械 × 複製〉に集中と判明。一次ソースは実際フェーズで移動しており、それを認めて徹底するのが実態に合う（[02-target](02-target.md)） |
+| D7 | 2026-07-06 | 新 Plan テンプレ: ヘッダ状態欄廃止・状態は末尾チェックリスト1本・定型ノイズ削除・PR/Review はリンクのみ | 状態機械の二重持ち（課題C）と定型ノイズを解消（[03-new-plan-template](03-new-plan-template.md)） |
+| D8 | 2026-07-06 | README ダッシュボードは **R1（GitHub+Plan から自動生成）**。手編集しない生成物にする | フェーズ・PR の手書き複製が drift の実体。生成なら drift ゼロ（[04-review-and-readme](04-review-and-readme.md)） |
+| D9 | 2026-07-06 | 移行は **M2（全遡及）だが「全ヘッダ正規化＋凍結印」に限定**。本文は書き直さない。完了済み Plan も対象 | 一貫性優先（M3 より踏み込む）。ただし本文書き直しは避け転記リスクを抑える（[05-migration](05-migration.md)） |
 
 ## ファイル構成
 
