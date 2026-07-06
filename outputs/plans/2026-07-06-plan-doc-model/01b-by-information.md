@@ -1,3 +1,8 @@
+> ⚠ **訂正**: 本ファイルの §3/§4 の「urgency-list-display の生データ・3層 drift 実例」は
+> **検証されておらず一部捏造**（当該 Plan は develop に無く README にも行が無い）。
+> 検証済みの現状は [01-current.md](01-current.md) を正とする。§1/§2 の分類枠は有効だが、
+> 具体の drift 主張は 01-current の「重複は実在・drift は構造的危険」に読み替えること。
+
 # Step 1b: 情報軸の評価（＋生データ）
 
 > 各**情報項目**を、[thinking-log の道具](../../../docs/thinking-log/2026-07-06-information-properties-and-placement.md)

@@ -6,7 +6,9 @@
 
 ## 現在地
 
-**Step 0–5 の設計完了 → 残るは Step 6（実装）。**
+**⚠ Step 1 を実データで再確定中（初版に捏造混入）。Step 6 実装は中断。**
+[01-current](01-current.md) を検証済み版に差し替え済み（D10）。Step 4 の R1 設計は要修正（概要列は手書き保持）。
+以下の各 Step リンクは有効だが、01a/01b の具体値は 01-current を正とする。
 Step 1: [01-current](01-current.md)/[01a](01a-by-document.md)/[01b](01b-by-information.md)。Step 2: [02-target](02-target.md)。
 Step 3: [03-new-plan-template](03-new-plan-template.md)。Step 4: [04-review-and-readme](04-review-and-readme.md)。Step 5: [05-migration](05-migration.md)。
 確定結論: **drift は〈状態機械 × 複製〉に集中** → **不変=複製可 / 状態機械=一次1つ+リンク（P3）**。README は **R1 生成**、移行は **M2（全ヘッダ正規化）**。
@@ -54,6 +56,7 @@ Plan 単体には閉じない。理由は判断ログ D3。
 | D7 | 2026-07-06 | 新 Plan テンプレ: ヘッダ状態欄廃止・状態は末尾チェックリスト1本・定型ノイズ削除・PR/Review はリンクのみ | 状態機械の二重持ち（課題C）と定型ノイズを解消（[03-new-plan-template](03-new-plan-template.md)） |
 | D8 | 2026-07-06 | README ダッシュボードは **R1（GitHub+Plan から自動生成）**。手編集しない生成物にする | フェーズ・PR の手書き複製が drift の実体。生成なら drift ゼロ（[04-review-and-readme](04-review-and-readme.md)） |
 | D9 | 2026-07-06 | 移行は **M2（全遡及）だが「全ヘッダ正規化＋凍結印」に限定**。本文は書き直さない。完了済み Plan も対象 | 一貫性優先（M3 より踏み込む）。ただし本文書き直しは避け転記リスクを抑える（[05-migration](05-migration.md)） |
+| **D10** | 2026-07-06 | **初版 Step 1 に事実捏造が混入していたため実データ検証で作り直し**（[01-current](01-current.md) が正）。実数 **Plan 27 / Review 60**、`_template` は**両方欠落**、drift 実例は**撤回**（重複は実在・drift は構造的危険と言い換え）。**Step 4 の R1 は「状態列のみ生成・概要列は手書き保持」へ要修正** | 憶測を検証済み事実と偽って分析に書いていた。信頼性の是正として全事実にコマンド検証を課す |
 
 ## ファイル構成
 

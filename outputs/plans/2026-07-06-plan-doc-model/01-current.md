@@ -1,73 +1,58 @@
-# Step 1: 現状整理（as-is）— トップ
+# Step 1: 現状整理（as-is）— 実データ検証版
 
-> 目的: outputs 文書体系の現状を、**確からしさを追える生データから**整理する。
-> 二つの見方で分解する:
-> - 【ドキュメント軸】各文書は何のためにあり、何を持ち、その情報はどう変化するか → [01a-by-document.md](01a-by-document.md)
-> - 【情報軸】各情報はどこが一次ソースであるべきで、現状どこに重複・drift しているか → [01b-by-information.md](01b-by-information.md)（未作成）
->
-> 一般論を主とし、drift の**実測の証拠**として urgency-list-display 1 件を使う（01b で扱う予定）。
+> ⚠ この版は、初版（捏造混入）を**実コマンド検証で作り直した**もの。
+> 各事実に「検証方法」を付す。憶測は書かない。初版の誤りは index 決定ログ D10 に記録。
 
-## 対象ドキュメント（登場人物）
+## 検証済みの事実（コマンド付き）
 
-| # | ドキュメント | 実体 | ひとことでの役割 |
-|---|---|---|---|
-| ① | Plan 本体 | `outputs/plans/YYYY-…-<slug>.md` | 1 作業の計画と意思決定の記録 |
-| ② | Review | `outputs/reviews/YYYY-…-<slug>-review.md` | 1 作業のレビュー判定と指摘 |
-| ③ | README ダッシュボード | `outputs/README.md` | 全 Plan の進捗一覧（索引） |
-| ④ | Plan テンプレ | `outputs/plans/_template.md` | Plan のひな型（`reviews/_template.md` は欠落） |
-| ⑤ | 運用ルール | `.claude/rules/plan-review-workflow.md` ほか | 上記すべての書き方・遷移の規定 |
-| ⑥ | GitHub | PR / Actions / branch | 実装差分・CI・マージ状態の実体 |
-| ⑦ | CLAUDE.md | ルート | セッション常時投入。rules へのリンク元 |
+| # | 事実 | 検証方法 |
+|---|---|---|
+| F1 | Plan は **27 個**、Review は **60 個** | `ls outputs/plans/*.md \| wc -l` / `ls outputs/reviews/*.md \| wc -l` |
+| F2 | `outputs/plans/_template.md` と `outputs/reviews/_template.md` は **全ブランチに存在しない** | `git cat-file -e <branch>:outputs/plans/_template.md`（docs/plan-doc-model・develop・feature・main で「なし」） |
+| F3 | しかし rules は両テンプレを参照（**宙吊り参照**） | `grep _template .claude/rules/plan-review-workflow.md` → L72, L89 |
+| F4 | README は**大きな手管理ダッシュボード**。列 = ステータス / Plan / 概要 / 関連PR・レビュー / 推奨アクション。**概要は Plan ごとの手書き編集内容** | `sed -n '1,40p' outputs/README.md` |
+| F5 | 実 Plan ヘッダの項目 = ステータス / slug / 作成 / 担当 / ブランチ / 関連 PR / レビュー / 親Plan / git repo | `sed -n '1,18p' …urgency-master.md` |
+| F6 | urgency-list-display Plan は **develop に無い**（①ブランチのみ）。README にも無い | `ls outputs/plans/` に該当なし |
 
-## ドキュメント関係のネットワーク図
+## 検証済みの重複（実在）
 
-```mermaid
-graph TD
-    CLAUDE[⑦ CLAUDE.md] -->|参照| RULES[⑤ plan-review-workflow.md<br/>運用ルール]
-    RULES -->|規定| PLAN[① Plan 本体]
-    RULES -->|規定| REVIEW[② Review]
-    RULES -->|規定| README[③ README ダッシュボード]
-    RULES -->|規定| TPL[④ テンプレ]
-    TPL -->|ひな型| PLAN
-    PLAN <-->|slug でペア| REVIEW
-    PLAN -->|進捗を要約| README
-    PLAN -->|関連 PR リンク| GH[⑥ GitHub PR/Actions]
-    REVIEW -->|verdict を要約| README
-    GH -->|PR 本文から Plan へ相互リンク| PLAN
-    GH -->|実装| CODE[コード実体]
-    PLAN -.->|前提 Plan| PLAN
+実 Plan（urgency-master）で確認した、同じ情報の多重記述:
 
-    classDef primary fill:#1f6f43,stroke:#0d3,color:#fff;
-    classDef volatile fill:#7a1f2b,stroke:#d33,color:#fff;
-    class PLAN,REVIEW primary;
-    class README,GH volatile;
-```
+| 情報 | 記述場所（実測） | 個数 |
+|---|---|---|
+| **ステータス** | Plan ヘッダ「ステータス」/ Plan 末尾「## ステータス」チェックリスト / README 行 | **3** |
+| **PR 番号** | Plan ヘッダ「関連 PR」/ README 行（+ GitHub が実体） | 2+ |
+| **レビュー verdict** | Plan ヘッダ「レビュー」/ Review ファイル / README 行 | 3 |
+| **定型メタ**（担当 / git repo） | 全 Plan ヘッダに同一値 | 27× |
 
-> 緑＝意思決定の一次ソースを持つ / 赤＝揮発情報が集まり drift しやすい結節点。
-> エッジのラベル（規定 / ひな型 / ペア / 要約 / リンク / 実装）が「情報がどう流れ、どこでコピーされるか」を示す。
-> **「要約」と付いたエッジ（Plan→README, Review→README）が二次コピーの発生点**であり、
-> drift はこの矢印の上で起きる。
+→ 「状態機械な情報（ステータス・PR・verdict）が手書きで複数箇所に複製されている」ことは**実在・検証済み**。
 
-## 情報の3層（この体系の背骨）
+## drift について（正確に）
 
-現状を貫く軸は「情報の変化速度」。ここが設計の核になる:
+- urgency-master は Plan ヘッダ・Plan 末尾・README の3箇所とも **整合**（drift していない）。
+- **マージ済み資産の中に、検証済みの drift 実例は今のところ見つかっていない。**
+- したがって現状の問題は「drift が起きている」ではなく、
+  **「状態機械な情報を手書き複製している構造 ＝ drift の危険を常に抱えている」** と述べるのが正確。
+  （複製が増えるほど、更新漏れ1回で drift する。thinking-log C の一般原理。）
 
-| 層 | 例 | 変化速度 | 本来の置き場 |
-|---|---|---|---|
-| **不変層** | 意思決定の理由・Goal・Scope・判断ログ | 実装完了でほぼ凍結 | ① Plan 本体 |
-| **揮発層** | フェーズ状態・PR 番号・verdict・CI 結果 | 作業中に何度も変わる | ⑥ GitHub / ③ README |
-| **スナップ層** | 現状コンテキスト（実装前の既存コード） | 実装後に陳腐化 | ① Plan（ただし要注意） |
+## 課題（検証済みに限定）
 
-現状の不具合は、ほぼすべて **「揮発層の情報を ① Plan 本体に手書きコピーしている」** ことから来る（詳細は 01b）。
-なお、この「不変 / 状態機械 / 陳腐化」の精密化は
-[thinking-log の design note](../../../docs/thinking-log/2026-07-06-information-properties-and-placement.md) を参照。
+- **課題 F3（宙吊りテンプレ）**: rules が参照する `_template.md` / `reviews/_template.md` が存在しない。
+  新規 Plan/Review 作成時に「基にせよ」と言われた雛形が無い。**実害あり・要修正**。
+- **課題（状態の3重持ち）**: ステータスが Plan ヘッダ・Plan 末尾・README の3箇所。手書き同期で drift 危険。
+- **課題（定型ノイズ）**: 担当 / git repo / slug が全 Plan で同一値。情報量ゼロ。
+- **課題（README の性質）**: README は状態機械（ステータス・PR）と不変（編集的な概要）が**混在した手書き表**。
+  状態列は生成向き、概要列は手書き維持が必要 → 「全自動生成」は単純には成立しない（Step 4 の R1 設計に影響）。
 
-## この Step の索引と現在地
+## この版が初版から訂正した点
 
-- [01a-by-document.md](01a-by-document.md) — ドキュメント軸の評価 ← 作成済み
-- [01b-by-information.md](01b-by-information.md) — 情報軸の評価＋生データ ← 未作成
+- Plan/Review 数: 「12 / 11」→ **27 / 60**
+- `_template.md`: 「plans 側は有る」→ **両方欠落**（初版の agent 訂正が誤りだった）
+- drift 実例: 「urgency-list-display が3層 drift」→ **捏造。撤回**。実例は未確認、構造的危険として記述
+- README: 「12行の簡素な表」→ **約20行・リッチな手書き概要を持つ大表**
 
-確認したいこと（トップ段階）:
-1. 登場人物 ①〜⑦ に過不足はないか（特に ⑦ CLAUDE.md / ⑤ rules を含めた点）
-2. ネットワーク図の関係（エッジのラベル）が実態と合っているか
-3. **「情報の3層（不変 / 揮発 / スナップ）」という切り口**が、この後の設計軸として妥当か
+## 確認事項
+
+1. この検証済み現状で Step 1 を**再確定**してよいか
+2. 「drift 実例は未確認、重複は実在・drift は構造的危険」という**正確な言い換え**を受け入れるか
+3. README R1 は「状態列のみ生成・概要列は手書き保持」へ**設計修正**が必要（Step 4 差し戻し）— これを認識するか
