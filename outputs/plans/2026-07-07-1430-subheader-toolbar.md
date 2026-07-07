@@ -6,7 +6,7 @@
 | ステータス | 🟡 実装中 |
 | 前提 Plan | [DataTable 移植](2026-07-05-0920-datatable-port.md) |
 | PR | |
-| Review | [コードレビュー](../reviews/2026-07-07-1822-subheader-toolbar-review.md) |
+| Review | [Phase 1](../reviews/2026-07-07-1822-subheader-toolbar-review.md) / [Phase 2](../reviews/2026-07-07-1920-subheader-toolbar-review.md) |
 
 ## 目的
 
@@ -112,6 +112,9 @@ Phase 1 は単独でも価値があるため、Phase 単位で PR を分割し�
 | 2026-07-07 | `TagItem` はチップに不採用 | ドラッグ並べ替え + チェック選択 + カラードットのタグ管理 UI で、削除可能なフィルタ要約チップとは責務が異なる |
 | 2026-07-07 | チップの Animated は framer パス (`type="scale"`) を使用 | CSS keyframes 版 (`category="card"`) は `@keyframes` 定義 (styles/globals.css) を apps/web が読み込んでおらず opacity:0 のまま残るため |
 | 2026-07-07 | vitest.setup.ts に IntersectionObserver polyfill を追加 | NumberTicker (framer useInView) が jsdom で crash する。`DataCountDisplay` の既存テスト 3 件は HEAD 時点で failing だった (未使用部品ゆえ露見せず) — polyfill で解消 |
+| 2026-07-07 | SubHeader スロットは createPortal 方式 (`SubHeaderPortal`) | context に ReactNode を setState で流す方式は「描画毎に新しい node → effect → setState」の再レンダーループの温床。portal なら検索値等の state をページ側ツリーに置いたまま chrome に描ける |
+| 2026-07-07 | SubHeaderToolbar は既存 `Toolbar` を `leading` スロット付きで再利用 | funnel 開閉・チップ・右端コントロールの実装を二重化しない。SubHeader 用のクローム差分は wrapper の SCSS (`[data-dt-toolbar]` の sticky/境界打ち消し) だけに閉じる |
+| 2026-07-07 | AppLayout から `--topbar-h` を配線し本文 paddingTop を SubHeader 実高に追従 | `--topbar-h` は未設定 (fallback 0) で、DataTable の sticky ヘッダがスクロール時に fixed chrome の下へ潜る潜在問題があった。ResizeObserver の実測値 (Header + SubHeader 実高) を渡して解消し、funnel 展開時の本文ガタつきも防ぐ |
 
 ## 未確定事項（任意・未決のみ）
 
@@ -122,10 +125,14 @@ Phase 1 は単独でも価値があるため、Phase 単位で PR を分割し�
 ## 残課題（任意）
 
 - 残り admin 一覧（surveys / questions / answers）への展開（Phase 3-2、別コミット）
+- ルート `.prettierrc.json`（semi:true / double quote）が packages/ui の実スタイル
+  （no-semi / single quote）と食い違っており、prettier を実行すると触れたファイルだけ
+  スタイルが割れる。config を実スタイルへ合わせるか `style:` の一括整形 commit で解消する
+  （本 Plan のコードレビュー [NICE-TO-HAVE] 指摘。今回は churn を revert して回避）
 
 ## ステータス
 
 - [x] Phase 1: Toolbar 部品刷新
-- [ ] Phase 2: SubHeaderToolbar + スロット機構
+- [x] Phase 2: SubHeaderToolbar + スロット機構
 - [ ] Phase 3: admin/users 適用
 - [ ] 検証: 実機確認（開閉 / 追従 / sticky / hydration）
