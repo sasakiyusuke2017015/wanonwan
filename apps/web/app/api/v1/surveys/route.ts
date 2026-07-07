@@ -11,8 +11,11 @@ export const GET = withActiveUser(async (_req, claims) => {
     select s.id, s.title, s.status, s.capacity,
            s.requires_auth as "requiresAuth",
            s.uses_ai       as "usesAi",
+           ul.name         as "urgencyName",
+           ul.code::int    as "urgencyCode",
            (select count(*) from public.survey_publications p where p.survey_id = s.id)::int as "publicationCount"
     from public.surveys s
+    left join public.urgency_levels ul on ul.id = s.urgency_id
     order by s.id desc
   `);
   return NextResponse.json({ data: rows });
