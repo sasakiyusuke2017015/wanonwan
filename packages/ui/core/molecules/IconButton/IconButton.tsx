@@ -62,6 +62,8 @@ export function IconButton({
   shimmer = false,
   href,
   onClick,
+  // 既定はネイティブ title = label。Tooltip 等でラップするときは title="" で二重表示を抑止する。
+  title,
   ...props
 }: IconButtonProps) {
   // text 色は variant ごとに持たせる (base には置かない)。base に text-muted を固定すると
@@ -94,7 +96,7 @@ export function IconButton({
     return (
       <a
         href={href}
-        title={label}
+        title={title ?? label}
         aria-label={label}
         data-component="icon-button"
         onClick={(e) => {
@@ -112,7 +114,7 @@ export function IconButton({
   return (
     <button
       type="button"
-      title={label}
+      title={title ?? label}
       aria-label={label}
       disabled={disabled}
       data-component="icon-button"

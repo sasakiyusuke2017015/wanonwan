@@ -1,5 +1,6 @@
 'use client'
 
+import { DataCountDisplay } from '../../molecules/DataCountDisplay'
 import { Pagination } from '../../molecules/Pagination'
 import { cn } from '../../utils/cn'
 
@@ -164,7 +165,15 @@ export function ServerDataTable<TRow>({
           search={effectiveSearch}
           filters={effectiveFilters}
           visibleColumnKeys={visibleColumnKeys}
-          rowCountLabel={totalCount != null ? `${totalCount} 件` : undefined}
+          rowCountLabel={
+            totalCount != null ? (
+              <DataCountDisplay
+                totalCount={totalCount}
+                selectedCount={selectable ? selected.size : 0}
+                loading={loading}
+              />
+            ) : undefined
+          }
           columnPicker={columnPicker}
           actions={actions}
           onCreate={onCreate}

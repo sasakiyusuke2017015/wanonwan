@@ -5,6 +5,20 @@ import userEvent from '@testing-library/user-event'
 import { DataTable } from './DataTable'
 import type { Column, RowActionDef } from './types'
 
+// 件数表示 (DataCountDisplay) の NumberTicker は spring で最終値へ漸近するアニメのため、
+// テストでは最終値を即時描画する静的モックに差し替える。
+vi.mock('../../atoms/NumberTicker', () => ({
+  NumberTicker: ({
+    value,
+    suffix = '',
+    prefix = '',
+  }: {
+    value: number
+    suffix?: string
+    prefix?: string
+  }) => <span>{`${prefix}${value}${suffix}`}</span>,
+}))
+
 // 列ピッカーは uncontrolled モードで表示列を localStorage に永続化するため、
 // テスト間で状態が漏れないよう毎回クリアする。
 afterEach(() => {
@@ -157,7 +171,7 @@ describe('DataTable - mode="client" (default)', () => {
     expect(cells[0]).toHaveTextContent('田中 太郎') // 順序不変
   })
 
-  it('rows > pageSize で pagination を表示し、‹/› で移動できる', () => {
+  it('rows > pageSize で pagination (molecule Pagination) を表示し、前へ/次へで移動できる', () => {
     const many: Row[] = Array.from({ length: 25 }, (_, i) => ({
       id: `u${i}`,
       name: `ユーザ${String(i).padStart(2, '0')}`,
@@ -165,12 +179,18 @@ describe('DataTable - mode="client" (default)', () => {
       score: i,
     }))
     render(<DataTable columns={columns} rows={many} pageSize={10} />)
-    expect(screen.getByText('1 / 3')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '1 ページ目' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
     expect(screen.getByText('ユーザ00')).toBeInTheDocument()
     expect(screen.queryByText('ユーザ10')).toBeNull()
 
-    fireEvent.click(screen.getByRole('button', { name: '›' }))
-    expect(screen.getByText('2 / 3')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '次へ' }))
+    expect(screen.getByRole('button', { name: '2 ページ目' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
     expect(screen.getByText('ユーザ10')).toBeInTheDocument()
     expect(screen.queryByText('ユーザ00')).toBeNull()
   })
@@ -183,7 +203,7 @@ describe('DataTable - mode="client" (default)', () => {
       score: i,
     }))
     render(<DataTable columns={columns} rows={many} pageSize={10} showPagination={false} />)
-    expect(screen.queryByText('1 / 3')).toBeNull()
+    expect(screen.queryByRole('navigation', { name: 'ページネーション' })).toBeNull()
     expect(screen.getByText('ユーザ24')).toBeInTheDocument()
   })
 
@@ -412,7 +432,7 @@ describe('DataTable - mode="server"', () => {
   it('内部 pagination / 検索ボックスが描画されない', () => {
     render(<DataTable mode="server" columns={columns} rows={rows} getRowKey={(r) => r.id} />)
     expect(screen.queryByPlaceholderText('キーワードで検索')).toBeNull()
-    expect(screen.queryByRole('button', { name: '›' })).toBeNull()
+    expect(screen.queryByRole('button', { name: '次へ' })).toBeNull()
   })
 
   it('sortable column のヘッダはクリック可能でも内部ソートしない', () => {
@@ -657,7 +677,9 @@ describe('DataTable - key 選択 (安定キー / client モード)', () => {
         onToggleAllKeys={vi.fn()}
       />,
     )
-    expect(screen.getByText('2 件選択中')).toBeInTheDocument()
+    // DataCountDisplay は「表示: N件」と「選択: M件」を並記する
+    expect(screen.getByText('2件')).toBeInTheDocument()
+    expect(screen.getByText(/選択/)).toBeInTheDocument()
   })
 })
 
@@ -890,7 +912,7 @@ describe('DataTable - mode="server" toolbar (検索 / フィルタ / ページ�
         totalCount={42}
       />,
     )
-    expect(screen.getByText('42 件')).toBeInTheDocument()
+    expect(screen.getByText('42件')).toBeInTheDocument()
   })
 
   it('pagination を渡すと controlled ページャ (molecule Pagination) が出て、次へで onPageChange(2)', () => {
@@ -1474,7 +1496,7 @@ describe('DataTable - collapsible (funnel + チップ要約 / 件数・リセッ
       />,
     )
     // 件数・リセットは常時表示 (Toggleable の外)
-    expect(screen.getByText('42 件')).toBeInTheDocument()
+    expect(screen.getByText('42件')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'フィルタをリセット' })).toBeInTheDocument()
     // 検索入力は折りたたまれている (aria-expanded=false)
     expect(screen.getByRole('button', { name: 'フィルタを切り替える' })).toHaveAttribute(
