@@ -1650,3 +1650,21 @@ describe('DataTable - toolbar="external" (toolbar 外部化)', () => {
     expect(screen.getByText('田中 太郎')).toBeInTheDocument()
   })
 })
+
+describe('DataTable - onFilteredCountChange (絞り込み後件数の通知)', () => {
+  it('検索で絞り込むと (絞り込み後, 全件) で呼ばれる', () => {
+    const onFilteredCountChange = vi.fn()
+    render(
+      <DataTable
+        columns={columns}
+        rows={rows}
+        onFilteredCountChange={onFilteredCountChange}
+      />,
+    )
+    expect(onFilteredCountChange).toHaveBeenLastCalledWith(3, 3)
+    fireEvent.change(screen.getByPlaceholderText('キーワードで検索'), {
+      target: { value: '田中' },
+    })
+    expect(onFilteredCountChange).toHaveBeenLastCalledWith(1, 3)
+  })
+})

@@ -87,6 +87,7 @@ export function ClientDataTable<TRow>({
   animationVariant,
   loading,
   toolbar = 'internal',
+  onFilteredCountChange,
 }: ClientDataTableProps<TRow>) {
   // queryState を渡されたら fully controlled (URL 駆動)。未指定なら内部 useState で
   // 従来どおり uncontrolled。setter は updater 関数形 (prev => next) も受けられるよう
@@ -242,6 +243,11 @@ export function ClientDataTable<TRow>({
   }, [filteredRows, sortItems, visibleColsResolved])
 
   // ページネーション
+  // 外出しした件数表示 (toolbar="external") へ絞り込み後件数を通知する。
+  useEffect(() => {
+    onFilteredCountChange?.(sortedRows.length, rows.length)
+  }, [onFilteredCountChange, sortedRows.length, rows.length])
+
   const totalPages = Math.max(1, Math.ceil(sortedRows.length / pageSize))
   const safePageIndex = Math.min(page, totalPages - 1)
   const displayRows = showPagination

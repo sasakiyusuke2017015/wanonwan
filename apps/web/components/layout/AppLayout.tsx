@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Header } from "@ui-catalog/core/templates/Header";
@@ -61,8 +61,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   );
 
   // SubHeader はフィルタ展開 (SubHeaderToolbar) で高さが変わる。実高を ResizeObserver で
-  // 測り、本文 paddingTop と DataTable の sticky 基準 (--topbar-h) に反映する。
-  // SSR / 初回描画は既定の 44px で一致させ、mount 後の実測だけで更新する。
+  // 測り、本文 paddingTop に反映する。SSR / 初回描画は既定の 44px で一致させ、
+  // mount 後の実測だけで更新する。
   const subHeaderRef = useRef<HTMLDivElement | null>(null);
   const [subHeaderH, setSubHeaderH] = useState(SUBHEADER_HEIGHT);
   useEffect(() => {
@@ -216,15 +216,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         className={`flex-grow overflow-y-auto transition-all duration-300 ${
           showSideNav && sideOpen ? "md:pl-9" : ""
         }`}
-        style={
-          {
-            paddingTop: HEADER_HEIGHT + subHeaderH,
-            paddingBottom: FOOTER_HEIGHT,
-            // DataTable のヘッダ吸着 (position: sticky) の基準。fixed chrome が
-            // スクロールポートの上端を覆う高さ = Header + SubHeader 実高。
-            "--topbar-h": `${HEADER_HEIGHT + subHeaderH}px`,
-          } as CSSProperties
-        }
+        style={{
+          // SubHeader (funnel 展開で高さ可変) の実高に本文を追従させる。
+          // --topbar-h はここでは設定しない: main が独自スクロールする本レイアウトでは
+          // sticky の停留基準が main の paddingTop (= chrome 高) を既に織り込むため、
+          // 設定すると二重適用でヘッダ行が下へずれる (Chromium 実測)。
+          paddingTop: HEADER_HEIGHT + subHeaderH,
+          paddingBottom: FOOTER_HEIGHT,
+        }}
       >
         {/* 旧踏襲: 本文はほぼ全幅（px 余白のみ）。画面遷移ごとに BlurFade で出現（pathname key）。 */}
         <BlurFade key={pathname} className="w-full px-3 pb-24 pt-2 sm:px-5 md:pb-6">

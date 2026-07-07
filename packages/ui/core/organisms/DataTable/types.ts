@@ -406,6 +406,13 @@ interface ClientDataTableBaseProps<TRow> extends BaseProps<TRow> {
    * @deprecated `collapsible.defaultOpen=false` を使ってください。両方指定された場合は `collapsible.defaultOpen` が優先されます。
    */
   defaultCollapsed?: boolean
+  /**
+   * 絞り込み (検索 + filters) 後の件数変化の通知。`toolbar="external"` で
+   * 件数表示を外出しするとき、絞り込み後件数は DataTable 内部にしか無いため
+   * この callback で受け取る (`(絞り込み後件数, 全件数)`)。参照安定な関数を
+   * 渡すこと (useCallback 推奨)。
+   */
+  onFilteredCountChange?: (filteredCount: number, totalCount: number) => void
 }
 
 /**

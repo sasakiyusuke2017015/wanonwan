@@ -45,7 +45,9 @@ export interface SubHeaderToolbarProps {
  * DataTable 側は `toolbar="external"` で内蔵 toolbar を消し、検索 / フィルタの
  * 状態を controlled prop (`queryState` / `filters`) で本コンポーネントと共有する。
  * 高さは開閉で変わるため、ホスト (AppLayout 等) は SubHeader 実高を ResizeObserver で
- * 測って本文 offset と `--topbar-h` に反映すること。
+ * 測って本文 offset に反映すること。`--topbar-h` は本文コンテナが独自スクロールする
+ * 構成では設定しない (sticky の停留基準がコンテナの paddingTop を織り込むため、
+ * 足すと二重適用になる)。page (body) スクロール構成でのみ chrome 高を設定する。
  */
 export function SubHeaderToolbar({
   title,
@@ -64,7 +66,9 @@ export function SubHeaderToolbar({
   return (
     <div className={cn(styles.subHeaderToolbar, className)} data-component="sub-header-toolbar">
       <Toolbar
-        leading={title != null ? <span className={styles.title}>{title}</span> : undefined}
+        // 画面タイトルの意味を持つため h1 (ページから見出しが消えるとスクリーンリーダーの
+        // 見出しナビゲーションが効かなくなる)。サイズは .title が抑える。
+        leading={title != null ? <h1 className={styles.title}>{title}</h1> : undefined}
         search={search}
         filters={filters}
         rowCountLabel={rowCountLabel}

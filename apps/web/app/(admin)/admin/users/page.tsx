@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import type { Column } from "@ui-catalog/core/organisms/DataTable";
@@ -34,16 +33,6 @@ export default function UsersListPage() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold">ユーザー管理</h1>
-        <Link
-          href="/admin/users/new"
-          className="rounded bg-gray-900 px-3 py-1.5 text-sm text-white"
-        >
-          新規作成
-        </Link>
-      </div>
-
       {!isLoading && !isError && (
         <div className="mb-3">
           <StatisticList items={[]} totalLabel="ユーザー" totalValue={rows.length} totalUnit="名" />
@@ -59,6 +48,12 @@ export default function UsersListPage() {
         emptyMessage="ユーザーがいません"
         onRowClick={(row) => router.push(`/admin/users/${row.id}/edit`)}
         sortable={SORTABLE}
+        subHeader={{
+          title: "ユーザー管理",
+          createHref: "/admin/users/new",
+          onCreate: () => router.push("/admin/users/new"),
+          createLabel: "ユーザーを追加",
+        }}
       />
     </div>
   );
