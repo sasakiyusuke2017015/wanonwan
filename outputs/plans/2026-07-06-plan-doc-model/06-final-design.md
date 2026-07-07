@@ -53,6 +53,6 @@ Review  …… verdict とFindings の一次（テンプレ: reviews/_template.m
 
 - [x] テンプレ 2 枚（plans / reviews）
 - [x] 全 27 Plan の正規化（概要・enum・リンクのみ）
-- [ ] README 生成器を `scripts/gen-outputs-readme.mjs` に配置し、README を生成物化
-- [ ] rules（`plan-review-workflow.md`）へ反映
+- [x] README 生成器を `scripts/gen-outputs-readme.mjs` に配置し、README を生成物化
+- [x] rules（`plan-review-workflow.md`）へ反映
 - [ ] 現状コンテキストの凍結印（既存 Plan への遡及は任意・新規から徹底）
