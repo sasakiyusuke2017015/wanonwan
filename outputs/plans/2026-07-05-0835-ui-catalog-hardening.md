@@ -6,7 +6,7 @@
 | 概要 | UI/UX 改善テーマ2。MarkdownPreview の無サニタイズ `dangerouslySetInnerHTML` を DOMPurify で封じ（アプリ未使用の潜在 XSS を catalog 層で無効化）、Modal/Dialog/EventModal に focus-trap + `role="dialog"`/`aria-modal` を付与。ConfirmDialog/AlertDialog はラッパのため自動で恩恵 |
 | ステータス | 🟢 マージ済み（検証中） |
 | PR | [#66](https://github.com/sasakiyusuke2017015/waoon/pull/66) |
-| Review | [計画レビュー](../reviews/2026-07-05-0840-ui-catalog-hardening-review.md): APPROVE / [コードレビュー](../reviews/2026-07-05-0904-ui-catalog-hardening-code-review.md): APPROVE |
+| Review | [計画レビュー](../reviews/2026-07-05-0840-ui-catalog-hardening-review.md) / [コードレビュー](../reviews/2026-07-05-0904-ui-catalog-hardening-code-review.md) |
 
 ## 目的
 

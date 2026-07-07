@@ -5,7 +5,7 @@
 | 概要 | monorepo のタスク実行を **turbo (Turborepo)** に統一し、`build` / `lint` / `typecheck` / |
 | ステータス | 🟢 マージ済み（検証中） |
 | PR | TBD |
-| Review | [計画レビュー](../reviews/2026-06-22-1558-turbo-monorepo-review.md)（APPROVE） / [コードレビュー](../reviews/2026-06-22-1902-turbo-monorepo-review.md)（APPROVE） |
+| Review | [計画レビュー](../reviews/2026-06-22-1558-turbo-monorepo-review.md) / [コードレビュー](../reviews/2026-06-22-1902-turbo-monorepo-review.md) |
 
 ## 目的
 

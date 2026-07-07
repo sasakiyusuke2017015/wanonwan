@@ -5,7 +5,7 @@
 | 概要 | 設問を `/admin/questions` のマスタに昇格＋アンケート編集はマスタ設問を「呼ぶ／外す」形へ（link/unlink API・eval_item 入力追加）。radio seed を同意度 5 段階で文言化。緊急度マスタは Phase2/別 Plan に分離（値域 code+label 確定） |
 | ステータス | 🟢 マージ済み（検証中） |
 | PR | PR-A: [#60](https://github.com/sasakiyusuke2017015/waoon/pull/60) / PR-B: [#61](https://github.com/sasakiyusuke2017015/waoon/pull/61) |
-| Review | [計画(Claude)](../reviews/2026-06-29-1352-survey-question-master-review.md): NEEDS WORK / [計画(Codex)](../reviews/2026-06-29-1400-survey-question-master-review.md): NEEDS WORK / [再計画(Codex)](../reviews/2026-06-29-1410-survey-question-master-review.md): **APPROVE** / [コード PR-A(Codex)](../reviews/2026-06-29-1438-survey-question-master-code-review.md): **APPROVE** / [コード PR-B(agent)](../reviews/2026-06-29-1512-survey-question-master-code-review-prb.md): **APPROVE** |
+| Review | [計画(Claude)](../reviews/2026-06-29-1352-survey-question-master-review.md) / [計画(Codex)](../reviews/2026-06-29-1400-survey-question-master-review.md) / [再計画(Codex)](../reviews/2026-06-29-1410-survey-question-master-review.md) / [コード PR-A(Codex)](../reviews/2026-06-29-1438-survey-question-master-code-review.md) / [コード PR-B(agent)](../reviews/2026-06-29-1512-survey-question-master-code-review-prb.md) |
 
 ---
 

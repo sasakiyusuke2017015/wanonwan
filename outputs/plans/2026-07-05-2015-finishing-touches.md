@@ -6,7 +6,7 @@
 | 概要 | UI/UX 改善テーマ5「仕上げ」。**フェーズ分割**: Phase1 ページタイトル・Phase2 公開一覧 UX（polish・**マージ済み・検証中**）/ Phase3 ダークモード（epic・三層モデル: semantic トークン反転境界 + design.ts 前景調整 + 114 箇所 repoint・FOUC 対策要）/ Phase4 VRT（epic・reg-suit + storycap + MinIO baseline・4-light→3→4-dark の additive 順序）。epic 2 本は着手時に独立サブ Plan 化 |
 | ステータス | 🟡 実装中 |
 | PR | Phase1: [#76](https://github.com/sasakiyusuke2017015/waoon/pull/76) merged / Phase2: [#77](https://github.com/sasakiyusuke2017015/waoon/pull/77) merged |
-| Review | [計画レビュー](../reviews/2026-07-05-2040-finishing-touches-review.md): Phase1/2 APPROVE / Phase3/4 は設計指摘反映（代行 planner + architect） / [Phase1 コードレビュー](../reviews/2026-07-05-2226-finishing-touches-code-review.md): APPROVE / [Phase2 コードレビュー](../reviews/2026-07-05-2300-finishing-touches-phase2-code-review.md): NEEDS WORK→APPROVE |
+| Review | [計画レビュー](../reviews/2026-07-05-2040-finishing-touches-review.md) / [Phase1 コードレビュー](../reviews/2026-07-05-2226-finishing-touches-code-review.md) / [Phase2 コードレビュー](../reviews/2026-07-05-2300-finishing-touches-phase2-code-review.md) |
 
 ## 目的
 

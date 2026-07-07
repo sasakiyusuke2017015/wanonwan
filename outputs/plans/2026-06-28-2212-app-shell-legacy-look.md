@@ -5,7 +5,7 @@
 | 概要 | apps/web の app shell の **見た目・動き・アニメーション・デザインを丸ごと旧 1on1 アプリに寄せる**。 |
 | ステータス | 🟢 マージ済み（検証中） |
 | PR | TBD |
-| Review | [コードレビュー](../reviews/2026-06-28-2247-app-shell-legacy-look-review.md)（**APPROVE** / BLOCKER ゼロ、条件: ブラウザ目視） |
+| Review | [コードレビュー](../reviews/2026-06-28-2247-app-shell-legacy-look-review.md) |
 
 ## 目的
 

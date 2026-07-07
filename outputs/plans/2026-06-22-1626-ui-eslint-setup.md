@@ -6,7 +6,7 @@
 | ステータス | 🟢 マージ済み（検証中） |
 | 前提 Plan | [2026-06-22-1447-turbo-monorepo.md](2026-06-22-1447-turbo-monorepo.md)（turbo の lint 拡大の前提） |
 | PR | TBD |
-| Review | [コードレビュー](../reviews/2026-06-22-1755-ui-eslint-setup-review.md)（APPROVE） |
+| Review | [コードレビュー](../reviews/2026-06-22-1755-ui-eslint-setup-review.md) |
 
 ## 目的
 
