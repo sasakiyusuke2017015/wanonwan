@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Header } from "@ui-catalog/core/templates/Header";
@@ -20,6 +20,7 @@ import { useGuardedNavigate } from "@/hooks/useGuardedNavigate";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { AppSideNav } from "./AppSideNav";
 import { HeaderUserMenu } from "./HeaderUserMenu";
+import { SubHeaderSlotProvider } from "./SubHeaderSlot";
 import { ThemeSettingsModal } from "./ThemeSettingsModal";
 
 const HEADER_HEIGHT = LAYOUT_SIZES.HEADER_HEIGHT;
@@ -50,6 +51,30 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => setMounted(true), []);
 
+  // SubHeader スロット: ページが SubHeaderPortal で chrome にツールバー等を差し込める。
+  // claimed の間は既定の画面名表示を隠す。
+  const [slotContainer, setSlotContainer] = useState<HTMLDivElement | null>(null);
+  const [slotClaimed, setSlotClaimed] = useState(false);
+  const slotContextValue = useMemo(
+    () => ({ container: slotContainer, setClaimed: setSlotClaimed }),
+    [slotContainer],
+  );
+
+  // SubHeader はフィルタ展開 (SubHeaderToolbar) で高さが変わる。実高を ResizeObserver で
+  // 測り、本文 paddingTop と DataTable の sticky 基準 (--topbar-h) に反映する。
+  // SSR / 初回描画は既定の 44px で一致させ、mount 後の実測だけで更新する。
+  const subHeaderRef = useRef<HTMLDivElement | null>(null);
+  const [subHeaderH, setSubHeaderH] = useState(SUBHEADER_HEIGHT);
+  useEffect(() => {
+    const el = subHeaderRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const update = () => setSubHeaderH(Math.round(el.getBoundingClientRect().height));
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const { colors, shapes } = mounted ? liveTheme : DEFAULT_THEME;
   const background = mounted ? liveBackground : DEFAULT_BACKGROUND;
   const activeLabel = items.find((i) => i.active)?.label ?? "waoon";
@@ -71,6 +96,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     crumbs.push({ label: activeItem.label, href: activeItem.href });
 
   return (
+    <SubHeaderSlotProvider value={slotContextValue}>
     <div className="relative flex h-screen flex-col overflow-hidden">
       <BackgroundTexture theme={background} />
 
@@ -146,14 +172,18 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         }
       />
 
-      {/* サブヘッダー: 現在はアクティブ画面名のみ。タブ / パンくず供給は各画面側で別途。 */}
-      <SubHeader topOffset={HEADER_HEIGHT} leftOffset={chromeShift}>
-        <div
-          className="flex h-11 items-center px-4 text-sm font-medium transition-all duration-300"
-          style={{ color: colors.secondaryTextColor }}
-        >
-          {activeLabel}
-        </div>
+      {/* サブヘッダー: 既定はアクティブ画面名。ページが SubHeaderPortal を使うと
+          その内容 (SubHeaderToolbar 等) に置き換わり、高さも実測で本文へ反映される。 */}
+      <SubHeader topOffset={HEADER_HEIGHT} leftOffset={chromeShift} innerRef={subHeaderRef}>
+        <div ref={setSlotContainer} />
+        {!slotClaimed && (
+          <div
+            className="flex h-11 items-center px-4 text-sm font-medium transition-all duration-300"
+            style={{ color: colors.secondaryTextColor }}
+          >
+            {activeLabel}
+          </div>
+        )}
       </SubHeader>
 
       {showSideNav && (
@@ -186,10 +216,15 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         className={`flex-grow overflow-y-auto transition-all duration-300 ${
           showSideNav && sideOpen ? "md:pl-9" : ""
         }`}
-        style={{
-          paddingTop: HEADER_HEIGHT + SUBHEADER_HEIGHT,
-          paddingBottom: FOOTER_HEIGHT,
-        }}
+        style={
+          {
+            paddingTop: HEADER_HEIGHT + subHeaderH,
+            paddingBottom: FOOTER_HEIGHT,
+            // DataTable のヘッダ吸着 (position: sticky) の基準。fixed chrome が
+            // スクロールポートの上端を覆う高さ = Header + SubHeader 実高。
+            "--topbar-h": `${HEADER_HEIGHT + subHeaderH}px`,
+          } as CSSProperties
+        }
       >
         {/* 旧踏襲: 本文はほぼ全幅（px 余白のみ）。画面遷移ごとに BlurFade で出現（pathname key）。 */}
         <BlurFade key={pathname} className="w-full px-3 pb-24 pt-2 sm:px-5 md:pb-6">
@@ -237,5 +272,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
       <ThemeSettingsModal isOpen={themeOpen} onClose={() => setThemeOpen(false)} />
     </div>
+    </SubHeaderSlotProvider>
   );
 }

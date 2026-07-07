@@ -1613,3 +1613,40 @@ describe('DataTable - 非表示列はソートからも外れる', () => {
     expect(onSortItemsChange).toHaveBeenCalledWith([{ columnKey: 'name', order: 'asc' }])
   })
 })
+
+describe('DataTable - toolbar="external" (toolbar 外部化)', () => {
+  it('client: 内蔵 toolbar を描画しない (行・下部ページャは生きる)', () => {
+    const many: Row[] = Array.from({ length: 25 }, (_, i) => ({
+      id: `u${i}`,
+      name: `ユーザ${i}`,
+      status: 'active' as const,
+      score: i,
+    }))
+    const { container } = render(
+      <DataTable columns={columns} rows={many} pageSize={10} toolbar="external" />,
+    )
+    expect(container.querySelector('[data-dt-toolbar]')).toBeNull()
+    expect(screen.queryByPlaceholderText('キーワードで検索')).toBeNull()
+    // 絞り込み・ページングの計算は external でも従来どおり動く
+    expect(screen.getByText('ユーザ0')).toBeInTheDocument()
+    expect(screen.getByRole('navigation', { name: 'ページネーション' })).toBeInTheDocument()
+  })
+
+  it('server: search / totalCount を渡しても内蔵 toolbar を描画しない', () => {
+    const { container } = render(
+      <DataTable
+        mode="server"
+        columns={columns}
+        rows={rows}
+        getRowKey={(r) => r.id}
+        search={{ value: '', onChange: vi.fn() }}
+        totalCount={42}
+        collapsible
+        toolbar="external"
+      />,
+    )
+    expect(container.querySelector('[data-dt-toolbar]')).toBeNull()
+    expect(screen.queryByRole('button', { name: 'フィルタを切り替える' })).toBeNull()
+    expect(screen.getByText('田中 太郎')).toBeInTheDocument()
+  })
+})

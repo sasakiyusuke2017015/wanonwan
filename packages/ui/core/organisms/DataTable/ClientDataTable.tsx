@@ -86,6 +86,7 @@ export function ClientDataTable<TRow>({
   animated,
   animationVariant,
   loading,
+  toolbar = 'internal',
 }: ClientDataTableProps<TRow>) {
   // queryState を渡されたら fully controlled (URL 駆動)。未指定なら内部 useState で
   // 従来どおり uncontrolled。setter は updater 関数形 (prev => next) も受けられるよう
@@ -360,13 +361,14 @@ export function ClientDataTable<TRow>({
       data-component="data-table"
       data-mode="client"
     >
-      {(showSearch ||
-        filters?.length ||
-        columnPicker ||
-        actions ||
-        onCreate ||
-        handleReset ||
-        collapsible) && (
+      {toolbar === 'internal' &&
+        (showSearch ||
+          filters?.length ||
+          columnPicker ||
+          actions ||
+          onCreate ||
+          handleReset ||
+          collapsible) && (
         <Toolbar
           search={
             showSearch

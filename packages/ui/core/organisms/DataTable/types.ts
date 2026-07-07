@@ -333,6 +333,14 @@ interface BaseProps<TRow> {
    * 待機表示に使う (テーブルの枠ごと消さない)。
    */
   loading?: boolean
+  /**
+   * toolbar の描画場所 (default: 'internal')。
+   * 'external' は内蔵 toolbar を描画しない。検索 / フィルタ / 列ピッカー等の UI は
+   * 呼び出し側が `SubHeaderToolbar` 等へ外出しして描画し、状態は controlled prop
+   * (client: `queryState` + `filters` / server: `search` + `filters`) で共有する。
+   * 絞り込み・ソート・ページングの計算と下部ページャは 'external' でも従来どおり動く。
+   */
+  toolbar?: 'internal' | 'external'
 }
 
 export type { TableAnimationVariant }

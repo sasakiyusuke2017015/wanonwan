@@ -13,6 +13,11 @@ import type { CollapsibleOptions, FilterDef, SearchDef } from './types'
 import styles from './DataTable.module.scss'
 
 interface ToolbarProps {
+  /**
+   * 左端 (funnel の左 / 非 collapsible 時は入力群の左) に置く先頭要素。
+   * SubHeaderToolbar が画面タイトルを差し込むためのスロット。
+   */
+  leading?: ReactNode
   search?: SearchDef
   filters?: FilterDef[]
   /**
@@ -122,6 +127,7 @@ function buildActiveChips(search?: SearchDef, filters?: FilterDef[]): ActiveChip
  * funnel ボタン・適用中フィルタのチップ要約・件数・リセットは常時表示** する。
  */
 export function Toolbar({
+  leading,
   search,
   filters,
   visibleColumnKeys,
@@ -295,6 +301,7 @@ export function Toolbar({
           logLabel="datatable-filter"
           renderTrigger={({ triggerProps }) => (
             <div className={styles.toolbarSummary}>
+              {leading}
               <div className={styles.filterToggleButton}>
                 <Tooltip content="フィルタを切り替える">
                   <IconButton
@@ -328,6 +335,7 @@ export function Toolbar({
   return (
     <div className={styles.toolbar} data-dt-toolbar>
       <div className={styles.toolbarLeft}>
+        {leading}
         {inputs}
         {(rowCount || rightControls) && (
           <div className={styles.toolbarFilterControls}>

@@ -1,0 +1,31 @@
+// SubHeaderToolbar: SubHeader (fixed バー) に載せる DataTable Toolbar のクローム調整。
+// sticky / 枠線 / 面色は SubHeader 側の chrome として本コンポーネントが持ち、
+// 内側の DataTable .toolbar が持つ sticky・境界線は無効化して一体化させる。
+.subHeaderToolbar {
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 var(--spacing-3);
+  background-color: var(--color-bg, var(--color-surface, #ffffff));
+  border-bottom: 1px solid var(--color-border);
+
+  // DataTable Toolbar (data-dt-toolbar) の単体クロームを剥がす。
+  // sticky は SubHeader (position: fixed) の中では不要、境界線・面色は上で持つ。
+  [data-dt-toolbar] {
+    position: static;
+    border-bottom: none;
+    background: transparent;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+.title {
+  flex-shrink: 0;
+  padding-right: var(--spacing-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text);
+  white-space: nowrap;
+}

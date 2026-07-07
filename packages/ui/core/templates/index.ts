@@ -7,6 +7,7 @@
 export * from './AppShell'
 export * from './Header'
 export * from './SubHeader'
+export * from './SubHeaderToolbar'
 export * from './Footer'
 export * from './SideNav'
 export * from './CalendarPage'
