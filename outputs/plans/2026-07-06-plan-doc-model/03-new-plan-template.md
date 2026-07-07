@@ -1,3 +1,6 @@
+> ⚠ **Superseded by [06-final-design](06-final-design.md) と実物 [`plans/_template.md`](../_template.md)**。
+> 本ファイルの「ヘッダ状態欄廃止・末尾のみ」は D12 で撤回（最終形はヘッダ enum が一次・末尾は詳細内訳）。
+
 # Step 3: 新 Plan テンプレ（提案）
 
 > [02-target](02-target.md) の原則を実物のテンプレに落とす。ここは**提案**で、本物の

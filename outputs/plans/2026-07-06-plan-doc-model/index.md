@@ -6,9 +6,9 @@
 
 ## 現在地
 
-**再開: 欠落テンプレ作成済み（commit f31913b）+ Step 4 R1 修正済み（D11）。残るは Step 6 実装。**
-[01-current](01-current.md) が検証済み現状の正（D10）。01a/01b の具体値は 01-current を正とする。
-次: README 生成スクリプト・全 Plan への概要欄＋ヘッダ正規化・rules 反映（Step 6）。
+**現行設計の一次は [06-final-design](06-final-design.md)。移行 M2 実行済み（27 Plan 正規化）。**
+検証済み現状は [01-current](01-current.md)（D10）。02〜04 は superseded（検討履歴）。
+残: README 生成器の配置と生成物化・rules 反映（06 の残作業チェックリスト参照）。
 Step 1: [01-current](01-current.md)/[01a](01a-by-document.md)/[01b](01b-by-information.md)。Step 2: [02-target](02-target.md)。
 Step 3: [03-new-plan-template](03-new-plan-template.md)。Step 4: [04-review-and-readme](04-review-and-readme.md)。Step 5: [05-migration](05-migration.md)。
 確定結論: **drift は〈状態機械 × 複製〉に集中** → **不変=複製可 / 状態機械=一次1つ+リンク（P3）**。README は **R1 生成**、移行は **M2（全ヘッダ正規化）**。
@@ -59,6 +59,7 @@ Plan 単体には閉じない。理由は判断ログ D3。
 | **D10** | 2026-07-06 | **初版 Step 1 に事実捏造が混入していたため実データ検証で作り直し**（[01-current](01-current.md) が正）。実数 **Plan 27 / Review 60**、`_template` は**両方欠落**、drift 実例は**撤回**（重複は実在・drift は構造的危険と言い換え）。**Step 4 の R1 は「状態列のみ生成・概要列は手書き保持」へ要修正** | 憶測を検証済み事実と偽って分析に書いていた。信頼性の是正として全事実にコマンド検証を課す |
 | D11 | 2026-07-07 | **欠落テンプレを新設計で実作成**（`_template.md` ×2、宙吊り参照解消・commit f31913b）。**Step 4 R1 を修正**: 概要は編集的不変なので GitHub 生成不可 → **概要の一次を各 Plan の「1 行サマリ欄」に移し、README は Plan+GitHub から全生成**。テンプレに概要欄を追加 | 実 README のリッチな手書き概要列に対応。全生成（drift ゼロ）と概要保持を両立（[04](04-review-and-readme.md)） |
 | D12 | 2026-07-07 | **「状態は末尾チェックリストのみ」を撤回。ヘッダに enum ステータスを単一ソースとして残す**。PR↔Plan は curated で GitHub 突合不能なので **README は Plan ヘッダから生成**（概要/ステータス/PR/Review）。全27 Plan のヘッダを正規化（定型ノイズ削除・状態を enum 化・状態未設定5件を判断で割当） | 実データは末尾チェックリストが不均一で、生成にはクリーンな状態ラベルが要る。ヘッダ enum を一次にすれば README が drift なく生成でき、header=rollup / checklist=詳細 で粒度が分離 |
+| D13 | 2026-07-07 | 妥当性検証で V1（verdict 残存 15 件）/ V2（03 が D12 と矛盾）/ V3（04 が実決定と矛盾）を検出。**V1 は strip 実行（32d6f59）、V2/V3 は [06-final-design](06-final-design.md) を単一の一次に集約し 02〜04 へ superseded バナー**で解消 | 決定の変遷を複数文書に複製したことによる内部 drift。thinking-log の原理（状態機械×複製）の自己実演。以後、設計の現行値は 06 のみが持つ |
 
 ## ファイル構成
 

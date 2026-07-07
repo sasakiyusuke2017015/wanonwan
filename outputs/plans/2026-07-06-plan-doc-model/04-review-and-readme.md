@@ -1,3 +1,7 @@
+> ⚠ **Superseded by [06-final-design](06-final-design.md)**。本ファイルの「Plan+GitHub から生成・slug で PR 突合」は
+> 撤回（PR↔Plan は curated で機械突合不能と判明。最終形は Plan ヘッダのみから生成 = D12）。
+> Review テンプレ節（4-1）は実物 [`reviews/_template.md`](../../reviews/_template.md) に反映済み。
+
 # Step 4: Review テンプレ新設 + README ダッシュボード再定義
 
 > [02-target](02-target.md) の原則を Review と README に適用する。実装（スクリプト・rules 反映）は Step 6。
