@@ -2,11 +2,10 @@
 
 | 項目 | 値 |
 |---|---|
-| 作成日時 | 2026-06-22 19:40 JST |
-| 担当 | Claude Code + 笹木さん |
-| ブランチ | `feature/db-to-packages`（予定） |
-| 関連 PR | TBD |
-| レビュー | [コードレビュー](../reviews/2026-06-22-1951-db-layer-to-packages-review.md)（APPROVE） |
+| 概要 | DDL / RLS / seed / pgTAP の実体が `outputs/infra-data/` に置かれているが、`outputs/` は本来 |
+| ステータス | 🟢 マージ済み（検証中） |
+| PR | TBD |
+| Review | [コードレビュー](../reviews/2026-06-22-1951-db-layer-to-packages-review.md) |
 
 ## 目的
 

@@ -2,13 +2,8 @@
 
 | 項目 | 値 |
 |---|---|
-| ステータス | ✅ 検証完了（[PR #27](https://github.com/sasakiyusuke2017015/waoon/pull/27) merged・test green が検証） |
-| slug | `web-vitest-helper-tests` |
-| 作成 | 2026-06-15 17:25 JST |
-| 担当 | Claude Code + 笹木さん |
-| ブランチ | `test/web-vitest-helper-tests`（未作成） |
-| 関連 PR / レビュー | TBD |
-| 由来 | [api-route-helpers](2026-06-15-1610-api-route-helpers.md) の残課題「挙動不変の軽い integration test」。refactor で導入した API ヘルパの回帰テストを足す |
+| 概要 | api-route-helpers 残課題。apps/web に Vitest を導入し parseBody / withActiveUser / checkRateLimit / withServiceRole / metadata の unit テスト（5 files / 13 tests）。test-only |
+| ステータス | ✅ 検証完了 |
 
 ## 1. 目的 / 非目的
 

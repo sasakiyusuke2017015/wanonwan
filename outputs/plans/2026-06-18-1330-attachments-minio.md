@@ -1,13 +1,12 @@
 # 添付ファイル基盤（MinIO + presigned URL）
 
-> ステータス: 🟡 実装中（Phase 1+2 実装済み / Phase 3 残り）
 > 由来: 親 Plan §10「MinIO / 添付」（将来検討）の本着手。AI/pgvector は別 Plan で後続。
 
 | 項目 | 値 |
 |---|---|
-| 一次情報 | [evergreen.md の STORAGE_ENDPOINT 例](../../.claude/rules/evergreen.md#L126) / [dev compose](../../infra/docker-compose.yml) / [data-access.md](../../.claude/rules/data-access.md) / 添付先テーブル: `answers` / interview 関連 / `users` / `survey_publications` |
-| 関連 Review | （未） |
-| 関連 PR | （未） |
+| 概要 | presigned URL でブラウザが MinIO へ直接 up/down、API は認可+メタのみ。単一 `attachments` 表(polymorphic)+entity_type 別 RLS。Phase1=storage lib+MinIO compose+表/RLS/pgTAP+面談添付 API/UI。Phase2=回答/資料/アバター+`AttachmentsPanel`共通化。Phase3=stg/prod に MinIO + nginx の storage サブドメイン配線 |
+| ステータス | 🟡 実装中 |
+| PR | （未） |
 
 ---
 

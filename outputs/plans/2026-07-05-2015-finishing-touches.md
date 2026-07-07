@@ -1,15 +1,12 @@
 # Plan: 仕上げ（テーマ5・ページタイトル / 公開一覧 UX / ダークモード / VRT）
 
-> ステータス: 🟡 実装中（Phase 1/2 マージ済み・検証中 / Phase 3/4 は着手時に独立サブ Plan）
 
 | 項目 | 値 |
 |---|---|
-| 作成日時 | 2026-07-05 20:15 JST |
-| 担当 | Claude Code + 笹木さん |
-| ブランチ | Phase 別（Phase1: `feature/page-titles` / Phase2: `feature/public-list-ux` / Phase3・4: TBD） |
-| 関連 PR | Phase1: [#76](https://github.com/sasakiyusuke2017015/waoon/pull/76) merged / Phase2: [#77](https://github.com/sasakiyusuke2017015/waoon/pull/77) merged |
-| レビュー | [計画レビュー](../reviews/2026-07-05-2040-finishing-touches-review.md): Phase1/2 APPROVE / Phase3/4 は設計指摘反映（代行 planner + architect） / [Phase1 コードレビュー](../reviews/2026-07-05-2226-finishing-touches-code-review.md): APPROVE / [Phase2 コードレビュー](../reviews/2026-07-05-2300-finishing-touches-phase2-code-review.md): NEEDS WORK→APPROVE |
-| 前提 | テーマ1〜4 マージ済み。**テーマは 2 系統**（A: `design.ts` の JS/HSL → inline style / B: `tokens.css` の semantic CSS 変数）。ダーク設計はこの 2 系統 + ハードコード色 114 箇所の三層で考える（計画レビューで確定） |
+| 概要 | UI/UX 改善テーマ5「仕上げ」。**フェーズ分割**: Phase1 ページタイトル・Phase2 公開一覧 UX（polish・**マージ済み・検証中**）/ Phase3 ダークモード（epic・三層モデル: semantic トークン反転境界 + design.ts 前景調整 + 114 箇所 repoint・FOUC 対策要）/ Phase4 VRT（epic・reg-suit + storycap + MinIO baseline・4-light→3→4-dark の additive 順序）。epic 2 本は着手時に独立サブ Plan 化 |
+| ステータス | 🟡 実装中 |
+| PR | Phase1: [#76](https://github.com/sasakiyusuke2017015/waoon/pull/76) merged / Phase2: [#77](https://github.com/sasakiyusuke2017015/waoon/pull/77) merged |
+| Review | [計画レビュー](../reviews/2026-07-05-2040-finishing-touches-review.md) / [Phase1 コードレビュー](../reviews/2026-07-05-2226-finishing-touches-code-review.md) / [Phase2 コードレビュー](../reviews/2026-07-05-2300-finishing-touches-phase2-code-review.md) |
 
 ## 目的
 

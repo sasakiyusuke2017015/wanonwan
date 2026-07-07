@@ -72,24 +72,28 @@ the user explicitly asks for a durable record.
 Base new Plan files on `outputs/plans/_template.md`.
 Each Plan must include:
 
+- Header table: 概要（ダッシュボード 1 行サマリ）/ ステータス（凡例 enum 1 個）/
+  前提 Plan / PR / Review（PR・Review は **リンクのみ**。verdict や PR 状態の文字列は書かない）.
 - Goal and non-goals.
 - Scope boundaries.
-- Current context with links to relevant files or docs.
+- Current context with links, dated in the heading（例: `## 現状コンテキスト（2026-07-07 時点）`）.
 - Ordered implementation steps.
 - Verification commands or manual checks.
 - Risks and mitigations.
-- `判断ログ` for scope or approach changes.
-- Status checklist.
+- `判断ログ` for scope or approach changes（未確定事項は決着したらここへ移動し、
+  未確定事項の節からは消す）.
+- Status checklist（ヘッダ enum の詳細内訳）.
 
-After review or PR creation, update the Plan metadata with the Review and PR
-links when available.
+After review or PR creation, add the Review / PR **links** to the Plan header and
+regenerate the dashboard.
 
 ## Review File Requirements
 
 Base new Review files on `outputs/reviews/_template.md`.
 Each Review must include:
 
-- A final verdict: `APPROVE`, `NEEDS WORK`, or `BLOCKED`.
+- A final verdict: `APPROVE`, `NEEDS WORK`, or `BLOCKED` — written **once**, in the
+  header table（本文で再掲しない。Plan / README へも複製しない）.
 - A verdict scope table separating `最終判定` from `Plan 判定`, `実装判定`, and
   `記録整理` where applicable. Use `N/A` for scopes that were not reviewed.
 - Findings first, ordered by severity.
@@ -142,8 +146,8 @@ Each Review must include:
    implementation.
 9. If the コードレビュー is `APPROVE`, proceed. If `NEEDS WORK` or `BLOCKED`, go
    back to step 6 to address findings and request a re-review.
-10. **Claude Code** updates Plan status and cross-links, then updates the Status
-    Dashboard in [`outputs/README.md`](../../outputs/README.md) in the same PR.
+10. **Claude Code** updates the Plan header (status enum and links), then regenerates
+    the dashboard (`node scripts/gen-outputs-readme.mjs`) in the same PR.
 11. **Claude Code** opens the PR. **笹木さん** does final merge approval.
 
 Do not silently rewrite old decisions. If the approach changes, append a row to
@@ -167,13 +171,21 @@ Step 4 と Step 9 の往復（NEEDS WORK / BLOCKED → 再修正 → 再レビ�
 
 ## ステータスダッシュボード
 
-`outputs/README.md` の **ステータスダッシュボード** に全 Plan の進捗サマリと
-「推奨アクション」を置く。一次ソースは各 Plan 本体の「ステータス」セクション。
-README はそこから拾った要約 + 推奨アクション。
+`outputs/README.md` は **自動生成の生成物**（手編集禁止）。各 Plan ヘッダの
+概要 / ステータス / PR / Review を投影する。再生成:
 
-Review は単独のテーブルでは持たず、`関連 PR / レビュー` 列で対応 Plan からリンクする。
-1 Plan に複数 Review がぶら下がる場合（計画レビュー / コードレビュー / コード v2 レビュー等）
-は種別ラベル付きで列挙する。
+```bash
+node scripts/gen-outputs-readme.mjs
+```
+
+一次ソースは **各 Plan ヘッダ**（概要 = ダッシュボード 1 行サマリ / ステータス = 下記凡例の
+enum 1 個 / PR・Review = リンクのみ）。Plan 末尾の「ステータス」チェックリストは
+ヘッダ enum の詳細内訳。設計は
+[`06-final-design`](../../outputs/plans/2026-07-06-plan-doc-model/06-final-design.md)。
+
+Review は単独のテーブルでは持たず、Plan ヘッダの `Review` 欄に種別ラベル付きリンクで列挙する
+（計画レビュー / コードレビュー / コード v2 レビュー等）。verdict 文字列は書かない
+（verdict の一次は Review file）。
 
 ### ステータス凡例
 
@@ -202,7 +214,7 @@ Plan ライフサイクル（作成中 → レビュー → 承認）と Code �
 `🟢 マージ済み（検証中）` と `✅ 検証完了` を分ける理由は、merge が即「動作 OK」を
 意味しないため。stg / 別 OS / E2E 等の事後検証が残っていることが多く、その状況を
 後から見て追えるよう、Plan 本体の「ステータス」セクションに **検証項目のチェックボックス**
-を持つ。Dashboard は Plan の最終チェック状態を反映する。
+を持つ。Dashboard は Plan ヘッダの enum を反映する。
 
 Review file 上の判定値（verdict）との対応は次の通り。
 
@@ -214,15 +226,13 @@ Review file 上の判定値（verdict）との対応は次の通り。
 
 ### 更新ルール
 
-- Plan のステータスが変わった PR では、必ず README のステータスダッシュボードも同 PR で
-  更新する。Plan 本体と README が乖離した状態でマージしない。
-- 新しい Review file を保存したら、対応 Plan 行の `関連 PR / レビュー` 列に
-  種別ラベル付きで追記する（`[コードレビュー](reviews/<file>.md)` 等）。
-- 「推奨アクション」列は **任意**。書く場合は **誰が（Claude Code / Codex / 笹木さん）何をするか** を
-  1 行で書く（Plan 本体のステータスチェックリストの未完了項目から拾うのが目安）。
-  ステータスから自明な場合や、書くほど明確でない場合は `—` で省略してよい。
-- 全部完了になった Plan は README から削除せず、`Archive` 節に移してもよい
-  （履歴は git log にもあるので削除しても可）。
+- Plan ヘッダ（概要 / ステータス / PR / Review）を更新したら、同じ commit / PR で
+  `node scripts/gen-outputs-readme.mjs` を実行して README を再生成する。
+  **README を手で編集しない**（生成器が Plan ヘッダの不備を検出したら fail するので、
+  直すのは Plan 側）。
+- 新しい Review file を保存したら、対応 Plan ヘッダの `Review` 欄に種別ラベル付き
+  **リンクのみ** 追記（`[コードレビュー](../reviews/<file>.md)` 等）→ 再生成。
+- ダッシュボードは全 Plan を列挙する（完了 Plan も削除しない。履歴は git log）。
 
 ### 検証チェックボックス (`🟢 マージ済み (検証中)` → `✅ 検証完了`)
 
@@ -250,6 +260,6 @@ Plan ファイル末尾の「ステータス」セクションには、merge 後
   クローズ」）。チェック外し続けるのではなく、`- [ ] macOS: 担当者なしのためスキップ`
   と書いて納得感を残す
 - すべての検証チェックが付いた時点で Plan ヘッダのステータスを
-  `🟢 マージ済み（検証中）` → `✅ 検証完了` に上げ、Dashboard も同期する
+  `🟢 マージ済み（検証中）` → `✅ 検証完了` に上げ、README を再生成する
 - Plan 立ち上げ時点では検証項目はまだ書かなくて良い。実装計画の `## 検証` 節を
   そのままチェックボックスに移すか、merge 直前で必要十分な項目を改めて整理する

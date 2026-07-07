@@ -1,15 +1,12 @@
 # Plan: DataTable 移植（ai_edu 版）+ admin 一覧の乗り換え
 
-> ステータス: 🟢 マージ済み（検証中）（PR-A #68 / PR-B #70 ともマージ済み・develop CI green。マージ後手動検証が残る）
 
 | 項目 | 値 |
 |---|---|
-| 作成日時 | 2026-07-05 09:20 JST |
-| 担当 | Claude Code + 笹木さん |
-| ブランチ | PR-A: `feature/datatable-port` / PR-B: `feature/datatable-adoption` |
-| 関連 PR | PR-A: [#68](https://github.com/sasakiyusuke2017015/waoon/pull/68)（merged）/ PR-B: [#70](https://github.com/sasakiyusuke2017015/waoon/pull/70)（merged） |
-| レビュー | [計画レビュー](../reviews/2026-07-05-0925-datatable-port-review.md): APPROVE / [PR-A コードレビュー](../reviews/2026-07-05-1510-datatable-port-code-review.md): APPROVE（エージェント代行） |
-| 前提 | **#66（カタログ堅牢化）マージ後に実装着手**（同じ catalog organisms を触るため） |
+| 概要 | UI/UX 改善テーマ3。ai_edu 実戦検証済みの DataTable（列ヘッダソート/ページネーション/フィルタ/ColumnPicker/行アクション、テスト 1,593 行）を catalog へ移植（PR-A・死蔵の旧 DataTable を置換）→ AdminListTable をアダプタ化して admin 4 一覧 + マスタ 5 画面を乗り換え、apps/web の InteractiveTable 参照をゼロに（PR-B・テーマ追従はアダプタ scoped 注入） |
+| ステータス | 🟢 マージ済み（検証中） |
+| PR | PR-A: [#68](https://github.com/sasakiyusuke2017015/waoon/pull/68)（merged）/ PR-B: [#70](https://github.com/sasakiyusuke2017015/waoon/pull/70)（merged） |
+| Review | [計画レビュー](../reviews/2026-07-05-0925-datatable-port-review.md) / [PR-A コードレビュー](../reviews/2026-07-05-1510-datatable-port-code-review.md) |
 
 ## 目的
 

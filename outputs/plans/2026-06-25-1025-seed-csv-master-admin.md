@@ -2,14 +2,10 @@
 
 | 項目 | 値 |
 |---|---|
-| ステータス | 🟢 マージ済み（検証中）— #56 merged。残: 管理画面のブラウザ手動確認 |
-| slug | `seed-csv-master-admin` |
-| 作成 | 2026-06-25 10:25 JST |
-| 担当 | Claude Code + 笹木さん |
-| ブランチ | `feature/seed-csv-master-admin` |
-| 関連 PR | [#56](https://github.com/sasakiyusuke2017015/waoon/pull/56) merged |
-| レビュー | [計画レビュー](../reviews/2026-06-25-1031-seed-csv-master-admin-review.md)（APPROVE 相当に収束） / [コードレビュー](../reviews/2026-06-25-1431-seed-csv-master-admin-code-review.md)（**APPROVE**） |
-| git repo | `https://github.com/sasakiyusuke2017015/waoon.git` |
+| 概要 | seed を手書き SQL から CSV 化し FK 依存順ローダー（非空スキップ=初回投入専用）で投入。provision を 2 モード化（単一 admin / `--users-csv` の N 名一括・行単位冪等・一時 PW を 0600 ファイル + must_change）。組織/役職マスタの CRUD 管理画面（`/admin/org`・`/admin/positions`）を新設 |
+| ステータス | 🟢 マージ済み（検証中） |
+| PR | [#56](https://github.com/sasakiyusuke2017015/waoon/pull/56) merged |
+| Review | [計画レビュー](../reviews/2026-06-25-1031-seed-csv-master-admin-review.md) / [コードレビュー](../reviews/2026-06-25-1431-seed-csv-master-admin-code-review.md) |
 
 ---
 

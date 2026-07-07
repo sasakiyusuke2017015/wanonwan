@@ -1,14 +1,12 @@
 # Plan: UI フィードバック基盤（Toast 配線・削除確認・ルート境界）
 
-> ステータス: 🟢 マージ済み（検証中）— PR #64 merged。マージ後検証チェックが残り
 
 | 項目 | 値 |
 |---|---|
-| 作成日時 | 2026-07-05 01:01 JST |
-| 担当 | Claude Code + 笹木さん |
-| ブランチ | `feature/ui-feedback-foundation` |
-| 関連 PR | [#64](https://github.com/sasakiyusuke2017015/waoon/pull/64) |
-| レビュー | [計画レビュー](../reviews/2026-07-05-0115-ui-feedback-foundation-review.md): APPROVE / [コードレビュー](../reviews/2026-07-05-0210-ui-feedback-foundation-code-review.md): APPROVE |
+| 概要 | UI/UX 改善テーマ1。catalog 実装済みの Toast/ConfirmDialog をアプリ配線（保存/削除の成功トースト・破壊的操作の確認ダイアログ）+ `global-error`/`error`/`not-found`/`loading` のルート境界新設。Toast は遷移をまたぐ app Provider 方式（catalog に ToastProvider 追加・zIndex 10010） |
+| ステータス | 🟢 マージ済み（検証中） |
+| PR | [#64](https://github.com/sasakiyusuke2017015/waoon/pull/64) |
+| Review | [計画レビュー](../reviews/2026-07-05-0115-ui-feedback-foundation-review.md) / [コードレビュー](../reviews/2026-07-05-0210-ui-feedback-foundation-code-review.md) |
 
 ## 目的
 

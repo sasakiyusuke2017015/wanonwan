@@ -2,14 +2,10 @@
 
 | 項目 | 値 |
 |---|---|
-| ステータス | 🟢 承認済み（着手前）— Phase 1〜5 一気通貫 / 動き・アニメ込み忠実再現 |
-| slug | `app-shell-legacy-look` |
-| 作成 | 2026-06-28 22:12 JST |
-| 担当 | Claude Code + 笹木さん |
-| ブランチ | `feature/app-shell-legacy-look`（develop `5fb13f4` 起点 / TBD） |
-| 関連 PR | TBD |
-| レビュー | [コードレビュー](../reviews/2026-06-28-2247-app-shell-legacy-look-review.md)（**APPROVE** / BLOCKER ゼロ、条件: ブラウザ目視） |
-| 前提 | ee446f0「見た目踏襲・基盤」で土台は導入済み。本 Plan はその簡略化された部分を旧 1on1 に寄せ直す |
+| 概要 | apps/web の app shell の **見た目・動き・アニメーション・デザインを丸ごと旧 1on1 アプリに寄せる**。 |
+| ステータス | 🟢 マージ済み（検証中） |
+| PR | TBD |
+| Review | [コードレビュー](../reviews/2026-06-28-2247-app-shell-legacy-look-review.md) |
 
 ## 目的
 
