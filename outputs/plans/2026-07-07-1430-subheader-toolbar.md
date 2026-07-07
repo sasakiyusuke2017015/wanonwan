@@ -3,9 +3,9 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | DataTable (ai_edu 由来) の funnel 開閉 Toolbar と SubHeader の固定 chrome を合成した SubHeaderToolbar を新設し、未使用の ui-catalog 資産 (FilterField / DataCountDisplay / Pagination / SearchBar / ResetButton / Badge / Tooltip / Animated 等) を積極採用してテーブル体験を刷新する |
-| ステータス | 🟡 実装中 |
+| ステータス | 🟣 マージ承認待ち |
 | 前提 Plan | [DataTable 移植](2026-07-05-0920-datatable-port.md) |
-| PR | |
+| PR | [#81](https://github.com/sasakiyusuke2017015/waoon/pull/81) |
 | Review | [Phase 1](../reviews/2026-07-07-1822-subheader-toolbar-review.md) / [Phase 2](../reviews/2026-07-07-1920-subheader-toolbar-review.md) / [Phase 3](../reviews/2026-07-07-2010-subheader-toolbar-review.md) |
 
 ## 目的
