@@ -3,8 +3,8 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | 拡張だけ入っていた pgmq/pg_cron に実働基盤。Phase1=**添付の孤児掃除**（status 100 の古い行を pg_cron 純 SQL で定期削除。`app.is_stale_attachment`純関数+`app.gc_stale_attachments` SECURITY DEFINER・30分毎）。Phase2a=pgmq キュー + DELETE enqueue トリガ + 専用 Node worker(`apps/worker`)で MinIO 本体削除（parseGcMessage unit 8・superuser 接続・at-least-once）。Phase2b=Dockerfile.worker（pnpm deploy→type-stripping・docker build 実機確認）+ CD の worker image build/push + stg/prod compose の worker サービス |
+| ステータス | 🟡 実装中 |
 
-> ステータス: 🟡 実装中（Phase 1 実装・pg_cron 土台 + 添付孤児掃除）
 
 ## 1. 背景・目的
 

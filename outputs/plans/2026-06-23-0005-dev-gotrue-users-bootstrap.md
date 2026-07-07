@@ -3,11 +3,9 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | クリーンな `pnpm dev:up`（特に `compose:dev:down -v` で volume 破棄した後）から |
-| 作成日時 | 2026-06-23 00:05 JST |
-| 担当 | Claude Code + 笹木さん |
-| ブランチ | `feature/dev-gotrue-users`（予定） |
-| 関連 PR | TBD |
-| レビュー | [計画レビュー](../reviews/2026-06-23-0030-dev-gotrue-users-bootstrap-review.md)（APPROVE） / [コードレビュー](../reviews/2026-06-23-0045-dev-gotrue-users-bootstrap-code-review.md)（APPROVE） |
+| ステータス | 🟢 マージ済み（検証中） |
+| PR | TBD |
+| Review | [計画レビュー](../reviews/2026-06-23-0030-dev-gotrue-users-bootstrap-review.md)（APPROVE） / [コードレビュー](../reviews/2026-06-23-0045-dev-gotrue-users-bootstrap-code-review.md)（APPROVE） |
 
 ## 目的
 

@@ -3,15 +3,10 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | 緊急度（高/中/低）を共通マスタ化。PR-1=urgency_levels テーブル+RLS+`/admin/urgencies`+API+seed+pgTAP / PR-2=surveys・answers に urgency_id 配線（SurveyForm・InterviewForm に書き手 UI）。設問マスタ Phase2 から分離 |
-| ステータス | 🟢 マージ済み（検証中）— PR-1(#62)・PR-2(#63) ともに develop へマージ済み。残: dev 実機検証 |
-| slug | `urgency-master` |
-| 作成 | 2026-06-29 15:37 JST |
-| 担当 | Claude Code + 笹木さん |
-| ブランチ | PR-1 `feature/urgency-master`（merged）/ PR-2 `feature/urgency-wiring` |
-| 関連 PR | PR-1: [#62](https://github.com/sasakiyusuke2017015/waoon/pull/62)（merged）/ PR-2: [#63](https://github.com/sasakiyusuke2017015/waoon/pull/63) |
-| レビュー | [計画(Claude)](../reviews/2026-06-29-1612-urgency-master-review.md): **APPROVE** / [コード PR-1(agent)](../reviews/2026-06-29-1631-urgency-master-code-review-pr1.md): **APPROVE** / [コード PR-2(agent)](../reviews/2026-06-29-1708-urgency-master-code-review-pr2.md): **APPROVE**（BLOCKER 修正後） |
-| 親 Plan | [設問マスタ Phase 2](2026-06-29-1327-survey-question-master.md)（本 Plan へ分離） |
-| git repo | `https://github.com/sasakiyusuke2017015/waoon.git` |
+| ステータス | 🟢 マージ済み（検証中） |
+| 前提 Plan | [設問マスタ Phase 2](2026-06-29-1327-survey-question-master.md)（本 Plan へ分離） |
+| PR | PR-1: [#62](https://github.com/sasakiyusuke2017015/waoon/pull/62)（merged）/ PR-2: [#63](https://github.com/sasakiyusuke2017015/waoon/pull/63) |
+| Review | [計画(Claude)](../reviews/2026-06-29-1612-urgency-master-review.md): **APPROVE** / [コード PR-1(agent)](../reviews/2026-06-29-1631-urgency-master-code-review-pr1.md): **APPROVE** / [コード PR-2(agent)](../reviews/2026-06-29-1708-urgency-master-code-review-pr2.md): **APPROVE**（BLOCKER 修正後） |
 
 ---
 

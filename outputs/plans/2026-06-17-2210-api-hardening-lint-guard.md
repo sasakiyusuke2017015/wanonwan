@@ -1,14 +1,12 @@
 # API 堅牢化: ESLint 立ち上げ + 認証プリミティブ import ガード + 挙動不変 integration test
 
-> ステータス: 🟡 実装中（Phase 1 実装済み / Phase 2 残り）
 > 親 Plan: [api-route-helpers](2026-06-15-1610-api-route-helpers.md) の §残課題（2 項目）を消化する。
 
 | 項目 | 値 |
 |---|---|
 | 概要 | api-route-helpers 残課題。認証プリミティブ（getCurrentClaims/getAccessToken/getRefreshToken/verifyAccessToken）の直 import を `no-restricted-imports` で禁止（認可漏れの構造的防止）+ 挙動不変 integration test。前提として apps/web に ESLint flat config を新設し root lint/CI に配線 |
-| 一次情報 | [api-route-helpers Plan §残課題](2026-06-15-1610-api-route-helpers.md) / [withActiveUser](../../apps/web/lib/auth/route.ts) / CI [.github/workflows/ci.yml](../../.github/workflows/ci.yml) |
-| 関連 Review | （未） |
-| 関連 PR | （未） |
+| ステータス | 🟡 実装中 |
+| PR | （未） |
 
 ---
 

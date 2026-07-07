@@ -3,14 +3,7 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | force-change PR の per-route ガード直書きを関数合成で集約し、認可ガードを構造的に忘れられなくする pure refactor。withActiveUser / parseBody / withServiceRole / checkRateLimit に集約（27 ファイル・純減 117 行） |
-| ステータス | 🟢 マージ済み（検証中）（[PR #26](https://github.com/sasakiyusuke2017015/waoon/pull/26) merged・runtime スモークのみ残） |
-| slug | `api-route-helpers` |
-| 作成 | 2026-06-15 16:10 JST |
-| 担当 | Claude Code + 笹木さん |
-| ブランチ | `refactor/api-route-helpers` |
-| 関連 PR / レビュー | 計画レビュー 3 本（NEEDS WORK→NEEDS WORK→APPROVE）/ [コードレビュー(Agent)](../reviews/2026-06-15-1710-api-route-helpers-code-review.md): **APPROVE** |
-| 依存 | [PR #25](https://github.com/sasakiyusuke2017015/waoon/pull/25)（force-change）マージ後。#25 と同じ 20+ ルートを再度触るため |
-| 由来 | force-change PR で導入した per-route `forceChangeGuard` 直書き（20 ルート）を見て「高階ラッパで集約し、他の反復 boilerplate にも展開すべき」となった。[auth-gotrue-sync-force-change Plan §9 残課題](2026-06-14-1455-auth-gotrue-sync-force-change.md) |
+| ステータス | 🟢 マージ済み（検証中） |
 
 > **継承ではなく関数合成（higher-order function）**で行う。Next.js App Router の route handler は
 > export された関数で、claims を「ラッパ経由でしか得られない」形にすることで**ガードを構造的に

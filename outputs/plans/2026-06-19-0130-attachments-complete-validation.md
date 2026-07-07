@@ -1,12 +1,10 @@
 # 添付の complete 実体検証 + アバター置換の安全化（レビュー HIGH 対応）
 
-> ステータス: 🟡 実装中（レビュー triage の添付 HIGH/MEDIUM を修正）
 
 | 項目 | 値 |
 |---|---|
 | 概要 | [triage レビュー](reviews/2026-06-19-0038-plans-review-triage.md) の添付 HIGH/MEDIUM 修正。complete は `HeadObject` でサーバ真値検証（不在422/超過413/不許可415、size は実測）+ presign 前に MIME allowlist + 最大20MB（`policy.ts` unit5）。avatar は作成時に旧を消さず **complete 成功時に置換**（unique index を status=200 限定に変更）。一覧/DL を status=200 限定 |
-| 由来 | [Plan triage レビュー](../reviews/2026-06-19-0038-plans-review-triage.md) の Findings #3/#4/#5 |
-| 対象 Plan | [添付ファイル基盤](2026-06-18-1330-attachments-minio.md)（マージ済みコードの実害修正） |
+| ステータス | 🟡 実装中 |
 
 ## 1. 目的
 

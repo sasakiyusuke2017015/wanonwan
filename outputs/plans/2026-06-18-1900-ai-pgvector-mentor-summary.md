@@ -1,14 +1,12 @@
 # AI 機能: 面談メンター提案 + 自由記述の要約/分析（Claude + pgvector）
 
-> ステータス: 🟡 実装中（Phase A+B 実装済み・**二重 gate（key + 承認フラグ）未設定で無効**。§3.2 = 自前ホスト埋め込みに決定）
 > 由来: 親 Plan §10「AI 機能（FAQ/メンター）+ pgvector + LLM 基盤」。ユーザー指定の機能 = 面談メンター提案 + 自由記述の要約/分析。
 
 | 項目 | 値 |
 |---|---|
 | 概要 | Phase A=Claude(`@anthropic-ai/sdk`/Sonnet 4.6)で面談要約（`lib/ai`+`POST /answers/[id]/summary`+UI、merged）。Phase B=pgvector RAG メンター提案（**自前ホスト埋め込み** TEI/e5-small・profile ai・社外送信なし、lazy 生成、`POST /answers/[id]/mentor`+UI、key/URL 未設定で無効）。**いずれもキー/URL 未設定で外部送信ゼロ** |
-| 一次情報 | claude-api スキル（モデル/SDK/埋め込み）/ 技術選定メモ「AI 機能・確度55（将来検討）」/ [00_bootstrap.sql](../../outputs/infra-data/schema/00_bootstrap.sql)（pgvector 拡張は導入済・未使用） |
-| 関連 Review | （未） |
-| 関連 PR | （未） |
+| ステータス | 🟡 実装中 |
+| PR | （未） |
 
 ---
 

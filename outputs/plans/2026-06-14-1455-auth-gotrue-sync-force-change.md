@@ -3,14 +3,8 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | 親 Plan「認証の残」A+B。admin の email/password 変更を GoTrue へ同期（admin client に updateUser 追加）+ 初回 PW の強制変更（force-change を API 層ゲートで enforce、middleware はページ誘導） |
-| ステータス | 🟢 マージ済み（検証中）（[PR #25](https://github.com/sasakiyusuke2017015/waoon/pull/25) merged・受け入れ検証 B-0 他が残る） |
-| slug | `auth-gotrue-sync-force-change` |
-| 作成 | 2026-06-14 14:55 JST |
-| 担当 | Claude Code + 笹木さん |
-| ブランチ | `feature/auth-gotrue-sync-force-change`（未作成） |
-| 関連 PR / レビュー | [PR #25](https://github.com/sasakiyusuke2017015/waoon/pull/25)（develop 向け）/ [計画レビュー](../reviews/2026-06-15-0930-auth-gotrue-sync-force-change-review.md): NEEDS WORK（3 視点並列・反映済み） / [再計画レビュー(Codex)](../reviews/2026-06-15-0930-auth-gotrue-sync-force-change-replan-review.md): NEEDS WORK（middleware /api 撤回・反映済み） / [再々計画レビュー(Codex)](../reviews/2026-06-15-0945-auth-gotrue-sync-force-change-replan-review-v2.md): APPROVE / [コードレビュー(Codex)](../reviews/2026-06-15-1015-auth-gotrue-sync-force-change-code-review.md): NEEDS WORK / [再コードレビュー(Codex)](../reviews/2026-06-15-1030-auth-gotrue-sync-force-change-code-review-v2.md): **APPROVE** |
-| 親 Plan | [pleasanter-exit-1on1-rebuild](2026-06-11-1730-pleasanter-exit-1on1-rebuild.md) の「認証の残」（[§10](2026-06-11-1730-pleasanter-exit-1on1-rebuild.md#L357): 編集時の email/password の GoTrue 同期 / 初回ログイン後の force-change） |
-| 一次情報 | [users/[id]/route.ts](../../apps/web/app/api/v1/users/[id]/route.ts) / [client.ts](../../packages/auth/src/client.ts) / [jwt.ts](../../apps/web/lib/auth/jwt.ts) / [middleware.ts](../../apps/web/middleware.ts) / [provisioning.ts](../../apps/web/lib/auth/provisioning.ts) |
+| ステータス | 🟢 マージ済み（検証中） |
+| 前提 Plan | [pleasanter-exit-1on1-rebuild](2026-06-11-1730-pleasanter-exit-1on1-rebuild.md) の「認証の残」（[§10](2026-06-11-1730-pleasanter-exit-1on1-rebuild.md#L357): 編集時の email/password の GoTrue 同期 / 初回ログイン後の force-change） |
 
 > provisioning（#19）で「作成時に GoTrue identity 発行 + 初期 PW 生成」までは完了済み。本 Plan は
 > その後に残った 2 点 — **A) 編集時の email/password を GoTrue へ同期** と **B) 初回ログイン後の
