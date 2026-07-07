@@ -6,9 +6,9 @@
 
 ## 現在地
 
-**現行設計の一次は [06-final-design](06-final-design.md)。移行 M2 実行済み（27 Plan 正規化）。**
-検証済み現状は [01-current](01-current.md)（D10）。02〜04 は superseded（検討履歴）。
-残: README 生成器の配置と生成物化・rules 反映（06 の残作業チェックリスト参照）。
+**完了: [PR #80](https://github.com/sasakiyusuke2017015/waoon/pull/80) で develop へマージ済み。**
+現行設計の一次は [06-final-design](06-final-design.md)。検証済み現状は [01-current](01-current.md)（D10）。
+02〜04 は superseded（検討履歴）。残: 既存 Plan の現状コンテキスト凍結印（任意・新規から徹底）。
 Step 1: [01-current](01-current.md)/[01a](01a-by-document.md)/[01b](01b-by-information.md)。Step 2: [02-target](02-target.md)。
 Step 3: [03-new-plan-template](03-new-plan-template.md)。Step 4: [04-review-and-readme](04-review-and-readme.md)。Step 5: [05-migration](05-migration.md)。
 確定結論: **drift は〈状態機械 × 複製〉に集中** → **不変=複製可 / 状態機械=一次1つ+リンク（P3）**。README は **R1 生成**、移行は **M2（全ヘッダ正規化）**。

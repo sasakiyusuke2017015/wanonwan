@@ -2,16 +2,11 @@
 
 | 項目 | 値 |
 |---|---|
-| ステータス | 🟣 コードレビュー APPROVE（PR 前・笹木さんマージ承認待ち） |
-| slug | `urgency-list-display` |
-| 作成 | 2026-06-29 17:40 JST |
-| 更新 | 2026-07-06 JST（色付き Badge / 両画面で確定、前提を最新 develop に更新） |
-| 担当 | Claude Code + 笹木さん |
-| ブランチ | `feature/urgency-list-display`（TBD） |
-| 関連 PR | TBD |
-| レビュー | [コードレビュー](../reviews/2026-07-06-0739-urgency-list-display-review.md)（APPROVE）+ security レビュー（APPROVE） |
-| 前提 Plan | [緊急度マスタ](2026-06-29-1537-urgency-master.md)（#62/#63 マージ済み） |
-| git repo | `https://github.com/sasakiyusuke2017015/waoon.git` |
+| 概要 | 緊急度（高/中/低）を admin 一覧（surveys / answers）に色付き Badge で表示。一覧 API に urgency_levels を join、色はマスタ段数可変に耐える相対順位方式、ソートは urgencyCode 基準 |
+| ステータス | 🟢 マージ済み（検証中） |
+| 前提 Plan | [緊急度マスタ](2026-06-29-1537-urgency-master.md) |
+| PR | [#79](https://github.com/sasakiyusuke2017015/waoon/pull/79) |
+| Review | [コードレビュー](../reviews/2026-07-06-0739-urgency-list-display-review.md) |
 
 ---
 
@@ -145,7 +140,7 @@
 - [x] answers 一覧ページに緊急度カラム（Badge）
 - [x] 検証: typecheck / lint / build / vitest すべて green、self-review 済み
 - [x] コードレビュー（code-reviewer / security-reviewer エージェント）→ 両者 APPROVE
-- [ ] PR 作成 → 笹木さんマージ承認
+- [x] PR 作成 → 笹木さんマージ承認（#79 merged）
 - [ ] マージ後検証（dev 実機）
   - [ ] surveys/answers 一覧に緊急度 Badge が出る（高=赤 / 中=黄 / 低=緑、未設定は "—"）
   - [ ] 緊急度でソートできる（低↔高、未設定は端）
