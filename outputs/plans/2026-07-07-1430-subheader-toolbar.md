@@ -6,7 +6,7 @@
 | ステータス | 🟡 実装中 |
 | 前提 Plan | [DataTable 移植](2026-07-05-0920-datatable-port.md) |
 | PR | |
-| Review | [Phase 1](../reviews/2026-07-07-1822-subheader-toolbar-review.md) / [Phase 2](../reviews/2026-07-07-1920-subheader-toolbar-review.md) |
+| Review | [Phase 1](../reviews/2026-07-07-1822-subheader-toolbar-review.md) / [Phase 2](../reviews/2026-07-07-1920-subheader-toolbar-review.md) / [Phase 3](../reviews/2026-07-07-2010-subheader-toolbar-review.md) |
 
 ## 目的
 
@@ -115,6 +115,9 @@ Phase 1 は単独でも価値があるため、Phase 単位で PR を分割し�
 | 2026-07-07 | SubHeader スロットは createPortal 方式 (`SubHeaderPortal`) | context に ReactNode を setState で流す方式は「描画毎に新しい node → effect → setState」の再レンダーループの温床。portal なら検索値等の state をページ側ツリーに置いたまま chrome に描ける |
 | 2026-07-07 | SubHeaderToolbar は既存 `Toolbar` を `leading` スロット付きで再利用 | funnel 開閉・チップ・右端コントロールの実装を二重化しない。SubHeader 用のクローム差分は wrapper の SCSS (`[data-dt-toolbar]` の sticky/境界打ち消し) だけに閉じる |
 | 2026-07-07 | AppLayout から `--topbar-h` を配線し本文 paddingTop を SubHeader 実高に追従 | `--topbar-h` は未設定 (fallback 0) で、DataTable の sticky ヘッダがスクロール時に fixed chrome の下へ潜る潜在問題があった。ResizeObserver の実測値 (Header + SubHeader 実高) を渡して解消し、funnel 展開時の本文ガタつきも防ぐ |
+| 2026-07-07 | **`--topbar-h` 配線を取り下げ** (paddingTop 追従は維持) | Phase 3 実機確認 (headless Chromium) で、ヘッダ行が静止状態でもテーブル中段へ約 topbar 分ずれる表示バグを発見。実測の結果、main が独自スクロールする本レイアウトでは **sticky の停留基準が main の paddingTop (= chrome 高) を既に織り込む** ため、`--topbar-h` を足すと二重適用になる。「fallback 0 で潜り込む」という上記判断は誤りで、0 が正 (潜り込みは padding が防いでいた)。--topbar-h は body スクロールのレイアウト用として温存 |
+| 2026-07-07 | 絞り込み後件数は `onFilteredCountChange` callback で DataTable から公開 | Phase 3 コードレビューの BLOCKER。`toolbar="external"` では絞り込み後件数が DataTable 内部にしか無く、SubHeader の件数が「表示: 12件」のまま可視行 (1 行) と矛盾していた。フィルタロジックを app 側へ複製せず、callback で件数だけ公開して「表示: M / N件」を復元 |
+| 2026-07-07 | SubHeaderToolbar の title は `h1` で描画 | ページ見出しを SubHeader へ移設するとページから heading 要素が消え、スクリーンリーダーの見出しナビゲーションが効かなくなるため (レビュー指摘) |
 
 ## 未確定事項（任意・未決のみ）
 
@@ -125,6 +128,8 @@ Phase 1 は単独でも価値があるため、Phase 単位で PR を分割し�
 ## 残課題（任意）
 
 - 残り admin 一覧（surveys / questions / answers）への展開（Phase 3-2、別コミット）
+- `subHeader.createHref` を `onCreate` なしで単独指定するとボタンが出ない（JSDoc で
+  併用必須と明記済み。union 型での強制は見送り）
 - ルート `.prettierrc.json`（semi:true / double quote）が packages/ui の実スタイル
   （no-semi / single quote）と食い違っており、prettier を実行すると触れたファイルだけ
   スタイルが割れる。config を実スタイルへ合わせるか `style:` の一括整形 commit で解消する
@@ -134,5 +139,7 @@ Phase 1 は単独でも価値があるため、Phase 単位で PR を分割し�
 
 - [x] Phase 1: Toolbar 部品刷新
 - [x] Phase 2: SubHeaderToolbar + スロット機構
-- [ ] Phase 3: admin/users 適用
-- [ ] 検証: 実機確認（開閉 / 追従 / sticky / hydration）
+- [x] Phase 3: admin/users 適用
+- [x] 検証: 実機確認（開閉 / 追従 / sticky / hydration。headless Chromium で
+  ログイン → admin/users → funnel 開閉 / 検索絞り込み / チップ解除 / リセット / ＋ボタン /
+  本文 paddingTop 追従 (92→114px) を確認。console error なし）
