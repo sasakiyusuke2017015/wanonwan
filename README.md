@@ -19,7 +19,7 @@
 | DB | PostgreSQL 15 + 拡張（pgmq / pg_cron / pgvector / pgtap）、**RLS で認可** |
 | 認証 | GoTrue（自前薄ラッパ） |
 | データアクセス | **API 一本化**（Next.js API Routes / Server Actions のみ。SDK 直叩き不可） |
-| UI | ui-catalog（submodule + `link:`）/ Tailwind CSS v4 / TanStack Query |
+| UI | ui-catalog（`packages/ui` にベンダリング = pnpm workspace）/ Tailwind CSS v4 / TanStack Query |
 | 構成 | pnpm workspace モノレポ / Docker Compose（dev・stg・prod） |
 | テスト | Vitest / pgTAP / Playwright |
 | Git / CI | GitHub（`sasakiyusuke2017015/waoon`）+ GitHub Actions |
@@ -41,7 +41,7 @@ waoon/
 │   ├── CONTRIBUTING.md        開発者ガイド（起動・テスト・PR）
 │   ├── troubleshooting.md     ローカル開発のトラブルシュート
 │   ├── 技術選定/              技術選定メモ（decoded + 原本 Shift-JIS CSV）
-│   └── 99_archive/            旧 1on1 原本 zip + legacy-1on1/（参照のみ・gitignore）
+│   └── （99_archive/          旧 1on1 ソース。リポジトリ非同梱・ローカル参照のみ）
 ├── .claude/             Claude Code 用ルール・コマンド・エージェント・スキル
 └── outputs/
     ├── README.md        Plan / Review ステータスダッシュボード
