@@ -1,21 +1,9 @@
 # Performance Optimization
 
-## Model Selection Strategy
+## Model Selection
 
-**Haiku 4.5** (90% of Sonnet capability, 3x cost savings):
-- Lightweight agents with frequent invocation
-- Pair programming and code generation
-- Worker agents in multi-agent systems
-
-**Sonnet 4.5** (Best coding model):
-- Main development work
-- Orchestrating multi-agent workflows
-- Complex coding tasks
-
-**Opus 4.5** (Deepest reasoning):
-- Complex architectural decisions
-- Maximum reasoning requirements
-- Research and analysis tasks
+各 agent が使うモデルは `.claude/agents/*.md` frontmatter の `model:` を単一の真実とする。
+モデル名・ティア比較表はこのファイルに複製しない（モデル世代の更新のたびに陳腐化するため）。
 
 ## Context Window Management
 

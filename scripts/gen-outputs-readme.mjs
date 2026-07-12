@@ -25,9 +25,9 @@ const problems = [];
 for (const f of files) {
   const src = readFileSync(join(plansDir, f), "utf8");
   const title = (src.match(/^#\s+(?:Plan:\s*)?(.+)$/m)?.[1] ?? f).trim();
-  const gaiyo = cell(src, "概要");
-  const status = cell(src, "ステータス");
   // Plan ヘッダ内のリンクは plans/ 起点（../reviews/ 等）。README は outputs/ 起点なので付け替える。
+  const gaiyo = cell(src, "概要").replaceAll("](../", "](");
+  const status = cell(src, "ステータス");
   const pr = cell(src, "PR").replaceAll("](../", "](");
   const review = cell(src, "Review").replaceAll("](../", "](");
   if (!gaiyo) problems.push(`${f}: 概要が空`);
