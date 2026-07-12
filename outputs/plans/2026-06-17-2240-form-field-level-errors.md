@@ -5,8 +5,8 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | 見た目磨き込み #2。送信時の入力エラーを各 `FormField` 下に日本語表示。`fieldErrorsOf`（静的: safeParse+flatten）+ `requiredFieldErrors`（動的: 設問駆動）+ domain 日本語メッセージ。User/Survey/Answer 全フォーム対応（InterviewForm は全 optional で対象外） |
-| ステータス | 🟡 実装中 |
-| PR | （未） |
+| ステータス | 🟢 マージ済み（検証中） |
+| PR | Phase1+2: [#33](https://github.com/sasakiyusuke2017015/waoon/pull/33)（merged） / Phase3: [#35](https://github.com/sasakiyusuke2017015/waoon/pull/35)（merged） |
 
 ---
 
@@ -88,5 +88,5 @@
 - [x] Phase 2 実装（SurveyForm）。InterviewForm は検証フィールドなしで対象外
 - [x] Phase 1+2 PR (#33) マージ済み
 - [x] Phase 3 実装（AnswerForm 動的）。`requiredFieldErrors` helper を追加（unit test 3 件）し、設問駆動の必須未入力を設問ごとに表示
-- [ ] Phase 3 PR マージ
+- [x] Phase 3 PR (#35) マージ済み
 - [ ] 親（dashboard）の見た目磨き込み #2 を消し込み

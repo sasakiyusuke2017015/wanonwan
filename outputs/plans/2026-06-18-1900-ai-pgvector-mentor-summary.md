@@ -5,8 +5,8 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | Phase A=Claude(`@anthropic-ai/sdk`/Sonnet 4.6)で面談要約（`lib/ai`+`POST /answers/[id]/summary`+UI、merged）。Phase B=pgvector RAG メンター提案（**自前ホスト埋め込み** TEI/e5-small・profile ai・社外送信なし、lazy 生成、`POST /answers/[id]/mentor`+UI、key/URL 未設定で無効）。**いずれもキー/URL 未設定で外部送信ゼロ** |
-| ステータス | 🟡 実装中 |
-| PR | （未） |
+| ステータス | 🟢 マージ済み（検証中） |
+| PR | Phase A: [#42](https://github.com/sasakiyusuke2017015/waoon/pull/42)（merged） / Phase B: [#43](https://github.com/sasakiyusuke2017015/waoon/pull/43)（merged） / 再land fix: [#49](https://github.com/sasakiyusuke2017015/waoon/pull/49)（merged） |
 
 ---
 

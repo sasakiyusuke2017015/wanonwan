@@ -4,7 +4,7 @@
 |---|---|
 | 概要 | DDL / RLS / seed / pgTAP の実体が `outputs/infra-data/` に置かれているが、`outputs/` は本来 |
 | ステータス | 🟢 マージ済み（検証中） |
-| PR | TBD |
+| PR | [#52](https://github.com/sasakiyusuke2017015/waoon/pull/52)（merged） |
 | Review | [コードレビュー](../reviews/2026-06-22-1951-db-layer-to-packages-review.md) |
 
 ## 目的

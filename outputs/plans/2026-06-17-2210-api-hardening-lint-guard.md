@@ -5,8 +5,8 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | api-route-helpers 残課題。認証プリミティブ（getCurrentClaims/getAccessToken/getRefreshToken/verifyAccessToken）の直 import を `no-restricted-imports` で禁止（認可漏れの構造的防止）+ 挙動不変 integration test。前提として apps/web に ESLint flat config を新設し root lint/CI に配線 |
-| ステータス | 🟡 実装中 |
-| PR | （未） |
+| ステータス | 🟢 マージ済み（検証中） |
+| PR | ESLint+import ガード: [#32](https://github.com/sasakiyusuke2017015/waoon/pull/32)（merged） / integration test: [#34](https://github.com/sasakiyusuke2017015/waoon/pull/34)（merged） |
 
 ---
 

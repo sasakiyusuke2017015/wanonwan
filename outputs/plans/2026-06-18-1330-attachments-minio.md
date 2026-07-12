@@ -5,8 +5,8 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | presigned URL でブラウザが MinIO へ直接 up/down、API は認可+メタのみ。単一 `attachments` 表(polymorphic)+entity_type 別 RLS。Phase1=storage lib+MinIO compose+表/RLS/pgTAP+面談添付 API/UI。Phase2=回答/資料/アバター+`AttachmentsPanel`共通化。Phase3=stg/prod に MinIO + nginx の storage サブドメイン配線 |
-| ステータス | 🟡 実装中 |
-| PR | （未） |
+| ステータス | 🟢 マージ済み（検証中） |
+| PR | Phase1: [#40](https://github.com/sasakiyusuke2017015/waoon/pull/40)（merged） / Phase2: [#41](https://github.com/sasakiyusuke2017015/waoon/pull/41)（merged） / Phase3: [#44](https://github.com/sasakiyusuke2017015/waoon/pull/44)（merged） |
 
 ---
 

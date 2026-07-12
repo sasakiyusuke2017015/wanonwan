@@ -5,7 +5,7 @@
 | 概要 | `packages/ui`（`@ui-catalog/core`）の `lint` script は `eslint . --ext .ts,.tsx` だが、 |
 | ステータス | 🟢 マージ済み（検証中） |
 | 前提 Plan | [2026-06-22-1447-turbo-monorepo.md](2026-06-22-1447-turbo-monorepo.md)（turbo の lint 拡大の前提） |
-| PR | TBD |
+| PR | [#50](https://github.com/sasakiyusuke2017015/waoon/pull/50)（merged） |
 | Review | [コードレビュー](../reviews/2026-06-22-1755-ui-eslint-setup-review.md) |
 
 ## 目的
