@@ -14,13 +14,13 @@ review record.
 |---|---|
 | Plan 作成 | Claude Code |
 | 実装 | Claude Code |
-| Review | Codex |
+| Review | Claude Code（一次）+ Codex（笹木さん手動起動の補助） |
 | マージ承認 | 笹木さん（最終決裁） |
 
 Claude Code は Plan を書き、実装し、**コードレビュー** が APPROVE になったら
 PR を出す。Review は **計画レビュー**（Plan 完成後）と **コードレビュー**
-（実装完了後）の 2 段階で Codex に依頼する。Claude Code 自身でも軽い
-self-review はするが、saved Review file の作成は Codex が一次担当。
+（実装完了後）の 2 段階。saved Review file の一次作成は Claude Code
+（`/plan-review` / `/pr-review`）が担い、Codex レビューは補助として利用する。
 
 > **Codex レビューの起動は笹木さん（レビュー依頼元）が手動で行う。** Claude Code は
 > self-review（チャット内）までを担当し、`codex` CLI を自分から起動しない。
@@ -135,14 +135,14 @@ Each Review must include:
 1. Decide whether the task needs durable Plan / Review files using the criteria
    above.
 2. **Claude Code** creates the Plan.
-3. **Codex** creates a 計画レビュー Review file referencing the Plan.
+3. **Claude Code** creates a 計画レビュー Review file (`/plan-review`) referencing the Plan.
 4. If the 計画レビュー is `APPROVE`, proceed. If `NEEDS WORK` or `BLOCKED`, go back
    to step 2 to update the Plan's `判断ログ` and request a re-review.
 5. If the user requested explicit approval, or the scope is large, **Claude Code**
    waits for 笹木さん / user approval before implementing.
 6. **Claude Code** implements against the approved Plan.
 7. Run relevant verification (`pnpm typecheck` / `pnpm lint` / `pnpm test` 等).
-8. **Codex** creates a コードレビュー Review file referencing the Plan and the
+8. **Claude Code** creates a コードレビュー Review file (`/pr-review`) referencing the Plan and the
    implementation.
 9. If the コードレビュー is `APPROVE`, proceed. If `NEEDS WORK` or `BLOCKED`, go
    back to step 6 to address findings and request a re-review.
@@ -199,13 +199,13 @@ Plan ライフサイクル（作成中 → レビュー → 承認）と Code �
 
 | ステータス | 意味 | 推奨アクション |
 |---|---|---|
-| 📝 計画作成中 | Plan 未作成 / 作成途中 | Claude Code が Plan を完成させ、Codex に計画レビュー依頼 |
-| 🔵 計画レビュー待ち | Plan ドラフト完了、Codex の計画レビュー待ち | Codex が計画レビューを実施 |
-| 🟠 計画差し戻し | 計画レビューで差し戻された | Claude Code が指摘を反映 → Codex に再計画レビュー依頼 |
+| 📝 計画作成中 | Plan 未作成 / 作成途中 | Claude Code が Plan を完成させ、`/plan-review` で計画レビュー |
+| 🔵 計画レビュー待ち | Plan ドラフト完了、計画レビュー待ち | Claude Code が `/plan-review` で計画レビューを実施 |
+| 🟠 計画差し戻し | 計画レビューで差し戻された | Claude Code が指摘を反映 → 再計画レビュー |
 | ⚪ 実装待ち | Plan 承認済、実装未着手 | Claude Code が実装着手 |
-| 🟡 実装中 | Claude Code が実装中 / 一部 Phase 残り | 残 Phase の実装 → 完了したら Codex にコードレビュー依頼 |
-| 🟦 コードレビュー待ち | 実装完了、Codex のコードレビュー待ち | Codex がコードレビューを実施 |
-| 🟧 コード差し戻し | コードレビューで差し戻された | Claude Code が指摘を反映 → Codex に再コードレビュー依頼 |
+| 🟡 実装中 | Claude Code が実装中 / 一部 Phase 残り | 残 Phase の実装 → 完了したら `/pr-review` でコードレビュー |
+| 🟦 コードレビュー待ち | 実装完了、コードレビュー待ち | Claude Code が `/pr-review` でコードレビューを実施 |
+| 🟧 コード差し戻し | コードレビューで差し戻された | Claude Code が指摘を反映 → 再コードレビュー |
 | 🟣 マージ承認待ち | PR 提出済み、笹木さんマージ承認待ち | 笹木さんレビュー → Squash Merge |
 | 🟢 マージ済み（検証中） | merge は終わったが、実起動確認や別環境検証など Plan 末尾の検証項目に未チェックが残る | 残った検証チェックを実施し、全て埋まったら ✅ 検証完了 へ |
 | ✅ 検証完了 | Plan 末尾の検証チェックがすべて埋まり、後続作業なし | なし（クローズ） |

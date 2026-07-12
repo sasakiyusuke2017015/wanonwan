@@ -11,7 +11,7 @@ Create or verify a checkpoint in your workflow.
 When creating a checkpoint:
 
 1. Run `/verify quick` to ensure current state is clean
-2. Create a git stash or commit with checkpoint name
+2. Create a `wip:` commit named after the checkpoint (bare `git stash` is banned — see `.claude/rules/git-workflow.md`)
 3. Log checkpoint to `.claude/checkpoints.log`:
 
 ```bash

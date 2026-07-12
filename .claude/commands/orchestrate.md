@@ -130,7 +130,7 @@ SECURITY STATUS
 
 RECOMMENDATION
 --------------
-[SHIP / NEEDS WORK / BLOCKED]
+[APPROVE / NEEDS WORK / BLOCKED]
 ```
 
 ## Parallel Execution
