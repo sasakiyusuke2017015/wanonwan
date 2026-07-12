@@ -11,12 +11,13 @@ waoon は、旧 **1on1（アンケート／面談）アプリ**を技術選定�
 
 - 対象ドメイン（ユーザー / アンケート / 回答 / 面談）は旧 1on1 由来。
 - スタック・開発思想は技術選定メモ由来。
-- 実装はこれから着手（[詳細 Plan](outputs/plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md) 参照）。
+- 基盤（認証 / DB + RLS / API / 管理・回答・面談・ダッシュボード・スケジュール）は実装・マージ済み。
+  デプロイ基盤と一部認証フローを検証中（[詳細 Plan](outputs/plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md) / [進捗ダッシュボード](outputs/README.md)）。
 
 | 一次情報 | 場所 |
 |---|---|
 | 技術選定メモ（採否 + 確度 + 思想） | [docs/技術選定/_techmemo-decoded.md](docs/技術選定/_techmemo-decoded.md)（原本: `docs/技術選定/技術選定メモ_*.Csv`） |
-| 旧 1on1 ソース（**参照のみ・流用しない**） | [docs/99_archive/legacy-1on1/](docs/99_archive/legacy-1on1/) |
+| 旧 1on1 ソース（**参照のみ・流用しない**） | ローカルの `docs/99_archive/legacy-1on1/`（`.gitignore`・リポジトリ非同梱） |
 | 実装 Plan | [outputs/plans/](outputs/plans/) |
 
 ## 採用スタック（技術選定メモより）
@@ -26,25 +27,30 @@ waoon は、旧 **1on1（アンケート／面談）アプリ**を技術選定�
 | 言語 / FW | TypeScript / **Next.js 16 (App Router)** / React 19 |
 | スタイル | Tailwind CSS v4 |
 | 状態・データ取得 | TanStack Query（+ 旧踏襲で Jotai） |
-| UI | ui-catalog（`packages/ui` にベンダリング = `@ui-catalog/core`、Atomic Design / Radix + SCSS Modules 内部実装） |
+| UI | ui-catalog（`packages/ui` にベンダリング = `@ui-catalog/core`、Atomic Design / SCSS Modules 内部実装） |
 | 認証 | GoTrue（JWT + Cookie、自前薄ラッパ） |
 | DB | PostgreSQL 15 + 拡張（pgmq / pg_cron / pgvector / pgtap）。**RLS で認可** |
-| 非同期 | pgmq / pg_cron（通知は非同期） |
+| 非同期 | pgmq / pg_cron（`apps/worker` が pgmq を消費。添付の GC 等） |
+| ストレージ | MinIO（S3 互換。presigned URL でブラウザ直 up/down、API は認可 + メタのみ） |
 | パッケージ / 構成 | pnpm + pnpm workspace（モノレポ）+ Turborepo（`turbo run` でタスク実行） |
 | コンテナ | Docker Compose（dev / stg / prod、stg/prod 同一構成） |
 | テスト | Vitest / pgTAP（RLS・SQL）/ Playwright。テストピラミッド |
 | Git ホスト | **GitHub**（`sasakiyusuke2017015/waoon`）+ GitHub Actions |
 | 言語対応 | 初期は日本語のみ |
 
-検討中: AI 機能 / LLM 基盤 / pgvector。将来検討: MinIO / MFA / reg-suit VRT / 2 テーマ。
+AI 機能（`@anthropic-ai/sdk` + 自前ホスト埋め込み。compose `profiles: ["ai"]` で既定オフのオプション運用、
+キー / URL 未設定なら外部送信ゼロ）は実装済み。将来検討: MFA / reg-suit VRT / 2 テーマ。
 
 ## アーキテクチャ（目標）
 
 ```
 nginx (TLS終端・ルーティング)
   → apps/web (Next.js: UI + API Routes + Server Actions + lib/auth)
-       → postgres (RLS / pgmq / pg_cron)   ← app_user は public schema のみ
-       → gotrue   (認証エンジン)            ← supabase_auth_admin は auth schema のみ
+       → postgres (RLS / pgmq / pg_cron / pgvector)  ← app_user は public schema のみ
+       → gotrue   (認証エンジン)                       ← supabase_auth_admin は auth schema のみ
+       → minio    (S3 互換ストレージ。presigned URL でブラウザ直通信)
+  → apps/worker (pgmq を消費する非同期ジョブ: 添付の GC 等)
+  （AI 有効時のみ: text-embeddings-inference + Claude API）
 ```
 
 ## 絶対方針（高確度・早期に効く制約）
@@ -82,4 +88,4 @@ nginx (TLS終端・ルーティング)
 - **ホスト**: GitHub（`origin = https://github.com/sasakiyusuke2017015/waoon.git`）。CI は `.github/workflows/`。
 - **ブランチ戦略**: [git-workflow.md](.claude/rules/git-workflow.md) の **3 層 `feature→develop→main`** に統一
   （技術選定メモの GitHub Flow は不採用）。
-- **`docs/99_archive/legacy-1on1/` は `.gitignore`**（参照のみ。zip 原本もリポジトリには含めない）。
+- **旧 1on1 ソース（`docs/99_archive/`）はリポジトリ非同梱**（`.gitignore`。ローカル参照のみ・流用しない）。
