@@ -3,9 +3,9 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | DataTable (ai_edu 由来) の funnel 開閉 Toolbar と SubHeader の固定 chrome を合成した SubHeaderToolbar を新設し、未使用の ui-catalog 資産 (FilterField / DataCountDisplay / Pagination / SearchBar / ResetButton / Badge / Tooltip / Animated 等) を積極採用してテーブル体験を刷新する |
-| ステータス | 🟣 マージ承認待ち |
+| ステータス | 🟢 マージ済み（検証中） |
 | 前提 Plan | [DataTable 移植](2026-07-05-0920-datatable-port.md) |
-| PR | [#81](https://github.com/sasakiyusuke2017015/waoon/pull/81) |
+| PR | [#81](https://github.com/sasakiyusuke2017015/waoon/pull/81)（merged）/ lint fix: [#84](https://github.com/sasakiyusuke2017015/waoon/pull/84)（merged） |
 | Review | [Phase 1](../reviews/2026-07-07-1822-subheader-toolbar-review.md) / [Phase 2](../reviews/2026-07-07-1920-subheader-toolbar-review.md) / [Phase 3](../reviews/2026-07-07-2010-subheader-toolbar-review.md) |
 
 ## 目的
@@ -140,6 +140,7 @@ Phase 1 は単独でも価値があるため、Phase 単位で PR を分割し�
 - [x] Phase 1: Toolbar 部品刷新
 - [x] Phase 2: SubHeaderToolbar + スロット機構
 - [x] Phase 3: admin/users 適用
+- [x] PR merge 済み（#81 / lint fix #84）
 - [x] 検証: 実機確認（開閉 / 追従 / sticky / hydration。headless Chromium で
   ログイン → admin/users → funnel 開閉 / 検索絞り込み / チップ解除 / リセット / ＋ボタン /
   本文 paddingTop 追従 (92→114px) を確認。console error なし）
