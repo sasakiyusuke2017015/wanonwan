@@ -1,10 +1,24 @@
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { DataTable, type Column } from "@ui-catalog/core/organisms/DataTable";
-import { Button } from "@ui-catalog/core/molecules";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
+import {
+  DataTable,
+  type Column,
+  type ClientQueryState,
+  type ServerSortItem,
+} from "@ui-catalog/core/organisms/DataTable";
+import { SubHeaderToolbar } from "@ui-catalog/core/templates/SubHeaderToolbar";
+import { Button, DataCountDisplay } from "@ui-catalog/core/molecules";
 import { useTheme, DEFAULT_GLOBAL_THEME } from "@ui-catalog/core/infra/theme";
 import { getThemeConfig } from "@ui-catalog/core/constants";
+import { SubHeaderPortal } from "@/components/layout/SubHeaderSlot";
 
 // SSR/初回描画を既定テーマに揃え、mount 後に保存テーマへ（hydration mismatch 回避。AppLayout と同方針）。
 const DEFAULT_THEME = getThemeConfig(
@@ -30,6 +44,21 @@ type Props<T extends { id?: string }> = {
   searchPlaceholder?: string;
   /** 1 ページあたりの行数（既定 20）。 */
   pageSize?: number;
+  /**
+   * 検索・件数・新規作成を SubHeader (画面上部の固定 chrome) へ外出しする。
+   * 指定すると DataTable の内蔵 toolbar は消え、SubHeaderToolbar (funnel 開閉) に
+   * 置き換わる。ページ側の見出し + 新規作成ボタンは不要になる。
+   */
+  subHeader?: {
+    /** SubHeader 左端の見出し (画面名) */
+    title?: ReactNode;
+    /** 新規作成の遷移先 (Ctrl/⌘ クリック等のネイティブ動作用) */
+    createHref?: string;
+    /** 新規作成の通常クリック (SPA 遷移)。createHref と併せて渡す */
+    onCreate?: () => void;
+    /** `＋` ボタンの aria-label / tooltip */
+    createLabel?: string;
+  };
 };
 
 // 管理画面の一覧の定石ラッパ。@ui-catalog の DataTable（client モード）を薄く包み、
@@ -48,11 +77,38 @@ export function AdminListTable<T extends { id?: string }>({
   sortable,
   searchPlaceholder = "検索",
   pageSize = 20,
+  subHeader,
 }: Props<T>) {
   const [mounted, setMounted] = useState(false);
   const liveTheme = useTheme();
   useEffect(() => setMounted(true), []);
   const { colors, shapes } = mounted ? liveTheme : DEFAULT_THEME;
+
+  // subHeader モード用の controlled query state。toolbar="external" では内蔵検索 UI が
+  // 消えるため、検索値を SubHeaderToolbar と DataTable で共有する (queryState 経由)。
+  const [sortItems, setSortItems] = useState<ServerSortItem[]>([]);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(0);
+  const [pageSizeState, setPageSizeState] = useState(pageSize);
+  const queryState: ClientQueryState = {
+    sortItems,
+    onSortItemsChange: setSortItems,
+    search,
+    onSearchChange: setSearch,
+    page,
+    onPageChange: setPage,
+    pageSize: pageSizeState,
+    onPageSizeChange: setPageSizeState,
+  };
+
+  // 絞り込み後件数は DataTable 内部で計算されるため callback で受け取り、
+  // SubHeader の件数表示 (絞り込み中は「M / N件」) に反映する。
+  const [filteredCount, setFilteredCount] = useState<number | null>(null);
+  const handleFilteredCountChange = useCallback(
+    (filtered: number) => setFilteredCount(filtered),
+    [],
+  );
+  const visibleCount = filteredCount ?? data.length;
 
   // sortable に挙げた列だけヘッダクリックソートを解放する。
   const sortableKeys = useMemo(() => new Set(sortable ?? []), [sortable]);
@@ -97,6 +153,33 @@ export function AdminListTable<T extends { id?: string }>({
 
   return (
     <div style={themeVars}>
+      {subHeader && (
+        <SubHeaderPortal>
+          <SubHeaderToolbar
+            title={subHeader.title}
+            search={
+              searchable
+                ? { value: search, onChange: setSearch, placeholder: searchPlaceholder }
+                : undefined
+            }
+            rowCountLabel={
+              <DataCountDisplay
+                totalCount={visibleCount}
+                outOf={visibleCount !== data.length ? data.length : undefined}
+                loading={loading}
+              />
+            }
+            onCreate={subHeader.onCreate}
+            createHref={subHeader.createHref}
+            createLabel={subHeader.createLabel}
+            onReset={() => {
+              setSearch("");
+              setSortItems([]);
+              setPage(0);
+            }}
+          />
+        </SubHeaderPortal>
+      )}
       <DataTable
         mode="client"
         columns={effectiveColumns}
@@ -110,6 +193,9 @@ export function AdminListTable<T extends { id?: string }>({
         searchPlaceholder={searchPlaceholder}
         showPagination
         pageSize={pageSize}
+        toolbar={subHeader ? "external" : "internal"}
+        queryState={subHeader ? queryState : undefined}
+        onFilteredCountChange={subHeader ? handleFilteredCountChange : undefined}
       />
     </div>
   );

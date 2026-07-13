@@ -1,11 +1,13 @@
 import { FC } from 'react';
 
-import { NumberTicker } from '../../atoms';
+import { NumberTicker } from '../../atoms/NumberTicker';
 import styles from './DataCountDisplay.module.scss';
 
 interface DataCountDisplayProps {
   /** 表示件数 */
   totalCount: number;
+  /** 絞り込み前の全体件数。渡すと「M / N件」の分数表示になる */
+  outOf?: number;
   /** 選択件数 */
   selectedCount?: number;
   /** ローディング中 */
@@ -20,6 +22,7 @@ interface DataCountDisplayProps {
  */
 export const DataCountDisplay: FC<DataCountDisplayProps> = ({
   totalCount,
+  outOf,
   selectedCount = 0,
   loading = false,
   delay = 0.1,
@@ -27,7 +30,12 @@ export const DataCountDisplay: FC<DataCountDisplayProps> = ({
   <span data-component="data-count-display">
     <span className={styles.totalLabel}>
       表示: <span className={styles.totalValue}>
-        {loading ? '...' : (
+        {loading ? '...' : outOf != null ? (
+          <>
+            <NumberTicker value={totalCount} delay={delay} />
+            {` / ${outOf}件`}
+          </>
+        ) : (
           <NumberTicker value={totalCount} suffix="件" delay={delay} />
         )}
       </span>

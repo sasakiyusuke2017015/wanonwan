@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { Button } from '../../molecules/Button'
+import { DataCountDisplay } from '../../molecules/DataCountDisplay'
+import { Pagination } from '../../molecules/Pagination'
 import { cn } from '../../utils/cn'
 
 import { ColumnPicker } from './ColumnPicker'
@@ -85,6 +86,8 @@ export function ClientDataTable<TRow>({
   animated,
   animationVariant,
   loading,
+  toolbar = 'internal',
+  onFilteredCountChange,
 }: ClientDataTableProps<TRow>) {
   // queryState を渡されたら fully controlled (URL 駆動)。未指定なら内部 useState で
   // 従来どおり uncontrolled。setter は updater 関数形 (prev => next) も受けられるよう
@@ -240,6 +243,11 @@ export function ClientDataTable<TRow>({
   }, [filteredRows, sortItems, visibleColsResolved])
 
   // ページネーション
+  // 外出しした件数表示 (toolbar="external") へ絞り込み後件数を通知する。
+  useEffect(() => {
+    onFilteredCountChange?.(sortedRows.length, rows.length)
+  }, [onFilteredCountChange, sortedRows.length, rows.length])
+
   const totalPages = Math.max(1, Math.ceil(sortedRows.length / pageSize))
   const safePageIndex = Math.min(page, totalPages - 1)
   const displayRows = showPagination
@@ -321,13 +329,16 @@ export function ClientDataTable<TRow>({
     (filters?.some((f) => (f.multiple ? f.value.length > 0 : f.value !== null && f.value !== '')) ??
       false)
   // 選択件数: key モードは selectedKeys.size (ページ跨ぎの総数)、index モードは現ページの selected。
+  // 表示件数は NumberTicker 付きの DataCountDisplay に集約 (絞り込み中は「M / N件」)。
   const selectedCount = keyMode ? (selectedKeys?.size ?? 0) : selected.size
-  const rowCountLabel =
-    selectedCount > 0
-      ? `${selectedCount} 件選択中`
-      : hasActiveFilter
-        ? `${sortedRows.length} / ${rows.length} 件`
-        : `${rows.length} 件`
+  const rowCountLabel = (
+    <DataCountDisplay
+      totalCount={sortedRows.length}
+      outOf={hasActiveFilter ? rows.length : undefined}
+      selectedCount={selectedCount}
+      loading={loading}
+    />
+  )
 
   // column picker (gear) はリセットの隣に出すため Toolbar に専用 prop で渡す。
   const columnPicker = effectiveOnColumnsChange ? (
@@ -356,13 +367,14 @@ export function ClientDataTable<TRow>({
       data-component="data-table"
       data-mode="client"
     >
-      {(showSearch ||
-        filters?.length ||
-        columnPicker ||
-        actions ||
-        onCreate ||
-        handleReset ||
-        collapsible) && (
+      {toolbar === 'internal' &&
+        (showSearch ||
+          filters?.length ||
+          columnPicker ||
+          actions ||
+          onCreate ||
+          handleReset ||
+          collapsible) && (
         <Toolbar
           search={
             showSearch
@@ -413,27 +425,11 @@ export function ClientDataTable<TRow>({
 
       {showPagination && sortedRows.length > pageSize && (
         <div className={styles.pagination}>
-          <Button
-            variant="outline"
-            size="small"
-            disabled={safePageIndex === 0}
-            onClick={() => setPage((p) => p - 1)}
-            className={styles.pageButton}
-          >
-            ‹
-          </Button>
-          <span className={styles.pageInfo}>
-            {safePageIndex + 1} / {totalPages}
-          </span>
-          <Button
-            variant="outline"
-            size="small"
-            disabled={safePageIndex >= totalPages - 1}
-            onClick={() => setPage((p) => p + 1)}
-            className={styles.pageButton}
-          >
-            ›
-          </Button>
+          <Pagination
+            currentPage={safePageIndex + 1}
+            totalPages={totalPages}
+            onPageChange={(p) => setPage(p - 1)}
+          />
           <select
             className={styles.pageSizeSelect}
             value={pageSize}

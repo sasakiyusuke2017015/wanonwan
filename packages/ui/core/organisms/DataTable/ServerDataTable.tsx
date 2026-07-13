@@ -1,5 +1,6 @@
 'use client'
 
+import { DataCountDisplay } from '../../molecules/DataCountDisplay'
 import { Pagination } from '../../molecules/Pagination'
 import { cn } from '../../utils/cn'
 
@@ -55,6 +56,7 @@ export function ServerDataTable<TRow>({
   animated,
   animationVariant,
   loading,
+  toolbar = 'internal',
 }: ServerDataTableProps<TRow>) {
   const { selected, isAllSelected, toggleOne, toggleAll } = useSelection({
     totalRowCount: rows.length,
@@ -141,14 +143,15 @@ export function ServerDataTable<TRow>({
   // toolbar は検索 / フィルタ / 件数 / actions / reset / collapsible / 列ピッカーのいずれかが指定されたときだけ出す。
   // 絞り込みは行わず、現在値の表示と onChange の発火のみ (絞り込みは呼び出し側責務)。
   const showToolbar =
-    effectiveSearch != null ||
-    (effectiveFilters != null && effectiveFilters.length > 0) ||
-    totalCount != null ||
-    actions != null ||
-    onCreate != null ||
-    columnPicker != null ||
-    onReset != null ||
-    collapsible != null
+    toolbar === 'internal' &&
+    (effectiveSearch != null ||
+      (effectiveFilters != null && effectiveFilters.length > 0) ||
+      totalCount != null ||
+      actions != null ||
+      onCreate != null ||
+      columnPicker != null ||
+      onReset != null ||
+      collapsible != null)
 
   const wrapperRef = useStickyToolbarOffset<HTMLDivElement>()
 
@@ -164,7 +167,15 @@ export function ServerDataTable<TRow>({
           search={effectiveSearch}
           filters={effectiveFilters}
           visibleColumnKeys={visibleColumnKeys}
-          rowCountLabel={totalCount != null ? `${totalCount} 件` : undefined}
+          rowCountLabel={
+            totalCount != null ? (
+              <DataCountDisplay
+                totalCount={totalCount}
+                selectedCount={selectable ? selected.size : 0}
+                loading={loading}
+              />
+            ) : undefined
+          }
           columnPicker={columnPicker}
           actions={actions}
           onCreate={onCreate}

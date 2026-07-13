@@ -2,6 +2,8 @@
 
 import { useMemo, type ReactNode } from 'react'
 
+import { Animated } from '../../atoms/Animated'
+import { Tooltip } from '../../atoms/Tooltip'
 import { Input } from '../../molecules/Input'
 import { Select } from '../../molecules/Select'
 import { IconButton } from '../../molecules/IconButton'
@@ -11,6 +13,11 @@ import type { CollapsibleOptions, FilterDef, SearchDef } from './types'
 import styles from './DataTable.module.scss'
 
 interface ToolbarProps {
+  /**
+   * 左端 (funnel の左 / 非 collapsible 時は入力群の左) に置く先頭要素。
+   * SubHeaderToolbar が画面タイトルを差し込むためのスロット。
+   */
+  leading?: ReactNode
   search?: SearchDef
   filters?: FilterDef[]
   /**
@@ -120,6 +127,7 @@ function buildActiveChips(search?: SearchDef, filters?: FilterDef[]): ActiveChip
  * funnel ボタン・適用中フィルタのチップ要約・件数・リセットは常時表示** する。
  */
 export function Toolbar({
+  leading,
   search,
   filters,
   visibleColumnKeys,
@@ -218,17 +226,21 @@ export function Toolbar({
   const chipList = chips.length > 0 && (
     <div className={styles.filterChips}>
       {chips.map((c) => (
-        <span key={c.key} className={styles.filterChip}>
-          <span className={styles.filterChipLabel}>{c.label}</span>
-          <button
-            type="button"
-            className={styles.filterChipRemove}
-            onClick={c.onRemove}
-            aria-label={`${c.label} を解除`}
-          >
-            ×
-          </button>
-        </span>
+        // framer パス (type API) を使う: CSS keyframes 版は @keyframes 定義
+        // (styles/globals.css) を読み込まないアプリで opacity:0 のまま残るため。
+        <Animated key={c.key} type="scale" show duration={0.15}>
+          <span className={styles.filterChip}>
+            <span className={styles.filterChipLabel}>{c.label}</span>
+            <button
+              type="button"
+              className={styles.filterChipRemove}
+              onClick={c.onRemove}
+              aria-label={`${c.label} を解除`}
+            >
+              ×
+            </button>
+          </span>
+        </Animated>
       ))}
     </div>
   )
@@ -237,29 +249,35 @@ export function Toolbar({
     rowCountLabel != null ? <span className={styles.rowCount}>{rowCountLabel}</span> : null
 
   const resetButton = onReset ? (
-    <IconButton
-      icon="arrow-rotate"
-      label="フィルタをリセット"
-      variant="danger"
-      size={16}
-      onClick={onReset}
-      shimmer
-      className="border border-[var(--color-border)] bg-[var(--color-bg-surface)]"
-    />
+    <Tooltip content="フィルタをリセット">
+      <IconButton
+        icon="arrow-rotate"
+        label="フィルタをリセット"
+        title=""
+        variant="danger"
+        size={16}
+        onClick={onReset}
+        shimmer
+        className="border border-[var(--color-border)] bg-[var(--color-bg-surface)]"
+      />
+    </Tooltip>
   ) : null
 
   // 新規作成は primary 強調の `＋` で、gear の並びの先頭に置く (全テーブル共通の導線)。
   const createButton = onCreate ? (
-    <IconButton
-      icon="plus"
-      label={createLabel ?? '新規作成'}
-      variant="primary"
-      size={18}
-      shimmer
-      onClick={onCreate}
-      href={createHref}
-      className="rounded-md"
-    />
+    <Tooltip content={createLabel ?? '新規作成'}>
+      <IconButton
+        icon="plus"
+        label={createLabel ?? '新規作成'}
+        title=""
+        variant="primary"
+        size={18}
+        shimmer
+        onClick={onCreate}
+        href={createHref}
+        className="rounded-md"
+      />
+    </Tooltip>
   ) : null
 
   // ＋ → gear (列ピッカー) → リセット の順で右端に並べる。
@@ -283,15 +301,19 @@ export function Toolbar({
           logLabel="datatable-filter"
           renderTrigger={({ triggerProps }) => (
             <div className={styles.toolbarSummary}>
+              {leading}
               <div className={styles.filterToggleButton}>
-                <IconButton
-                  {...triggerProps}
-                  icon="funnel"
-                  label="フィルタを切り替える"
-                  size={16}
-                  shimmer
-                  className="border border-[var(--color-border)] bg-[var(--color-bg-surface)]"
-                />
+                <Tooltip content="フィルタを切り替える">
+                  <IconButton
+                    {...triggerProps}
+                    icon="funnel"
+                    label="フィルタを切り替える"
+                    title=""
+                    size={16}
+                    shimmer
+                    className="border border-[var(--color-border)] bg-[var(--color-bg-surface)]"
+                  />
+                </Tooltip>
               </div>
               {/* 件数は funnel とチップ要約の間 */}
               {rowCount}
@@ -313,6 +335,7 @@ export function Toolbar({
   return (
     <div className={styles.toolbar} data-dt-toolbar>
       <div className={styles.toolbarLeft}>
+        {leading}
         {inputs}
         {(rowCount || rightControls) && (
           <div className={styles.toolbarFilterControls}>

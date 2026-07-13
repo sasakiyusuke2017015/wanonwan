@@ -42,6 +42,7 @@
     "./atoms/CheckBadge": "./core/atoms/CheckBadge/index.ts",
     "./templates/Header": "./core/templates/Header/index.ts",
     "./templates/SubHeader": "./core/templates/SubHeader/index.ts",
+    "./templates/SubHeaderToolbar": "./core/templates/SubHeaderToolbar/index.ts",
     "./templates/SideNav": "./core/templates/SideNav/index.ts",
     "./templates/Footer": "./core/templates/Footer/index.ts",
     "./templates/IndexListLayout": "./core/templates/IndexListLayout/index.ts",
