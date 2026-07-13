@@ -20,6 +20,9 @@ RUN pnpm install --frozen-lockfile
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/packages ./packages
+# .dockerignore が **/node_modules を除外するため、COPY . . では復元されない。
+# apps/web/node_modules（.bin/next を含む）は deps から明示的に持ち込む必要がある。
+COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
 COPY . .
 RUN pnpm --filter @waoon/web build
 
