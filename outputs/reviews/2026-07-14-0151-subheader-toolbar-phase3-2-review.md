@@ -6,7 +6,7 @@
 | レビュアー | Claude Code（code-reviewer サブエージェント） |
 | 対象 Plan | [`plans/2026-07-07-1430-subheader-toolbar.md`](../plans/2026-07-07-1430-subheader-toolbar.md) |
 | ブランチ | `feature/subheader-toolbar-phase3-2` |
-| 関連 PR | TBD |
+| 関連 PR | [#86](https://github.com/sasakiyusuke2017015/waoon/pull/86) |
 | レビュー種別 | 実装 |
 
 ## 判定
