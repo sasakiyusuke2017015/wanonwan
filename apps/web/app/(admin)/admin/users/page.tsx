@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import type { Column } from "@ui-catalog/core/organisms/DataTable";
-import { StatisticList } from "@ui-catalog/core/molecules";
 import { apiGet } from "@/lib/api/client";
 import { AdminListTable } from "@/components/admin/AdminListTable";
 
@@ -33,12 +32,6 @@ export default function UsersListPage() {
 
   return (
     <div>
-      {!isLoading && !isError && (
-        <div className="mb-3">
-          <StatisticList items={[]} totalLabel="ユーザー" totalValue={rows.length} totalUnit="名" />
-        </div>
-      )}
-
       <AdminListTable
         columns={COLUMNS}
         data={rows}

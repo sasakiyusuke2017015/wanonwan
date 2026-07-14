@@ -6,7 +6,7 @@
 | ステータス | 🟢 マージ済み（検証中） |
 | 前提 Plan | [DataTable 移植](2026-07-05-0920-datatable-port.md) |
 | PR | [#81](https://github.com/sasakiyusuke2017015/waoon/pull/81)（merged）/ lint fix: [#84](https://github.com/sasakiyusuke2017015/waoon/pull/84)（merged） |
-| Review | [Phase 1](../reviews/2026-07-07-1822-subheader-toolbar-review.md) / [Phase 2](../reviews/2026-07-07-1920-subheader-toolbar-review.md) / [Phase 3](../reviews/2026-07-07-2010-subheader-toolbar-review.md) |
+| Review | [Phase 1](../reviews/2026-07-07-1822-subheader-toolbar-review.md) / [Phase 2](../reviews/2026-07-07-1920-subheader-toolbar-review.md) / [Phase 3](../reviews/2026-07-07-2010-subheader-toolbar-review.md) / [Phase 3-2](../reviews/2026-07-14-0151-subheader-toolbar-phase3-2-review.md) |
 
 ## 目的
 
@@ -127,7 +127,6 @@ Phase 1 は単独でも価値があるため、Phase 単位で PR を分割し�
 
 ## 残課題（任意）
 
-- 残り admin 一覧（surveys / questions / answers）への展開（Phase 3-2、別コミット）
 - `subHeader.createHref` を `onCreate` なしで単独指定するとボタンが出ない（JSDoc で
   併用必須と明記済み。union 型での強制は見送り）
 - ルート `.prettierrc.json`（semi:true / double quote）が packages/ui の実スタイル
@@ -141,6 +140,7 @@ Phase 1 は単独でも価値があるため、Phase 単位で PR を分割し�
 - [x] Phase 2: SubHeaderToolbar + スロット機構
 - [x] Phase 3: admin/users 適用
 - [x] PR merge 済み（#81 / lint fix #84）
+- [x] Phase 3-2: surveys / questions / answers へ展開 + users の重複 StatisticList 撤去
 - [x] 検証: 実機確認（開閉 / 追従 / sticky / hydration。headless Chromium で
   ログイン → admin/users → funnel 開閉 / 検索絞り込み / チップ解除 / リセット / ＋ボタン /
   本文 paddingTop 追従 (92→114px) を確認。console error なし）
