@@ -74,9 +74,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     # secrets が揃っている環境のみ。未配備なら deploy はスキップ（build/push までは走る）。
+    # job レベル if では secrets コンテキストを参照できないため、step レベルでガードする。
     environment: ${{ github.ref_name == 'main' && 'prod' || 'stg' }}
     steps:
+      - name: Skip notice (deploy secrets 未配備)
+        if: ${{ secrets.DEPLOY_HOST == '' }}
+        run: echo "::notice::DEPLOY_HOST が未設定のため deploy をスキップ（build/push は完了済み）"
       - name: Deploy over SSH
+        if: ${{ secrets.DEPLOY_HOST != '' }}
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.DEPLOY_HOST }}
