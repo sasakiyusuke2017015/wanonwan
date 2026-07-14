@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { SURVEY_STATUSES } from "@waoon/domain";
@@ -115,16 +114,6 @@ export default function SurveysListPage() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold">アンケート管理</h1>
-        <Link
-          href="/admin/surveys/new"
-          className="rounded bg-gray-900 px-3 py-1.5 text-sm text-white"
-        >
-          新規作成
-        </Link>
-      </div>
-
       {!isLoading && !isError && (
         <div className="mb-3">
           <StatisticList
@@ -145,6 +134,12 @@ export default function SurveysListPage() {
         emptyMessage="アンケートがありません"
         onRowClick={(row) => router.push(`/admin/surveys/${row.id}/edit`)}
         sortable={SORTABLE}
+        subHeader={{
+          title: "アンケート管理",
+          createHref: "/admin/surveys/new",
+          onCreate: () => router.push("/admin/surveys/new"),
+          createLabel: "アンケートを追加",
+        }}
       />
     </div>
   );

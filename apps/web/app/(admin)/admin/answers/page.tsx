@@ -110,8 +110,6 @@ export default function AnswersListPage() {
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-bold">回答・面談</h1>
-
       {!isLoading && !isError && (
         <div className="mb-3">
           <StatisticList
@@ -132,6 +130,7 @@ export default function AnswersListPage() {
         emptyMessage="回答がありません"
         onRowClick={(row) => router.push(`/admin/answers/${row.id}`)}
         sortable={SORTABLE}
+        subHeader={{ title: "回答・面談" }}
       />
     </div>
   );

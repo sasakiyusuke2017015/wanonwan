@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { EVAL_ITEMS, QUESTION_TYPES, type AnswerType } from "@waoon/domain";
@@ -58,16 +57,6 @@ export default function QuestionsMasterPage() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold">設問マスタ</h1>
-        <Link
-          href="/admin/questions/new"
-          className="rounded bg-gray-900 px-3 py-1.5 text-sm text-white"
-        >
-          新規作成
-        </Link>
-      </div>
-
       <AdminListTable
         columns={COLUMNS}
         data={rows}
@@ -77,6 +66,12 @@ export default function QuestionsMasterPage() {
         emptyMessage="設問がありません"
         onRowClick={(row) => router.push(`/admin/questions/${row.id}/edit`)}
         sortable={SORTABLE}
+        subHeader={{
+          title: "設問マスタ",
+          createHref: "/admin/questions/new",
+          onCreate: () => router.push("/admin/questions/new"),
+          createLabel: "設問を追加",
+        }}
       />
     </div>
   );
