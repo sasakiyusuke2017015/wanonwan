@@ -9,7 +9,7 @@
 
 services:
   storybook:
-    image: node:22-slim
+    image: node:24-slim
     container_name: ui-catalog-storybook
     working_dir: /workspace
     ports:
