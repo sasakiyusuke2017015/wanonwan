@@ -4,8 +4,8 @@
  * ui-catalog のコンポーネントをドラッグ＆ドロップで配置し、ページのラフを作成する
  */
 import type { Meta, StoryObj } from '@storybook/react'
-import { Puck, Render } from '@measured/puck'
-import '@measured/puck/puck.css'
+import { Puck, Render } from '@puckeditor/core'
+import '@puckeditor/core/puck.css'
 
 import { puckConfig } from './puckConfig'
 

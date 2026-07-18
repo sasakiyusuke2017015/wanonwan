@@ -3,7 +3,7 @@
  *
  * ui-catalog のコンポーネントを Puck のドラッグ＆ドロップエディタに登録
  */
-import type { Config } from '@measured/puck'
+import type { Config } from '@puckeditor/core'
 
 import { Text } from '../../atoms/Text/Text'
 import { Badge } from '../../atoms/Badge/Badge'
