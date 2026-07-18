@@ -79,7 +79,7 @@
     "storybook:localhost": "storybook dev -p 6006 --no-open",
     "storybook:down": "docker compose -f infra/docker/docker-compose.yml down",
     "storybook:build": "storybook build -o storybook-static",
-    "storybook:deploy": "node --env-file=.env.local node_modules/chromatic/dist/bin.js --build-script-name=storybook:build",
+    "storybook:deploy": "node --env-file=.env.local node_modules/chromatic/dist/bin.cjs --build-script-name=storybook:build",
     "storybook:deploy:ghpages": "pnpm clean && pnpm storybook:build && rm -rf node_modules/.cache/gh-pages && gh-pages -d storybook-static",
     "test:storybook": "vitest --project storybook",
     "export-versions": "npx tsx infra/version/export-versions-cli.ts"
@@ -189,7 +189,7 @@
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
-    "chromatic": "^16.10.1",
+    "chromatic": "^18.0.1",
     "clsx": "^2.1.1",
     "codemirror": "^6.0.2",
     "date-fns": "^4.4.0",
