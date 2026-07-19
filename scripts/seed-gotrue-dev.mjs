@@ -40,11 +40,11 @@ if (!JWT_SECRET.includes("dev-only-change-me")) {
 // dev 固定パスワード（平文で良い＝dev 限定。stg/prod は provision.mjs のランダム PW で別管理）。
 // email→PW のみ本スクリプトが持ち、id/email/name は users.csv を唯一のソースとして読む。
 const DEV_PASSWORDS = {
-  "admin@example.com": "Admin1234!",
-  "alice@example.com": "Alice1234!",
-  "bob@example.com": "Bob1234!",
-  "carol@example.com": "Carol1234!",
-  "dave@example.com": "Dave1234!",
+  "admin@example.com": "Password1!",
+  "alice@example.com": "Password1!",
+  "bob@example.com": "Password1!",
+  "carol@example.com": "Password1!",
+  "dave@example.com": "Password1!",
 };
 
 // users.csv（gotrue_id / email / name）から dev ユーザーを構築。gotrue_id を GoTrue 側 id に使う
