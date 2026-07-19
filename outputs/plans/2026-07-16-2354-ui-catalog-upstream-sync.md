@@ -3,9 +3,9 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | ui-catalog 上流最新版 (ui.zip) を packages/ui へ選択的マージ。上流のみ変更 115 件採用 / waoon 独自部品維持 / 衝突 33 件個別マージ / 汎用新規部品のみ採用 |
-| ステータス | 🟦 コードレビュー待ち |
+| ステータス | 🟣 マージ承認待ち |
 | 前提 Plan | なし |
-| PR | |
+| PR | [#97](https://github.com/sasakiyusuke2017015/waoon/pull/97) |
 | Review | [計画レビュー](../reviews/2026-07-17-0005-ui-catalog-upstream-sync-review.md) / [コードレビュー](../reviews/2026-07-17-0040-ui-catalog-upstream-sync-code-review.md) |
 
 ブランチ: `feature/ui-catalog-upstream-sync`
