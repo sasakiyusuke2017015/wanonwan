@@ -41,7 +41,7 @@ describe('Badge', () => {
   it('色が正しく適用される', () => {
     const { container } = render(<Badge value="Blue" color="blue" />);
     const badge = container.querySelector('[data-component="badge"]');
-    expect(badge).toHaveClass('bg-blue-500');
+    expect(badge).toHaveClass('solidBlue');
   });
 
   it('appearance=metricの場合、divタグがレンダリングされる', () => {
@@ -73,9 +73,10 @@ describe('Badge', () => {
   });
 
   it('gradient styleVariantの場合、shadow-lgクラスが追加される', () => {
+    // SCSS module: gradient color classes include box-shadow via .gradient<Color>
     const { container } = render(<Badge value="Gradient" styleVariant="gradient" />);
     const badge = container.querySelector('[data-component="badge"]');
-    expect(badge).toHaveClass('shadow-lg');
+    expect(badge).toHaveClass('gradientBlue');
   });
 
   it('outline styleVariantが正しく適用される', () => {
@@ -84,8 +85,9 @@ describe('Badge', () => {
   });
 
   it('gradient + metric の場合、hover効果が追加される', () => {
+    // SCSS module: metricGradient applies scale(1.05) on hover via box-shadow + transform
     const { container } = render(<Badge value="Metric Gradient" appearance="metric" styleVariant="gradient" />);
     const badge = container.querySelector('[data-component="badge"]');
-    expect(badge).toHaveClass('hover:scale-105');
+    expect(badge).toHaveClass('metricGradient');
   });
 });

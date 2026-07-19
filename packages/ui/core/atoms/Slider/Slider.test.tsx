@@ -67,4 +67,32 @@ describe('Slider', () => {
     expect(input).toHaveAttribute('max', '100');
     expect(input).toHaveAttribute('step', '1');
   });
+
+  it('トラックの塗りを value の割合で gradient 描画する (ブラウザ任せにしない)', () => {
+    render(<Slider value={30} onChange={() => {}} />);
+    const input = screen.getByRole('slider');
+    expect(input.style.background).toContain('linear-gradient');
+    expect(input.style.background).toContain('30%');
+  });
+
+  it('min/max が 0-100 以外でも塗り割合を正しく計算する', () => {
+    // value 30 in [10, 90] → (30-10)/(90-10) = 25%
+    render(<Slider value={30} onChange={() => {}} min={10} max={90} />);
+    const input = screen.getByRole('slider');
+    expect(input.style.background).toContain('25%');
+  });
+
+  it('color prop が塗りとつまみ (accentColor) に反映される', () => {
+    render(<Slider value={50} onChange={() => {}} color="#f59e0b" />);
+    const input = screen.getByRole('slider');
+    // jsdom は hex を rgb() に正規化する
+    expect(input.style.background).toContain('rgb(245, 158, 11)');
+    expect(input.style.accentColor).toBe('rgb(245, 158, 11)');
+  });
+
+  it('color 省略時は既定の #3b82f6 (blue-500) を使う', () => {
+    render(<Slider value={50} onChange={() => {}} />);
+    const input = screen.getByRole('slider');
+    expect(input.style.accentColor).toBe('rgb(59, 130, 246)');
+  });
 });

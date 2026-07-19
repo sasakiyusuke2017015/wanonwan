@@ -39,3 +39,34 @@ export const WithAction: Story = {
     ),
   },
 };
+
+export const Dashed: Story = {
+  args: {
+    title: 'まだ章がありません',
+    description: '「+ 章を追加」から最初の章を作成してください。',
+    variant: 'dashed',
+  },
+  decorators: [
+    (Story) => (
+      <div style={{ width: '420px' }}>
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const DashedCompact: Story = {
+  args: {
+    title: 'まだ章がありません',
+    description: '「+ 章を追加」から最初の章を作成してください。',
+    variant: 'dashed',
+    className: 'py-4',
+  },
+  decorators: [
+    (Story) => (
+      <div style={{ width: '420px' }}>
+        <Story />
+      </div>
+    ),
+  ],
+};

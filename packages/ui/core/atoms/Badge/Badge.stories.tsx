@@ -39,8 +39,9 @@ const meta: Meta<typeof Badge> = {
           if (args.value) props.push(`value="${args.value}"`);
           if (args.appearance && args.appearance !== 'default')
             props.push(`appearance="${args.appearance}"`);
-          if (args.variant && args.variant !== 'solid')
-            props.push(`variant="${args.variant}"`);
+          if (args.styleVariant && args.styleVariant !== 'solid')
+            props.push(`styleVariant="${args.styleVariant}"`);
+          if (args.tone) props.push(`tone="${args.tone}"`);
           if (args.color && args.color !== 'blue')
             props.push(`color="${args.color}"`);
           if (args.size && args.size !== 'medium')
@@ -72,10 +73,10 @@ const meta: Meta<typeof Badge> = {
       control: { type: 'select' },
       options: ['solid', 'gradient', 'compact', 'outline'],
     },
-    variant: {
-      description: 'セマンティックバリアント（色を自動設定）',
+    tone: {
+      description: '意味色（アプリからは原則こちらを使う）',
       control: { type: 'select' },
-      options: ['default', 'success', 'warning', 'error', 'secondary'],
+      options: ['brand', 'neutral', 'success', 'warning', 'danger'],
     },
     color: {
       description: 'バッジの色',

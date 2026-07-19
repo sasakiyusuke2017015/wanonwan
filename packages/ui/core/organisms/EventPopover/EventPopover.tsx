@@ -1,6 +1,6 @@
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
-import { colors } from '@ui-catalog/core/tokens'
+import { colors } from '../../tokens'
 import { IconLabel } from '../../molecules/IconLabel/IconLabel'
 import { getStickyBottom } from '../../utils/calendar/dom'
 import type { HoveredEvent } from '../../hooks/calendar/calendar'

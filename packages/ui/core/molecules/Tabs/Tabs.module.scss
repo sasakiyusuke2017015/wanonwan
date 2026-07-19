@@ -1,6 +1,9 @@
 .tabs {
   &__list {
     display: flex;
+    // タブが横幅を超えたら段落ちさせる (切れ / 潰れを防ぐ)。row-gap で段間に間隔。
+    flex-wrap: wrap;
+    row-gap: var(--spacing-1);
     border-bottom: 1px solid var(--color-border, var(--color-gray-200));
   }
 
@@ -12,7 +15,7 @@
     cursor: pointer;
     border: none;
     background: transparent;
-    border-bottom: 2px solid transparent;
+    border-bottom: 3px solid transparent;
     margin-bottom: -1px;
     transition: color var(--transition-duration-150) var(--transition-ease-in-out);
     color: var(--color-text-muted, var(--color-gray-500));
@@ -32,12 +35,162 @@
     }
 
     &--active {
+      // 選択タブを「塗り」で強調する。下線(色)だけだと複数段タブで選択位置が読みにくいため、
+      // 薄いアクセント背景 + 上だけ角丸 + 太字 を足して非選択(透明背景・グレー)とはっきり差をつける。
       border-bottom-color: var(--color-accent, var(--color-primary-500));
       color: var(--color-accent, var(--color-primary-500));
+      background: color-mix(in srgb, var(--color-accent, var(--color-primary-500)) 22%, transparent);
+      border-top-left-radius: var(--border-radius-md, 8px);
+      border-top-right-radius: var(--border-radius-md, 8px);
+      font-weight: var(--font-weight-semibold, 600);
     }
   }
 
   &__panel {
     padding-top: var(--spacing-4);
+    // パネルは active タブを key にして再マウントされるため、
+    // 切替のたびにこの enter アニメーションが再生される。
+    animation: tabs-panel-enter var(--transition-duration-150, 150ms) var(--transition-ease-in-out, ease-in-out);
+  }
+
+  /* ============================================================
+   * Folder variant — ブラウザタブ風。アクティブタブが台形の面として
+   * 浮き上がり、非アクティブは背後にトーンダウンして並ぶ。
+   * underline variant の構造 (list > tab) をそのまま使い、
+   * --folder 修飾子が付いた list 配下の tab だけ見た目を差し替える。
+   * ============================================================ */
+  // 手本 (Design Files タブ) に準拠。アクティブのみ白面＋枠＋凹カーブの足を持ち、
+  // 非アクティブは枠も足も無くバーに沈む。足は「透明(バーが覗く凹み)＋グレーの円弧＋
+  // 白で埋める」を多段 radial-gradient で表現する。
+  &__list--folder {
+    gap: 0;
+    // 下罫線はリスト (full-width) に引く。アクティブタブ＋足がここを断ち切って本文と繋がる。
+    border-bottom: 1px solid var(--color-border, var(--color-gray-200));
+    align-items: flex-end;
+    padding: 0 10px; // 端タブの足 (10px) が切れないよう左右に余白
+
+    .tabs__tab {
+      position: relative;
+      display: flex;
+      align-items: center;
+      height: 34px;
+      border: 1px solid transparent;
+      border-top-left-radius: 15px;
+      border-top-right-radius: 15px;
+      background: transparent;
+      color: var(--color-text-muted, var(--color-gray-500));
+      font-weight: 550;
+      white-space: nowrap;
+      // hover ピル (::after, z-index: -1) をタブ内に閉じ込める stacking context
+      z-index: 0;
+
+      // hover は文字を青めに + 余白をとった青みのピルを敷く (バーの下線には触れない)
+      &:hover:not(.tabs__tab--active) {
+        color: var(--color-accent, var(--color-primary-500));
+
+        &::after {
+          content: '';
+          position: absolute;
+          inset: 5px 8px 6px;
+          border-radius: 9px;
+          background: color-mix(in srgb, var(--color-accent, var(--color-primary-500)) 10%, transparent);
+          z-index: -1;
+        }
+      }
+
+      // 非アクティブ同士の境界を細い縦ディバイダで示す (先頭タブの左には出さない)。
+      // ::before は active の「足」に使うため、divider は非アクティブ tab だけに出す。
+      &:not(.tabs__tab--active):not(:first-child)::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 56%;
+        width: 1px;
+        // 境界をはっきり見せるため、薄い --color-border ではなく muted トーンを使う。
+        background: var(--color-text-muted, var(--color-gray-500));
+      }
+
+      // アクティブタブの両脇には境界線を出さない。左脇はアクティブ自身が上の
+      // セレクタから除外済み。右脇は「アクティブの次タブの左ディバイダ」なので
+      // ここで消す (面として浮くアクティブに線が貼り付いて見えるのを防ぐ)。
+      &--active + .tabs__tab::before {
+        display: none;
+      }
+
+      &--active {
+        // クリーム面 (少し明るめ)。本文パネル (page 側) と同色にして「タブ＋本文＝1枚」に見せる。
+        --tab-surface: rgb(252, 250, 247);
+        // 選択を一目で分かるようにする: 文字をアクセント色＋太字にし、上端にアクセントの
+        // バーを乗せる (box-shadow inset なので高さを変えず、他タブと段差が出ない)。面色は
+        // クリームのまま本文と繋げる。
+        color: var(--color-accent, var(--color-primary-500));
+        font-weight: 700;
+        background: linear-gradient(rgb(255, 254, 252) 0%, var(--tab-surface) 60%);
+        border-color: var(--color-border, var(--color-gray-200));
+        border-bottom-color: var(--tab-surface);
+        // 上端のアクセントバー + 左右に平等な box-shadow (同色アクセント)。
+        box-shadow:
+          inset 0 3px 0 0 var(--color-accent, var(--color-primary-500)),
+          -5px 0 7px -4px color-mix(in srgb, var(--color-accent, var(--color-primary-500)) 35%, transparent),
+          5px 0 7px -4px color-mix(in srgb, var(--color-accent, var(--color-primary-500)) 35%, transparent);
+        // グローの blur は下方向にも 3px 滲んで本文との境目に影が侵入するため、
+        // タブ下端より下を clip で完全に切る (下 0)。左右は足 (±10px) とグロー、
+        // 上はグローを通すためマイナス inset で残す。タブ自身が margin-bottom -1px で
+        // list 下罫線に重なっているので、下 0 でも罫線は面色で覆われたまま切れない
+        // (拡大スクショで確認済み。-1px 残すと青帯が境目の下に 1px 見える)。
+        clip-path: inset(-8px -14px 0);
+        z-index: 4;
+
+        // 下端の両脇に凹カーブの足。透明部分でバーが覗き、円弧(グレー)＋面色で繋ぐ。
+        &::before,
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: -1px;
+          width: 10px;
+          height: 10px;
+          z-index: 3;
+        }
+        &::before {
+          left: -10px;
+          background: radial-gradient(
+            circle at top left,
+            transparent 9.3px,
+            var(--color-border, var(--color-gray-200)) 9.3px,
+            var(--color-border, var(--color-gray-200)) 10px,
+            var(--tab-surface) 10px
+          );
+        }
+        &::after {
+          right: -10px;
+          background: radial-gradient(
+            circle at top right,
+            transparent 9.3px,
+            var(--color-border, var(--color-gray-200)) 9.3px,
+            var(--color-border, var(--color-gray-200)) 10px,
+            var(--tab-surface) 10px
+          );
+        }
+      }
+    }
+  }
+}
+
+@keyframes tabs-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabs__panel {
+    animation: none;
   }
 }

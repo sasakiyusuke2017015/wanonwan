@@ -10,6 +10,8 @@ interface ResetButtonProps {
   onClick: () => void;
   label?: string;
   disabled?: boolean;
+  /** スクリーンリーダー向けの名称 (未指定時は label が読まれる) */
+  ariaLabel?: string;
 }
 
 /**
@@ -20,6 +22,7 @@ export const ResetButton: FC<ResetButtonProps> = ({
   onClick,
   label = 'リセット',
   disabled = false,
+  ariaLabel,
 }) => {
   return (
     <span data-component="reset-button">
@@ -30,6 +33,7 @@ export const ResetButton: FC<ResetButtonProps> = ({
         onClick={onClick}
         enableHopEffect={false}
         disabled={disabled}
+        aria-label={ariaLabel}
       >
         {label}
       </Button>

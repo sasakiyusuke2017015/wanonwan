@@ -19,10 +19,11 @@ import {
   sortableKeyboardCoordinates,
   useSortable,
   horizontalListSortingStrategy,
+  verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import { Toggle } from '../../atoms/Toggle';
+import { Switch } from '../../atoms/Switch';
 import { cn } from '../../utils/cn';
 
 // 並び替え対象アイテムの型
@@ -43,6 +44,8 @@ export interface SortableToggleListProps {
   onOrderChange: (newOrder: string[]) => void;
   /** トグル切り替え時のコールバック */
   onItemToggle: (id: string) => void;
+  /** 並べる向き。'horizontal'（既定・折り返し）/ 'vertical'（1 列・全幅行） */
+  direction?: 'horizontal' | 'vertical';
   /** ドラッグ開始時のコールバック（オプション） */
   onDragStart?: (id: string) => void;
   /** ドラッグ終了時のコールバック（オプション） */
@@ -66,9 +69,12 @@ interface SortableToggleItemProps {
   itemRadius?: string;
   /** トグルスイッチの角丸 */
   toggleRadius?: string;
+  /** 並べる向き */
+  direction?: 'horizontal' | 'vertical';
 }
 
-const SortableToggleItem = ({ id, label, checked, disabled, onToggle, itemRadius, toggleRadius }: SortableToggleItemProps) => {
+const SortableToggleItem = ({ id, label, checked, disabled, onToggle, itemRadius, toggleRadius, direction = 'horizontal' }: SortableToggleItemProps) => {
+  const isVertical = direction === 'vertical';
   const {
     attributes,
     listeners,
@@ -103,6 +109,7 @@ const SortableToggleItem = ({ id, label, checked, disabled, onToggle, itemRadius
       className={cn(
         'flex items-center border border-gray-300 bg-white shadow-sm select-none',
         !itemRadius && 'rounded-lg',
+        isVertical && 'w-full',
         isDragging && 'z-50'
       )}
     >
@@ -118,15 +125,16 @@ const SortableToggleItem = ({ id, label, checked, disabled, onToggle, itemRadius
       >
         <span className="text-gray-400">⋮⋮</span>
       </div>
-      {/* トグル部分 */}
+      {/* トグル部分。縦並びはラベルを左・スイッチを右端へ広げる。 */}
       <div
         className={cn(
           'px-3 py-2 hover:bg-gray-50',
+          isVertical && 'flex-1 min-w-0',
           !itemRadius && 'rounded-r-lg'
         )}
         style={toggleContainerStyle}
       >
-        <Toggle
+        <Switch
           label={label}
           checked={checked}
           onChange={onToggle}
@@ -134,6 +142,7 @@ const SortableToggleItem = ({ id, label, checked, disabled, onToggle, itemRadius
           size="small"
           variant="primary"
           toggleRadius={toggleRadius}
+          containerClassName={isVertical ? 'w-full justify-between' : undefined}
         />
       </div>
     </div>
@@ -158,7 +167,9 @@ export function SortableToggleList({
   className,
   itemRadius,
   toggleRadius,
+  direction = 'horizontal',
 }: SortableToggleListProps) {
+  const isVertical = direction === 'vertical';
   // DnDセンサー設定
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -203,9 +214,12 @@ export function SortableToggleList({
     >
       <SortableContext
         items={order}
-        strategy={horizontalListSortingStrategy}
+        strategy={isVertical ? verticalListSortingStrategy : horizontalListSortingStrategy}
       >
-        <div className={cn('flex flex-wrap gap-3', className)} data-component="sortable-toggle-list">
+        <div
+          className={cn(isVertical ? 'flex flex-col gap-2' : 'flex flex-wrap gap-3', className)}
+          data-component="sortable-toggle-list"
+        >
           {order.map((id) => {
             const item = itemsMap.get(id);
             if (!item) return null;
@@ -219,6 +233,7 @@ export function SortableToggleList({
                 onToggle={() => onItemToggle(id)}
                 itemRadius={itemRadius}
                 toggleRadius={toggleRadius}
+                direction={direction}
               />
             );
           })}

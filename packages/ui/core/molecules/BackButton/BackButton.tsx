@@ -2,7 +2,7 @@
 
 import { FC } from 'react';
 
-import { type IconName } from '../../constants';
+import { type AnyIconName } from '../../atoms/Icon';
 
 import { Button } from '../Button';
 
@@ -16,7 +16,7 @@ interface BackButtonProps {
   variant?: ButtonVariant;
   size?: ButtonSize;
   className?: string;
-  icon?: IconName;
+  icon?: AnyIconName;
 }
 
 /**
@@ -30,7 +30,7 @@ export const BackButton: FC<BackButtonProps> = ({
   variant = 'secondary',
   size = 'small',
   className,
-  icon = 'arrow-u-turn',
+  icon = 'arrow-left',
 }) => {
   return (
     <span data-component="back-button">

@@ -1,0 +1,47 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--spacing-5, 1.25rem) var(--spacing-4, 1rem);
+}
+
+// min-width: 0 で grid item 内の Input / Select が親を突き破るのを防ぐ
+.item {
+  min-width: 0;
+}
+
+// span は end 線側 (`auto / span N`) に持たせる。`grid-column: span N` の短縮形は
+// span が start 線に載るため、.newRow の grid-column-start 上書きで span ごと消えて
+// item が 1 トラック幅に潰れる (会社名/部署の Select が縦書きになるバグの原因)。
+.short {
+  grid-column: auto / span 4;
+}
+
+.half {
+  grid-column: auto / span 6;
+}
+
+.wide {
+  grid-column: auto / span 8;
+}
+
+.full {
+  grid-column: auto / span 12;
+}
+
+// width クラスより後に置き、start だけ 1 に上書きする (span は end 側に残る)
+.newRow {
+  grid-column-start: 1;
+}
+
+// 狭幅では横並びをやめて全 Item を 1 列に落とす
+@media (max-width: 639px) {
+  .short,
+  .half,
+  .wide {
+    grid-column: auto / span 12;
+  }
+
+  .newRow {
+    grid-column-start: auto;
+  }
+}

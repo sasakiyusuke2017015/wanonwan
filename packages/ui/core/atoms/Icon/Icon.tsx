@@ -11,6 +11,7 @@
 import React from 'react';
 import type { IconName } from '../../constants';
 import { cn } from '../../utils';
+import { LUCIDE_ICONS, type LucideIconName } from './lucide-registry';
 import styles from './Icon.module.scss';
 import type {
   IconProps,
@@ -357,42 +358,10 @@ const ICON_PATHS: Record<string, (props: PathRenderProps) => React.ReactElement>
       d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V20l-4 4v-10.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
     />
   ),
-  ['plus']: () => (
-    <path
-      className={styles.stroke}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M12 5v14M5 12h14"
-    />
-  ),
-  ['pencil']: () => (
-    <path
-      className={styles.stroke}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
-    />
-  ),
-  ['copy']: () => (
-    <g className={styles.stroke} strokeLinecap="round" strokeLinejoin="round">
-      <rect x="9" y="9" width="13" height="13" rx="2" />
-      <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-    </g>
-  ),
   ['ban']: () => (
     <g className={styles.stroke} strokeLinecap="round">
       <circle cx="12" cy="12" r="9" />
       <path d="M5.6 5.6l12.8 12.8" />
-    </g>
-  ),
-  ['grip']: () => (
-    <g fill="currentColor">
-      <circle cx="9" cy="5" r="1.4" />
-      <circle cx="9" cy="12" r="1.4" />
-      <circle cx="9" cy="19" r="1.4" />
-      <circle cx="15" cy="5" r="1.4" />
-      <circle cx="15" cy="12" r="1.4" />
-      <circle cx="15" cy="19" r="1.4" />
     </g>
   ),
   ['gear']: () => (
@@ -493,12 +462,13 @@ const ICON_PATHS: Record<string, (props: PathRenderProps) => React.ReactElement>
   ),
   ['x-circle']: () => (
     <g className={styles.body}>
-      <circle className={styles.stroke} cx="10" cy="10" r="8" />
+      <circle className={styles.stroke} cx="12" cy="12" r="10" />
       <path
-        className={cn(styles.fill, styles.xmark)}
-        d="M7.293 6.293a1 1 0 011.414 0L10 7.586l1.293-1.293a1 1 0 111.414 1.414L11.414 9l1.293 1.293a1 1 0 01-1.414 1.414L10 10.414l-1.293 1.293a1 1 0 01-1.414-1.414L8.586 9 7.293 7.707a1 1 0 010-1.414z"
-        fillRule="evenodd"
-        clipRule="evenodd"
+        className={cn(styles.stroke, styles.xmark)}
+        d="M15 9l-6 6M9 9l6 6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
       />
     </g>
   ),
@@ -683,6 +653,145 @@ const ICON_PATHS: Record<string, (props: PathRenderProps) => React.ReactElement>
       strokeLinejoin="round"
       d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
     />
+  ),
+  ['plus']: () => (
+    <g className={styles.body}>
+      <line
+        className={styles.stroke}
+        x1="12" y1="5" x2="12" y2="19"
+        strokeWidth="2" strokeLinecap="round"
+      />
+      <line
+        className={styles.stroke}
+        x1="5" y1="12" x2="19" y2="12"
+        strokeWidth="2" strokeLinecap="round"
+      />
+    </g>
+  ),
+
+  // ========================================
+  // 編集・コンテンツ・教育アイコン
+  // ========================================
+  ['pencil']: () => (
+    <g className={styles.body}>
+      <path
+        className={styles.stroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+      />
+      <path
+        className={styles.stroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+      />
+    </g>
+  ),
+  ['copy']: () => (
+    <g className={styles.body}>
+      <rect
+        className={styles.stroke}
+        x="9" y="9" width="13" height="13" rx="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        className={styles.stroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+      />
+    </g>
+  ),
+  ['book']: () => (
+    <g className={styles.body}>
+      <path
+        className={styles.stroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4 4.5A1.5 1.5 0 0 1 5.5 3H18a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H5.5A1.5 1.5 0 0 1 4 18.5z"
+      />
+      <path
+        className={styles.stroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4 16.5A1.5 1.5 0 0 1 5.5 15H19"
+      />
+    </g>
+  ),
+  ['bank']: () => (
+    <g className={styles.body}>
+      <path
+        className={styles.stroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
+      />
+      <polyline
+        className={styles.stroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        points="9 22 9 12 15 12 15 22"
+      />
+    </g>
+  ),
+  ['quiz']: () => (
+    <g className={styles.body}>
+      <path
+        className={styles.stroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"
+      />
+      <path
+        className={styles.stroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="m15 5 4 4"
+      />
+    </g>
+  ),
+  ['grip']: () => (
+    <g className={cn(styles.fill, styles.body)}>
+      <circle cx="9" cy="6" r="2" />
+      <circle cx="15" cy="6" r="2" />
+      <circle cx="9" cy="12" r="2" />
+      <circle cx="15" cy="12" r="2" />
+      <circle cx="9" cy="18" r="2" />
+      <circle cx="15" cy="18" r="2" />
+    </g>
+  ),
+  ['award']: () => (
+    <g className={styles.body}>
+      <circle
+        className={styles.stroke}
+        cx="12" cy="9" r="5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        className={styles.stroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9 13.5 8 21l4-2 4 2-1-7.5"
+      />
+    </g>
+  ),
+  ['hourglass']: () => (
+    <path
+      className={styles.stroke}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M6 3h12M6 21h12M7 3c0 5 5 6 5 9s-5 4-5 9M17 3c0 5-5 6-5 9s5 4 5 9"
+    />
+  ),
+  ['target']: () => (
+    <g className={styles.body}>
+      <circle className={styles.stroke} cx="12" cy="12" r="9" />
+      <circle className={styles.stroke} cx="12" cy="12" r="5" />
+      <circle className={cn(styles.fill, styles.center)} cx="12" cy="12" r="1.4" />
+    </g>
   ),
 
   // ========================================
@@ -1803,40 +1912,8 @@ const ICON_PATHS: Record<string, (props: PathRenderProps) => React.ReactElement>
 // ========================================
 const PRESET_MAP: Record<LoadingPreset, PresetConfig> = {
   spinner: { name: 'spinner', color: 'primary', glow: true },
-  dots: { name: 'loading-dots', color: 'primary', accent: 'info' },
-  pulse: { name: 'loading-pulse', color: 'primary', accent: 'info', glow: true, animation: 'pulse-scale' },
   cube: { name: 'loading-cube3d', color: 'info' },
-  'cube-glow': { name: 'loading-cube3d-glow', color: 'info', glowStrong: true },
   interview: { name: 'loading-interview', color: 'primary', accent: 'info', colorShift: false },
-  dna: { name: 'loading-dna', color: 'success', accent: 'info' },
-  atom: { name: 'loading-atom', color: 'info', accent: 'warning', glow: true, animation: 'pulse' },
-  rings: { name: 'loading-rings', color: 'primary', accent: 'info' },
-  gears: { name: 'loading-gears', color: 'muted' },
-  hourglass: { name: 'loading-hourglass', color: 'warning', accent: 'danger' },
-  wave: { name: 'loading-wave', color: 'info' },
-  radar: { name: 'loading-radar', color: 'success', accent: 'warning', glow: true },
-  eclipse: { name: 'loading-eclipse', color: 'warning', accent: 'muted', glowStrong: true, animation: 'glow-pulse' },
-  clock: { name: 'loading-clock', color: 'current' },
-  morph: { name: 'loading-morph', color: 'primary', accent: 'success' },
-  orbit: { name: 'loading-orbit', color: 'primary' },
-  triangle: { name: 'loading-triangle', color: 'warning' },
-  heartbeat: { name: 'loading-heartbeat', color: 'muted', accent: 'danger', colorShift: false },
-  // 復元シリーズ
-  bars: { name: 'loading-bars', color: 'primary', accent: 'info' },
-  wifi: { name: 'loading-wifi', color: 'info', accent: 'success', glow: true },
-  progress: { name: 'loading-progress', color: 'primary', accent: 'success', glow: true },
-  infinity: { name: 'loading-infinity', color: 'info', accent: 'primary', glowStrong: true },
-  ripple: { name: 'loading-ripple', color: 'info', accent: 'primary', glow: true },
-  star: { name: 'loading-star', color: 'warning', glowStrong: true },
-  cross: { name: 'loading-cross' },
-  // 表現拡張
-  particles: { name: 'loading-particles', color: 'primary', accent: 'info', colorShift: false },
-  comet: { name: 'loading-comet', color: 'info', accent: 'warning', glow: true, colorShift: false },
-  magnet: { name: 'loading-magnet', color: 'muted' },
-  braid: { name: 'loading-braid', color: 'primary', accent: 'success', colorShift: false },
-  vortex: { name: 'loading-vortex', color: 'primary', accent: 'info', glow: true, colorShift: false },
-  // サプライズ: プリズム分光（7色の虹）
-  prism: { name: 'loading-prism', glowStrong: true, hover: 'glow' },
 };
 
 // ========================================
@@ -1855,88 +1932,13 @@ const SIZE_VALUES: Record<SizePreset, number> = {
 // スタイルクラスマッピング
 // ========================================
 const ANIMATION_CLASSES: Record<AnimationPreset, string> = {
-  bounce: styles.bounce,
-  'bounce-in': styles.bounceIn,
-  'bounce-out': styles.bounceOut,
-  'bounce-horizontal': styles.bounceHorizontal,
-  ping: styles.ping,
-  pulse: styles.pulse,
-  'pulse-scale': styles.pulseScale,
-  spin: styles.spin,
-  'spin-slow': styles.spinSlow,
-  'spin-fast': styles.spinFast,
-  'spin-reverse': styles.spinReverse,
-  wiggle: styles.wiggle,
-  'wiggle-more': styles.wiggleMore,
-  shake: styles.shake,
-  'shake-hard': styles.shakeHard,
-  float: styles.float,
-  'float-rotate': styles.floatRotate,
-  heartbeat: styles.heartbeat,
-  tada: styles.tada,
-  swing: styles.swing,
-  'flip-x': styles.flipX,
-  'flip-y': styles.flipY,
-  'rotate-3d': styles.rotate3d,
-  'flip-in': styles.flipIn,
-  'flip-out': styles.flipOut,
   pop: styles.pop,
-  'pop-in': styles.popIn,
-  'rubber-band': styles.rubberBand,
-  jello: styles.jello,
-  squeeze: styles.squeeze,
-  wobble: styles.wobble,
-  'fade-in': styles.fadeIn,
-  'fade-out': styles.fadeOut,
-  'fade-in-up': styles.fadeInUp,
-  'fade-in-down': styles.fadeInDown,
-  'zoom-in': styles.zoomIn,
-  'zoom-out': styles.zoomOut,
-  'slide-in-left': styles.slideInLeft,
-  'slide-in-right': styles.slideInRight,
-  'slide-in-up': styles.slideInUp,
-  'slide-in-down': styles.slideInDown,
-  glow: styles.glow,
-  'glow-strong': styles.glowStrong,
-  'glow-pulse': styles.glowPulse,
-  'glow-breathe': styles.glowBreathe,
-  'glow-rainbow': styles.glowRainbow,
-  neon: styles.neon,
-  'color-shift': styles.colorShift,
-  rainbow: styles.rainbow,
-  flash: styles.flash,
-  flicker: styles.flicker,
-  sparkle: styles.sparkle,
-  twinkle: styles.twinkle,
-  glitch: styles.glitch,
-  'blur-pulse': styles.blurPulse,
-  morph: styles.morph,
-  liquid: styles.liquid,
-  orbit: styles.orbit,
-  ripple: styles.ripple,
+  shake: styles.shake,
+  spin: styles.spin,
 };
 
 const HOVER_CLASSES: Record<Exclude<HoverPreset, 'auto'>, string> = {
-  scale: styles.hoverScale,
-  'scale-large': styles.hoverScaleLarge,
-  rotate: styles.hoverRotate,
-  'rotate-full': styles.hoverRotateFull,
-  glow: styles.hoverGlow,
-  neon: styles.hoverNeon,
-  bounce: styles.hoverBounce,
   pop: styles.hoverPop,
-  wiggle: styles.hoverWiggle,
-  shake: styles.hoverShake,
-  swing: styles.hoverSwing,
-  spin: styles.hoverSpin,
-  flip: styles.hoverFlip,
-  'flip-x': styles.hoverFlipX,
-  float: styles.hoverFloat,
-  'rubber-band': styles.hoverRubberBand,
-  jello: styles.hoverJello,
-  tada: styles.hoverTada,
-  heartbeat: styles.hoverHeartbeat,
-  glitch: styles.hoverGlitch,
 };
 
 const COLOR_CLASSES: Record<ColorVariant, string> = {
@@ -1986,12 +1988,9 @@ const ACCENT_CLASSES: Record<ColorVariant, string> = {
 // ========================================
 const DEFAULT_HOVER_MAP: Partial<Record<string, HoverPreset>> = {
   // 通知・アラート系
-  bell: 'swing',
-  'info-triangle': 'shake',
   'info-circle': 'pop',
 
   // 設定・操作系
-  gear: 'rotate',
   sliders: 'pop',
   funnel: 'pop',
 
@@ -2018,48 +2017,31 @@ const DEFAULT_HOVER_MAP: Partial<Record<string, HoverPreset>> = {
 
   // アクション系
   save: 'pop',
-  trash: 'shake',
-  'arrow-rotate': 'rotate',
   'arrow-up-right': 'pop',
   'arrow-in': 'pop',
   'arrow-turn-left': 'pop',
   'arrow-u-turn': 'pop',
-  'sync-pull': 'bounce',
-  'sync-push': 'bounce',
-  'cloud-upload': 'float',
 
   // 認証系
-  lock: 'shake',
   unlock: 'pop',
   'door-out': 'pop',
 
   // チャート・トレンド系
-  'trend-up': 'float',
-  'trend-up-right': 'float',
   'trend-right': 'pop',
-  'trend-down-right': 'bounce',
-  'trend-down': 'bounce',
 
   // その他
   star: 'pop',
-  'star-filled': 'heartbeat',
   chat: 'pop',
   'comment-check': 'pop',
-  clock: 'rotate',
   eye: 'pop',
   'eye-slashed': 'pop',
   'magnifying-glass': 'pop',
   check: 'pop',
   'check-circle': 'pop',
-  'x-circle': 'shake',
   x: 'pop',
   hamburger: 'pop',
-  expand: 'scale',
   keyboard: 'pop',
   palette: 'pop',
-  brush: 'wiggle',
-  diamond: 'glow',
-  'paint-roller': 'wiggle',
   inbox: 'pop',
   archive: 'pop',
   dot: 'pop',
@@ -2068,28 +2050,38 @@ const DEFAULT_HOVER_MAP: Partial<Record<string, HoverPreset>> = {
   'volume-off': 'pop',
   'volume-low': 'pop',
   'volume-high': 'pop',
-  fullscreen: 'scale',
-  'fullscreen-exit': 'scale',
-  shuffle: 'wiggle',
   'skip-forward': 'pop',
   sidebar: 'pop',
 
   // 議事録・音声関連
   'transcript-doc': 'pop',
-  'audio-wave': 'wiggle',
   'mic-text': 'pop',
   'play-doc': 'pop',
   'chat-wave': 'pop',
-  'shield-audio': 'glow',
 
   // ブランド
   'meetscribe-brand': 'pop',
-  'meetscribe-brand-wave': 'wiggle',
   'meetscribe-brand-mic': 'pop',
   'meetscribe-brand-play': 'pop',
   'meetscribe-brand-chat': 'pop',
-  'meetscribe-brand-shield': 'glow',
 };
+
+// ========================================
+// アイコンごとのクリック回転 (角度 + 回転軸 / 1 クリック)
+// ========================================
+// 「クリックするたびにこの角度だけ回って、その角度で止まる (累積)」挙動を
+// 表すアイコン固有のデフォルト値。回転状態は持たない (純粋なルックアップ表) ので、
+// 累積角の保持はクリックを受け取るラッパー (IconButton 等) 側で行う。
+// axis 'y' は 3D フリップ (カード返し)。左右対称のアイコン専用 — 180° で
+// 鏡像になって止まるため、非対称アイコンに付けると裏返りが見えてしまう。
+export const CLICK_SPIN: Partial<Record<string, { deg: number; axis?: 'z' | 'y' }>> = {
+  gear: { deg: 90 },
+  'arrow-rotate': { deg: 180 },
+  // 「列」の入れ替えメタファー。縦棒が左右にくるっと入れ替わって見える
+  'columns-3': { deg: 180, axis: 'y' },
+  // ＋ は 4 回対称なので 90° で一捻りして元の見た目に着地する (45° は × に見えるので不可)
+  plus: { deg: 90 },
+}
 
 // ========================================
 // Icon コンポーネント
@@ -2117,6 +2109,7 @@ export const Icon: React.FC<IconProps> = ({
   color: colorProp,
   'aria-label': ariaLabel,
   'aria-hidden': ariaHidden,
+  viewBox,
 }) => {
   // preset から設定を解決。個別 prop が明示されていればそちらが勝つ。
   const presetConfig: PresetConfig | undefined = preset ? PRESET_MAP[preset] : undefined;
@@ -2191,7 +2184,7 @@ export const Icon: React.FC<IconProps> = ({
     } as React.CSSProperties,
     width: resolvedSize,
     height: resolvedSize,
-    viewBox: '0 0 24 24',
+    viewBox: viewBox ?? '0 0 24 24',
     fill: 'none',
     stroke: 'currentColor',
     strokeWidth,
@@ -2202,17 +2195,32 @@ export const Icon: React.FC<IconProps> = ({
     'data-component': 'icon',
   };
 
-  // Path をレンダリング
-  const renderPath = () => {
-    const pathRenderer = ICON_PATHS[name];
-    if (pathRenderer) {
-      return pathRenderer({});
-    }
-    if (process.env.NODE_ENV === 'development') {
-      console.warn(`Icon "${name}" not found`);
-    }
-    return null;
-  };
+  // 独自 SVG (ICON_PATHS) が最優先。衝突名 (bell/award 等) はここで解決される。
+  const customRenderer = ICON_PATHS[name];
+  if (customRenderer) {
+    return <svg {...svgProps}>{customRenderer({})}</svg>;
+  }
 
-  return <svg {...svgProps}>{renderPath()}</svg>;
+  // 独自に無ければ lucide registry にフォールバック (lucide は自前の <svg> を描く)。
+  const LucideComp = LUCIDE_ICONS[name as LucideIconName];
+  if (LucideComp) {
+    return (
+      <LucideComp
+        className={iconClasses}
+        style={svgProps.style}
+        size={resolvedSize}
+        strokeWidth={strokeWidth}
+        onClick={onClick}
+        aria-label={ariaLabel}
+        aria-hidden={ariaHidden ?? !ariaLabel}
+        data-icon={name}
+        data-component="icon"
+      />
+    );
+  }
+
+  if (process.env.NODE_ENV === 'development') {
+    console.warn(`Icon "${name}" not found`);
+  }
+  return <svg {...svgProps} />;
 };

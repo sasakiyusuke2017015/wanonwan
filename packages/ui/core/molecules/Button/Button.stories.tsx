@@ -40,7 +40,7 @@ export default {
 • 無効化状態(disabled) もサポート
 • アイコン対応(leftIcon, rightIcon)
 • ホップエフェクト(enableHopEffect) - ホバー時に上に浮き上がる、元の位置もクリック可能
-• シェイクエフェクト(triggerShake) - 成功通知などで左右に振動`,
+`,
       },
     },
   },
@@ -82,11 +82,6 @@ export default {
       control: { type: 'boolean' },
       description: 'ホバー時のホップエフェクトを有効化',
       table: { defaultValue: { summary: true } },
-    },
-    triggerShake: {
-      control: { type: 'boolean' },
-      description: 'シェイクアニメーションをトリガー',
-      table: { defaultValue: { summary: false } },
     },
     leftIcon: {
       control: { type: 'text' },
@@ -187,6 +182,29 @@ export const Outline = {
         code: `import { Button } from './Button/Button';
 
 <Button variant="outline">アウトラインボタン</Button>`,
+      },
+    },
+  },
+};
+
+// hover の塗りスイープ(nav/ghost 以外の全 variant に既定で付く。outline は枠線→塗りつぶし)
+export const FillSweep = {
+  args: {
+    variant: 'outline',
+    leftIcon: 'check',
+    children: '変更を保存',
+  },
+  parameters: {
+    backgrounds: { default: 'light' },
+    docs: {
+      description: {
+        story:
+          'hover で左→右に variant 色が浸食する塗りつぶし。nav / ghost 以外の全 variant に既定で付与され、塗り色は variant ごとに変わる(outline は枠線→primary 塗り)。',
+      },
+      source: {
+        code: `import { Button } from './Button/Button';
+
+<Button variant="outline" leftIcon="check">変更を保存</Button>`,
       },
     },
   },
@@ -518,46 +536,6 @@ export const HopEffect = {
   },
 };
 
-// シェイクエフェクトのデモ
-const ShakeEffectComponent = () => {
-  const [isShaking, setIsShaking] = React.useState(false);
-
-  const handleClick = () => {
-    setIsShaking(true);
-    setTimeout(() => setIsShaking(false), 1200);
-  };
-
-  return (
-    <div style={{ textAlign: 'center' }}>
-      <Button
-        variant="success"
-        triggerShake={isShaking}
-        onClick={handleClick}
-        leftIcon={'unlock'}
-      >
-        認証完了
-      </Button>
-      <p style={{ marginTop: '1rem', fontSize: '0.875rem', color: '#666' }}>
-        クリックするとボタンのアイコンが左右に振動します（Unlockアイコン）
-      </p>
-    </div>
-  );
-};
-
-export const ShakeEffect = {
-  args: {},
-  render: () => <ShakeEffectComponent />,
-  parameters: {
-    controls: { hideNoControlsWarning: true },
-    docs: {
-      description: {
-        story:
-          'クリック時にボタンが左右に振動するシェイクエフェクト。成功通知などに使用できます。',
-      },
-    },
-  },
-};
-
 // ログイン成功デモ
 const LoginSuccessComponent = () => {
   const [isSuccess, setIsSuccess] = React.useState(false);
@@ -576,7 +554,6 @@ const LoginSuccessComponent = () => {
     <div style={{ textAlign: 'center' }}>
       <Button
         variant={isSuccess ? 'success' : 'primary'}
-        triggerShake={isSuccess}
         onClick={handleLogin}
         disabled={isLoading}
         leftIcon={isSuccess ? 'lock' : undefined}

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { Card, CardHeader, CardContent, CardFooter } from './Card';
+import { Card, CardHeader, CardBody, CardFooter } from './Card';
 
 const meta: Meta<typeof Card> = {
   title: '表示/カード/Card',
@@ -50,9 +50,9 @@ export const WithSubComponents: Story = {
           <h3 style={{ fontWeight: 600 }}>タイトル</h3>
           <p style={{ fontSize: '0.75rem', color: '#6b7280' }}>説明テキスト</p>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           <p>メインコンテンツがここに入ります。</p>
-        </CardContent>
+        </CardBody>
         <CardFooter>
           <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>フッター</span>
         </CardFooter>
@@ -69,10 +69,10 @@ export const HeaderContentOnly: Story = {
         <CardHeader>
           <h3 style={{ fontWeight: 600 }}>食材カード</h3>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           <p>鶏むね肉 - 冷蔵 / カット済み</p>
           <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '4px' }}>残り 2日 12時間</p>
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   ),

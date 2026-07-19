@@ -9,6 +9,8 @@
   display: inline-block;
   font-weight: var(--font-weight-medium);
   text-align: center;
+  // ラベルは常に 1 行。狭い列で折り返すとバッジが縦に膨らみ行からはみ出す
+  white-space: nowrap;
 }
 
 // -----------------------------------------------------------------------------

@@ -60,7 +60,7 @@ export function CardHeader({ children, className = '' }: CardSectionProps) {
   )
 }
 
-export function CardContent({ children, className = '' }: CardSectionProps) {
+export function CardBody({ children, className = '' }: CardSectionProps) {
   return (
     <div className={[styles.cardContent, className].filter(Boolean).join(' ')} data-component="card-content">
       {children}

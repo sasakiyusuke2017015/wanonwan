@@ -94,7 +94,7 @@ export interface ServerSortDef {
 
 /**
  * server モード用の controlled ページャ定義 (1-based)。
- * フィールド名は `@ai-education/ui/molecules/Pagination` の `PaginationProps`
+ * フィールド名は `@ui-catalog/core/molecules/Pagination` の `PaginationProps`
  * (`currentPage` / `totalPages` / `onPageChange`) に揃えてある。
  */
 export interface PaginationDef {

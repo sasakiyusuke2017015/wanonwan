@@ -1,0 +1,13 @@
+// FormGrid の short 幅 (~245px) でも収まるよう、スウォッチ列と hex 入力の両方が折り返せるようにする
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2, 0.5rem);
+}
+
+.hex {
+  // hex 文字列 (#RRGGBB) が収まる程度に留め、スウォッチと横並びで間延びさせない。
+  width: 140px;
+  font-family: var(--font-family-mono, ui-monospace, monospace);
+}

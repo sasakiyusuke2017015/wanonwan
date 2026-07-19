@@ -7,7 +7,10 @@
 // -----------------------------------------------------------------------------
 .card {
   background-color: var(--color-white);
-  box-shadow: var(--shadow-default);
+  // ミニマル / 上品: 重い影をやめ、ヘアライン枠 + ごく薄い影でカードを定義する
+  // (DataTable コンテナと同じ罫線トーンに揃える)。
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
   border-radius: var(--border-radius-lg);
   display: flex;
   flex-direction: column;
@@ -77,7 +80,8 @@
 // -----------------------------------------------------------------------------
 .sectionHeader {
   padding: var(--spacing-4) var(--spacing-6);
-  border-bottom: 2px solid var(--color-gray-200);
+  // ミニマル: 太い 2px 罫線をやめ、本体と同じヘアライン罫線に揃える。
+  border-bottom: 1px solid var(--color-border);
 }
 
 .sectionTitle {

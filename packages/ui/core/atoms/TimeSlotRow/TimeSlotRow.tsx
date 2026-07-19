@@ -34,7 +34,7 @@ export function TimeSlotRow({
 }: TimeSlotRowProps) {
   return (
     <div
-      data-component="TimeSlotRow"
+      data-component="time-slot-row"
       className={`${styles.row} ${className}`}
       style={{
         gridTemplateColumns: `${labelWidth}px 1fr`,

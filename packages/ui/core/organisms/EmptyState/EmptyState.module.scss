@@ -25,3 +25,11 @@
     max-width: 320px;
   }
 }
+
+// variant="dashed" — border style のみ追加 (padding は default を継承)。
+// コンパクト padding が必要な場合は caller 側で className で個別調整する
+// (Plan v2 §判断 3 / NICE-TO-HAVE 4)。
+.dashed {
+  border: 1px dashed var(--color-border-primary);
+  border-radius: var(--border-radius-md);
+}

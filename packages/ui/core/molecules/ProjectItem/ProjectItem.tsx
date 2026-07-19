@@ -7,7 +7,7 @@
  * ツリー表示対応（インデント、接続線）。
  */
 
-import { Icon } from '@ui-catalog/core/atoms'
+import { Icon } from '../../atoms'
 
 import styles from './ProjectItem.module.scss'
 

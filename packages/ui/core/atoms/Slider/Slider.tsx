@@ -24,6 +24,8 @@ interface SliderProps {
   disabled?: boolean;
   /** 幅 */
   width?: string;
+  /** 塗り (進捗部分) とつまみの色 */
+  color?: string;
 }
 
 /**
@@ -39,6 +41,7 @@ export const Slider: FC<SliderProps> = ({
   formatValue = (v) => v.toString(),
   disabled = false,
   width = 'w-full',
+  color = '#3b82f6', // blue-500
 }) => {
   const log = useOperationLog('Slider');
 
@@ -47,6 +50,12 @@ export const Slider: FC<SliderProps> = ({
     log('change', { value: newValue, label });
     onChange(newValue);
   };
+
+  // 塗り (進捗部分) は gradient で自前描画する。accent-color のトラック描画は
+  // ブラウザが accent の明度でトラックを明暗反転させるため、色によって行ごとに
+  // 背景がバラつく。gradient なら全色で同一のトラック色 (gray-200) を保証できる。
+  const range = max - min;
+  const fillPct = range > 0 ? Math.min(Math.max(((value - min) / range) * 100, 0), 100) : 0;
 
   return (
     <div className={`flex flex-col space-y-1 ${width}`} data-component="slider">
@@ -66,7 +75,8 @@ export const Slider: FC<SliderProps> = ({
         disabled={disabled}
         className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
         style={{
-          accentColor: '#3b82f6', // blue-500
+          accentColor: color,
+          background: `linear-gradient(to right, ${color} ${fillPct}%, #e5e7eb ${fillPct}%)`,
         }}
       />
     </div>

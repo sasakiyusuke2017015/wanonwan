@@ -8,6 +8,10 @@
  */
 import type React from 'react';
 import type { IconName } from '../../constants';
+import type { LucideIconName } from './lucide-registry';
+
+/** 独自 SVG (IconName) と lucide registry (LucideIconName) の両方を受ける名前型 */
+export type AnyIconName = IconName | LucideIconName;
 
 /**
  * Preset 設定
@@ -17,7 +21,7 @@ import type { IconName } from '../../constants';
  * 個別 prop が渡された場合、そちらが preset を上書きする。
  */
 export interface PresetConfig {
-  name: IconName;
+  name: AnyIconName;
   color?: ColorVariant;
   /**
    * アクセント色（2 色目）。
@@ -40,114 +44,13 @@ export interface PresetConfig {
  * ローディングプリセット
  * preset を指定すると見た目レシピ（name/color/glow/animation/hover）が適用される
  */
-export type LoadingPreset =
-  | 'spinner'
-  | 'dots'
-  | 'pulse'
-  | 'cube'
-  | 'cube-glow'
-  | 'interview'
-  | 'dna'
-  | 'atom'
-  | 'rings'
-  | 'gears'
-  | 'hourglass'
-  | 'wave'
-  | 'radar'
-  | 'eclipse'
-  | 'clock'
-  | 'morph'
-  | 'orbit'
-  | 'triangle'
-  | 'heartbeat'
-  // 復元シリーズ
-  | 'bars'
-  | 'wifi'
-  | 'progress'
-  | 'infinity'
-  | 'ripple'
-  | 'star'
-  | 'cross'
-  // 表現拡張
-  | 'particles'
-  | 'comet'
-  | 'magnet'
-  | 'braid'
-  | 'vortex'
-  // サプライズ
-  | 'prism';
+export type LoadingPreset = 'spinner' | 'cube' | 'interview';
 
 /**
  * SCSS ベースのアニメーションプリセット
  * CSS アニメーションで実装（軽量・高パフォーマンス）
  */
-export type AnimationPreset =
-  // === 基本アニメーション ===
-  | 'bounce'
-  | 'bounce-in'
-  | 'bounce-out'
-  | 'bounce-horizontal'
-  | 'ping'
-  | 'pulse'
-  | 'pulse-scale'
-  | 'spin'
-  | 'spin-slow'
-  | 'spin-fast'
-  | 'spin-reverse'
-  | 'wiggle'
-  | 'wiggle-more'
-  | 'shake'
-  | 'shake-hard'
-  | 'float'
-  | 'float-rotate'
-  | 'heartbeat'
-  | 'tada'
-  | 'swing'
-  // === 3D エフェクト ===
-  | 'flip-x'
-  | 'flip-y'
-  | 'rotate-3d'
-  | 'flip-in'
-  | 'flip-out'
-  // === インタラクティブ ===
-  | 'pop'
-  | 'pop-in'
-  | 'rubber-band'
-  | 'jello'
-  | 'squeeze'
-  | 'wobble'
-  // === フェードエフェクト ===
-  | 'fade-in'
-  | 'fade-out'
-  | 'fade-in-up'
-  | 'fade-in-down'
-  | 'zoom-in'
-  | 'zoom-out'
-  // === スライドエフェクト ===
-  | 'slide-in-left'
-  | 'slide-in-right'
-  | 'slide-in-up'
-  | 'slide-in-down'
-  // === グロー効果 ===
-  | 'glow'
-  | 'glow-strong'
-  | 'glow-pulse'
-  | 'glow-breathe'
-  | 'glow-rainbow'
-  | 'neon'
-  | 'color-shift'
-  | 'rainbow'
-  | 'flash'
-  | 'flicker'
-  // === 特殊効果 ===
-  | 'sparkle'
-  | 'twinkle'
-  | 'glitch'
-  | 'blur-pulse'
-  | 'morph'
-  | 'liquid'
-  | 'orbit'
-  | 'ripple';
+export type AnimationPreset = 'pop' | 'shake' | 'spin';
 
 /**
  * ホバー時のアニメーションプリセット
@@ -155,33 +58,7 @@ export type AnimationPreset =
 export type HoverPreset =
   // === 自動（アイコンごとのデフォルト） ===
   | 'auto'
-  // === スケール ===
-  | 'scale'
-  | 'scale-large'
-  // === 回転 ===
-  | 'rotate'
-  | 'rotate-full'
-  // === グロー ===
-  | 'glow'
-  | 'neon'
-  // === バウンス系 ===
-  | 'bounce'
-  | 'pop'
-  | 'wiggle'
-  | 'shake'
-  | 'swing'
-  // === 回転系 ===
-  | 'spin'
-  | 'flip'
-  | 'flip-x'
-  // === 移動系 ===
-  | 'float'
-  // === 特殊効果 ===
-  | 'rubber-band'
-  | 'jello'
-  | 'tada'
-  | 'heartbeat'
-  | 'glitch';
+  | 'pop';
 
 /**
  * カラーバリアント
@@ -202,8 +79,11 @@ export type ColorVariant =
 export type SizePreset = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
 
 export interface IconProps {
-  /** アイコン名（presetを使う場合は省略可） */
-  name?: IconName;
+  /** アイコン名（presetを使う場合は省略可）。独自 SVG + lucide registry の両方を受ける */
+  name?: AnyIconName;
+
+  /** SVG の viewBox（デフォルト: "0 0 24 24"）。path の余白が非対称なアイコンの位置補正に使う */
+  viewBox?: string;
 
   /** ローディングプリセット（指定するとnameが自動設定される） */
   preset?: LoadingPreset;

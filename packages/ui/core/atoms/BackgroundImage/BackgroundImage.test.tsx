@@ -62,6 +62,27 @@ describe('BackgroundImage', () => {
     expect(floatingElements.length).toBe(1);
   });
 
+  it("variant='space' のとき背景画像を描画せず宇宙背景を描画する", () => {
+    const { container } = render(<BackgroundImage variant="space" />);
+    expect(
+      container.querySelector('[data-component="background-image"]'),
+    ).toBeInTheDocument();
+    expect(container.querySelector('[data-variant="space"]')).toBeInTheDocument();
+    // image variant の background-image を持つ div は出ない
+    const bgDiv = container.querySelector(
+      '[data-component="background-image"] > div > div',
+    ) as HTMLDivElement | null;
+    expect(bgDiv?.style.backgroundImage ?? '').toBe('');
+  });
+
+  it("variant='space' は決定的な星配置を描画する (SSR/CSR で安定)", () => {
+    const first = render(<BackgroundImage variant="space" starCount={30} />);
+    const firstHtml = first.container.innerHTML;
+    first.unmount();
+    const second = render(<BackgroundImage variant="space" starCount={30} />);
+    expect(second.container.innerHTML).toBe(firstHtml);
+  });
+
   it('フローティング要素にanimationDelayが適用される', () => {
     const customElements = [
       {

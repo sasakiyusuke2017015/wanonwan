@@ -1,158 +1,116 @@
-// src/components/common/molecules/Breadcrumb.tsx
-import { FC, CSSProperties } from 'react';
+'use client'
 
-import { InternalLink } from '../../molecules/InternalLink/InternalLink';
-import { type ColorTheme } from '../../constants';
-import styles from './Breadcrumb.module.scss';
+import { ComponentType, Fragment, ReactNode } from 'react'
+
+import { Icon } from '../../atoms/Icon'
 
 export interface BreadcrumbItem {
-  label: string;
-  href: string;
-  tooltip?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  /** React key。位置ベース等、呼び出し側で一意にする (同値 segment の衝突回避) */
+  key: string
+  /** 表示ラベル。isHome でアイコンのみ表示する場合は '' */
+  label: string
+  /** リンク先。省略時は span 表示 (動的 ID / リンク先の無い項目) */
+  href?: string
+  /** 先頭ホーム項目: ラベルの代わりに house アイコンを表示する */
+  isHome?: boolean
 }
 
-interface BreadcrumbProps {
-  items: BreadcrumbItem[];
-  separator?: string;
-  className?: string;
-  /** カラーテーマ（未指定時はグローバルテーマを使用） - 現在は未使用 */
-  colorTheme?: ColorTheme;
-  /** プライマリコントラストテキスト色 - Layout から props で渡す */
-  primaryContrastText?: string;
+export type BreadcrumbLinkComponent = ComponentType<{
+  href: string
+  className?: string
+  'aria-label'?: string
+  children: ReactNode
+}>
+
+export interface BreadcrumbProps {
   /**
-   * 表示バリアント
-   * - 'default'（既定）: 区切り文字でリンクを並べる従来スタイル
-   * - 'chevron': 矢羽形のステップを連結したスタイル（border-shape 使用、Chrome 147+）
+   * 表示項目。「どの階層を出すか / ラベルは何か / リンク可能か」の判断は
+   * 呼び出し側の責務 (本コンポーネントは href の有無で link / span を描き分けるだけ)。
    */
-  variant?: 'default' | 'chevron';
+  items: BreadcrumbItem[]
+  /** Next.js の Link 等を注入する。省略時は素の <a> */
+  linkAs?: BreadcrumbLinkComponent
+  className?: string
 }
+
+const DefaultLink: BreadcrumbLinkComponent = ({ href, children, ...rest }) => (
+  <a href={href} {...rest}>
+    {children}
+  </a>
+)
 
 /**
- * パンくずリストコンポーネント
- * ページの階層構造をナビゲーション可能なリンクとして表示
+ * パンくずナビゲーションの presentational 部品 (階層ナビの正準)。
+ *
+ * - 末尾は現在ページとして span + aria-current="page" (href があっても link にしない)
+ * - href の無い中間項目は span (動的 ID 等、クリックで 404 になる link を作らない)
+ * - items が home 1 件だけのときはホームアイコンのみ表示 (ダッシュボード表示)
+ * - pathname 解析・ラベル解決・省略ルールは呼び出し側 (apps) が持つ
  */
-export const Breadcrumb: FC<BreadcrumbProps> = ({
-  items,
-  separator = '>',
-  className = '',
-  primaryContrastText = '#ffffff', // デフォルト値（白）
-  variant = 'default',
-}) => {
-  if (!items || items.length === 0) {
-    return null;
-  }
+export function Breadcrumb({ items, linkAs, className = '' }: BreadcrumbProps) {
+  if (items.length === 0) return null
+  const LinkComponent = linkAs ?? DefaultLink
 
-  if (variant === 'chevron') {
+  // ホーム単独 (ダッシュボード): アイコンだけの現在地表示
+  if (items.length === 1 && items[0].isHome) {
     return (
       <nav
-        className={[styles.breadcrumb, styles['breadcrumb--chevron'], className].filter(Boolean).join(' ')}
-        aria-label="breadcrumb"
+        aria-label="パンくず"
+        className={`flex items-center gap-1.5 text-sm ${className}`.trim()}
         data-component="breadcrumb"
       >
-        <ol className={styles['breadcrumb__chevron-list']}>
-          {items.map((item, index) => {
-            const isLast = index === items.length - 1;
-            const isFirst = index === 0;
-            const stepClasses = [
-              styles['breadcrumb__chevron-step'],
-              isFirst && styles['breadcrumb__chevron-step--first'],
-              isLast && styles['breadcrumb__chevron-step--current'],
-            ]
-              .filter(Boolean)
-              .join(' ');
-
-            return (
-              <li key={index} className={stepClasses}>
-                {!isLast ? (
-                  <InternalLink href={item.href} showIcon={false} className={styles['breadcrumb__chevron-link']}>
-                    <span title={item.tooltip}>{item.label}</span>
-                  </InternalLink>
-                ) : (
-                  <span title={item.tooltip} aria-current="page">
-                    {item.label}
-                  </span>
-                )}
-              </li>
-            );
-          })}
-        </ol>
+        <span
+          className="inline-flex items-center font-medium text-foreground"
+          aria-label="ホーム"
+        >
+          <Icon name="house" size={14} strokeWidth={1.8} />
+        </span>
       </nav>
-    );
+    )
   }
 
-  // ヘッダー内で使用されるかどうかを判定
-  const isInHeader = className.includes('breadcrumb-in-header');
-
-  // サイズに応じたクラスを取得
-  const getSizeClass = (size?: 'sm' | 'md' | 'lg' | 'xl') => {
-    const sizeMap = {
-      sm: styles['breadcrumb__current--sm'],
-      md: styles['breadcrumb__current--md'],
-      lg: styles['breadcrumb__current--lg'],
-      xl: styles['breadcrumb__current--xl'],
-    };
-    return sizeMap[size || 'sm'];
-  };
-
-  // スタイルの切り替え（ヘッダー内はテーマ色を使用）
-  const getLinkStyle = (): CSSProperties | undefined => {
-    if (!isInHeader) return { color: '#2563eb' }; // blue-600
-    return { color: primaryContrastText }; // テーマから受け取った色
-  };
-
-  const getSeparatorStyle = (): CSSProperties | undefined => {
-    if (!isInHeader) return { color: '#9ca3af' }; // gray-400
-    return { color: primaryContrastText }; // テーマから受け取った色
-  };
-
-  const getLastItemStyle = (): CSSProperties | undefined => {
-    if (!isInHeader) return { color: '#374151' }; // gray-700
-    return { color: primaryContrastText }; // テーマから受け取った色
-  };
-
-  const navClasses = [styles.breadcrumb, className].filter(Boolean).join(' ');
-
   return (
-    <nav className={navClasses} aria-label="breadcrumb" data-component="breadcrumb">
-      <ul className={styles.breadcrumb__list}>
-        {items.map((item, index) => {
-          const isLast = index === items.length - 1;
-
-          return (
-            <li key={index} className={styles.breadcrumb__item}>
-              {!isLast ? (
-                <>
-                  <InternalLink
-                    href={item.href}
-                    showIcon={false}
-                    className={styles.breadcrumb__link}
-                    style={getLinkStyle()}
-                  >
-                    <span title={item.tooltip}>
-                      {item.label}
-                    </span>
-                  </InternalLink>
-                  <span
-                    className={styles.breadcrumb__separator}
-                    style={getSeparatorStyle()}
-                  >
-                    {separator}
-                  </span>
-                </>
-              ) : (
-                <span
-                  className={[styles.breadcrumb__current, getSizeClass(item.size)].join(' ')}
-                  style={getLastItemStyle()}
-                  title={item.tooltip}
-                >
-                  {item.label}
-                </span>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+    <nav
+      aria-label="パンくず"
+      className={`flex min-w-0 items-center gap-1.5 text-sm ${className}`.trim()}
+      data-component="breadcrumb"
+    >
+      {items.map((item, i) => {
+        const isLast = i === items.length - 1
+        return (
+          <Fragment key={item.key}>
+            {i > 0 && (
+              <Icon
+                name="chevron-right"
+                aria-hidden
+                size={14}
+                className="shrink-0 text-muted-foreground/60"
+                strokeWidth={1.8}
+              />
+            )}
+            {isLast ? (
+              <span className="truncate font-semibold text-foreground" aria-current="page">
+                {item.isHome ? <Icon name="house" size={14} strokeWidth={1.8} aria-hidden /> : item.label}
+              </span>
+            ) : item.href ? (
+              <LinkComponent
+                href={item.href}
+                aria-label={item.isHome ? 'ホーム' : undefined}
+                className="inline-flex shrink-0 items-center gap-1.5 truncate text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {item.isHome && <Icon name="house" size={14} strokeWidth={1.8} aria-hidden />}
+                {item.label && <span className="truncate">{item.label}</span>}
+              </LinkComponent>
+            ) : (
+              // href の無い項目 (動的 ID 等) は対応する page が無いことが多いので
+              // link にせず span で表示。クリックで 404 になるのを防ぐ。
+              <span className="inline-flex shrink-0 items-center gap-1.5 truncate text-muted-foreground">
+                <span className="truncate">{item.label}</span>
+              </span>
+            )}
+          </Fragment>
+        )
+      })}
     </nav>
-  );
-};
+  )
+}

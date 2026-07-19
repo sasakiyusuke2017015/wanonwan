@@ -2,9 +2,9 @@
 
 import { FC, ReactNode, ButtonHTMLAttributes, useState } from 'react'
 
-import { type IconName } from '../../constants'
 import { useOperationLog } from '../../../infra/devtools'
-import { Icon } from '../../atoms/Icon'
+import { Icon, type AnyIconName } from '../../atoms/Icon'
+import { ShimmerOverlay } from '../../atoms/ShimmerOverlay'
 import { Spinner } from '../../atoms/Spinner'
 
 import styles from './Button.module.scss'
@@ -25,17 +25,26 @@ interface ButtonProps
   variant?: ButtonVariant
   size?: ButtonSize
   disabled?: boolean
-  /** ローディング状態（スピナー表示） */
+  /** ローディング状態（スピナー表示。children を Spinner に差し替える） */
   loading?: boolean
+  /**
+   * 遷移待ち状態。children はそのまま残しつつ、上に反復 shimmer を重ねる。
+   * `loading`(Spinner 置換) とは別物で、`disabled` にはしない（遷移はブラウザ/
+   * router に任せる）。別ページに遷移する CTA のクリック→遷移完了フィードバック用。
+   */
+  navPending?: boolean
   onClick?: () => void
   children: ReactNode
   className?: string
-  leftIcon?: IconName
-  rightIcon?: IconName
+  leftIcon?: AnyIconName
+  rightIcon?: AnyIconName
   iconSize?: number
   enableHopEffect?: boolean
-  enableShimmer?: boolean
-  triggerShake?: boolean
+  /**
+   * leftIcon / rightIcon を hover ではなくクリック時に 1 回だけ pop させる。
+   * 既定 (false) は従来どおり hover で pop。
+   */
+  popIconOnClick?: boolean
   /** borderRadius（形状設定用） - Layout から props で渡す */
   borderRadius?: string
   /** 選択状態（nav variant 用） */
@@ -51,6 +60,7 @@ export const Button: FC<ButtonProps> = ({
   size = 'medium',
   disabled = false,
   loading = false,
+  navPending = false,
   onClick,
   children,
   className = '',
@@ -58,16 +68,18 @@ export const Button: FC<ButtonProps> = ({
   rightIcon,
   iconSize,
   enableHopEffect = false,
-  enableShimmer = true,
-  triggerShake: _triggerShake = false,
+  popIconOnClick = false,
   borderRadius = '0.375rem',
   selected = false,
   fullWidth = false,
   accentColor,
+  type,
   ...props
 }) => {
   const isDisabled = disabled || loading
   const [isHovered, setIsHovered] = useState(false)
+  const [popKey, setPopKey] = useState(0)
+  const bumpPop = popIconOnClick ? () => setPopKey((k) => k + 1) : undefined
   const log = useOperationLog('Button')
 
   // バリアント別の内側陰影色
@@ -102,7 +114,8 @@ export const Button: FC<ButtonProps> = ({
     styles.button,
     styles[variant],
     styles[size],
-    enableShimmer && variant !== 'nav' && variant !== 'ghost' && styles.shimmer,
+    // fillSweep (hover の方向塗り) は nav / ghost 以外の全 variant に既定で付与。
+    variant !== 'nav' && variant !== 'ghost' && styles.fillSweep,
     enableHopEffect && styles.hopEffect,
     isDisabled && styles.disabled,
     selected && styles.selected,
@@ -126,13 +139,14 @@ export const Button: FC<ButtonProps> = ({
 
   const buttonElement = (
     <button
-      type="button"
+      type={type ?? 'button'}
       className={buttonClasses}
       disabled={isDisabled}
       style={customStyle}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={enableHopEffect ? undefined : isDisabled ? undefined : () => {
+        bumpPop?.()
         log('click', { variant, size, disabled, loading })
         onClick?.()
       }}
@@ -140,28 +154,34 @@ export const Button: FC<ButtonProps> = ({
       data-variant={variant}
       data-size={size}
       data-loading={loading || undefined}
+      data-nav-pending={navPending || undefined}
       {...props}
     >
       <span className={styles.content}>
         {loading && <LoadingSpinner />}
         {!loading && leftIcon && (
           <Icon
+            key={popIconOnClick ? `l-${popKey}` : undefined}
             name={leftIcon}
             size={getIconSize()}
             className={styles.icon}
-            hover="pop"
+            hover={popIconOnClick ? undefined : 'pop'}
+            animation={popIconOnClick && popKey > 0 ? 'pop' : undefined}
           />
         )}
         {children}
         {!loading && rightIcon && (
           <Icon
+            key={popIconOnClick ? `r-${popKey}` : undefined}
             name={rightIcon}
             size={getIconSize()}
             className={styles.icon}
-            hover="pop"
+            hover={popIconOnClick ? undefined : 'pop'}
+            animation={popIconOnClick && popKey > 0 ? 'pop' : undefined}
           />
         )}
       </span>
+      <ShimmerOverlay active={navPending} />
     </button>
   )
 
@@ -173,12 +193,14 @@ export const Button: FC<ButtonProps> = ({
         role="button"
         tabIndex={isDisabled ? -1 : 0}
         onClick={isDisabled ? undefined : () => {
+          bumpPop?.()
           log('click', { variant, size, disabled, loading, hopEffect: true })
           onClick?.()
         }}
         onKeyDown={(e) => {
           if (!isDisabled && (e.key === 'Enter' || e.key === ' ')) {
             e.preventDefault()
+            bumpPop?.()
             onClick?.()
           }
         }}

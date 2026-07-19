@@ -42,13 +42,14 @@ describe('Progress', () => {
   });
 
   it('showLabel=trueでラベルが表示される', () => {
+    // Progress は小数点 1 桁でラベルを描画する (60.0%)
     const { container } = render(<Progress value={60} showLabel />);
-    expect(container.textContent).toContain('60%');
+    expect(container.textContent).toContain('60.0%');
   });
 
   it('showLabel=falseでラベルが非表示', () => {
     const { container } = render(<Progress value={60} />);
-    expect(container.textContent).not.toContain('60%');
+    expect(container.textContent).not.toContain('60.0%');
   });
 
   it('カスタムclassNameが適用される', () => {

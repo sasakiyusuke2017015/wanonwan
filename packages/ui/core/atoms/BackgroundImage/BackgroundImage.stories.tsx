@@ -15,9 +15,18 @@ const meta: Meta<typeof BackgroundImage> = {
     },
   },
   argTypes: {
+    variant: {
+      control: 'inline-radio',
+      options: ['image', 'space'],
+      description: "背景の種類。'space' は外部画像なしの宇宙背景 (流星 / ネビュラ / 多層の星)",
+    },
     src: {
       control: 'text',
-      description: '背景画像のURL',
+      description: '背景画像のURL (variant=image のとき必須)',
+    },
+    starCount: {
+      control: { type: 'range', min: 20, max: 150, step: 10 },
+      description: 'space variant の星の密度 (最前面の層の個数)',
     },
     opacity: {
       control: { type: 'range', min: 0, max: 100, step: 5 },
@@ -48,6 +57,14 @@ export const Default: Story = {
   args: {
     src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
     opacity: 60,
+  },
+};
+
+// 宇宙背景 (外部画像なし)。流星 + ネビュラ + 多層の星のパララックス。
+export const Space: Story = {
+  args: {
+    variant: 'space',
+    starCount: 70,
   },
 };
 

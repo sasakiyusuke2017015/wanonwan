@@ -1,12 +1,11 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useId, useRef, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 
 import { useOperationLog } from '../../../infra/devtools';
 import { cn } from '../../utils/cn';
 
-import { Checkbox } from '../../atoms/Checkbox';
 import { Icon } from '../../atoms/Icon';
 
 interface SelectOption<T = string | number> {
@@ -36,6 +35,11 @@ interface SelectBaseProps<T = string | number> {
   emptyLabel?: string;
   /** borderRadius（形状設定用） - Layout から props で渡す */
   borderRadius?: string;
+  /** 固定高さ（フォーム内で Input 等と高さを揃える用）。未指定なら size 由来 */
+  height?: string;
+  /** フォームフィールドのエラー説明との a11y 接続用 (FieldShell 経由)。button に転送する。 */
+  'aria-describedby'?: string;
+  'aria-invalid'?: boolean;
 }
 
 /** 単一選択Props */
@@ -56,7 +60,10 @@ interface MultipleSelectProps<T = string | number> extends SelectBaseProps<T> {
 
 type SelectProps<T = string | number> = SingleSelectProps<T> | MultipleSelectProps<T>;
 
-/** 複数選択オプション行（liホバーでCheckboxのforceHoveredを制御） */
+/**
+ * 複数選択オプション行。単一選択と同じ見た目（ラベルのみ）にし、選択中のときだけ
+ * 右端にチェックアイコンを出す（左 Checkbox は使わない）。
+ */
 const MultiSelectOption = ({
   isSelected,
   label,
@@ -74,28 +81,18 @@ const MultiSelectOption = ({
   onKeyDown: (e: React.KeyboardEvent) => void;
   isVisible: boolean;
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
+  const iconSize = size === 'large' ? 18 : size === 'medium' ? 16 : 14;
   return (
     <li
       onClick={onClick}
       onKeyDown={onKeyDown}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={className}
+      className={cn(className, 'flex items-center justify-between gap-2')}
       role="option"
       aria-selected={isSelected}
       tabIndex={0}
     >
-      <span className="pointer-events-none flex items-center gap-2">
-        <Checkbox
-          checked={isSelected}
-          readOnly
-          size={size === 'large' ? 'medium' : 'small'}
-          forceHovered={isHovered}
-        />
-        <span className={size === 'large' ? 'text-fluid-base' : 'text-fluid-sm'}>{label}</span>
-      </span>
+      <span className={size === 'large' ? 'text-fluid-base' : 'text-fluid-sm'}>{label}</span>
+      {isSelected && <Icon name="check" size={iconSize} className="shrink-0" />}
     </li>
   );
 };
@@ -116,6 +113,9 @@ export const Select = <T extends string | number = string>(props: SelectProps<T>
     allowEmpty = true,
     emptyLabel,
     borderRadius = '0.375rem',
+    height,
+    'aria-describedby': ariaDescribedBy,
+    'aria-invalid': ariaInvalid,
   } = props;
 
   const log = useOperationLog('Select');
@@ -157,16 +157,19 @@ export const Select = <T extends string | number = string>(props: SelectProps<T>
     }
   }, [isOpen, options.length, allowEmpty, isMultiple]);
 
-  // 単一選択: 選択中の値がオプションにない場合は最初のオプションにフォールバック
+  // 単一選択: 選択中の値がオプションにない場合は最初のオプションにフォールバック。
+  // ただし allowEmpty のとき '' / null は「未選択」の正当な値なので補正しない
+  // (filter Select でリセット/初期表示時に先頭が勝手に選ばれフィルタが誤発火するのを防ぐ)。
   useEffect(() => {
     if (isMultiple) return;
     const singleProps = props as SingleSelectProps<T>;
     if (singleProps.value === undefined) return;
+    if (allowEmpty && (singleProps.value === '' || singleProps.value === null)) return;
     const valueExists = options.some((opt) => opt.value === singleProps.value);
     if (!valueExists && options.length > 0) {
       singleProps.onChange(options[0].value);
     }
-  }, [isMultiple, options, props]);
+  }, [isMultiple, options, props, allowEmpty]);
 
   // 単一選択: 選択中のオプションを取得
   const selectedOption = !isMultiple
@@ -207,15 +210,24 @@ export const Select = <T extends string | number = string>(props: SelectProps<T>
     }
   }, [isOpen, updateDropdownPosition]);
 
-  // スクロール・リサイズ時に位置を再計算
+  // ドロップダウンは position: fixed + viewport 座標で配置している。ページをスクロール
+  // するとボタンが動き、再計算は React の再レンダリングを挟むため 1 フレーム遅れて
+  // 「一瞬ずれる」。これを根絶するため、ページスクロール時は閉じる。
+  // ただしメニュー内部 (オプション一覧の overflow スクロール) では閉じない
+  // （最下部オプションまでスクロールできるようにする）。リサイズ時のみ再計算する。
   useEffect(() => {
     if (!isOpen) return;
-    const handleScrollOrResize = () => updateDropdownPosition();
-    window.addEventListener('scroll', handleScrollOrResize, true);
-    window.addEventListener('resize', handleScrollOrResize);
+    const handleScroll = (e: Event) => {
+      const node = e.target instanceof Node ? e.target : null;
+      if (node && dropdownRef.current?.contains(node)) return;
+      setIsOpen(false);
+    };
+    const handleResize = () => updateDropdownPosition();
+    window.addEventListener('scroll', handleScroll, true);
+    window.addEventListener('resize', handleResize);
     return () => {
-      window.removeEventListener('scroll', handleScrollOrResize, true);
-      window.removeEventListener('resize', handleScrollOrResize);
+      window.removeEventListener('scroll', handleScroll, true);
+      window.removeEventListener('resize', handleResize);
     };
   }, [isOpen, updateDropdownPosition]);
 
@@ -309,12 +321,15 @@ export const Select = <T extends string | number = string>(props: SelectProps<T>
 
   const styles = variantStyles[variant];
 
-  // 自動生成ID
-  const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
+  // 自動生成 ID。Math.random() だと SSR と CSR で異なる値になり hydration mismatch
+  // を起こすので、React 18+ の useId() を使う (server / client で同じ ID が出る)。
+  const autoId = useId();
+  const selectId = id ?? `select-${autoId}`;
 
   const buttonStyle: React.CSSProperties = {
     ...(!disabled && isHovered ? { boxShadow: 'inset 0 0 0 2px rgba(59, 130, 246, 0.3)' } : {}),
     borderRadius,
+    ...(height ? { height } : {}),
   };
 
   const selectElement = (
@@ -356,6 +371,8 @@ export const Select = <T extends string | number = string>(props: SelectProps<T>
         style={buttonStyle}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
+        aria-describedby={ariaDescribedBy}
+        aria-invalid={ariaInvalid}
       >
         <span className={cn(!hasValue && 'text-gray-400')}>
           {displayText}

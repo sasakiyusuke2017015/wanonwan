@@ -21,12 +21,12 @@ describe('StatusBar', () => {
   it('variant=error のクラスが適用される', () => {
     const { container } = render(<StatusBar message="エラー" variant="error" />)
     const el = container.querySelector('[data-component="status-bar"]')
-    expect(el?.className).toContain('text-(--color-error)')
+    expect(el?.className).toContain('statusBar--error')
   })
 
   it('variant=info のクラスが適用される', () => {
     const { container } = render(<StatusBar message="情報" variant="info" />)
     const el = container.querySelector('[data-component="status-bar"]')
-    expect(el?.className).toContain('text-(--color-accent)')
+    expect(el?.className).toContain('statusBar--info')
   })
 })

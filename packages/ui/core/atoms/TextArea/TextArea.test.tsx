@@ -14,9 +14,9 @@ describe('TextArea', () => {
     expect(screen.getByText('コメント')).toBeInTheDocument();
   });
 
-  it('required時にアスタリスクが表示される', () => {
+  it('required時に必須ラベルが表示される', () => {
     render(<TextArea label="コメント" id="comment" required />);
-    expect(screen.getByText('*')).toBeInTheDocument();
+    expect(screen.getByText('必須')).toBeInTheDocument();
   });
 
   it('placeholder が表示される', () => {
@@ -100,7 +100,7 @@ describe('TextArea', () => {
   it('error時にエラースタイルが適用される', () => {
     const { container } = render(<TextArea error />);
     const textarea = container.querySelector('textarea');
-    expect(textarea).toHaveClass('border-2', 'border-red-500');
+    expect(textarea).toHaveClass('error');
   });
 
   it('rows属性が正しく適用される', () => {

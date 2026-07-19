@@ -54,7 +54,7 @@ export function CalendarDragOverlay() {
   if (!drag || drag.mode !== 'move') return null
 
   return createPortal(
-    <div data-component="CalendarDragOverlay">
+    <div data-component="calendar-drag-overlay">
       <GhostCard drag={drag} />
     </div>,
     document.body

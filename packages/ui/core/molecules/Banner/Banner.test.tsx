@@ -19,36 +19,36 @@ describe('Banner', () => {
     expect(screen.getByText('メッセージのみ')).toBeInTheDocument();
   });
 
-  it('variantがinfoの場合、青色の背景とボーダーを適用する', () => {
+  it('variantがinfoの場合、対応する variant class を適用する', () => {
     const { container } = render(
       <Banner variant="info" message="情報メッセージ" />
     );
     const banner = container.firstChild as HTMLElement;
-    expect(banner).toHaveClass('bg-blue-50', 'border-blue-200');
+    expect(banner).toHaveClass('banner', 'banner--info');
   });
 
-  it('variantがwarningの場合、黄色の背景とボーダーを適用する', () => {
+  it('variantがwarningの場合、対応する variant class を適用する', () => {
     const { container } = render(
       <Banner variant="warning" message="警告メッセージ" />
     );
     const banner = container.firstChild as HTMLElement;
-    expect(banner).toHaveClass('bg-amber-50', 'border-amber-200');
+    expect(banner).toHaveClass('banner', 'banner--warning');
   });
 
-  it('variantがsuccessの場合、緑色の背景とボーダーを適用する', () => {
+  it('variantがsuccessの場合、対応する variant class を適用する', () => {
     const { container } = render(
       <Banner variant="success" message="成功メッセージ" />
     );
     const banner = container.firstChild as HTMLElement;
-    expect(banner).toHaveClass('bg-green-50', 'border-green-200');
+    expect(banner).toHaveClass('banner', 'banner--success');
   });
 
-  it('variantがerrorの場合、赤色の背景とボーダーを適用する', () => {
+  it('variantがerrorの場合、対応する variant class を適用する', () => {
     const { container } = render(
       <Banner variant="error" message="エラーメッセージ" />
     );
     const banner = container.firstChild as HTMLElement;
-    expect(banner).toHaveClass('bg-red-50', 'border-red-200');
+    expect(banner).toHaveClass('banner', 'banner--error');
   });
 
   it('カスタムclassNameが適用される', () => {
@@ -64,7 +64,7 @@ describe('Banner', () => {
       <Banner variant="info" message="テスト" />
     );
     const banner = container.firstChild as HTMLElement;
-    expect(banner).toHaveClass('p-4', 'border', 'rounded-lg');
+    expect(banner).toHaveClass('banner');
   });
 
   it('data-component属性が設定される', () => {

@@ -1,0 +1,52 @@
+// =============================================================================
+// ShimmerOverlay — 反復スイープの半透明ハイライト (遷移待ちフィードバック)
+// =============================================================================
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  // 親の角丸に追従する (rounded ボタン/リンクの角からハイライトがはみ出ない)。
+  border-radius: inherit;
+  // 背景の「上」・文字の「下」でスイープさせる。親が stacking context を張って
+  // いる前提 (Button は transform、NavShimmerLink は isolate で張る)。負の z-index に
+  // より stacking context の背景の上・非配置の子 (アイコン/文字) の下に入り、
+  // 文字は鮮明なまま背景上をハイライトが流れる。
+  z-index: -1;
+}
+
+.sweep {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+}
+
+// モーション許容時のみ反復スイープ。reduce 指定では静的な淡い面にフォールバック。
+@media (prefers-reduced-motion: no-preference) {
+  .sweep {
+    animation: shimmer-overlay-sweep 1.4s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sweep {
+    transform: none;
+    background: rgba(255, 255, 255, 0.16);
+  }
+}
+
+@keyframes shimmer-overlay-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}

@@ -11,7 +11,7 @@ describe('EventCard', () => {
 
     it('has data-component attribute', () => {
       render(<CalendarEventCard variant="compact" title="Lunch" color="#4f46e5" />)
-      expect(screen.getByText('Lunch').closest('[data-component]')).toHaveAttribute('data-component', 'event-card')
+      expect(screen.getByText('Lunch').closest('[data-component]')).toHaveAttribute('data-component', 'CalendarEventCard')
     })
 
     it('applies background color', () => {
@@ -30,14 +30,14 @@ describe('EventCard', () => {
     it('renders delete button when onDelete is provided', () => {
       const onDelete = vi.fn()
       render(<CalendarEventCard variant="compact" title="Lunch" color="#4f46e5" onDelete={onDelete} />)
-      const deleteBtn = screen.getByRole('button', { name: 'Delete event' })
+      const deleteBtn = screen.getByRole('button', { name: 'イベントを削除' })
       fireEvent.click(deleteBtn)
       expect(onDelete).toHaveBeenCalledTimes(1)
     })
 
     it('does not render delete button when onDelete is not provided', () => {
       render(<CalendarEventCard variant="compact" title="Lunch" color="#4f46e5" />)
-      expect(screen.queryByRole('button', { name: 'Delete event' })).toBeNull()
+      expect(screen.queryByRole('button', { name: 'イベントを削除' })).toBeNull()
     })
 
     it('renders children', () => {
@@ -68,7 +68,7 @@ describe('EventCard', () => {
     it('has data-component attribute', () => {
       render(<CalendarEventCard {...baseProps} />)
       const el = screen.getByText('Meeting').closest('[data-component]')
-      expect(el).toHaveAttribute('data-component', 'event-card')
+      expect(el).toHaveAttribute('data-component', 'CalendarEventCard')
     })
 
     it('applies positioning styles', () => {
@@ -87,7 +87,7 @@ describe('EventCard', () => {
     it('renders delete button when onDelete is provided', () => {
       const onDelete = vi.fn()
       render(<CalendarEventCard {...baseProps} onDelete={onDelete} />)
-      const deleteBtn = screen.getByRole('button', { name: 'Delete event' })
+      const deleteBtn = screen.getByRole('button', { name: 'イベントを削除' })
       fireEvent.click(deleteBtn)
       expect(onDelete).toHaveBeenCalledTimes(1)
     })

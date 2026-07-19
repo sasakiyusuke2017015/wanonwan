@@ -102,6 +102,52 @@ describe('Select', () => {
   });
 });
 
+// 単一選択フォールバック (value が options に無いときの自動補正)。
+// フォールバック useEffect は初回マウントで発火するので、render 直後の
+// onChange.mock.calls で判定する (rerender 不要)。
+describe('Select - 単一フォールバック (allowEmpty 未選択値の保持)', () => {
+  const mockOptions = [
+    { value: 'option1', label: 'オプション1' },
+    { value: 'option2', label: 'オプション2' },
+  ];
+
+  it('allowEmpty(default) + value="" → 先頭を自動選択せず onChange を呼ばない (フィルタ誤発火防止)', () => {
+    const handleChange = vi.fn();
+    render(<Select options={mockOptions} value="" onChange={handleChange} />);
+    expect(handleChange).not.toHaveBeenCalled();
+  });
+
+  it('allowEmpty + value=null → onChange を呼ばない', () => {
+    const handleChange = vi.fn();
+    // null も「未選択」の正当値として扱う
+    render(<Select options={mockOptions} value={null as unknown as string} onChange={handleChange} />);
+    expect(handleChange).not.toHaveBeenCalled();
+  });
+
+  it('allowEmpty=false + value が options に無い → 先頭にフォールバックする (required の自動補正 retention)', () => {
+    const handleChange = vi.fn();
+    render(
+      <Select options={mockOptions} value="不存在" onChange={handleChange} allowEmpty={false} />,
+    );
+    expect(handleChange).toHaveBeenCalledTimes(1);
+    expect(handleChange).toHaveBeenCalledWith('option1');
+  });
+
+  it('allowEmpty(default) + value が options に存在 → onChange を呼ばない (retention)', () => {
+    const handleChange = vi.fn();
+    render(<Select options={mockOptions} value="option1" onChange={handleChange} />);
+    expect(handleChange).not.toHaveBeenCalled();
+  });
+
+  it('allowEmpty=false + value が options に存在 → onChange を呼ばない (retention)', () => {
+    const handleChange = vi.fn();
+    render(
+      <Select options={mockOptions} value="option2" onChange={handleChange} allowEmpty={false} />,
+    );
+    expect(handleChange).not.toHaveBeenCalled();
+  });
+});
+
 describe('Select (multiple)', () => {
   const mockOptions = [
     { value: 'a', label: 'A項目' },
@@ -139,7 +185,7 @@ describe('Select (multiple)', () => {
     expect(screen.getByText('1個選択')).toBeInTheDocument();
   });
 
-  it('チェックボックスが表示される', async () => {
+  it('複数選択は単一と同じ見た目で、選択中は aria-selected で示される（チェックボックスなし）', async () => {
     const handleChange = vi.fn();
     const user = userEvent.setup();
 
@@ -151,14 +197,16 @@ describe('Select (multiple)', () => {
     const button = screen.getByRole('button');
     await user.click(button);
 
-    // チェックボックスが表示される
-    const checkboxes = screen.getAllByRole('checkbox');
-    expect(checkboxes).toHaveLength(3);
+    // 左チェックボックスは廃止 (単一選択と同じ見た目 + 選択時に右端チェックアイコン)
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+
+    const options = screen.getAllByRole('option');
+    expect(options).toHaveLength(3);
 
     // 'a' が選択済み
-    expect(checkboxes[0]).toBeChecked();
-    expect(checkboxes[1]).not.toBeChecked();
-    expect(checkboxes[2]).not.toBeChecked();
+    expect(options[0]).toHaveAttribute('aria-selected', 'true');
+    expect(options[1]).toHaveAttribute('aria-selected', 'false');
+    expect(options[2]).toHaveAttribute('aria-selected', 'false');
   });
 
   it('オプション選択でトグルされる（追加）', async () => {

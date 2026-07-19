@@ -31,8 +31,8 @@ describe('InternalLink', () => {
     expect(screen.getByText('テストリンク')).toBeInTheDocument();
   });
 
-  it('to属性が正しく適用される', () => {
-    const { container } = renderWithRouter(<InternalLink to="/dashboard">ダッシュボード</InternalLink>);
+  it('href属性が正しく適用される', () => {
+    const { container } = renderWithRouter(<InternalLink href="/dashboard">ダッシュボード</InternalLink>);
     const link = container.querySelector('a');
     expect(link).toHaveAttribute('href', '/dashboard');
   });

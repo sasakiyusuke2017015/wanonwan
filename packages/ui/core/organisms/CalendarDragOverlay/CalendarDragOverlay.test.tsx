@@ -32,7 +32,7 @@ describe('DragOverlay', () => {
       </Provider>
     )
 
-    const overlay = document.querySelector('[data-component="DragOverlay"]')
+    const overlay = document.querySelector('[data-component="calendar-drag-overlay"]')
     expect(overlay).toBeNull()
     expect(container.innerHTML).toBe('')
   })
@@ -47,7 +47,7 @@ describe('DragOverlay', () => {
       </Provider>
     )
 
-    const overlay = document.querySelector('[data-component="DragOverlay"]')
+    const overlay = document.querySelector('[data-component="calendar-drag-overlay"]')
     expect(overlay).toBeTruthy()
     expect(overlay?.textContent).toContain('Test Event')
     expect(overlay?.textContent).toContain('09:00')
@@ -64,8 +64,8 @@ describe('DragOverlay', () => {
       </Provider>
     )
 
-    const overlay = document.querySelector('[data-component="DragOverlay"]')
+    const overlay = document.querySelector('[data-component="calendar-drag-overlay"]')
     expect(overlay).toBeTruthy()
-    expect(overlay?.getAttribute('data-component')).toBe('DragOverlay')
+    expect(overlay?.getAttribute('data-component')).toBe('calendar-drag-overlay')
   })
 })

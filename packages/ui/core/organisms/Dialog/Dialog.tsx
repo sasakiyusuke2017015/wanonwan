@@ -1,6 +1,13 @@
 'use client'
 
-// src/components/common/molecules/Dialog.tsx
+/**
+ * Dialog — 定型メッセージ型のオーバーレイ (`message: string` + ボタン)。
+ *
+ * 棲み分け (同じオーバーレイでもコンテンツ契約が別なら別 component — ui-architecture.md §3):
+ * - 確認 (確定/キャンセル) は `ConfirmDialog` 経由で使う (正準 API)
+ * - 通知のみは `<Dialog variant="alert">` を直接使う
+ * - 自由コンテンツ (children) の枠が必要なら `Modal` を使う
+ */
 import { FC, useEffect, useId } from 'react';
 
 import { createPortal } from 'react-dom';
@@ -58,7 +65,7 @@ const typeConfig = {
     headerBg: 'bg-yellow-50',
   },
   error: {
-    icon: 'info-circle',
+    icon: 'x-circle',
     iconColor: 'text-red-500',
     headerBg: 'bg-red-50',
   },
@@ -78,6 +85,16 @@ const typeConfig = {
  * 汎用ダイアログコンポーネント
  * variant='alert': window.alertの代替（OKボタンのみ）
  * variant='confirm': window.confirmの代替（キャンセル+確定ボタン）
+ *
+ * a11y:
+ * - role="dialog" + aria-modal="true" で modal として SR に認識される
+ * - aria-labelledby (title あり時) / aria-label (title なし時) でラベル付与
+ * - aria-describedby で message を SR に読み上げ
+ * - focus-trap-react で modal 内に focus を閉じ込め
+ * - type="danger" 時は cancel ボタンに初期 focus (誤確定防止)
+ * - 閉じた後は trigger 要素に focus 復帰 (FocusTrap デフォルト)
+ * - backdrop からは role="button" を削除 (W3C 準拠)。aria-hidden は付与しない
+ *   (modal 本体が backdrop の子のため、付与すると a11y tree から modal も消える)
  */
 export const Dialog: FC<DialogProps> = (props) => {
   const {
@@ -121,7 +138,7 @@ export const Dialog: FC<DialogProps> = (props) => {
     }
   };
 
-  // キーボードイベント
+  // キーボードイベント (ESC + Enter for alert)
   useEffect(() => {
     if (!isOpen) return;
 
@@ -152,18 +169,20 @@ export const Dialog: FC<DialogProps> = (props) => {
     }
   };
 
+  // type="danger" の confirm dialog は誤確定防止のため cancel ボタンに初期 focus
+  // (Button は forwardRef 未対応のため CSS selector 方式で指定)
+  const initialFocusSelector =
+    isConfirm && type === 'danger' ? '[data-dialog-cancel]' : undefined;
+
   return createPortal(
     <FocusTrap
       active={isOpen}
       focusTrapOptions={{
-        // confirm は誤確定防止のためキャンセルボタンに初期フォーカス
-        // （Button は forwardRef 未対応のため data 属性の CSS selector で指定）。
-        ...(isConfirm ? { initialFocus: '[data-dialog-cancel]' } : {}),
-        // フォーカス可能要素が見つからない環境（jsdom 等）向けのフォールバック。
+        ...(initialFocusSelector ? { initialFocus: initialFocusSelector } : {}),
+        // jsdom で focusable element が見つからない場合のフォールバック
         fallbackFocus: '[role="dialog"]',
-        // ESC / 背景クリックは既存の handleClose 経路で処理する（trap 側と二重発火させない）。
-        escapeDeactivates: false,
-        clickOutsideDeactivates: false,
+        escapeDeactivates: false, // ESC は上の useEffect で handleClose を呼ぶため二重発火を防ぐ
+        clickOutsideDeactivates: false, // 背景クリックも上の handleBackgroundClick で処理
       }}
     >
       <div
@@ -180,9 +199,9 @@ export const Dialog: FC<DialogProps> = (props) => {
           aria-labelledby={title ? titleId : undefined}
           aria-label={!title ? message : undefined}
           aria-describedby={messageId}
-          tabIndex={-1}
           className="bg-white shadow-xl"
           style={{ borderRadius, width: 480, maxWidth: '90%' }}
+          onClick={(e) => e.stopPropagation()}
         >
           {/* ヘッダー */}
           {title && (

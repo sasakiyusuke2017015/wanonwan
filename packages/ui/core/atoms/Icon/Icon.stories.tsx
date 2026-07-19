@@ -33,22 +33,7 @@ const ALL_ANIMATION_EASE = [
 ] as const;
 
 // プリセット一覧
-const LOADING_PRESETS = [
-  'spinner',
-  'dots',
-  'pulse',
-  'cube',
-  'cube-glow',
-  'interview',
-  'dna',
-  'atom',
-  'rings',
-  'gears',
-  'hourglass',
-  'wave',
-  'radar',
-  'eclipse',
-] as const;
+const LOADING_PRESETS = ['spinner', 'cube', 'interview'] as const;
 
 const meta: Meta<typeof Icon> = {
   title: 'アイコン/Icon',
@@ -2207,40 +2192,8 @@ export const Presets: Story = {
   render: function PresetsStory() {
     const presets = [
       { preset: 'spinner', desc: 'シンプルな回転' },
-      { preset: 'dots', desc: '3ドットフェード' },
-      { preset: 'pulse', desc: '脈動リング' },
       { preset: 'cube', desc: '3Dキューブ' },
-      { preset: 'cube-glow', desc: '光る3Dキューブ' },
       { preset: 'interview', desc: '対話アイコン' },
-      { preset: 'dna', desc: '二重螺旋' },
-      { preset: 'atom', desc: '原子軌道' },
-      { preset: 'rings', desc: '多重リング' },
-      { preset: 'gears', desc: '歯車回転' },
-      { preset: 'hourglass', desc: '砂時計' },
-      { preset: 'wave', desc: '音波' },
-      { preset: 'radar', desc: 'レーダー' },
-      { preset: 'eclipse', desc: '日食' },
-      { preset: 'clock', desc: '時計' },
-      { preset: 'morph', desc: '変形' },
-      { preset: 'orbit', desc: '軌道' },
-      { preset: 'triangle', desc: '三角回転' },
-      { preset: 'heartbeat', desc: '心拍' },
-      // 復元シリーズ
-      { preset: 'bars', desc: '4方向バー' },
-      { preset: 'wifi', desc: '電波（接続中）' },
-      { preset: 'progress', desc: 'プログレスバー' },
-      { preset: 'infinity', desc: '無限ループ' },
-      { preset: 'ripple', desc: '水紋' },
-      { preset: 'star', desc: '輝く星' },
-      { preset: 'cross', desc: '2色クロス回転' },
-      // 表現拡張
-      { preset: 'particles', desc: '12粒子の漂流' },
-      { preset: 'comet', desc: '彗星と尾' },
-      { preset: 'magnet', desc: 'U字磁石と鉄粉' },
-      { preset: 'braid', desc: '3線ブレイド' },
-      { preset: 'vortex', desc: '渦への吸い込み' },
-      // サプライズ
-      { preset: 'prism', desc: 'プリズム分光（虹）' },
     ] as const;
 
     return (

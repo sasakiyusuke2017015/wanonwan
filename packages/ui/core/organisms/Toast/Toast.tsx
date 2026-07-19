@@ -142,7 +142,6 @@ export const Toast: FC<ToastProps> = ({
           onClick={handleClose}
           className="!p-1 !min-w-0 ml-2 text-white/80 hover:text-white hover:!bg-white/10"
           aria-label="閉じる"
-          enableShimmer={false}
         >
           <Icon name={'x'} size={16} stroke="currentColor" />
         </Button>

@@ -87,8 +87,11 @@
   /* Green (alias) */
   --color-green-50: #f0fdf4;
   --color-green-200: #bbf7d0;
+  --color-green-300: #86efac;
   --color-green-600: #16a34a;
   --color-green-700: #15803d;
+  --color-green-800: #166534;
+  --color-green-900: #14532d;
 
   /* Red (alias) */
   --color-red-50: #fef2f2;
@@ -99,7 +102,7 @@
   /* Semantic color aliases */
   --color-text-primary: #111827;
   --color-text-secondary: #4b5563;
-  --color-text-muted: #9ca3af;
+  --color-text-muted: #6b7280;
   --color-text-inverse: #ffffff;
 
   --color-bg-primary: #ffffff;
@@ -140,8 +143,17 @@
   --color-surface: #ffffff;
   --color-surface-hover: #f8fafc;
   --color-border: #e2e8f0;
+  --color-border-light: #f1f5f9;
   --color-text: #1e293b;
   --color-accent: #f59e0b;
+  --color-bg-subtle: #f8fafc;
+  /* 行 hover / 選択の面色。zebra (--color-bg-subtle = #f8fafc の薄グレー) や
+   * 白行と確実に区別が付くよう primary 寄りの淡い indigo にする。hover 規則は
+   * td の background-color を置換するため、奇数(白)/偶数(stripe) どちらの行でも
+   * 同じ見え方になる (未定義だと transparent に落ち、偶数行の stripe が消えるだけで
+   * 奇数行は無変化に見えていた)。 */
+  --color-hover-bg: rgba(79, 70, 229, 0.1);
+  --color-selected-bg: rgba(79, 70, 229, 0.18);
 
   /* =========================================================================
    * Spacing
@@ -272,4 +284,113 @@
   --transition-ease-in: cubic-bezier(0.4, 0, 1, 1);
   --transition-ease-out: cubic-bezier(0, 0, 0.2, 1);
   --transition-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* =========================================================================
+   * 流体タイポグラフィ (Fluid Typography)
+   *
+   * CSS clamp() を使用して、ブレイクポイントなしでシームレスにサイズが変化。
+   * 計算式: clamp(min, preferred, max)
+   *   - min:  320px (モバイル最小) での値
+   *   - max: 1280px (デスクトップ) での値
+   *   - preferred: (max - min) / (1280 - 320) * 100vw + 補正値
+   *
+   * 使用例:
+   *   <h1 className="text-fluid-4xl">見出し</h1>
+   *   <p  className="text-fluid-base">本文</p>
+   * ========================================================================= */
+
+  --text-fluid-xs: 0.625rem;                                            /* 10px 固定 */
+  --text-fluid-sm: clamp(0.6875rem, 0.625rem + 0.3125vw, 0.875rem);     /* 11px → 14px */
+  --text-fluid-base: clamp(0.875rem, 0.8125rem + 0.3125vw, 1rem);       /* 14px → 16px */
+  --text-fluid-lg: clamp(1rem, 0.9375rem + 0.3125vw, 1.125rem);         /* 16px → 18px */
+  --text-fluid-xl: clamp(1.125rem, 1.0625rem + 0.3125vw, 1.25rem);      /* 18px → 20px */
+  --text-fluid-2xl: clamp(1.25rem, 1.125rem + 0.625vw, 1.5rem);         /* 20px → 24px */
+  --text-fluid-3xl: clamp(1.5rem, 1.3125rem + 0.9375vw, 1.875rem);      /* 24px → 30px */
+  --text-fluid-4xl: clamp(1.75rem, 1.5rem + 1.25vw, 2.25rem);           /* 28px → 36px */
+  --text-fluid-5xl: clamp(2rem, 1.5rem + 2.5vw, 3rem);                  /* 32px → 48px */
+  --text-fluid-6xl: clamp(2.5rem, 1.75rem + 3.75vw, 4rem);              /* 40px → 64px */
+
+  /* 流体タイポの line-height (text-fluid-* と組み合わせて使う) */
+  --leading-fluid-xs: 1.5;
+  --leading-fluid-sm: 1.5;
+  --leading-fluid-base: 1.7;
+  --leading-fluid-lg: 1.6;
+  --leading-fluid-xl: 1.5;
+  --leading-fluid-2xl: 1.4;
+  --leading-fluid-3xl: 1.3;
+  --leading-fluid-4xl: 1.2;
+  --leading-fluid-5xl: 1.1;
+  --leading-fluid-6xl: 1.1;
+
+  /* =========================================================================
+   * 流体スペーシング (Fluid Spacing)
+   *
+   * 使用例: <div className="p-fluid-md gap-fluid-sm">
+   * ========================================================================= */
+
+  --spacing-fluid-xs: clamp(0.25rem, 0.125rem + 0.625vw, 0.5rem);  /* 4px → 8px */
+  --spacing-fluid-sm: clamp(0.5rem, 0.375rem + 0.625vw, 0.75rem);  /* 8px → 12px */
+  --spacing-fluid-md: clamp(0.75rem, 0.5rem + 1.25vw, 1rem);       /* 12px → 16px */
+  --spacing-fluid-lg: clamp(1rem, 0.75rem + 1.25vw, 1.5rem);       /* 16px → 24px */
+  --spacing-fluid-xl: clamp(1.5rem, 1rem + 2.5vw, 2rem);           /* 24px → 32px */
+  --spacing-fluid-2xl: clamp(2rem, 1.5rem + 2.5vw, 3rem);          /* 32px → 48px */
+  --spacing-fluid-3xl: clamp(3rem, 2rem + 5vw, 4rem);              /* 48px → 64px */
+
+  /* =========================================================================
+   * Animations (v3 packages/ui/tailwind.config.ts の theme.extend から移植)
+   * ========================================================================= */
+
+  --animate-shimmer-slide: shimmer-slide var(--speed) ease-in-out infinite alternate;
+  --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear;
+  --animate-bounce-once: bounce-once 0.5s ease-out;
+  --animate-success-flash: success-flash 0.6s ease-out;
+}
+
+/* =============================================================================
+ * Keyframes (Tailwind v4 では @keyframes を素の CSS で書く)
+ * ============================================================================= */
+
+@keyframes shimmer-slide {
+  to {
+    transform: translate(calc(100cqw - 100%), 0);
+  }
+}
+
+@keyframes spin-around {
+  0% {
+    transform: translateZ(0) rotate(0);
+  }
+  15%, 35% {
+    transform: translateZ(0) rotate(90deg);
+  }
+  65%, 85% {
+    transform: translateZ(0) rotate(270deg);
+  }
+  100% {
+    transform: translateZ(0) rotate(360deg);
+  }
+}
+
+@keyframes bounce-once {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-8px);
+  }
+  60% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes success-flash {
+  0% {
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 20px 10px rgba(52, 211, 153, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0);
+  }
 }

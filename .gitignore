@@ -33,3 +33,6 @@ next-env.d.ts
 # OS / エディタ
 .DS_Store
 *.log
+
+# ui-catalog 上流同期の作業用 zip (取り込み後は不要)
+/ui.zip

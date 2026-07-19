@@ -36,7 +36,8 @@ describe('DiffViewer', () => {
   it('閉じるボタンで onClose が呼ばれる', () => {
     const onClose = vi.fn()
     render(<DiffViewer {...defaultProps} onClose={onClose} />)
-    fireEvent.click(screen.getByRole('button', { name: /×/i }))
+    // 現コンポーネントは IconButton (label="閉じる") を使う
+    fireEvent.click(screen.getByRole('button', { name: '閉じる' }))
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 })

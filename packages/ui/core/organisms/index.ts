@@ -4,6 +4,9 @@
  * molecules の組み合わせ、独立したセクション
  */
 
+// Placeholders
+export * from './ComingSoon'
+
 // Dialogs & Modals
 export * from './Dialog'
 export * from './Modal'
@@ -16,12 +19,14 @@ export * from './DiffViewer'
 export * from './DropdownMenu'
 export * from './FloatingMenuButton'
 export * from './MenuItemList'
+export * from './ProfileMenu'
 
 // Feedback
 export * from './Toast'
-export * from './LoadingOverlay'
 export * from './LoadingZone'
+export * from './LoadingOverlay'
 export * from './EmptyState'
+export * from './Confetti'
 
 // Data
 // DataTable の Column は barrel からは出さず subpath (`./DataTable`) から取得する
@@ -32,13 +37,17 @@ export {
   type ClientDataTableProps,
   type ServerDataTableProps,
 } from './DataTable'
+export * from './InteractiveTable'
 
 // Content
+export * from './TitledBlock'
+export * from './AdminPageHeader'
+export * from './SelectableList'
+export * from './CardGrid'
+export * from './Ticket'
 export * from './ContentBlock'
 export * from './DetailHeader'
 export * from './ToggleableSection'
-export * from './CardGrid'
-export * from './Ticket'
 
 // Forms
 export * from './AuthFormCard'
@@ -50,8 +59,10 @@ export * from './RadarChart'
 export * from './PieChart'
 
 // Navigation
-export * from './FixedTabBar'
 export * from './SortableToggleList'
+export * from './SidebarNav'
+export * from './FixedTabBar'
+export * from './SiteHeaderShell'
 
 // Buttons
 export * from './KeyButton'
@@ -65,9 +76,6 @@ export * from './GradientOverlay'
 
 // Statistics
 export * from './StatisticPanel'
-
-// Tables
-export * from './InteractiveTable'
 
 // Transfer
 export * from './TransferList'
@@ -107,5 +115,9 @@ export * from './MiniCalendarGrid'
 export * from './TocList'
 export * from './ArticleGroupList'
 export * from './ArticleCard'
-export * from './ProfileMenu'
-export * from './SiteHeaderShell'
+
+// CSV 操作バー
+export * from './CsvActionBar'
+
+// 危険な操作 (削除 / 非公開化 / 無効化) の集約セクション
+export * from './DangerZone'

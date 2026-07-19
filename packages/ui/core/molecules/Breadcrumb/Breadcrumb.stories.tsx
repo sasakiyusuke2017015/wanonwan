@@ -1,8 +1,13 @@
-// src/components/common/molecules/Breadcrumb.stories.tsx
 import type { StoryFn } from '@storybook/react';
 
 import { Breadcrumb } from './Breadcrumb';
 
+/**
+ * パンくずナビゲーション (階層ナビの正準・presentational)
+ *
+ * pathname 解析・ラベル解決・省略ルールは呼び出し側 (apps) が持ち、
+ * 本コンポーネントは items の href 有無で link / span を描き分けるだけ。
+ */
 export default {
   title: 'ナビゲーション/パンくず/Breadcrumb',
   component: Breadcrumb,
@@ -15,196 +20,65 @@ export default {
     ),
   ],
   parameters: {
-    layout: 'padded',
-  },
-  argTypes: {
-    items: {
-      description: 'パンくずの項目（label, href, tooltip, size）',
-      control: 'object',
-    },
-    separator: {
-      description: 'セパレータ文字',
-      control: 'text',
-    },
-    className: {
-      description: 'カスタムクラス（breadcrumb-in-headerでヘッダー内スタイル）',
-      control: 'text',
-    },
-    colorTheme: {
-      description: 'カラーテーマ（現在は未使用）',
-      control: 'text',
-    },
-    primaryContrastText: {
-      description: 'プライマリコントラストテキスト色（ヘッダー内で使用）',
-      control: 'color',
-    },
-  },
-};
+    docs: {
+      description: {
+        component: `
+現行アプリの TopBar パンくずと同一デザインの presentational 部品。
 
-/**
- * デフォルトのパンくずリスト
- */
-export const Default = {
-  args: {
-    items: [
-      { label: 'HOME', href: '/' },
-      { label: 'カテゴリ', href: '/category' },
-      { label: '現在のページ', href: '/category/current' },
-    ],
-  },
-};
-
-/**
- * 2階層のパンくずリスト
- */
-export const TwoLevels = {
-  args: {
-    items: [
-      { label: 'HOME', href: '/' },
-      { label: 'アンケート一覧', href: '/surveys' },
-    ],
-  },
-};
-
-/**
- * 深い階層のパンくずリスト
- */
-export const DeepHierarchy = {
-  args: {
-    items: [
-      { label: 'HOME', href: '/' },
-      { label: 'カテゴリ1', href: '/category1' },
-      { label: 'カテゴリ2', href: '/category1/category2' },
-      { label: 'カテゴリ3', href: '/category1/category2/category3' },
-      { label: '現在のページ', href: '/category1/category2/category3/current' },
-    ],
-  },
-};
-
-/**
- * ツールチップ付き
- */
-export const WithTooltips = {
-  args: {
-    items: [
-      { label: 'HOME', href: '/', tooltip: 'トップページに戻る' },
-      {
-        label: '配下メンバー一覧',
-        href: '/employees',
-        tooltip: '配下メンバーの一覧ページ',
+- 先頭に \`isHome\` 項目を置くとホームアイコンで表示
+- 末尾は現在ページとして \`aria-current="page"\` の span (href があっても link にしない)
+- href の無い中間項目は span (動的 ID 等、404 link を作らない)
+- Next.js では \`linkAs\` に \`next/link\` の Link を注入する
+        `,
       },
-      {
-        label: '田中太郎',
-        href: '/employees/123',
-        tooltip: '田中太郎さんの詳細ページ',
-      },
-    ],
+    },
   },
 };
 
-/**
- * カスタムセパレータ
- */
-export const CustomSeparator = {
-  args: {
-    items: [
-      { label: 'HOME', href: '/' },
-      { label: 'カテゴリ', href: '/category' },
-      { label: '現在のページ', href: '/category/current' },
-    ],
-    separator: '/',
-  },
+const home = { key: 'home', label: '', href: '/dashboard', isHome: true };
+
+// ダッシュボード (ホーム単独): アイコンのみ
+export const HomeOnly = {
+  render: () => <Breadcrumb items={[{ key: 'home', label: '', isHome: true }]} />,
 };
 
-/**
- * ヘッダー内での表示（白色テーマ）
- */
-export const InHeader = {
-  args: {
-    items: [
-      { label: 'HOME', href: '/' },
-      { label: 'アンケート一覧', href: '/surveys' },
-      { label: 'アンケート回答', href: '/surveys/123' },
-    ],
-    className: 'breadcrumb-in-header',
-  },
-  decorators: [
-    (Story: StoryFn) => (
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4">
-        <Story />
-      </div>
-    ),
-  ],
+// 通常の階層
+export const Basic = {
+  render: () => (
+    <Breadcrumb
+      items={[
+        home,
+        { key: 'seg-0', label: 'ユーザー管理', href: '/admin/users' },
+        { key: 'seg-1', label: '編集' },
+      ]}
+    />
+  ),
 };
 
-/**
- * 長いラベル名
- */
-export const LongLabels = {
-  args: {
-    items: [
-      { label: 'HOME', href: '/' },
-      {
-        label: '非常に長いカテゴリ名が表示される場合のテスト',
-        href: '/category',
-      },
-      {
-        label: '現在の非常に長いページ名が表示される場合のテスト',
-        href: '/category/current',
-      },
-    ],
-  },
+// 動的 ID を含む階層 (override で実体名 + link)
+export const WithEntityOverride = {
+  render: () => (
+    <Breadcrumb
+      items={[
+        home,
+        { key: 'seg-0', label: 'コース', href: '/my-courses' },
+        { key: 'seg-1', label: 'AIリテラシー入門', href: '/my-courses/5' },
+        { key: 'seg-2', label: '第1章' },
+      ]}
+    />
+  ),
 };
 
-/**
- * 単一項目（HOMEのみ）
- */
-export const SingleItem = {
-  args: {
-    items: [{ label: 'HOME', href: '/' }],
-  },
-};
-
-/**
- * 実際の使用例：回答詳細
- */
-export const EmployeeDetailExample = {
-  args: {
-    items: [
-      { label: 'HOME', href: '/' },
-      { label: '配下メンバー一覧', href: '/employees' },
-      { label: '田中太郎', href: '/employees/123' },
-    ],
-  },
-};
-
-/**
- * 実際の使用例：アンケート回答
- */
-export const SurveyInputExample = {
-  args: {
-    items: [
-      { label: 'HOME', href: '/' },
-      { label: 'アンケート一覧', href: '/surveys' },
-      { label: '2024年度 メンバー満足度調査', href: '/surveys/456' },
-    ],
-  },
-};
-
-/**
- * 矢羽スタイル（border-shape, Chrome 147+ 専用）
- *
- * border-shape の shape() で矢羽形を要素の輪郭として宣言しているため、
- * 矢羽の三角部分が bounding box の中に完全に収まり、間隔は gap だけで完結する。
- * box-shadow も矢羽の輪郭に追従する。
- */
-export const ChevronVariant = {
-  args: {
-    variant: 'chevron',
-    items: [
-      { label: 'HOME', href: '/' },
-      { label: 'プロジェクト', href: '/projects' },
-      { label: 'タスク詳細', href: '/projects/1/tasks/2' },
-    ],
-  },
+// href の無い中間項目 (span 表示)
+export const WithUnlinkableSegment = {
+  render: () => (
+    <Breadcrumb
+      items={[
+        home,
+        { key: 'seg-0', label: '問題バンク', href: '/questions' },
+        { key: 'seg-1', label: '147' },
+        { key: 'seg-2', label: 'プレビュー' },
+      ]}
+    />
+  ),
 };

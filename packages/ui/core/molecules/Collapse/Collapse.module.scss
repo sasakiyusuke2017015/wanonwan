@@ -1,0 +1,56 @@
+// Collapse: grid-template-rows 0fr↔1fr による自動高さ collapse。
+// max-height のマジックナンバーを使わず、中身の実測高さを滑らかに開閉する。
+
+.collapse {
+  --collapse-duration: 360ms;
+  // ease-out 系。減速しながら「スッ」と収まる (バウンス無し)。
+  --collapse-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--collapse-duration) var(--collapse-ease);
+
+  &[data-open='true'] {
+    grid-template-rows: 1fr;
+  }
+}
+
+// grid track を 0fr に畳むためのクリップ層。min-height:0 が無いと 0fr にならない。
+.inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+// 中身のフェード + せり上がり。高さ(outer)とは別レイヤで重ねて立体感を出す。
+.content {
+  opacity: 0;
+  transform: translateY(-4px);
+  visibility: hidden;
+  transition:
+    opacity var(--collapse-duration) var(--collapse-ease),
+    transform var(--collapse-duration) var(--collapse-ease),
+    // 閉じ切ってから visibility:hidden にして、閉じた中身へ tab focus が
+    // 入らないようにする (開く時は即 visible)。
+    visibility 0s linear var(--collapse-duration);
+
+  .collapse[data-open='true'] & {
+    opacity: 1;
+    transform: none;
+    visibility: visible;
+    transition:
+      opacity var(--collapse-duration) var(--collapse-ease),
+      transform var(--collapse-duration) var(--collapse-ease),
+      visibility 0s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  // open 側 (.collapse[data-open='true'] .content) は詳細度 0,3,0 なので、
+  // 同等以上のセレクタで上書きしないと transition:none が効かず中身だけふわっと
+  // アニメーションが残る。閉じ/開き両方を同詳細度で潰して即時表示に落とす。
+  .collapse,
+  .collapse .content,
+  .collapse[data-open='true'] .content {
+    transition: none;
+  }
+}

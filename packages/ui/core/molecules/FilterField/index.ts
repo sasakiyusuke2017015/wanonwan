@@ -4,9 +4,9 @@ export type {
   FilterOption,
   FilterFieldBaseProps,
   TextFilterProps,
-  StatusFilterProps,
-  ScoreFilterProps,
+  SelectFilterProps,
+  MultiSelectFilterProps,
+  NumberRangeFilterProps,
   DateFilterProps,
-  DateRangeFilterProps,
   FilterFieldProps,
 } from './types';

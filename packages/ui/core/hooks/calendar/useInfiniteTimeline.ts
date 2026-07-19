@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useAtomValue, useSetAtom, useStore } from 'jotai'
 import { selectedDateAtom } from './calendar'

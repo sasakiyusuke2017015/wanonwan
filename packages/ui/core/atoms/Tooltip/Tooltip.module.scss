@@ -9,8 +9,16 @@
   position: relative;
   display: inline-flex;
 
-  &:hover .tooltip {
+  // focus-within も対象にする — native title と違いキーボードフォーカスでも
+  // 機能名が読めるようにする (アイコンのみのボタンで重要)。
+  &:hover > .tooltip,
+  &:focus-within > .tooltip {
     opacity: 1;
+    translate: 0 0;
+    scale: 1;
+    // 表示側にだけ短いディレイ。カーソルが通過しただけでチラチラ出るのを防ぐ。
+    // 非表示 (base 側) はディレイ 0 で即消える。
+    transition-delay: 100ms;
   }
 }
 
@@ -18,22 +26,27 @@
 // Tooltip bubble
 // -----------------------------------------------------------------------------
 .tooltip {
-  --tooltip-radius: 4px;
+  --tooltip-radius: 6px;
   --tooltip-arrow-size: 6px;
+  // 矢印の水平位置 (top/bottom 系)。end 揃え variant が上書きする。
+  --tooltip-arrow-x: 50%;
 
   position: absolute;
   z-index: 50;
   padding: var(--spacing-1) var(--spacing-2);
   font-size: 11px;
   font-weight: var(--font-weight-medium);
+  letter-spacing: 0.02em;
   white-space: nowrap;
-  background-color: var(--color-gray-800);
+  background: linear-gradient(180deg, var(--color-gray-800), var(--color-gray-900));
   color: var(--color-white);
+  box-shadow: var(--shadow-lg);
   opacity: 0;
+  scale: 0.94;
   pointer-events: none;
-  transition-property: opacity;
-  transition-duration: var(--transition-duration-100);
-  transition-timing-function: var(--transition-ease-in-out);
+  transition-property: opacity, translate, scale;
+  transition-duration: var(--transition-duration-150);
+  transition-timing-function: var(--transition-ease-out);
 }
 
 // -----------------------------------------------------------------------------
@@ -42,13 +55,18 @@
 // border-shape で吹き出し全体を1つの形として宣言する。
 // padding 領域に矢印分のスペースを足すため、各 position で padding を上書きする。
 // box-shadow も形に追従するので filter: drop-shadow() のハックは不要。
+// 矢印の水平位置は --tooltip-arrow-x でパラメータ化し、中央揃え (50%) と
+// end 揃え (右端寄せ) を同じ shape 定義で賄う。
+//
+// 出現は opacity + translate (トリガー側から滑り出す) + scale。translate/scale の
+// 個別 transform プロパティを使うので、中央揃せ用の transform: translateX(-50%) とは
+// 干渉しない。
 // -----------------------------------------------------------------------------
-.top {
+@mixin bubble-above {
   bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
   margin-bottom: var(--spacing-1);
   padding-bottom: calc(var(--spacing-1) + var(--tooltip-arrow-size));
+  translate: 0 4px;
 
   border-shape: shape(
     from var(--tooltip-radius) 0,
@@ -57,9 +75,10 @@
     vline to calc(100% - var(--tooltip-arrow-size) - var(--tooltip-radius)),
     curve to calc(100% - var(--tooltip-radius)) calc(100% - var(--tooltip-arrow-size))
       with 100% calc(100% - var(--tooltip-arrow-size)),
-    hline to calc(50% + var(--tooltip-arrow-size)),
-    line to 50% 100%,
-    line to calc(50% - var(--tooltip-arrow-size)) calc(100% - var(--tooltip-arrow-size)),
+    hline to calc(var(--tooltip-arrow-x) + var(--tooltip-arrow-size)),
+    line to var(--tooltip-arrow-x) 100%,
+    line to calc(var(--tooltip-arrow-x) - var(--tooltip-arrow-size))
+      calc(100% - var(--tooltip-arrow-size)),
     hline to var(--tooltip-radius),
     curve to 0 calc(100% - var(--tooltip-arrow-size) - var(--tooltip-radius))
       with 0 calc(100% - var(--tooltip-arrow-size)),
@@ -68,18 +87,18 @@
   );
 }
 
-.bottom {
+@mixin bubble-below {
   top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
   margin-top: var(--spacing-1);
   padding-top: calc(var(--spacing-1) + var(--tooltip-arrow-size));
+  translate: 0 -4px;
 
   border-shape: shape(
     from var(--tooltip-radius) var(--tooltip-arrow-size),
-    hline to calc(50% - var(--tooltip-arrow-size)),
-    line to 50% 0,
-    line to calc(50% + var(--tooltip-arrow-size)) var(--tooltip-arrow-size),
+    hline to calc(var(--tooltip-arrow-x) - var(--tooltip-arrow-size)),
+    line to var(--tooltip-arrow-x) 0,
+    line to calc(var(--tooltip-arrow-x) + var(--tooltip-arrow-size))
+      var(--tooltip-arrow-size),
     hline to calc(100% - var(--tooltip-radius)),
     curve to 100% calc(var(--tooltip-arrow-size) + var(--tooltip-radius))
       with 100% var(--tooltip-arrow-size),
@@ -93,10 +112,55 @@
   );
 }
 
+.top {
+  @include bubble-above;
+  left: 50%;
+  transform: translateX(-50%);
+  transform-origin: bottom center;
+}
+
+.topEnd {
+  @include bubble-above;
+  right: 0;
+  // 矢印はトリガー右端から 14px 内側 ≒ アイコンボタン (幅 ~24px) の中央を指す
+  --tooltip-arrow-x: calc(100% - 14px);
+  transform-origin: bottom right;
+}
+
+.topStart {
+  @include bubble-above;
+  left: 0;
+  --tooltip-arrow-x: 14px;
+  transform-origin: bottom left;
+}
+
+.bottom {
+  @include bubble-below;
+  left: 50%;
+  transform: translateX(-50%);
+  transform-origin: top center;
+}
+
+.bottomEnd {
+  @include bubble-below;
+  right: 0;
+  --tooltip-arrow-x: calc(100% - 14px);
+  transform-origin: top right;
+}
+
+.bottomStart {
+  @include bubble-below;
+  left: 0;
+  --tooltip-arrow-x: 14px;
+  transform-origin: top left;
+}
+
 .left {
   right: 100%;
   top: 50%;
   transform: translateY(-50%);
+  transform-origin: center right;
+  translate: 4px 0;
   margin-right: var(--spacing-1);
   padding-right: calc(var(--spacing-2) + var(--tooltip-arrow-size));
 
@@ -122,6 +186,8 @@
   left: 100%;
   top: 50%;
   transform: translateY(-50%);
+  transform-origin: center left;
+  translate: -4px 0;
   margin-left: var(--spacing-1);
   padding-left: calc(var(--spacing-2) + var(--tooltip-arrow-size));
 
@@ -141,4 +207,23 @@
     curve to calc(var(--tooltip-arrow-size) + var(--tooltip-radius)) 0
       with var(--tooltip-arrow-size) 0
   );
+}
+
+// -----------------------------------------------------------------------------
+// Reduced motion — 動きを opacity のみに落とす
+// -----------------------------------------------------------------------------
+@media (prefers-reduced-motion: reduce) {
+  .tooltip,
+  .top,
+  .topEnd,
+  .topStart,
+  .bottom,
+  .bottomEnd,
+  .bottomStart,
+  .left,
+  .right {
+    scale: 1;
+    translate: 0 0;
+    transition-property: opacity;
+  }
 }

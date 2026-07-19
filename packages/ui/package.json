@@ -58,17 +58,12 @@
     "./constants": "./core/constants/index.ts",
     "./types": "./core/types/index.ts",
     "./utils": "./core/utils/index.ts",
-    "./styles": "./core/styles/index.ts",
     "./styles/tokens": "./core/styles/tokens.css",
     "./styles/globals.css": "./core/styles/globals.css",
     "./infra": "./infra/index.ts",
     "./infra/devtools": "./infra/devtools/index.ts",
     "./infra/version": "./infra/version/index.ts",
     "./infra/theme": "./infra/theme/index.ts",
-    "./calend/state": "./core/hooks/calend/calendar.ts",
-    "./calend/types": "./core/types/calend.ts",
-    "./calend/hooks": "./core/hooks/calend/index.ts",
-    "./calend/utils": "./core/utils/calend/index.ts",
     "./tailwind-preset": "./tailwind.preset.ts"
   },
   "scripts": {
@@ -217,6 +212,8 @@
   "dependencies": {
     "@puckeditor/core": "^0.22.2",
     "focus-trap-react": "^12.0.3",
-    "isomorphic-dompurify": "^3.19.0"
+    "isomorphic-dompurify": "^3.19.0",
+    "lucide-react": "^1.16.0",
+    "react-easy-crop": "^5.5.7"
   }
 }

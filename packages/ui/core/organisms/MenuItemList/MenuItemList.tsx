@@ -91,7 +91,7 @@ const MenuItemListBase: FC<MenuItemListProps> = ({
   });
 
   return (
-    <div data-component="MenuItemList">
+    <div data-component="menu-item-list">
       {/* ヘッダー部分 */}
       {menuHeader && (
         <div className={styles.menuItemList__header}>{menuHeader}</div>

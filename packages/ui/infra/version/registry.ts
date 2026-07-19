@@ -21,8 +21,8 @@ export const VERSION_REGISTRY = {
   Checkbox: '1.0.0',
   ExternalLink: '1.0.0',
   FileLink: '1.0.0',
-  Icon: '1.5.0',
-  IconButton: '1.0.0',
+  Icon: '1.7.0',
+  IconButton: '1.2.0',
   Input: '1.0.0',
   InternalLink: '1.0.0',
   LineChart: '1.0.0',
@@ -32,32 +32,26 @@ export const VERSION_REGISTRY = {
   ReplayButton: '1.0.0',
   ResetButton: '1.0.0',
   ResponsiveContainer: '1.0.0',
-  Segment: '1.0.0',
   Select: '1.0.0',
   Slider: '1.0.0',
   Stack: '1.0.0',
   Text: '1.0.0',
   TextArea: '1.0.0',
-  Toggle: '1.0.0',
-  Tooltip: '1.1.0',
+  Switch: '1.0.0',
+  Tooltip: '1.2.0',
   Progress: '1.0.0',
 
   // adapters
   RouterContext: '1.0.0',
 
   // templates
-  AppShell: '1.0.0',
-  Footer: '1.0.0',
-  Header: '1.0.0',
-  SideNav: '1.0.0',
-  SubHeader: '1.0.0',
+  ShellLayout: '1.0.0',
 
   // molecules
   Calendar: '1.0.0',
   StatusBar: '1.0.0',
   TreeView: '1.0.0',
-  ViewModeToggle: '1.0.0',
-  AlertDialog: '1.0.0',
+  SegmentedControl: '1.0.0',
   AuthFormCard: '1.0.0',
   Breadcrumb: '1.1.0',
   CardGrid: '1.0.0',
@@ -73,29 +67,24 @@ export const VERSION_REGISTRY = {
   PasswordValidation: '1.0.0',
   StarRating: '1.0.0',
   StepIndicator: '1.0.0',
-  Toast: '1.0.0',
-  FilterField: '1.0.0',
+  ToastProvider: '1.0.0',
+  FilterField: '2.0.0',
   ActionBreadcrumb: '1.0.0',
   EmptyState: '1.0.0',
   Tabs: '1.0.0',
-  ToggleableSection: '1.0.0',
 
   // organisms
-  DataTable: '1.0.0',
+  DataTable: '1.0.1',
   DiffViewer: '1.0.0',
   DotPattern: '1.0.0',
   GridPattern: '1.0.0',
   ModalCheckboxList: '1.0.0',
-  ContentBlock: '1.0.0',
+  TitledBlock: '1.0.0',
   DropdownMenu: '1.0.0',
-  FixedTabBar: '1.0.0',
-  LoadingOverlay: '1.0.0',
   LoginButton: '1.0.0',
   NumberTicker: '1.0.0',
   ShimmerButton: '1.0.0',
-  SortableToggleList: '1.0.0',
-  TabBar: '1.1.0',
-  DetailHeader: '1.0.0',
+  SortableToggleList: '1.1.0',
   PieChart: '1.0.0',
   LoadingZone: '1.0.0',
   RefreshButton: '1.0.0',
@@ -115,7 +104,6 @@ export const VERSION_REGISTRY = {
   SurveyCard: '1.0.0',
 
   // organisms (shared)
-  InteractiveTable: '1.0.0',
   TransferList: '1.0.0',
   TrendChart: '1.1.0',
 
@@ -146,10 +134,8 @@ export const VERSION_REGISTRY = {
   WeekView: '1.0.0',
 
   // atoms (navigation)
-  NavItem: '1.0.0',
 
   // molecules (navigation)
-  ContextMenu: '1.0.0',
   ProjectItem: '1.0.0',
   TagItem: '1.0.0',
 
@@ -168,6 +154,28 @@ export const VERSION_REGISTRY = {
   // border-shape components (Chrome 147+ 専用)
   Ticket: '1.0.0',
   ScallopedCard: '1.0.0',
+
+  // waoon 独自部品 (上流 catalog には無い)
+  AlertDialog: '1.0.0',
+  AppShell: '1.0.0',
+  ContentBlock: '1.0.0',
+  ContextMenu: '1.0.0',
+  DetailHeader: '1.0.0',
+  FixedTabBar: '1.0.0',
+  Footer: '1.0.0',
+  Header: '1.0.0',
+  InteractiveTable: '1.0.0',
+  LoadingOverlay: '1.0.0',
+  NavItem: '1.0.0',
+  Segment: '1.0.0',
+  SideNav: '1.0.0',
+  SubHeader: '1.0.0',
+  SubHeaderToolbar: '1.0.0',
+  TabBar: '1.1.0',
+  Toast: '1.0.0',
+  Toggle: '1.0.0',
+  ToggleableSection: '1.0.0',
+  ViewModeToggle: '1.0.0',
 } as const
 
 export type ComponentName = keyof typeof VERSION_REGISTRY

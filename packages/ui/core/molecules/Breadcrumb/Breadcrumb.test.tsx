@@ -1,120 +1,86 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { RouterProvider } from '../../hooks/router/RouterContext';
-import type { RouterAdapter, LinkProps } from '../../hooks/router/types';
-import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
+import { describe, it, expect } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import { Breadcrumb, type BreadcrumbItem } from './Breadcrumb'
 
-// テスト用モックアダプタ
-const createMockAdapter = (): RouterAdapter => ({
-  useNavigate: () => vi.fn(),
-  usePathname: () => '/',
-  Link: ({ href, children, className, style, ...props }: LinkProps) => (
-    <a href={href} className={className} style={style} {...props}>
-      {children}
-    </a>
-  ),
-});
+const home: BreadcrumbItem = { key: 'home', label: '', href: '/dashboard', isHome: true }
 
 describe('Breadcrumb', () => {
-  const renderWithRouter = (ui: React.ReactElement) => {
-    const mockAdapter = createMockAdapter();
-    return render(
-      <RouterProvider adapter={mockAdapter}>
-        {ui}
-      </RouterProvider>
-    );
-  };
+  it('items が空なら何も描画しない', () => {
+    const { container } = render(<Breadcrumb items={[]} />)
+    expect(container.firstChild).toBeNull()
+  })
 
-  const mockItems: BreadcrumbItem[] = [
-    { label: 'ホーム', href: '/' },
-    { label: 'ユーザー', href: '/users' },
-    { label: '詳細', href: '/users/1' },
-  ];
+  it('ホーム単独のときはアイコンのみの現在地表示 (link にしない)', () => {
+    render(<Breadcrumb items={[{ key: 'home', label: '', isHome: true }]} />)
+    expect(screen.getByLabelText('ホーム')).toBeInTheDocument()
+    expect(screen.queryByRole('link')).toBeNull()
+  })
 
-  it('パンくずリストがレンダリングされる', () => {
-    renderWithRouter(<Breadcrumb items={mockItems} />);
-    expect(screen.getByText('ホーム')).toBeInTheDocument();
-    expect(screen.getByText('ユーザー')).toBeInTheDocument();
-    expect(screen.getByText('詳細')).toBeInTheDocument();
-  });
-
-  it('items配列が空の場合、何も表示されない', () => {
-    const { container } = renderWithRouter(<Breadcrumb items={[]} />);
-    expect(container.querySelector('nav')).not.toBeInTheDocument();
-  });
-
-  it('最後の要素はリンクではなくspanで表示される', () => {
-    renderWithRouter(<Breadcrumb items={mockItems} />);
-    const lastItem = screen.getByText('詳細');
-    expect(lastItem.tagName).toBe('SPAN');
-  });
-
-  it('最後以外の要素はリンクとして表示される', () => {
-    const { container } = renderWithRouter(<Breadcrumb items={mockItems} />);
-    const homeLink = container.querySelector('a[href="/"]');
-    expect(homeLink).toBeInTheDocument();
-    expect(homeLink?.textContent).toBe('ホーム');
-  });
-
-  it('区切り文字が表示される (デフォルト: ">")', () => {
-    renderWithRouter(<Breadcrumb items={mockItems} />);
-    const separators = screen.getAllByText('>');
-    expect(separators.length).toBe(2); // 3項目なので区切りは2つ
-  });
-
-  it('カスタム区切り文字が表示される', () => {
-    renderWithRouter(<Breadcrumb items={mockItems} separator="/" />);
-    const separators = screen.getAllByText('/');
-    expect(separators.length).toBe(2);
-  });
-
-  it('tooltip属性が設定される', () => {
-    const itemsWithTooltip: BreadcrumbItem[] = [
-      { label: 'ホーム', href: '/', tooltip: 'トップページ' },
-      { label: '詳細', href: '/detail', tooltip: '詳細ページ' },
-    ];
-    renderWithRouter(<Breadcrumb items={itemsWithTooltip} />);
-
-    const homeElement = screen.getByText('ホーム');
-    expect(homeElement).toHaveAttribute('title', 'トップページ');
-
-    const detailElement = screen.getByText('詳細');
-    expect(detailElement).toHaveAttribute('title', '詳細ページ');
-  });
-
-  it('カスタムclassNameが適用される', () => {
-    const { container } = renderWithRouter(<Breadcrumb items={mockItems} className="custom-breadcrumb" />);
-    const nav = container.querySelector('nav');
-    expect(nav).toHaveClass('custom-breadcrumb');
-  });
-
-  it('aria-label属性が設定される', () => {
-    const { container } = renderWithRouter(<Breadcrumb items={mockItems} />);
-    const nav = container.querySelector('nav');
-    expect(nav).toHaveAttribute('aria-label', 'breadcrumb');
-  });
-
-  it('size属性が最後の要素に適用される', () => {
-    const itemsWithSize: BreadcrumbItem[] = [
-      { label: 'ホーム', href: '/' },
-      { label: '詳細', href: '/detail', size: 'xl' },
-    ];
-    renderWithRouter(<Breadcrumb items={itemsWithSize} />);
-
-    const lastItem = screen.getByText('詳細');
-    expect(lastItem).toHaveClass('text-fluid-xl');
-  });
-
-  it('ヘッダー内クラスが含まれる場合、テーマ色が適用される', () => {
-    const { container } = renderWithRouter(
+  it('href ありの中間項目は link、末尾は aria-current="page" の span', () => {
+    render(
       <Breadcrumb
-        items={mockItems}
-        className="breadcrumb-in-header"
-        primaryContrastText="#ff0000"
-      />
-    );
+        items={[
+          home,
+          { key: 'seg-0', label: '問題バンク', href: '/questions' },
+          { key: 'seg-1', label: '編集' },
+        ]}
+      />,
+    )
+    expect(screen.getByRole('link', { name: 'ホーム' }).getAttribute('href')).toBe('/dashboard')
+    expect(screen.getByRole('link', { name: /問題バンク/ }).getAttribute('href')).toBe('/questions')
+    const tail = screen.getByText('編集')
+    expect(tail.getAttribute('aria-current')).toBe('page')
+    expect(screen.queryByRole('link', { name: '編集' })).toBeNull()
+  })
 
-    const links = container.querySelectorAll('a');
-    expect(links.length).toBeGreaterThan(0);
-  });
-});
+  it('末尾は href があっても link にしない (現在地)', () => {
+    render(
+      <Breadcrumb
+        items={[home, { key: 'seg-0', label: '問題バンク', href: '/questions' }]}
+      />,
+    )
+    const tail = screen.getByText('問題バンク')
+    expect(tail.getAttribute('aria-current')).toBe('page')
+    expect(screen.queryByRole('link', { name: '問題バンク' })).toBeNull()
+  })
+
+  it('href の無い中間項目は span (404 link を作らない)', () => {
+    render(
+      <Breadcrumb
+        items={[
+          home,
+          { key: 'seg-0', label: '147' },
+          { key: 'seg-1', label: '編集' },
+        ]}
+      />,
+    )
+    const id = screen.getByText('147')
+    expect(id.tagName).toBe('SPAN')
+    expect(screen.queryByRole('link', { name: '147' })).toBeNull()
+  })
+
+  it('linkAs で注入したコンポーネントが link 描画に使われる', () => {
+    const CustomLink: React.ComponentType<{
+      href: string
+      className?: string
+      'aria-label'?: string
+      children: React.ReactNode
+    }> = ({ href, children, ...rest }) => (
+      <a href={href} data-testid="custom-link" {...rest}>
+        {children}
+      </a>
+    )
+    render(
+      <Breadcrumb
+        items={[home, { key: 'seg-0', label: '現在地' }]}
+        linkAs={CustomLink}
+      />,
+    )
+    expect(screen.getByTestId('custom-link').getAttribute('href')).toBe('/dashboard')
+  })
+
+  it('nav に aria-label="パンくず" が付く', () => {
+    render(<Breadcrumb items={[home, { key: 'seg-0', label: '現在地' }]} />)
+    expect(screen.getByRole('navigation', { name: 'パンくず' })).toBeInTheDocument()
+  })
+})

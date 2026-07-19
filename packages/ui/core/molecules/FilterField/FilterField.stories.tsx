@@ -5,8 +5,8 @@ import { FilterField } from './FilterField';
 /**
  * フィルタフィールドコンポーネント
  *
- * 統一されたデザインでフィルタ入力を提供。
- * テキスト、ステータス、スコア、日付など複数のフィルタタイプをサポートします。
+ * 「ラベル + 入力」のカード 1 枚でフィルタ入力を提供。
+ * テキスト、単一/複数選択、数値範囲、日付のフィルタタイプをサポートします。
  */
 export default {
   title: 'データ操作/FilterField',
@@ -20,12 +20,12 @@ export default {
 FilterFieldコンポーネント。以下のタイプをサポート:
 
 - **text**: テキスト検索
-- **status**: 複数選択チェックボックス
-- **score**: 範囲入力（min/max）
-- **date**: 日付入力
-- **dateRange**: 日付範囲選択（ドロップダウン）
+- **select**: 単一選択（ドロップダウン）
+- **multiSelect**: 複数選択（チェックボックス付きドロップダウン）
+- **numberRange**: 数値範囲入力（min 〜 max）
+- **date**: 日付入力（YYYY-MM-DD テキスト）
 
-データのフィルタリングや検索機能で使用します。
+DataTable のフィルタ行など、データのフィルタリングや検索機能で使用します。
         `,
       },
     },
@@ -34,7 +34,7 @@ FilterFieldコンポーネント。以下のタイプをサポート:
     type: {
       description: 'フィルタのタイプ',
       control: 'select',
-      options: ['text', 'status', 'score', 'date', 'dateRange'],
+      options: ['text', 'select', 'multiSelect', 'numberRange', 'date'],
     },
     label: {
       description: 'フィルタのラベル',
@@ -57,15 +57,15 @@ FilterFieldコンポーネント。以下のタイプをサポート:
       control: 'text',
     },
     options: {
-      description: '選択肢（status/dateRangeタイプ）',
+      description: '選択肢（select/multiSelectタイプ）',
       control: 'object',
     },
     min: {
-      description: '最小値（scoreタイプ）',
+      description: '最小値（numberRangeタイプ）',
       control: 'number',
     },
     max: {
-      description: '最大値（scoreタイプ）',
+      description: '最大値（numberRangeタイプ）',
       control: 'number',
     },
     onChange: { action: 'changed' },
@@ -101,8 +101,39 @@ export const TextFilter = {
   },
 };
 
-// ステータスフィルタ
-const StatusFilterExample = () => {
+// 単一選択フィルタ
+const SelectFilterExample = () => {
+  const [value, setValue] = useState('');
+
+  const options = [
+    { value: 'today', label: '今日' },
+    { value: 'week', label: '今週' },
+    { value: 'month', label: '今月' },
+    { value: 'year', label: '今年' },
+  ];
+
+  return (
+    <div className="w-80">
+      <FilterField type="select" label="期間" value={value} onChange={setValue} options={options} />
+      <div className="mt-2 text-fluid-xs text-gray-600">選択: {value || '未選択'}</div>
+    </div>
+  );
+};
+
+export const SelectFilter = {
+  render: () => <SelectFilterExample />,
+  parameters: {
+    controls: { hideNoControlsWarning: true },
+    docs: {
+      description: {
+        story: '単一選択フィルタ。ドロップダウンから 1 つ選択します。',
+      },
+    },
+  },
+};
+
+// 複数選択フィルタ
+const MultiSelectFilterExample = () => {
   const [value, setValue] = useState<string[]>([]);
 
   const options = [
@@ -114,7 +145,7 @@ const StatusFilterExample = () => {
   return (
     <div className="w-80">
       <FilterField
-        type="status"
+        type="multiSelect"
         label="ステータス"
         value={value}
         onChange={setValue}
@@ -127,26 +158,26 @@ const StatusFilterExample = () => {
   );
 };
 
-export const StatusFilter = {
-  render: () => <StatusFilterExample />,
+export const MultiSelectFilter = {
+  render: () => <MultiSelectFilterExample />,
   parameters: {
     controls: { hideNoControlsWarning: true },
     docs: {
       description: {
-        story: 'ステータスフィルタ。複数選択可能なチェックボックス形式。',
+        story: '複数選択フィルタ。チェックボックス付きドロップダウン形式。',
       },
     },
   },
 };
 
-// スコアフィルタ
-const ScoreFilterExample = () => {
+// 数値範囲フィルタ
+const NumberRangeFilterExample = () => {
   const [value, setValue] = useState<[number, number]>([1, 5]);
 
   return (
     <div className="w-80">
       <FilterField
-        type="score"
+        type="numberRange"
         label="評価スコア"
         value={value}
         onChange={setValue}
@@ -160,13 +191,13 @@ const ScoreFilterExample = () => {
   );
 };
 
-export const ScoreFilter = {
-  render: () => <ScoreFilterExample />,
+export const NumberRangeFilter = {
+  render: () => <NumberRangeFilterExample />,
   parameters: {
     controls: { hideNoControlsWarning: true },
     docs: {
       description: {
-        story: 'スコア範囲フィルタ。最小値と最大値を指定できます。',
+        story: '数値範囲フィルタ。最小値と最大値を指定できます。',
       },
     },
   },
@@ -201,45 +232,6 @@ export const DateFilter = {
   },
 };
 
-// 日付範囲フィルタ
-const DateRangeFilterExample = () => {
-  const [value, setValue] = useState('');
-
-  const options = [
-    { value: 'today', label: '今日' },
-    { value: 'week', label: '今週' },
-    { value: 'month', label: '今月' },
-    { value: 'year', label: '今年' },
-  ];
-
-  return (
-    <div className="w-80">
-      <FilterField
-        type="dateRange"
-        label="期間"
-        value={value}
-        onChange={setValue}
-        options={options}
-      />
-      <div className="mt-2 text-fluid-xs text-gray-600">
-        選択: {value || '未選択'}
-      </div>
-    </div>
-  );
-};
-
-export const DateRangeFilter = {
-  render: () => <DateRangeFilterExample />,
-  parameters: {
-    controls: { hideNoControlsWarning: true },
-    docs: {
-      description: {
-        story: '日付範囲フィルタ。ドロップダウンから選択します。',
-      },
-    },
-  },
-};
-
 // 複数フィルタの組み合わせ
 const MultipleFiltersExample = () => {
   const [textFilter, setTextFilter] = useState('');
@@ -265,14 +257,14 @@ const MultipleFiltersExample = () => {
           placeholder="検索..."
         />
         <FilterField
-          type="status"
+          type="multiSelect"
           label="ステータス"
           value={statusFilter}
           onChange={setStatusFilter}
           options={statusOptions}
         />
         <FilterField
-          type="score"
+          type="numberRange"
           label="評価"
           value={scoreFilter}
           onChange={setScoreFilter}
