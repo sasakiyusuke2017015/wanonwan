@@ -52,8 +52,31 @@ pnpm provision:dev
 ユーザ発行を行う（行単位で冪等。再実行は skip）。別 CSV を使うなら
 `pnpm provision:dev --users-csv <path>`。
 
-seed 済みログイン: `padmin@example.com` / `Admin1234!`（管理者）,
-`pmember@example.com` / `Admin1234!`（一般）。
+### dev ログイン一覧（固定パスワード・dev 限定）
+
+権限は 管理者(admin) / 面談担当(interviewer) / メンバー(member) のマルチロール
+（member は全員が暗黙保有。複数保有者はヘッダーメニューで視点を切り替えられる）。
+stg/prod はランダム PW + 初回変更強制で別管理（この表は dev のみ）。
+
+**provision ユーザー**（`pnpm provision:dev` が発行。PW は全員 `Admin1234!` 固定）:
+
+| email | 権限 |
+|---|---|
+| `padmin@example.com` | 管理者 |
+| `pinterviewer@example.com` | 面談担当 |
+| `pmember@example.com` | メンバー |
+
+**seed ユーザー**（CI / RLS テスト兼デモ用。`pnpm db:seed` の後に `pnpm seed:gotrue:dev` で
+ログイン可能になる。PW の一次ソースは [scripts/seed-gotrue-dev.mjs](../scripts/seed-gotrue-dev.mjs)、
+権限は [packages/db/seed/csv/users.csv](../packages/db/seed/csv/users.csv) の roles 列）:
+
+| email | パスワード | 権限 | 備考 |
+|---|---|---|---|
+| `admin@example.com` | `Admin1234!` | 管理者 + 面談担当 | 視点切替メニューの確認に使える |
+| `alice@example.com` | `Alice1234!` | メンバー | サンプル回答の回答者 |
+| `bob@example.com` | `Bob1234!` | 面談担当 | アリスの回答の閲覧者でもある |
+| `carol@example.com` | `Carol1234!` | メンバー | 無関係ユーザー（否定テスト用） |
+| `dave@example.com` | `Dave1234!` | メンバー | |
 
 ### 個別に回す
 
