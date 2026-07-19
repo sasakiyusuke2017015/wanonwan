@@ -3,7 +3,10 @@ import { withActiveUser } from "@/lib/auth/route";
 import { withUser } from "@/lib/db/client";
 
 // 回答一覧（RLS で可視範囲が決まる: admin 全件 / 面談者 / 閲覧者 / 本人）。
-export const GET = withActiveUser(async (_req, claims) => {
+// ?mine=1 で「自分が面談担当の回答」に絞る（担当面談画面用。admin は RLS で全件
+// 見えるため、担当分だけを出すには明示フィルタが必要）。
+export const GET = withActiveUser(async (req, claims) => {
+  const mine = new URL(req.url).searchParams.get("mine") === "1";
   const rows = await withUser(claims.sub, (tx) => tx`
     select a.id, a.status,
            a.health_status as "healthStatus",
@@ -18,6 +21,7 @@ export const GET = withActiveUser(async (_req, claims) => {
     join public.survey_publications p on p.id = a.publication_id
     join public.surveys s             on s.id = p.survey_id
     left join public.urgency_levels ul on ul.id = a.urgency_id
+    ${mine ? tx`where a.interviewer_id = app.uid()` : tx``}
     order by a.id desc
   `);
   return NextResponse.json({ data: rows });

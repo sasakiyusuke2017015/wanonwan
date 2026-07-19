@@ -1,3 +1,4 @@
+import type { UserRole } from "@waoon/domain";
 import type { IconName } from "@ui-catalog/core/constants";
 
 export type NavItemDef = {
@@ -5,63 +6,71 @@ export type NavItemDef = {
   href: string;
   label: string;
   iconName: IconName;
-  /** admin のみ表示 */
-  adminOnly?: boolean;
+  /** 表示対象のアクティブロール。省略 = 全ロールで表示。表示の出し分けのみで認可ではない */
+  roles?: readonly UserRole[];
 };
 
 // アプリ共通のナビゲーション定義。AppLayout の SideNav / BottomTabBar の単一ソース。
+// 出し分けはアクティブロール（視点）基準。認可は API + RLS が保有ロールで判定する。
 export const NAV_ITEMS: readonly NavItemDef[] = [
   { id: "dashboard", href: "/dashboard", label: "ダッシュボード", iconName: "dashboard" },
   { id: "surveys", href: "/surveys", label: "アンケート", iconName: "survey" },
   { id: "schedule", href: "/schedule", label: "スケジュール", iconName: "calendar" },
   {
+    id: "interviews",
+    href: "/interviews",
+    label: "担当面談",
+    iconName: "chat",
+    roles: ["interviewer"],
+  },
+  {
     id: "admin-users",
     href: "/admin/users",
     label: "ユーザー管理",
     iconName: "users-group",
-    adminOnly: true,
+    roles: ["admin"],
   },
   {
     id: "admin-surveys",
     href: "/admin/surveys",
     label: "アンケート管理",
     iconName: "list",
-    adminOnly: true,
+    roles: ["admin"],
   },
   {
     id: "admin-questions",
     href: "/admin/questions",
     label: "設問マスタ",
     iconName: "file",
-    adminOnly: true,
+    roles: ["admin"],
   },
   {
     id: "admin-answers",
     href: "/admin/answers",
     label: "回答・面談",
     iconName: "chat",
-    adminOnly: true,
+    roles: ["admin"],
   },
   {
     id: "admin-org",
     href: "/admin/org",
     label: "組織マスタ",
     iconName: "folder",
-    adminOnly: true,
+    roles: ["admin"],
   },
   {
     id: "admin-positions",
     href: "/admin/positions",
     label: "役職マスタ",
     iconName: "employee",
-    adminOnly: true,
+    roles: ["admin"],
   },
   {
     id: "admin-urgencies",
     href: "/admin/urgencies",
     label: "緊急度マスタ",
     iconName: "info-triangle",
-    adminOnly: true,
+    roles: ["admin"],
   },
 ];
 

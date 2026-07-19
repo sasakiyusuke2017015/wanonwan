@@ -165,6 +165,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <HeaderUserMenu
               name={me?.name ?? null}
               email={me?.email ?? null}
+              roles={me?.roles ?? []}
+              activeRole={me?.activeRole ?? null}
               primaryContrastText={colors.primaryContrastText}
               onOpenTheme={() => setThemeOpen(true)}
             />

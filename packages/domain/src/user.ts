@@ -16,6 +16,34 @@ export const ElevatedRoleSchema = v.picklist(
 );
 export type ElevatedRole = v.InferOutput<typeof ElevatedRoleSchema>;
 
+// ロールの表示優先順（上位から）。アクティブロールの既定は最上位保有ロール。
+export const ROLE_PRIORITY: readonly UserRole[] = ["admin", "interviewer", "member"];
+
+export const ROLE_LABELS: Record<UserRole, string> = {
+  admin: "管理者",
+  interviewer: "面談担当",
+  member: "メンバー",
+};
+
+// 保有ロール一覧（member は暗黙保有で常に含む）を優先順で返す。
+export function heldRoles(elevated: readonly ElevatedRole[]): UserRole[] {
+  return ROLE_PRIORITY.filter(
+    (r) => r === "member" || (elevated as readonly UserRole[]).includes(r),
+  );
+}
+
+// アクティブロールの解決。候補（cookie 値）は信頼せず、保有集合に含まれなければ破棄して
+// 最上位保有ロールへフォールバックする。アクティブロールは表示状態であり認可には使わない。
+export function resolveActiveRole(
+  roles: readonly UserRole[],
+  candidate: string | null | undefined,
+): UserRole {
+  return roles.includes(candidate as UserRole) ? (candidate as UserRole) : (roles[0] ?? "member");
+}
+
+export const SetActiveRoleSchema = v.object({ role: UserRoleSchema });
+export type SetActiveRole = v.InferOutput<typeof SetActiveRoleSchema>;
+
 // users（DDL 30_users.sql）に対応するドメイン型 + バリデータ。
 export const UserSchema = v.object({
   id: v.number(),
