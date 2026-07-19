@@ -89,6 +89,8 @@ export function SpanningBar({
       {/* Left resize handle */}
       {!continuesLeft && (
         <div
+          data-component="SpanningBar-resize-handle"
+          data-edge="left"
           style={{
             position: 'absolute',
             left: 0,
@@ -109,6 +111,8 @@ export function SpanningBar({
       {/* Right resize handle */}
       {!continuesRight && (
         <div
+          data-component="SpanningBar-resize-handle"
+          data-edge="right"
           style={{
             position: 'absolute',
             right: 0,

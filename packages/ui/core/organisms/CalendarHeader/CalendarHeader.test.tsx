@@ -13,13 +13,14 @@ describe('CalendarHeader', () => {
     expect(container.querySelector('header')).toBeTruthy()
   })
 
-  it('renders the Calendar title', () => {
+  it('renders the agenda view mode label', () => {
     render(
       <Provider>
         <CalendarHeader />
       </Provider>
     )
-    expect(screen.getByText('Calendar')).toBeTruthy()
+    // 「Calendar」タイトルは現行実装では非表示。代わりに viewMode の「予定」ラベルを確認。
+    expect(screen.getByText('予定')).toBeTruthy()
   })
 
   it('renders view mode buttons', () => {

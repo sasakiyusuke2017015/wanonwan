@@ -16,7 +16,7 @@ export default function UiDemoPage() {
         </Text>
         <Box className="mt-4 flex gap-2">
           <Badge value="solid" color="blue" />
-          <Badge value="success" variant="success" />
+          <Badge value="success" tone="success" />
           <Badge value="score" appearance="score" color="green" />
         </Box>
       </Stack>

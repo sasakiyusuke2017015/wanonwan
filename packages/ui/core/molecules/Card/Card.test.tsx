@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Card, CardHeader, CardContent, CardFooter } from './Card';
+import { Card, CardHeader, CardBody, CardFooter } from './Card';
 
 describe('Card', () => {
   it('子要素が表示される', () => {
@@ -53,14 +53,14 @@ describe('CardHeader', () => {
   });
 });
 
-describe('CardContent', () => {
+describe('CardBody', () => {
   it('data-component属性が設定される', () => {
-    const { container } = render(<CardContent>コンテンツ</CardContent>);
+    const { container } = render(<CardBody>コンテンツ</CardBody>);
     expect(container.querySelector('[data-component="card-content"]')).toBeInTheDocument();
   });
 
   it('子要素が表示される', () => {
-    render(<CardContent>コンテンツ内容</CardContent>);
+    render(<CardBody>コンテンツ内容</CardBody>);
     expect(screen.getByText('コンテンツ内容')).toBeInTheDocument();
   });
 });

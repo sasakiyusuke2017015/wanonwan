@@ -2,8 +2,18 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
 import { Provider } from 'jotai'
+import { useHydrateAtoms } from 'jotai/utils'
 import { AgendaView } from './AgendaView'
+import { selectedDateAtom } from '../../hooks/calendar/calendar'
 import type { CalendarEvent } from '../../types/calendar'
+
+// AgendaView は selectedDateAtom (デフォルト = 現在日時) を見て月単位で
+// dayGroup を組み立てるため、mock events の日付 (2024-04) と合わせるために
+// テスト用の HydrateAtoms wrapper で初期日付を seed する。
+function HydrateAtoms({ children }: { children: React.ReactNode }) {
+  useHydrateAtoms([[selectedDateAtom, new Date(2024, 3, 15)]])
+  return <>{children}</>
+}
 
 const mockEvents: CalendarEvent[] = [
   {
@@ -38,11 +48,13 @@ describe('AgendaView', () => {
   it('イベントがある日のみ表示される', () => {
     render(
       <Provider>
+        <HydrateAtoms>
         <AgendaView
           events={mockEvents}
           persistEvent={mockPersistEvent}
           removeEvent={mockRemoveEvent}
         />
+        </HydrateAtoms>
       </Provider>
     )
 
@@ -54,11 +66,13 @@ describe('AgendaView', () => {
   it('終日イベントは「終日」バッジが表示される', () => {
     render(
       <Provider>
+        <HydrateAtoms>
         <AgendaView
           events={mockEvents}
           persistEvent={mockPersistEvent}
           removeEvent={mockRemoveEvent}
         />
+        </HydrateAtoms>
       </Provider>
     )
 
@@ -70,11 +84,13 @@ describe('AgendaView', () => {
 
     render(
       <Provider>
+        <HydrateAtoms>
         <AgendaView
           events={mockEvents}
           persistEvent={mockPersistEvent}
           removeEvent={mockRemoveEvent}
         />
+        </HydrateAtoms>
       </Provider>
     )
 
@@ -88,11 +104,13 @@ describe('AgendaView', () => {
   it('予定がない場合は空状態を表示', () => {
     render(
       <Provider>
+        <HydrateAtoms>
         <AgendaView
           events={[]}
           persistEvent={mockPersistEvent}
           removeEvent={mockRemoveEvent}
         />
+        </HydrateAtoms>
       </Provider>
     )
 

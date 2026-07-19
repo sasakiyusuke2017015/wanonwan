@@ -84,4 +84,52 @@ describe('Button', () => {
     const button = screen.getByRole('button');
     expect(button).toHaveClass('custom-class');
   });
+
+  it('既定で fillSweep クラスが付く (shimmer は廃止)', () => {
+    render(<Button enableHopEffect={false}>Save</Button>);
+    const button = screen.getByRole('button');
+    expect(button.className).toContain('fillSweep');
+    expect(button.className).not.toContain('shimmer');
+  });
+
+  it('navPending=true で ShimmerOverlay を重ねる (children は残す・disabled にしない)', () => {
+    const { container, rerender } = render(
+      <Button enableHopEffect={false}>受講をはじめる</Button>
+    )
+    // 既定では出ない
+    expect(
+      container.querySelector('[data-component="shimmer-overlay"]')
+    ).toBeNull()
+
+    rerender(
+      <Button navPending enableHopEffect={false}>
+        受講をはじめる
+      </Button>
+    )
+    const button = screen.getByRole('button')
+    // children はそのまま表示
+    expect(screen.getByText('受講をはじめる')).toBeInTheDocument()
+    // shimmer overlay が重なる
+    expect(
+      container.querySelector('[data-component="shimmer-overlay"]')
+    ).not.toBeNull()
+    // navPending は disabled にしない (遷移はブラウザ/router に任せる)
+    expect(button).not.toBeDisabled()
+    expect(button).toHaveAttribute('data-nav-pending', 'true')
+  })
+
+  it('nav / ghost には fillSweep が付かない', () => {
+    const { rerender } = render(
+      <Button variant="ghost" enableHopEffect={false}>
+        Ghost
+      </Button>
+    );
+    expect(screen.getByRole('button').className).not.toContain('fillSweep');
+    rerender(
+      <Button variant="nav" enableHopEffect={false}>
+        Nav
+      </Button>
+    );
+    expect(screen.getByRole('button').className).not.toContain('fillSweep');
+  });
 });

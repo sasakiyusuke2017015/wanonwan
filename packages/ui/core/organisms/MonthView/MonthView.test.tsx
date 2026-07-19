@@ -57,11 +57,17 @@ describe('MonthView', () => {
   })
 
   it('renders events in the correct day cells', () => {
+    // MonthView は selectedDateAtom (= new Date()) を基準に表示するので、
+    // テスト用イベントの日付も "今日" 寄りに作る (任意の固定月だと表示外になる)
+    const today = new Date()
+    today.setHours(9, 0, 0, 0)
+    const endTime = new Date(today)
+    endTime.setHours(10, 0, 0, 0)
     const event: CalendarEvent = {
       id: '1',
       title: 'Month Event',
-      startTime: new Date('2026-03-20T09:00:00'),
-      endTime: new Date('2026-03-20T10:00:00'),
+      startTime: today,
+      endTime,
       color: '#4f46e5',
     }
     render(

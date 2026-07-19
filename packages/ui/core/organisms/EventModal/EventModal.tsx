@@ -33,7 +33,8 @@ export function EventModal({ persistEvent, removeEvent }: EventModalProps) {
   const allEvents = useAtomValue(eventsAtom)
   const titleRef = useRef<HTMLInputElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
-  const headingId = useId()
+  const titleId = useId()
+  const errorsId = useId()
 
   const [title, setTitle] = useState('')
   const [startDateStr, setStartDateStr] = useState('')
@@ -235,14 +236,13 @@ export function EventModal({ persistEvent, removeEvent }: EventModalProps) {
     ? { position: 'fixed', top: `${pos.top}px`, left: pos.left !== undefined ? `${pos.left}px` : undefined, right: pos.right !== undefined ? `${pos.right}px` : undefined, width: '380px', maxHeight: panelMaxH, zIndex: 10000 }
     : { width: '380px', maxHeight: '80vh' }
 
+  const showErrors = submitted && validationErrors.length > 0
+
   return (
     <FocusTrap
       active={modal.isOpen}
       focusTrapOptions={{
-        // 初期フォーカスは既存の requestAnimationFrame → titleRef.focus() に委ねる
-        // （trap 起動時は先頭のフォーカス可能要素に当たり、直後にタイトル入力へ移る）。
         fallbackFocus: '[role="dialog"]',
-        // ESC / 背景クリックは既存の close 経路で処理する（trap 側と二重発火させない）。
         escapeDeactivates: false,
         clickOutsideDeactivates: false,
       }}
@@ -262,32 +262,32 @@ export function EventModal({ persistEvent, removeEvent }: EventModalProps) {
           ref={panelRef}
           role="dialog"
           aria-modal="true"
-          aria-labelledby={headingId}
-          tabIndex={-1}
+          aria-labelledby={titleId}
+          aria-describedby={showErrors ? errorsId : undefined}
           style={{
-          ...panelStyle,
-          background: '#fff', borderRadius: '16px',
-          boxShadow: '0 24px 48px rgba(0,0,0,0.2)', overflow: 'hidden',
-          display: 'flex', flexDirection: 'column' as const,
-          opacity: posReady ? 1 : 0,
-          transform: posReady ? 'scale(1) translateY(0)' : 'scale(0.96) translateY(6px)',
-          transition: 'opacity 0.2s ease-out, transform 0.2s ease-out',
-        }}
-      >
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: `1px solid ${colors.border.primary}` }}>
-          <h3 id={headingId} style={{ fontSize: '18px', fontWeight: 700, color: colors.text.primary, margin: 0 }}>
-            {modal.editingEvent ? 'イベントを編集' : 'イベントを追加'}
-          </h3>
-          <button
-            type="button"
-            onClick={close}
-            aria-label="閉じる"
-            className="flex items-center justify-center w-8 h-8 border-none bg-transparent cursor-pointer rounded-lg text-text-secondary hover:bg-surface-hover transition-colors text-lg"
-          >
-            &times;
-          </button>
-        </div>
+            ...panelStyle,
+            background: '#fff', borderRadius: '16px',
+            boxShadow: '0 24px 48px rgba(0,0,0,0.2)', overflow: 'hidden',
+            display: 'flex', flexDirection: 'column' as const,
+            opacity: posReady ? 1 : 0,
+            transform: posReady ? 'scale(1) translateY(0)' : 'scale(0.96) translateY(6px)',
+            transition: 'opacity 0.2s ease-out, transform 0.2s ease-out',
+          }}
+        >
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: `1px solid ${colors.border.primary}` }}>
+            <h3 id={titleId} style={{ fontSize: '18px', fontWeight: 700, color: colors.text.primary, margin: 0 }}>
+              {modal.editingEvent ? 'イベントを編集' : 'イベントを追加'}
+            </h3>
+            <button
+              type="button"
+              onClick={close}
+              aria-label="閉じる"
+              className="flex items-center justify-center w-8 h-8 border-none bg-transparent cursor-pointer rounded-lg text-text-secondary hover:bg-surface-hover transition-colors text-lg"
+            >
+              &times;
+            </button>
+          </div>
 
         {/* Body */}
         <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1, minHeight: 0 }}>
@@ -400,8 +400,8 @@ export function EventModal({ persistEvent, removeEvent }: EventModalProps) {
               </div>
             </div>
 
-            {submitted && validationErrors.length > 0 && (
-              <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+            {showErrors && (
+              <div id={errorsId} style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
                 {validationErrors.map((msg) => (
                   <div key={msg} style={{ fontSize: '11px', color: colors.danger }}>※ {msg}</div>
                 ))}

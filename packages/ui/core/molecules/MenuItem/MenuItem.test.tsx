@@ -83,4 +83,25 @@ describe('MenuItem', () => {
     const button = screen.getByRole('button');
     expect(button.tagName).toBe('BUTTON');
   });
+
+  it('trailing が指定されると右端に表示される', () => {
+    render(<MenuItem label="管理者" trailing="✓ 使用中" />);
+    expect(screen.getByText('✓ 使用中')).toBeInTheDocument();
+  });
+
+  it('active=true の場合 data-active="true" が付く', () => {
+    const { container } = render(<MenuItem label="現在" active />);
+    expect(container.querySelector('[data-component="menu-item"]')?.getAttribute('data-active')).toBe('true');
+  });
+
+  it('disabled=true だと onClick が呼ばれない', async () => {
+    const handleClick = vi.fn();
+    const user = userEvent.setup();
+    render(<MenuItem label="無効" disabled onClick={handleClick} />);
+
+    const button = screen.getByRole('button');
+    await user.click(button);
+
+    expect(handleClick).not.toHaveBeenCalled();
+  });
 });

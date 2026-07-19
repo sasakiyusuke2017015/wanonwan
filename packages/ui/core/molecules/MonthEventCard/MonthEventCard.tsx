@@ -23,7 +23,7 @@ interface MonthEventCardProps {
 export function MonthEventCard({ event, isDragging, isHovered, onClick, onPointerDown, onMouseEnter, onMouseLeave }: MonthEventCardProps) {
   return (
     <div
-      data-component="MonthEventCard"
+      data-component="event-card"
       className={`${styles.card} ${isHovered ? styles.hovered : ''}`}
       style={{
         opacity: isDragging ? 0.3 : 1,

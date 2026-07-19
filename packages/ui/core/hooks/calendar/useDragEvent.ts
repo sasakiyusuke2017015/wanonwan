@@ -1,3 +1,5 @@
+'use client'
+
 import { useCallback, useRef } from 'react'
 import { useSetAtom } from 'jotai'
 import { dragAtom, anyDragActiveAtom, hoveredEventAtom } from './calendar'

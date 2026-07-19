@@ -9,9 +9,9 @@ import { Text } from '../../atoms/Text/Text'
 import { Badge } from '../../atoms/Badge/Badge'
 import { Stack } from '../../atoms/Stack/Stack'
 import { Spinner } from '../../atoms/Spinner/Spinner'
-import { Toggle } from '../../atoms/Toggle/Toggle'
+import { Switch } from '../../atoms/Switch/Switch'
 import { Button } from '../../molecules/Button/Button'
-import Card, { CardHeader, CardContent } from '../../molecules/Card/Card'
+import Card, { CardHeader, CardBody } from '../../molecules/Card/Card'
 import { Input } from '../../molecules/Input/Input'
 import { Banner } from '../../molecules/Banner/Banner'
 
@@ -21,7 +21,7 @@ type PuckProps = {
   ButtonBlock: { label: string; variant: 'primary' | 'secondary' | 'outline' | 'danger' | 'default' | 'success'; size: 'small' | 'medium' | 'large'; fullWidth: boolean }
   CardBlock: { title: string; content: string; padding: boolean }
   InputBlock: { placeholder: string; variant: 'default' | 'dark' | 'outlined'; size: 'small' | 'medium' | 'large'; type: string }
-  BadgeBlock: { text: string; variant: 'default' | 'success' | 'warning' | 'error' | 'info'; size: 'small' | 'medium' | 'large' }
+  BadgeBlock: { text: string; tone: 'neutral' | 'success' | 'warning' | 'danger' | 'brand'; size: 'small' | 'medium' | 'large' }
   StackBlock: { direction: 'row' | 'column'; gap: number; align: 'start' | 'center' | 'end' | 'stretch'; justify: 'start' | 'center' | 'end' | 'between' }
   BannerBlock: { message: string; variant: 'info' | 'success' | 'warning' | 'error' }
   SpinnerBlock: { size: 'sm' | 'md' | 'lg' }
@@ -184,9 +184,9 @@ export const puckConfig: Config<PuckProps> = {
           <CardHeader>
             <Text as="h3" size="lg" weight="semibold">{title}</Text>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <Text as="p">{content}</Text>
-          </CardContent>
+          </CardBody>
         </Card>
       ),
     },
@@ -236,14 +236,14 @@ export const puckConfig: Config<PuckProps> = {
       label: 'バッジ',
       fields: {
         text: { type: 'text' },
-        variant: {
+        tone: {
           type: 'select',
           options: [
-            { label: 'デフォルト', value: 'default' },
+            { label: 'ニュートラル', value: 'neutral' },
             { label: '成功', value: 'success' },
             { label: '警告', value: 'warning' },
-            { label: 'エラー', value: 'error' },
-            { label: '情報', value: 'info' },
+            { label: '危険', value: 'danger' },
+            { label: 'ブランド', value: 'brand' },
           ],
         },
         size: {
@@ -257,11 +257,11 @@ export const puckConfig: Config<PuckProps> = {
       },
       defaultProps: {
         text: 'ラベル',
-        variant: 'default',
+        tone: 'neutral',
         size: 'medium',
       },
-      render: ({ text, variant, size }) => (
-        <Badge variant={variant} size={size}>{text}</Badge>
+      render: ({ text, tone, size }) => (
+        <Badge tone={tone} size={size}>{text}</Badge>
       ),
     },
 
@@ -363,7 +363,7 @@ export const puckConfig: Config<PuckProps> = {
       defaultProps: { label: '有効にする', size: 'medium' },
       render: ({ label, size }) => (
         <Stack direction="row" gap={8} align="center">
-          <Toggle size={size} />
+          <Switch size={size} checked onChange={() => {}} />
           <Text as="span" size="sm">{label}</Text>
         </Stack>
       ),

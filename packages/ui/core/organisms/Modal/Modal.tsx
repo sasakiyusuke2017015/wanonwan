@@ -2,6 +2,7 @@
 
 import { FC, ReactNode, useEffect, useId } from 'react';
 
+import { createPortal } from 'react-dom';
 import { FocusTrap } from 'focus-trap-react';
 
 import { IconButton } from '../../molecules/IconButton';
@@ -18,6 +19,19 @@ interface ModalProps {
   borderRadius?: string;
 }
 
+/**
+ * 汎用モーダルコンポーネント (title + children を持つ generic modal)。
+ *
+ * 棲み分け: 自由コンテンツの枠が必要なときに使う。定型メッセージの
+ * 確認/通知は ConfirmDialog / Dialog を使う (Dialog.tsx の doc 参照)。
+ *
+ * a11y:
+ * - createPortal で document.body 直下に描画 (Dialog と同様)
+ * - role="dialog" + aria-modal="true" で modal として SR に認識される
+ * - aria-labelledby で title を SR に読み上げ
+ * - focus-trap-react で modal 内に focus を閉じ込め (close button が初期 focus)
+ * - 閉じた後は trigger 要素に focus 復帰 (FocusTrap デフォルト)
+ */
 export const Modal: FC<ModalProps> = ({
   isOpen,
   onClose,
@@ -58,14 +72,14 @@ export const Modal: FC<ModalProps> = ({
     }
   };
 
-  return (
+  return createPortal(
     <FocusTrap
       active={isOpen}
       focusTrapOptions={{
-        // 初期フォーカスは先頭のフォーカス可能要素 = ヘッダーの閉じるボタン。
-        // フォーカス可能要素が無い環境（jsdom 等）はパネルへフォールバック。
-        fallbackFocus: '[data-modal-panel]',
-        // ESC / 背景クリックは既存の onClose 経路で処理する（trap 側と二重発火させない）。
+        // 初期フォーカスはパネル自体に置く。先頭 tabbable (閉じるボタン) に置くと
+        // focus-within 発火のツールチップが開いた瞬間から表示されてしまう
+        initialFocus: '[role="dialog"]',
+        fallbackFocus: '[role="dialog"]',
         escapeDeactivates: false,
         clickOutsideDeactivates: false,
       }}
@@ -80,7 +94,6 @@ export const Modal: FC<ModalProps> = ({
           aria-modal="true"
           aria-labelledby={titleId}
           tabIndex={-1}
-          data-modal-panel
           className={styles.panel}
           style={{ maxWidth, borderRadius }}
         >
@@ -90,6 +103,9 @@ export const Modal: FC<ModalProps> = ({
               icon="x"
               size={20}
               label="閉じる"
+              // パネルが overflow: hidden のため上向きツールチップは天面で見切れて
+              // 黒い塊に見える。パネル内側 (ボタン左下) に出す
+              tooltipPosition="bottom-end"
               onClick={() => { log('close', { title, trigger: 'button' }); onClose(); }}
               className={styles.closeButton}
             />
@@ -97,7 +113,7 @@ export const Modal: FC<ModalProps> = ({
           <div className={styles.content}>{children}</div>
         </div>
       </div>
-    </FocusTrap>
+    </FocusTrap>,
+    document.body
   );
 };
-

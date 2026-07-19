@@ -12,6 +12,7 @@ const meta: Meta<typeof IconButton> = {
     label: { control: 'text' },
     variant: { control: 'select', options: ['default', 'danger'] },
     disabled: { control: 'boolean' },
+    active: { control: 'boolean' },
   },
 }
 
@@ -38,6 +39,15 @@ export const Disabled: Story = {
     icon: 'edit',
     label: '編集（無効）',
     disabled: true,
+  },
+}
+
+export const Active: Story = {
+  name: 'Active（押し込み・開いている状態）',
+  args: {
+    icon: 'funnel',
+    label: 'フィルタを切り替える',
+    active: true,
   },
 }
 

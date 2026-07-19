@@ -22,4 +22,22 @@ describe('EmptyState', () => {
     render(<EmptyState title="空" action={<button>追加する</button>} />);
     expect(screen.getByText('追加する')).toBeInTheDocument();
   });
+
+  it('variant 未指定で default class が当たり、dashed class は当たらない', () => {
+    const { container } = render(<EmptyState title="空" />);
+    const root = container.querySelector('[data-component="empty-state"]') as HTMLElement;
+    expect(root.className).not.toMatch(/dashed/);
+  });
+
+  it('variant="dashed" で dashed class が当たる', () => {
+    const { container } = render(<EmptyState title="空" variant="dashed" />);
+    const root = container.querySelector('[data-component="empty-state"]') as HTMLElement;
+    expect(root.className).toMatch(/dashed/);
+  });
+
+  it('variant="default" で dashed class は当たらない (明示指定でも安全)', () => {
+    const { container } = render(<EmptyState title="空" variant="default" />);
+    const root = container.querySelector('[data-component="empty-state"]') as HTMLElement;
+    expect(root.className).not.toMatch(/dashed/);
+  });
 });

@@ -1,3 +1,5 @@
+'use client'
+
 import { atom } from 'jotai'
 import type { CalendarEvent, ViewMode } from '../../types/calendar'
 
@@ -5,7 +7,12 @@ export const eventsAtom = atom<readonly CalendarEvent[]>([])
 
 export const selectedDateAtom = atom<Date>(new Date())
 
+// SSR-safe な初期 view mode 解決。サーバー側 (window 不在) では 'day' を返し、
+// client side mount 後に必要なら syncViewModeFromPathAtom (write-only setter) で
+// URL から同期する想定。calendar UI を import するチェーンが apps/web の server
+// component から取り込まれる場合があるため、module top-level で window を触らない。
 function getViewModeFromPath(): ViewMode {
+  if (typeof window === 'undefined') return 'day'
   const path = window.location.pathname.replace(/^\//, '')
   if (path === 'week') return 'week'
   if (path === 'month') return 'month'
@@ -18,12 +25,22 @@ export const viewModeAtom = atom(
   (get) => get(viewModeBaseAtom),
   (_get, set, mode: ViewMode) => {
     set(viewModeBaseAtom, mode)
+    if (typeof window === 'undefined') return
     const path = mode === 'day' ? '/' : `/${mode}`
     if (window.location.pathname !== path) {
       window.history.pushState(null, '', path)
     }
   }
 )
+
+/**
+ * client mount 後に現在の URL から viewMode を同期する write-only atom。
+ * Calendar コンポーネントの useEffect 内で `useSetAtom(syncViewModeFromPathAtom)`
+ * 経由で呼ぶ。SSR 時は呼ばれないため安全。
+ */
+export const syncViewModeFromPathAtom = atom(null, (_get, set) => {
+  set(viewModeBaseAtom, getViewModeFromPath())
+})
 
 export const editingEventAtom = atom<CalendarEvent | null>(null)
 

@@ -87,7 +87,7 @@ export const PWAInstallPrompt: FC = () => {
             variant="primary"
             size="small"
             onClick={handleInstallClick}
-            leftIcon={'check-circle'}
+            leftIcon={'download'}
             enableHopEffect={false}
           >
             インストール

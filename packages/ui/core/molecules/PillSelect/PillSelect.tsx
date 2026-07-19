@@ -1,6 +1,6 @@
 'use client'
 
-import { colors } from '@ui-catalog/core/tokens'
+import { colors } from '../../tokens'
 import styles from './PillSelect.module.scss'
 
 interface PillOption {

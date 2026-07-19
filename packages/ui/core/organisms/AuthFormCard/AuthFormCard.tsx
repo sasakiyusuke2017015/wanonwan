@@ -35,7 +35,7 @@ export const AuthFormCard: React.FC<AuthFormCardProps> = ({
   ].filter(Boolean).join(' ');
 
   return (
-    <div data-component="AuthFormCard" className={cardClasses}>
+    <div data-component="auth-form-card" className={cardClasses}>
       <div className={styles.authFormCard__content}>
         {children}
       </div>

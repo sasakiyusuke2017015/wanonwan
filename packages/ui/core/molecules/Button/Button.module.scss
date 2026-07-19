@@ -13,8 +13,20 @@
   overflow: hidden;
   transform: scale(1);
 
+  // クリックの押下／離すを、ホバー解除のゆっくりした影フェードと別物にする:
+  // - 押下 (:active 進入) … 素早く沈む (下記 :active)
+  // - 離す (:active 退出) … 一瞬だけ弾んで戻る back-out カーブ
+  // box-shadow 等のホバー系は従来どおり 150ms ease-in-out のまま。
+  transition:
+    color var(--transition-duration-150) var(--transition-ease-in-out),
+    background-color var(--transition-duration-150) var(--transition-ease-in-out),
+    border-color var(--transition-duration-150) var(--transition-ease-in-out),
+    box-shadow var(--transition-duration-150) var(--transition-ease-in-out),
+    transform var(--transition-duration-300) cubic-bezier(0.34, 1.56, 0.64, 1);
+
   &:active:not(:disabled) {
     transform: scale(0.95);
+    transition: transform var(--transition-duration-75) var(--transition-ease-out);
   }
 }
 
@@ -62,9 +74,9 @@
   color: var(--color-white);
   box-shadow: var(--shadow-xl);
   border: none;
+  --fill-sweep-color: linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-primary-700) 50%, var(--color-primary-900) 100%);
 
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-primary-700) 50%, var(--color-primary-900) 100%);
     box-shadow: var(--shadow-2xl);
   }
 
@@ -78,9 +90,9 @@
   color: var(--color-white);
   box-shadow: var(--shadow-xl);
   border: var(--border-width-2) solid var(--color-gray-900);
+  --fill-sweep-color: linear-gradient(135deg, #000000 0%, #1f2937 50%, #000000 100%);
 
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #000000 0%, #1f2937 50%, #000000 100%);
     border-color: var(--color-black);
     box-shadow: var(--shadow-2xl);
   }
@@ -95,9 +107,9 @@
   color: var(--color-gray-800);
   box-shadow: var(--shadow-lg);
   border: var(--border-width-1) solid var(--color-gray-200);
+  --fill-sweep-color: linear-gradient(135deg, var(--color-gray-100) 0%, var(--color-gray-200) 50%, var(--color-gray-100) 100%);
 
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, var(--color-gray-100) 0%, var(--color-gray-200) 50%, var(--color-gray-100) 100%);
     border-color: var(--color-gray-300);
     box-shadow: var(--shadow-xl);
   }
@@ -111,10 +123,10 @@
   background: transparent;
   color: var(--color-primary-600);
   box-shadow: var(--shadow-lg);
-  border: var(--border-width-2) solid var(--color-primary-600);
+  border: var(--border-width-1) solid var(--color-primary-600);
+  --fill-sweep-color: var(--color-primary-600);
 
   &:hover:not(:disabled) {
-    background: var(--color-primary-600);
     color: var(--color-white);
     border-color: var(--color-primary-700);
     box-shadow: var(--shadow-xl);
@@ -130,9 +142,9 @@
   color: var(--color-white);
   box-shadow: var(--shadow-xl);
   border: none;
+  --fill-sweep-color: linear-gradient(135deg, #b91c1c 0%, #dc2626 50%, #991b1b 100%);
 
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #b91c1c 0%, #dc2626 50%, #991b1b 100%);
     box-shadow: var(--shadow-2xl);
   }
 
@@ -146,9 +158,9 @@
   color: var(--color-white);
   box-shadow: var(--shadow-xl);
   border: none;
+  --fill-sweep-color: linear-gradient(135deg, #15803d 0%, #16a34a 50%, #047857 100%);
 
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #15803d 0%, #16a34a 50%, #047857 100%);
     box-shadow: var(--shadow-2xl);
   }
 
@@ -259,25 +271,31 @@
   width: 100%;
 }
 // -----------------------------------------------------------------------------
-// Shimmer Effect
+// Fill Sweep Effect — hover 時に左から右へ variant 色が浸食する塗りつぶし。
+// nav / ghost 以外の全 variant に既定で付与する (Button.tsx)。塗り色は各 variant が
+// `--fill-sweep-color` で指定 (未指定時は primary-600)。各 variant は :hover での
+// 即時 background 変更を持たず、この ::after の方向スイープに一本化している。
 // -----------------------------------------------------------------------------
-.shimmer {
-  &::before {
+.fillSweep {
+  &::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.2) 50%,
-      transparent 100%
-    );
-    transform: translateX(-100%);
-    transition: transform var(--transition-duration-700) var(--transition-ease-in-out);
+    background: var(--fill-sweep-color, var(--color-primary-600));
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--transition-duration-500) var(--transition-ease-in-out);
+    pointer-events: none;
   }
 
-  &:hover::before {
-    transform: translateX(100%);
+  &:hover:not(:disabled)::after {
+    transform: scaleX(1);
+  }
+
+  // click (送信中 = loading) の引きは右基点 = 右へ引く。
+  // hover-out (左基点 = 左へ引く) と逆方向にして区別する。
+  &[data-loading]::after {
+    transform-origin: right center;
   }
 }
 

@@ -1,6 +1,7 @@
-export { Icon } from './Icon';
+export { Icon, CLICK_SPIN } from './Icon';
 export type {
   IconProps,
+  AnyIconName,
   LoadingPreset,
   AnimationPreset,
   HoverPreset,
@@ -8,3 +9,4 @@ export type {
   SizePreset,
   IconPathProps,
 } from './types';
+export type { LucideIconName } from './lucide-registry';

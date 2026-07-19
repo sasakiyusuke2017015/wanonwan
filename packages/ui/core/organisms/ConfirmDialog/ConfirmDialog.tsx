@@ -1,13 +1,9 @@
-// src/components/common/molecules/ConfirmDialog.tsx
 /**
- * ConfirmDialogコンポーネント（後方互換ラッパー）
- * 新規実装ではDialogコンポーネントを直接使用してください
+ * ConfirmDialog — 確認ダイアログの正準 API (Dialog variant="confirm" の公開面)。
+ * 定型メッセージ + 確定/キャンセルの確認はこれを使う。
+ * 自由コンテンツの枠が必要なときは Modal を使う (棲み分けは Dialog.tsx の doc 参照)。
  *
  * @example
- * // 推奨: Dialogを直接使用
- * <Dialog variant="confirm" message="削除しますか？" onConfirm={handleConfirm} onCancel={handleCancel} />
- *
- * // 後方互換: ConfirmDialogも引き続き使用可能
  * <ConfirmDialog message="削除しますか？" onConfirm={handleConfirm} onCancel={handleCancel} />
  */
 import { FC } from 'react';

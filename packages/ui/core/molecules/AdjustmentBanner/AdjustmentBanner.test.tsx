@@ -15,15 +15,16 @@ describe('AdjustmentBanner', () => {
 
   it('Bannerコンポーネントのvariantがinfoである', () => {
     const { container } = render(<AdjustmentBanner message="テスト" />);
-    const banner = container.firstChild as HTMLElement;
-    expect(banner).toHaveClass('bg-blue-50', 'border-blue-200');
+    const banner = container.querySelector('[data-component="Banner"]');
+    expect(banner).toHaveClass('banner--info');
   });
 
   it('カスタムclassNameが適用される', () => {
     const { container } = render(
       <AdjustmentBanner message="テスト" className="custom-class" />
     );
-    const banner = container.firstChild as HTMLElement;
+    // className は内側の Banner に渡される
+    const banner = container.querySelector('[data-component="Banner"]');
     expect(banner).toHaveClass('custom-class');
   });
 });

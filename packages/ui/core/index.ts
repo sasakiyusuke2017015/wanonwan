@@ -7,7 +7,7 @@
  * - atoms/       最小単位（Button, Input, Icon, Badge 等）
  * - molecules/   atoms の組み合わせ（FormField, MenuItem 等）
  * - organisms/   独立したセクション（Dialog, Modal, Card 等）
- * - templates/   ページレイアウト（AppShell, Header 等）
+ * - templates/   ページレイアウト（ShellLayout, Header 等）
  * - hooks/       カスタムフック
  * - constants/   定数定義
  * - tokens/      デザイントークン

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { BlurFade } from './blur-fade';
+import { BlurFade } from './BlurFade';
 
 describe('BlurFade', () => {
   it('子要素が表示される', () => {

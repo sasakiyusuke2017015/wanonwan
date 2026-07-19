@@ -104,7 +104,7 @@ export function AgendaView({ events, onEventClick }: AgendaViewProps) {
                 </span>
               </div>
               {group.isToday && (
-                <Badge variant="info" size="small">今日</Badge>
+                <Badge tone="brand" size="small">今日</Badge>
               )}
             </div>
 

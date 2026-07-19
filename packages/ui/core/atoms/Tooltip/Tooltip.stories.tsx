@@ -16,8 +16,17 @@ const meta: Meta<typeof Tooltip> = {
     },
     position: {
       control: 'select',
-      options: ['top', 'bottom', 'left', 'right'],
-      description: 'ツールチップの表示位置',
+      options: [
+        'top',
+        'bottom',
+        'left',
+        'right',
+        'top-end',
+        'bottom-end',
+        'top-start',
+        'bottom-start',
+      ],
+      description: 'ツールチップの表示位置 (end 系はトリガー右端、start 系は左端に揃える)',
     },
   },
 }
@@ -154,6 +163,29 @@ export const WithArrowShadow: Story = {
         >
           ホバーして影に注目
         </button>
+      </Tooltip>
+    </div>
+  ),
+}
+
+/**
+ * 端揃え（top-end / bottom-end / top-start / bottom-start）
+ *
+ * 吹き出しをトリガーの右端 (end) / 左端 (start) に揃える。コンテナの端に置いた
+ * アイコンボタンで、中央揃えだとはみ出して overflow クリップされるケース
+ * (DataTable toolbar 等) 用。矢印はトリガー中央付近を指したまま。
+ */
+export const EdgeAligned: Story = {
+  render: () => (
+    <div
+      className="flex justify-between gap-2 rounded-lg border border-gray-300 p-3"
+      style={{ width: '360px', marginTop: '60px' }}
+    >
+      <Tooltip content="コンテナ左端でも見切れない" position="top-start">
+        <button className="rounded bg-slate-600 px-3 py-1.5 text-white">top-start</button>
+      </Tooltip>
+      <Tooltip content="コンテナ右端でも見切れない" position="top-end">
+        <button className="rounded bg-slate-600 px-3 py-1.5 text-white">top-end</button>
       </Tooltip>
     </div>
   ),

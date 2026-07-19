@@ -4,5 +4,5 @@ export type {
   BadgeSize,
   BadgeAppearance,
   BadgeStyleVariant,
-  BadgeSemanticVariant,
+  BadgeTone,
 } from './Badge'

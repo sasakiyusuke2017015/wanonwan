@@ -15,9 +15,13 @@ import { Icon } from '../../atoms/Icon'
 
 import styles from './Input.module.scss'
 
-// setSelectionRange が使える input type（WHATWG 仕様）。email / number 等で呼ぶと
-// InvalidStateError になるため、blur 時の「先頭に巻き戻す」処理はこの型に限定する。
-const SELECTABLE_TYPES = new Set(['text', 'search', 'url', 'tel', 'password'])
+const SELECTION_SUPPORTED_TYPES = new Set([
+  'text',
+  'password',
+  'search',
+  'tel',
+  'url',
+])
 
 interface InputProps
   extends Omit<
@@ -40,6 +44,8 @@ interface InputProps
   onBlur?: (event: FocusEvent<HTMLInputElement>) => void
   /** borderRadius（形状設定用） - Layout から props で渡す */
   borderRadius?: string
+  /** 固定高さ（フォーム内で Select 等と高さを揃える用）。未指定なら size の padding 由来 */
+  height?: string
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -61,6 +67,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       onBlur,
       disabled,
       borderRadius = '0.375rem',
+      height,
       ...props
     },
     ref
@@ -93,6 +100,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         ? { boxShadow: 'inset 0 0 0 2px rgba(59, 130, 246, 0.3)' }
         : {}),
       borderRadius,
+      ...(height ? { height } : {}),
     }
 
     const iconWrapperClasses = [
@@ -181,7 +189,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         }}
         onBlur={(e) => {
           log('blur', { variant, size })
-          if (SELECTABLE_TYPES.has(e.target.type)) {
+          // setSelectionRange は text / password / search / tel / url 以外の type
+          // (email, number, date 等) では NotSupportedError を投げる仕様。
+          if (SELECTION_SUPPORTED_TYPES.has(e.target.type)) {
             e.target.setSelectionRange(0, 0)
           }
           e.target.scrollLeft = 0

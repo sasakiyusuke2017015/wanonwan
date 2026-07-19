@@ -29,7 +29,7 @@ export interface AlertState extends AlertOptions {
  * });
  *
  * // JSX内で
- * <AlertDialog {...alertState} onClose={closeAlert} />
+ * <Dialog variant="alert" {...alertState} onClose={closeAlert} />
  */
 export const useAlert = () => {
   const [alertState, setAlertState] = useState<AlertState>({

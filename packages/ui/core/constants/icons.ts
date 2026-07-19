@@ -36,11 +36,7 @@ export const ALL_ICON_TYPES = [
   'arrow-u-turn',
   'door-out',
   'funnel',
-  'plus',
-  'pencil',
-  'copy',
   'ban',
-  'grip',
   'gear',
   'home',
   'dashboard',
@@ -73,6 +69,17 @@ export const ALL_ICON_TYPES = [
   'cloud-upload',
   'inbox',
   'archive',
+  'plus',
+  // 編集・コンテンツ・教育
+  'pencil',     // 編集（鉛筆 + 枠）
+  'copy',       // 複製（2 枚の四角）
+  'book',       // 教材・章
+  'bank',       // 問題バンク
+  'quiz',       // 理解度チェック・問題作成（ペン + 枠）
+  'grip',       // ドラッグハンドル（6 点）
+  'award',      // 合格バッジ（メダル）
+  'hourglass',  // 待機中・受験前
+  'target',     // 統計・正答率（3 重円）
   // メディアプレイヤー
   'volume-off',
   'volume-low',

@@ -1,55 +1,205 @@
-.switch {
+// =============================================================================
+// Switch Component Styles (boolean トグルの正準実装)
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Container with label
+// -----------------------------------------------------------------------------
+.container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+// -----------------------------------------------------------------------------
+// Switch track
+// -----------------------------------------------------------------------------
+.toggle {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  background: transparent;
-  border: none;
-  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  transition-property: background-color, box-shadow;
+  transition-duration: var(--transition-duration-200);
+  transition-timing-function: var(--transition-ease-in-out);
   cursor: pointer;
-  font-size: 0.85rem;
-  color: var(--fg-soft, #555);
-  border-radius: 6px;
+
+  &:focus-within {
+    box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px;
+  }
 }
 
-.switch:hover {
-  background: var(--border-soft, #f0ede3);
-}
-
-.switch:disabled {
-  opacity: 0.5;
-  cursor: wait;
-}
-
-.track {
-  position: relative;
-  width: 34px;
-  height: 18px;
-  background: var(--border, #e8e6de);
-  border-radius: 999px;
-  transition: background 0.15s;
-}
-
-.switch[data-on='true'] .track {
-  background: #10b981;
-}
-
-.thumb {
+// -----------------------------------------------------------------------------
+// Hidden input
+// -----------------------------------------------------------------------------
+.input {
   position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 14px;
-  height: 14px;
-  background: #fff;
-  border-radius: 50%;
-  transition: transform 0.15s;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-.switch[data-on='true'] .thumb {
-  transform: translateX(16px);
+// -----------------------------------------------------------------------------
+// Circle (thumb)
+// -----------------------------------------------------------------------------
+.circle {
+  display: inline-block;
+  background-color: var(--color-white);
+  box-shadow: var(--shadow-lg);
+  border-radius: 9999px;
+  transform: translateX(2px);
+  transition-property: transform;
+  transition-duration: var(--transition-duration-200);
+  transition-timing-function: var(--transition-ease-in-out);
 }
 
-.switch[data-on='true'] .label {
-  color: var(--fg, #222);
-  font-weight: 600;
+// -----------------------------------------------------------------------------
+// Sizes
+// -----------------------------------------------------------------------------
+.small {
+  width: 2rem;    // 32px
+  height: 1rem;   // 16px
+
+  .circle {
+    width: 0.75rem;   // 12px
+    height: 0.75rem;
+  }
+
+  &.checked .circle {
+    transform: translateX(1rem);
+  }
+}
+
+.medium {
+  width: 2.75rem;  // 44px
+  height: 1.5rem;  // 24px
+
+  .circle {
+    width: 1.25rem;   // 20px
+    height: 1.25rem;
+  }
+
+  &.checked .circle {
+    transform: translateX(1.25rem);
+  }
+}
+
+.large {
+  width: 3.5rem;   // 56px
+  height: 1.75rem; // 28px
+
+  .circle {
+    width: 1.5rem;    // 24px
+    height: 1.5rem;
+  }
+
+  &.checked .circle {
+    transform: translateX(1.75rem);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Variants - Unchecked (off)
+// -----------------------------------------------------------------------------
+.default {
+  background-color: #ef4444; // red-500
+
+  &:hover:not(.disabled) {
+    background-color: #dc2626; // red-600
+  }
+
+  &:focus-within {
+    box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px #3b82f6;
+  }
+}
+
+.primary {
+  background-color: #ef4444; // red-500
+
+  &:hover:not(.disabled) {
+    background-color: #dc2626; // red-600
+  }
+
+  &:focus-within {
+    box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px #14b8a6;
+  }
+}
+
+// neutral: OFF を「エラー」でなく中立 (灰) として見せる。公開/有効化トグル向け
+.neutral {
+  background-color: var(--color-gray-300);
+
+  &:hover:not(.disabled) {
+    background-color: var(--color-gray-400);
+  }
+
+  &:focus-within {
+    box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px #10b981;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Variants - Checked (on)
+// -----------------------------------------------------------------------------
+.default.checked {
+  background-color: #2563eb; // blue-600
+
+  &:hover:not(.disabled) {
+    background-color: #1d4ed8; // blue-700
+  }
+}
+
+.primary.checked {
+  background-color: #0d9488; // teal-600
+
+  &:hover:not(.disabled) {
+    background-color: #0f766e; // teal-700
+  }
+}
+
+.neutral.checked {
+  background-color: #10b981; // emerald-500
+
+  &:hover:not(.disabled) {
+    background-color: #059669; // emerald-600
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Label
+// -----------------------------------------------------------------------------
+.label {
+  user-select: none;
+  color: var(--color-gray-700);
+  cursor: pointer;
+}
+
+.labelSmall {
+  font-size: var(--font-size-xs);
+}
+
+.labelMedium {
+  font-size: var(--font-size-sm);
+}
+
+.labelLarge {
+  font-size: var(--font-size-base);
+}
+
+.labelDisabled {
+  cursor: not-allowed;
+  color: var(--color-gray-500);
+}
+
+// -----------------------------------------------------------------------------
+// Disabled
+// -----------------------------------------------------------------------------
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

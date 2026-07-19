@@ -1,3 +1,5 @@
+'use client'
+
 import { createPortal } from 'react-dom'
 import { IconLabel } from '../../molecules/IconLabel/IconLabel'
 import { useDragGhost } from '../../hooks/calendar/useDragGhost'

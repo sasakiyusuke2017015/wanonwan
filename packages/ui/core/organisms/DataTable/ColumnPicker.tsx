@@ -4,7 +4,6 @@ import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { Icon } from '../../atoms/Icon'
 import { Toggle } from '../../atoms/Toggle'
-import { Tooltip } from '../../atoms/Tooltip'
 import { IconButton } from '../../molecules/IconButton'
 import { Button } from '../../molecules/Button'
 import { cn } from '../../utils/cn'
@@ -41,18 +40,15 @@ export function ColumnPicker<TRow>({ columns, visibleColumns, onColumnsChange }:
       placement="bottom-end"
       menuWidth="w-64"
       customTrigger={({ onClick, ariaProps }) => (
-        <Tooltip content="表示する列">
-          <IconButton
-            icon="gear"
-            label="表示する列"
-            title=""
-            size={16}
-            onClick={onClick}
-            shimmer
-            className="border border-[var(--color-border)] bg-[var(--color-bg-surface)]"
-            {...ariaProps}
-          />
-        </Tooltip>
+        <IconButton
+          icon="gear"
+          label="表示する列"
+          size={16}
+          onClick={onClick}
+          shimmer
+          className="border border-[var(--color-border)] bg-[var(--color-bg-surface)]"
+          {...ariaProps}
+        />
       )}
       menuContent={(closeMenu) => (
         <ColumnPickerMenu

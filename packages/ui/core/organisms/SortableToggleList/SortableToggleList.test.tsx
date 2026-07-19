@@ -69,7 +69,7 @@ describe('SortableToggleList', () => {
       />
     );
 
-    // Toggle コンポーネント内のチェックボックスをクリック
+    // Switch コンポーネント内のチェックボックスをクリック
     const checkboxes = container.querySelectorAll('input[type="checkbox"]');
     if (checkboxes.length > 0) {
       await user.click(checkboxes[0]);

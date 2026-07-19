@@ -6,6 +6,7 @@
 export { cn } from './cn'
 export { isModifiedClick } from './isModifiedClick'
 export { isNullish } from './isNullish'
+export { formatMinutes } from './formatMinutes'
 
 // Debug Utils
 export {

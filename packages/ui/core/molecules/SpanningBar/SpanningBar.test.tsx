@@ -65,20 +65,22 @@ describe('SpanningBar', () => {
 
   it('renders resize handles when not continuing on either side', () => {
     const { container } = render(<SpanningBar {...defaultProps} />)
-    const resizeHandles = container.querySelectorAll('[class*="resizeHandle"]')
+    const resizeHandles = container.querySelectorAll('[data-component="SpanningBar-resize-handle"]')
     expect(resizeHandles).toHaveLength(2)
   })
 
   it('does not render left resize handle when continuesLeft is true', () => {
     const { container } = render(<SpanningBar {...defaultProps} continuesLeft />)
-    const resizeHandles = container.querySelectorAll('[class*="resizeHandle"]')
+    const resizeHandles = container.querySelectorAll('[data-component="SpanningBar-resize-handle"]')
     expect(resizeHandles).toHaveLength(1)
+    expect(resizeHandles[0]?.getAttribute('data-edge')).toBe('right')
   })
 
   it('does not render right resize handle when continuesRight is true', () => {
     const { container } = render(<SpanningBar {...defaultProps} continuesRight />)
-    const resizeHandles = container.querySelectorAll('[class*="resizeHandle"]')
+    const resizeHandles = container.querySelectorAll('[data-component="SpanningBar-resize-handle"]')
     expect(resizeHandles).toHaveLength(1)
+    expect(resizeHandles[0]?.getAttribute('data-edge')).toBe('left')
   })
 
   it('applies rounded corners when not continuing', () => {
@@ -96,6 +98,8 @@ describe('SpanningBar', () => {
   it('positions based on lane', () => {
     const { container } = render(<SpanningBar {...defaultProps} lane={2} />)
     const outerDiv = container.firstElementChild as HTMLElement
-    expect(outerDiv.style.top).toBe('68px')
+    // lane 単位の高さ (LANE_H) はタッチ環境かどうかで 20px / 28px と分かれる。
+    // jsdom はどちらにもなり得るので、(28 + lane * LANE_H)px を満たすかチェック。
+    expect(['68px', '84px']).toContain(outerDiv.style.top)
   })
 })

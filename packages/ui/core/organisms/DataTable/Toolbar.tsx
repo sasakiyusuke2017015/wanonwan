@@ -3,7 +3,6 @@
 import { useMemo, type ReactNode } from 'react'
 
 import { Animated } from '../../atoms/Animated'
-import { Tooltip } from '../../atoms/Tooltip'
 import { Input } from '../../molecules/Input'
 import { Select } from '../../molecules/Select'
 import { IconButton } from '../../molecules/IconButton'
@@ -116,7 +115,7 @@ function buildActiveChips(search?: SearchDef, filters?: FilterDef[]): ActiveChip
  * DataTable の toolbar UI を一本化するコンポーネント。
  *
  * client / server どちらのモードからも使われる。検索 box / filter select は
- * `@ai-education/ui` の Input / Select を内部採用し、見た目をここに集約する。
+ * `@ui-catalog/core` の Input / Select を内部採用し、見た目をここに集約する。
  * 値の保持・絞り込み実行はモードによって DataTable 内部 / 呼び出し側に分かれるが、
  * このコンポーネントは渡された値を表示し onChange を発火するだけ (presentational)。
  *
@@ -249,35 +248,29 @@ export function Toolbar({
     rowCountLabel != null ? <span className={styles.rowCount}>{rowCountLabel}</span> : null
 
   const resetButton = onReset ? (
-    <Tooltip content="フィルタをリセット">
-      <IconButton
-        icon="arrow-rotate"
-        label="フィルタをリセット"
-        title=""
-        variant="danger"
-        size={16}
-        onClick={onReset}
-        shimmer
-        className="border border-[var(--color-border)] bg-[var(--color-bg-surface)]"
-      />
-    </Tooltip>
+    <IconButton
+      icon="arrow-rotate"
+      label="フィルタをリセット"
+      variant="danger"
+      size={16}
+      onClick={onReset}
+      shimmer
+      className="border border-[var(--color-border)] bg-[var(--color-bg-surface)]"
+    />
   ) : null
 
   // 新規作成は primary 強調の `＋` で、gear の並びの先頭に置く (全テーブル共通の導線)。
   const createButton = onCreate ? (
-    <Tooltip content={createLabel ?? '新規作成'}>
-      <IconButton
-        icon="plus"
-        label={createLabel ?? '新規作成'}
-        title=""
-        variant="primary"
-        size={18}
-        shimmer
-        onClick={onCreate}
-        href={createHref}
-        className="rounded-md"
-      />
-    </Tooltip>
+    <IconButton
+      icon="plus"
+      label={createLabel ?? '新規作成'}
+      variant="primary"
+      size={18}
+      shimmer
+      onClick={onCreate}
+      href={createHref}
+      className="rounded-md"
+    />
   ) : null
 
   // ＋ → gear (列ピッカー) → リセット の順で右端に並べる。
@@ -303,17 +296,14 @@ export function Toolbar({
             <div className={styles.toolbarSummary}>
               {leading}
               <div className={styles.filterToggleButton}>
-                <Tooltip content="フィルタを切り替える">
-                  <IconButton
-                    {...triggerProps}
-                    icon="funnel"
-                    label="フィルタを切り替える"
-                    title=""
-                    size={16}
-                    shimmer
-                    className="border border-[var(--color-border)] bg-[var(--color-bg-surface)]"
-                  />
-                </Tooltip>
+                <IconButton
+                  {...triggerProps}
+                  icon="funnel"
+                  label="フィルタを切り替える"
+                  size={16}
+                  shimmer
+                  className="border border-[var(--color-border)] bg-[var(--color-bg-surface)]"
+                />
               </div>
               {/* 件数は funnel とチップ要約の間 */}
               {rowCount}

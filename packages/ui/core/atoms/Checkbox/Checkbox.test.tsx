@@ -55,15 +55,15 @@ describe('Checkbox', () => {
   it('size属性が正しく適用される', () => {
     const { container, rerender } = render(<Checkbox size="small" />);
     let checkbox = container.querySelector('input[type="checkbox"]');
-    expect(checkbox).toHaveClass('h-3.5', 'w-3.5');
+    expect(checkbox).toHaveClass('small');
 
     rerender(<Checkbox size="medium" />);
     checkbox = container.querySelector('input[type="checkbox"]');
-    expect(checkbox).toHaveClass('h-4', 'w-4');
+    expect(checkbox).toHaveClass('medium');
 
     rerender(<Checkbox size="large" />);
     checkbox = container.querySelector('input[type="checkbox"]');
-    expect(checkbox).toHaveClass('h-5', 'w-5');
+    expect(checkbox).toHaveClass('large');
   });
 
   it('カスタムclassNameが適用される', () => {
@@ -78,9 +78,9 @@ describe('Checkbox', () => {
     expect(label).toHaveClass('custom-label');
   });
 
-  it('disabled時にcursor-not-allowedクラスが追加される', () => {
+  it('disabled時にdisabled属性が追加される (cursor-not-allowed は :disabled で適用)', () => {
     const { container } = render(<Checkbox disabled />);
     const checkbox = container.querySelector('input[type="checkbox"]');
-    expect(checkbox).toHaveClass('cursor-not-allowed');
+    expect(checkbox).toBeDisabled();
   });
 });

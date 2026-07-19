@@ -9,10 +9,11 @@ describe('TimeSelect', () => {
     expect(select).toBeTruthy()
   })
 
-  it('renders 96 time options (every 15 minutes)', () => {
+  it('renders 97 time options (every 15 minutes, 00:00 〜 24:00)', () => {
+    // 24:00 は翌日 0 時の意味で、終了時刻用に末尾に含まれる
     render(<TimeSelect value={540} onChange={() => {}} />)
     const options = screen.getAllByRole('option')
-    expect(options).toHaveLength(96)
+    expect(options).toHaveLength(97)
   })
 
   it('has correct first option (00:00)', () => {

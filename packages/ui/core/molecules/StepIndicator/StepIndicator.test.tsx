@@ -74,16 +74,16 @@ describe('StepIndicator', () => {
     const { container } = render(
       <StepIndicator steps={mockSteps} completedColor="green" />
     );
-    // green の bg クラスが適用されることを確認
-    expect(container.querySelector('.bg-green-500')).toBeInTheDocument();
+    // completed アイコンに data-color="green" 属性が付与されることを確認
+    expect(container.querySelector('[data-color="green"]')).toBeInTheDocument();
   });
 
   it('activeColor が適用される', () => {
     const { container } = render(
       <StepIndicator steps={mockSteps} activeColor="orange" />
     );
-    // orange の bg クラスが適用されることを確認
-    expect(container.querySelector('.bg-orange-500')).toBeInTheDocument();
+    // in_progress アイコンに data-color="orange" 属性が付与されることを確認
+    expect(container.querySelector('[data-color="orange"]')).toBeInTheDocument();
   });
 
   it('className が適用される', () => {

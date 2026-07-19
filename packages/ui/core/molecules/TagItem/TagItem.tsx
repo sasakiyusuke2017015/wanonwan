@@ -7,7 +7,7 @@
  * チェックボックス風の選択UI、カラードット表示。
  */
 
-import { Icon } from '@ui-catalog/core/atoms'
+import { Icon } from '../../atoms'
 
 import styles from './TagItem.module.scss'
 

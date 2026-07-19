@@ -47,7 +47,6 @@ export const RefreshButton: FC<RefreshButtonProps> = ({
       disabled={loading || refreshing}
       className="!p-1.5 !min-w-0 rounded-full"
       title="データを更新"
-      enableShimmer={false}
     >
       <Icon
         name={'arrow-rotate'}

@@ -55,6 +55,39 @@ export const ManyTabs: Story = {
   },
 };
 
+/**
+ * タブ数が多く、コンテナ幅に収まりきらないケース。
+ * `.tabs__list` の `flex-wrap: wrap` で切れ / 潰れずに段落ちする
+ * (マスタ管理のようにカテゴリタブが増えても破綻しない)。
+ * 幅を絞った wrapper で折り返しを確定させ VRT で固定する。
+ */
+export const OverflowWrapsToRows: Story = {
+  decorators: [
+    (StoryFn) => (
+      <div style={{ width: 420 }}>
+        <StoryFn />
+      </div>
+    ),
+  ],
+  args: {
+    defaultTab: 'company',
+    tabs: [
+      { id: 'company', label: '会社', content: <p>会社マスタ</p> },
+      { id: 'department', label: '部署', content: <p>部署マスタ</p> },
+      { id: 'jobtype', label: '職種', content: <p>職種マスタ</p> },
+      { id: 'role', label: '役割', content: <p>役割マスタ</p> },
+      { id: 'level', label: 'レベル', content: <p>レベルマスタ</p> },
+      { id: 'category', label: 'カテゴリ', content: <p>カテゴリマスタ</p> },
+      { id: 'exam', label: '試験', content: <p>試験マスタ</p> },
+      { id: 'notification', label: '通知テンプレート', content: <p>通知テンプレート</p> },
+      { id: 'tag', label: 'タグ', content: <p>タグマスタ</p> },
+      { id: 'status', label: 'ステータス', content: <p>ステータスマスタ</p> },
+      { id: 'permission', label: '権限', content: <p>権限マスタ</p> },
+      { id: 'segment', label: '区分', content: <p>区分マスタ</p> },
+    ],
+  },
+};
+
 export const WithRichContent: Story = {
   args: {
     tabs: [
@@ -90,5 +123,79 @@ export const WithRichContent: Story = {
         ),
       },
     ],
+  },
+};
+
+/**
+ * link mode の基本例。
+ *
+ * URL 駆動のタブ navigation。`<a href>` を出すので middle-click 新タブ /
+ * 右クリック リンクコピー / SEO が成立する。`activeId` は呼び出し側 (URL の
+ * 状態を解釈する Server Component など) が決定する。
+ *
+ * Storybook iframe では `href` が relative のため preview iframe 内を遷移する。
+ * 実環境での middle-click / リンクコピーの動作確認は `/admin/questions` で行う。
+ */
+export const LinkMode: Story = {
+  args: {
+    mode: 'link',
+    tabs: [
+      { id: 'cert', label: '認定試験', href: '?purpose=cert' },
+      { id: 'check', label: '理解度チェック', href: '?purpose=check' },
+    ],
+    activeId: 'cert',
+  },
+};
+
+/**
+ * Next.js Link 等の framework router をインジェクトする例。
+ *
+ * `renderAnchor` で全 prop を spread すると `aria-current` も自動で渡る。
+ *
+ * ```tsx
+ * import Link from 'next/link'
+ *
+ * <Tabs
+ *   mode="link"
+ *   tabs={[...]}
+ *   activeId={purpose}
+ *   renderAnchor={(props) => <Link {...props} />}
+ * />
+ * ```
+ *
+ * Story では Next.js を使わないので、`data-source="custom"` を付与した
+ * カスタム anchor で挙動を可視化する。
+ */
+export const LinkModeWithCustomAnchor: Story = {
+  args: {
+    mode: 'link',
+    tabs: [
+      { id: 'all', label: 'すべて', href: '?filter=all' },
+      { id: 'mine', label: '自分のみ', href: '?filter=mine' },
+      { id: 'team', label: 'チーム', href: '?filter=team' },
+    ],
+    activeId: 'mine',
+    renderAnchor: ({ href, className, children, ...rest }) => (
+      <a data-source="custom-router" href={href} className={className} {...rest}>
+        {children}
+      </a>
+    ),
+  },
+};
+
+/**
+ * link mode で activeId が未一致 (どのタブも active でない) のとき。
+ *
+ * URL に対応するタブが無いケース (例: 想定外 query param)。
+ * いずれの anchor にも `aria-current="page"` が付かない。
+ */
+export const LinkModeNoActive: Story = {
+  args: {
+    mode: 'link',
+    tabs: [
+      { id: 'cert', label: '認定試験', href: '?purpose=cert' },
+      { id: 'check', label: '理解度チェック', href: '?purpose=check' },
+    ],
+    activeId: 'unknown',
   },
 };

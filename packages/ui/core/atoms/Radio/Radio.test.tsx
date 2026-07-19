@@ -55,15 +55,15 @@ describe('Radio', () => {
   it('size属性が正しく適用される', () => {
     const { container, rerender } = render(<Radio size="small" />);
     let radio = container.querySelector('input[type="radio"]');
-    expect(radio).toHaveClass('h-3.5', 'w-3.5');
+    expect(radio).toHaveClass('small');
 
     rerender(<Radio size="medium" />);
     radio = container.querySelector('input[type="radio"]');
-    expect(radio).toHaveClass('h-4', 'w-4');
+    expect(radio).toHaveClass('medium');
 
     rerender(<Radio size="large" />);
     radio = container.querySelector('input[type="radio"]');
-    expect(radio).toHaveClass('h-5', 'w-5');
+    expect(radio).toHaveClass('large');
   });
 
   it('カスタムclassNameが適用される', () => {
@@ -78,10 +78,10 @@ describe('Radio', () => {
     expect(label).toHaveClass('custom-label');
   });
 
-  it('disabled時にcursor-not-allowedクラスが追加される', () => {
+  it('disabled時にdisabled属性が追加される (cursor-not-allowed は :disabled で適用)', () => {
     const { container } = render(<Radio disabled />);
     const radio = container.querySelector('input[type="radio"]');
-    expect(radio).toHaveClass('cursor-not-allowed');
+    expect(radio).toBeDisabled();
   });
 
   it('name属性でグループ化される', () => {

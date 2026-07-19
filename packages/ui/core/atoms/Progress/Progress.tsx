@@ -18,8 +18,6 @@ export interface ProgressProps {
   isStalled?: boolean
   /** アニメーション種類（デフォルト: none） */
   animation?: ProgressAnimation
-  /** @deprecated animate は非推奨。animation='pulse' を使用 */
-  animate?: boolean
 }
 
 export const Progress: FC<ProgressProps> = ({
@@ -31,15 +29,11 @@ export const Progress: FC<ProgressProps> = ({
   showLabel = false,
   isStalled = false,
   animation = 'none',
-  animate = false, // deprecated
 }) => {
   const percent = Math.min(Math.max((value / max) * 100, 0), 100)
   // 停滞時は yellow（警告色）を使用
   const effectiveColor = isStalled ? 'yellow' : color
   const capitalColor = effectiveColor.charAt(0).toUpperCase() + effectiveColor.slice(1)
-
-  // animation プロパティを優先、後方互換性のため animate も対応
-  const effectiveAnimation = animation !== 'none' ? animation : (animate ? 'pulse' : 'none')
 
   const trackClasses = [
     styles.track,
@@ -52,8 +46,8 @@ export const Progress: FC<ProgressProps> = ({
   const indicatorClasses = [
     styles.indicator,
     styles[`color${capitalColor}`],
-    effectiveAnimation === 'pulse' && styles.pulse,
-    effectiveAnimation === 'shimmer' && styles.shimmer,
+    animation === 'pulse' && styles.pulse,
+    animation === 'shimmer' && styles.shimmer,
     isStalled && styles.stalled,
   ]
     .filter(Boolean)

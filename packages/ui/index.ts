@@ -5,7 +5,6 @@
  *
  * 構造:
  * - core/         純粋UI（atoms, molecules, organisms, templates, tokens, hooks, constants, types, utils, styles）
- * - core/calend/  カレンダーモジュール（atoms, molecules, organisms, hooks, state, types, utils）
  * - infra/        育成・観測（devtools, version, theme, commands, storybook）
  *
  * 推奨インポート:
