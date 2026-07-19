@@ -3,7 +3,7 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | ui-catalog 上流最新版 (ui.zip) を packages/ui へ選択的マージ。上流のみ変更 115 件採用 / waoon 独自部品維持 / 衝突 33 件個別マージ / 汎用新規部品のみ採用 |
-| ステータス | 🟣 マージ承認待ち |
+| ステータス | 🟢 マージ済み（検証中） |
 | 前提 Plan | なし |
 | PR | [#97](https://github.com/sasakiyusuke2017015/waoon/pull/97) |
 | Review | [計画レビュー](../reviews/2026-07-17-0005-ui-catalog-upstream-sync-review.md) / [コードレビュー](../reviews/2026-07-17-0040-ui-catalog-upstream-sync-code-review.md) |
@@ -162,5 +162,9 @@ PasswordRevealBanner, PasswordRevealModal, ProfilePhotoCard
   - [x] `pnpm --filter @waoon/web build`
   - [x] `pnpm --filter @ui-catalog/core lint`
   - [x] `pnpm --filter @ui-catalog/core exec vitest run`（13 失敗 / 6 スイート。develop ベースライン 66 失敗 / 34 スイートの部分集合で**新規失敗ゼロ・28 スイート解消**）
-  - [ ] dev スタックで主要画面の目視確認（Icon lucide 化 / テーマ崩れ）
-- [ ] PR 作成・レビュー
+- [x] PR 作成・レビュー（[#97](https://github.com/sasakiyusuke2017015/waoon/pull/97) merge 済み）
+- [ ] **マージ後検証**
+  - [ ] dev スタックで主要画面の目視確認（admin 一覧 / ダッシュボード / スケジュール / 回答）
+    - [ ] Icon lucide 化で全アイコンが描画される
+    - [ ] テーマ 3 軸（rose / sharp / fabric）の見た目が崩れていない
+    - [ ] `focus-trap-react` 12 で Modal / Dialog のフォーカストラップが機能する

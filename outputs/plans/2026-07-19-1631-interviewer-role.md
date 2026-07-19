@@ -2,11 +2,11 @@
 
 | 項目 | 値 |
 |---|---|
-| 作成日時 | 2026-07-19 16:31 JST（17:00 マルチロール化で全面改訂） |
-| 担当 | Claude Code + 笹木さん |
-| ブランチ | PR1: `feature/multi-role` / PR2: `feature/role-switcher` |
-| 関連 PR | PR1: [#98](https://github.com/sasakiyusuke2017015/waoon/pull/98) / PR2: TBD |
-| レビュー | 改訂前版: [1643-review](../reviews/2026-07-19-1643-interviewer-role-review.md)（APPROVE）/ 改訂版: [1701-review](../reviews/2026-07-19-1701-interviewer-role-review.md)（BLOCKER 4 論点 → 全反映済み） |
+| 概要 | マルチロール権限へ再設計（admin/interviewer/member、member 暗黙保有の `user_roles`・1 人が複数保有可）。ヘッダーメニューの視点切替、面談担当の指名 API + admin UI、担当面談画面を追加。認可 = 保有 union / 切替 = 表示のみ |
+| ステータス | 🟢 マージ済み（検証中） |
+| 前提 Plan | [separate-role-from-position](2026-06-25-1558-separate-role-from-position.md)（「1 ユーザー 1 role」決定を本 Plan で明示的に変更） |
+| PR | 基盤: [#98](https://github.com/sasakiyusuke2017015/waoon/pull/98) / 切替+担当面談: [#99](https://github.com/sasakiyusuke2017015/waoon/pull/99) |
+| Review | [計画レビュー（改訂前版）](../reviews/2026-07-19-1643-interviewer-role-review.md) / [計画レビュー（マルチロール改訂版）](../reviews/2026-07-19-1701-interviewer-role-review.md) |
 
 ## 目的
 
@@ -269,5 +269,13 @@ fixture は test transaction（BEGIN/ROLLBACK）内で自足させ、seed に依
 - [x] Phase 7（`/interviews` 一覧 + 詳細。answers GET に `?mine=1` フィルタ追加 — admin は RLS で全件見えるため担当分の明示絞り込みが必要だった）
 - [x] Phase 8（ドキュメント負債: CLAUDE.md / 20_org.sql / stale コメント一掃）
 - [x] pgTAP（9 ファイル全通過。rls_interviewer 新規 / rls_role_admin 全面改修）/ Vitest（PR1: 94 件 → PR2: 100 件通過）/ typecheck / build / migration 冪等 2 回適用確認
-- [x] PR1 作成（基盤）: [#98](https://github.com/sasakiyusuke2017015/waoon/pull/98)
-- [ ] PR2 作成（切替メニュー + 面談担当向け画面）: `feature/role-switcher`（実装・検証済み、PR 作成待ち）
+- [x] PR1（基盤）: [#98](https://github.com/sasakiyusuke2017015/waoon/pull/98) merge 済み（2026-07-19）
+- [x] PR2（切替メニュー + 面談担当向け画面）: [#99](https://github.com/sasakiyusuke2017015/waoon/pull/99) merge 済み（2026-07-19）
+- [ ] **マージ後検証**（ブラウザ / dev 環境）
+  - [ ] 複合保有ユーザー（admin+interviewer）で視点切替メニューが出る・切替でナビが変わる
+  - [ ] メンバー視点で `/admin/*` を開くと「管理者視点に切り替える」案内が出て復帰できる
+  - [ ] 面談担当視点の「担当面談」に自分の担当分だけが並ぶ（admin でも全件にならない）
+  - [ ] admin が回答詳細で担当者を指名 → 当該ユーザー（interviewer）が面談記録できる
+  - [ ] 単一ロール保有者（alice 等）には切替メニューが出ない
+  - [ ] `/admin/users` で 管理者/面談担当 チェックボックスの付け外しが保存される（唯一 admin の interviewer 付け外しが 409 にならない）
+  - [ ] `pnpm provision:dev` が新 CSV スキーマで通る
