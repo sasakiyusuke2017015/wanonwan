@@ -11,17 +11,22 @@ import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
 
 // ユーザー一覧（認証済みなら可。RLS users_select）。
+// roles は user_roles の集約。RLS user_roles_select により非 admin には他人の roles が
+// 空配列で返る（保有ロールの名簿は本人と admin のみ見える）。
 export const GET = withActiveUser(async (_req, claims) => {
   const rows = await withUser(
     claims.sub,
     (tx) => tx`
-    select id, code, name, email, role,
-           position_id   as "positionId",
-           division_id   as "divisionId",
-           department_id as "departmentId",
-           section_id    as "sectionId"
-    from public.users
-    order by id
+    select u.id, u.code, u.name, u.email,
+           coalesce(array_agg(ur.role order by ur.role) filter (where ur.role is not null), '{}') as roles,
+           u.position_id   as "positionId",
+           u.division_id   as "divisionId",
+           u.department_id as "departmentId",
+           u.section_id    as "sectionId"
+    from public.users u
+    left join public.user_roles ur on ur.user_id = u.id
+    group by u.id
+    order by u.id
   `,
   );
   return NextResponse.json({ data: rows });
@@ -90,19 +95,23 @@ export const POST = withActiveUser(async (req, claims) => {
 
   // 3) 業務ユーザーを gotrue_id 付きで insert。失敗したら GoTrue 側を掃除（orphan 防止）。
   try {
-    const rows = await withUser(
-      claims.sub,
-      (tx) => tx`
-      -- role の付与は admin のみ（上の app.is_admin() ゲート + RLS users_write WITH CHECK が保証）。
-      -- 非 admin はここに到達できないため、role 指定があっても自己昇格にはならない。
-      insert into public.users (gotrue_id, code, name, email, role, position_id, division_id, department_id, section_id)
-      values (${gotrueId}, ${input.code}, ${input.name}, ${input.email}, ${input.role ?? "member"},
-              ${input.positionId ?? null}, ${input.divisionId ?? null},
-              ${input.departmentId ?? null}, ${input.sectionId ?? null})
-      returning id, code, name, email, role
-    `,
-    );
-    return NextResponse.json({ data: rows[0], initialPassword }, { status: 201 });
+    // roles の付与は admin のみ（上の app.is_admin() ゲート + RLS user_roles_write が保証）。
+    // 非 admin はここに到達できないため、roles 指定があっても自己昇格にはならない。
+    const roles = input.roles ?? [];
+    const row = await withUser(claims.sub, async (tx) => {
+      const [created] = await tx`
+        insert into public.users (gotrue_id, code, name, email, position_id, division_id, department_id, section_id)
+        values (${gotrueId}, ${input.code}, ${input.name}, ${input.email},
+                ${input.positionId ?? null}, ${input.divisionId ?? null},
+                ${input.departmentId ?? null}, ${input.sectionId ?? null})
+        returning id, code, name, email
+      `;
+      for (const role of roles) {
+        await tx`insert into public.user_roles (user_id, role) values (${created.id}, ${role})`;
+      }
+      return created;
+    });
+    return NextResponse.json({ data: { ...row, roles }, initialPassword }, { status: 201 });
   } catch (e) {
     try {
       await withServiceRole((token) => gotrue.admin.deleteUser(gotrueId, token));

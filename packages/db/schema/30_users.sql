@@ -8,9 +8,6 @@ CREATE TABLE IF NOT EXISTS public.users (
   code          text   UNIQUE NOT NULL,     -- ユーザーコード
   name          text   NOT NULL,
   email         text   UNIQUE NOT NULL,
-  -- 認可ロール。役職(position)とは別軸: 役職は HR の肩書き、role はシステム権限。
-  -- app.is_admin() の唯一の源（90_rls_helpers.sql）。
-  role          text   NOT NULL DEFAULT 'member' CHECK (role IN ('admin', 'member')),
   position_id   bigint REFERENCES public.positions(id),
   division_id   bigint REFERENCES public.divisions(id),
   department_id bigint REFERENCES public.departments(id),
@@ -20,13 +17,27 @@ CREATE TABLE IF NOT EXISTS public.users (
   updated_at    timestamptz NOT NULL DEFAULT now()
 );
 
--- 既存環境向け（CREATE TABLE IF NOT EXISTS は列を追加しないため）。pre-prod 前提・冪等。
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 'member';
+-- 認可ロール。役職(position)とは別軸: 役職は HR の肩書き、role はシステム権限。
+-- member は全ユーザーが暗黙保有（行なし = member のみ）。上位ロールだけを行として持つため、
+-- 「ロール 0 個のユーザー」という不正状態が構造的に存在しない。
+-- 認可はこの保有集合(union)で判定する。UI のアクティブロール切替は表示状態であり認可には使わない。
+CREATE TABLE IF NOT EXISTS public.user_roles (
+  user_id bigint NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  role    text   NOT NULL CHECK (role IN ('admin', 'interviewer')),
+  PRIMARY KEY (user_id, role)
+);
+
+-- 既存環境向け: 旧 users.role 単一列から user_roles へ移行して列を落とす。
+-- schema は再適用されるため、列が残っている環境でのみ実行（冪等）。
 DO $$ BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint WHERE conname = 'users_role_check' AND conrelid = 'public.users'::regclass
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'users' AND column_name = 'role'
   ) THEN
-    ALTER TABLE public.users ADD CONSTRAINT users_role_check CHECK (role IN ('admin', 'member'));
+    INSERT INTO public.user_roles (user_id, role)
+      SELECT id, 'admin' FROM public.users WHERE role = 'admin'
+      ON CONFLICT DO NOTHING;
+    ALTER TABLE public.users DROP COLUMN role;
   END IF;
 END $$;
 

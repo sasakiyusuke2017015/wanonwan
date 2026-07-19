@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { apiGet } from "@/lib/api/client";
 import { InterviewForm } from "@/components/admin/InterviewForm";
+import { InterviewerAssignPanel } from "@/components/admin/InterviewerAssignPanel";
 
 type Detail = {
   answer: {
@@ -21,6 +22,7 @@ type Detail = {
     nextAction: string | null;
     urgencyId: number | null;
     evaluation: Record<string, number> | null;
+    interviewerId: string | null;
   };
   questions: { id: string; body: string; answerType: string }[];
 };
@@ -61,6 +63,11 @@ export default function AnswerDetailPage({ params }: { params: Promise<{ id: str
             </div>
           ))}
         </dl>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="mb-2 text-lg font-bold">面談担当</h2>
+        <InterviewerAssignPanel answerId={id} interviewerId={answer.interviewerId} />
       </section>
 
       <section>

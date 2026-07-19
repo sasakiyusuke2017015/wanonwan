@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
+import { Checkbox } from "@ui-catalog/core/atoms";
 import { FormField, Input, Select, Button } from "@ui-catalog/core/molecules";
 import { useTheme } from "@ui-catalog/core/infra/theme";
 import { useAppToast } from "@ui-catalog/core/providers";
-import { CreateUserSchema, UpdateUserSchema, type UserRole } from "@waoon/domain";
+import { CreateUserSchema, UpdateUserSchema, type ElevatedRole } from "@waoon/domain";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import { fieldErrorsOf } from "@/lib/forms/field-errors";
 import { isDirtyPayload } from "@/lib/forms/dirty";
@@ -32,23 +33,24 @@ type UserDetail = {
   divisionId: string | null;
   departmentId: string | null;
   sectionId: string | null;
-  role: UserRole;
+  roles: ElevatedRole[];
 };
 
 const EMPTY = {
   code: "",
   name: "",
   email: "",
-  role: "member",
+  roles: [] as ElevatedRole[],
   positionId: "",
   divisionId: "",
   departmentId: "",
   sectionId: "",
 };
 
-const ROLE_OPTIONS = [
-  { value: "member", label: "一般" },
+// member は全員が暗黙保有のため選択肢に出さない（付け外しできるのは上位ロールのみ）。
+const ELEVATED_ROLE_OPTIONS: { value: ElevatedRole; label: string }[] = [
   { value: "admin", label: "管理者" },
+  { value: "interviewer", label: "面談担当" },
 ];
 
 const toOptions = (items?: OrgItem[]) =>
@@ -93,7 +95,7 @@ export function UserForm({ userId }: { userId?: string }) {
       code: u.code,
       name: u.name,
       email: u.email,
-      role: u.role ?? "member",
+      roles: [...(u.roles ?? [])].sort(),
       positionId: u.positionId ?? "",
       divisionId: u.divisionId ?? "",
       departmentId: u.departmentId ?? "",
@@ -110,7 +112,7 @@ export function UserForm({ userId }: { userId?: string }) {
       code: form.code,
       name: form.name,
       email: form.email,
-      role: form.role,
+      roles: form.roles,
     };
     for (const key of ["positionId", "divisionId", "departmentId", "sectionId"] as const) {
       if (form[key]) payload[key] = Number(form[key]);
@@ -150,8 +152,16 @@ export function UserForm({ userId }: { userId?: string }) {
     onError: (e) => setError(e instanceof ApiError ? e.message : "パスワードのリセットに失敗しました"),
   });
 
-  function set<K extends keyof typeof form>(key: K, value: string) {
+  function set<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  // 並び順を固定して dirty 判定（isDirtyPayload）のブレを防ぐ。
+  function toggleRole(role: ElevatedRole, checked: boolean) {
+    setForm((f) => ({
+      ...f,
+      roles: (checked ? [...f.roles, role] : f.roles.filter((r) => r !== role)).sort(),
+    }));
   }
 
   // 作成 / リセット完了：初期パスワードを一度だけ提示する。再表示できないので控えてもらう。
@@ -232,17 +242,19 @@ export function UserForm({ userId }: { userId?: string }) {
       </ContentBlock>
 
       <ContentBlock title="権限">
-        <div className="max-w-xs">
-          <FormField label="システム権限" error={fieldErrors.role}>
-            <Select
-              options={ROLE_OPTIONS}
-              value={form.role}
-              onChange={(v) => set("role", v == null ? "member" : String(v))}
-              borderRadius={shapes.inputRadius}
+        <div className="space-y-2">
+          {ELEVATED_ROLE_OPTIONS.map((opt) => (
+            <Checkbox
+              key={opt.value}
+              label={opt.label}
+              checked={form.roles.includes(opt.value)}
+              onChange={(e) => toggleRole(opt.value, e.target.checked)}
             />
-          </FormField>
+          ))}
+          {fieldErrors.roles && <p className="text-sm text-red-600">{fieldErrors.roles}</p>}
           <p className="mt-1 text-xs text-gray-500">
-            管理者はユーザー・マスタ・アンケートを管理できます（役職とは別軸の権限）。
+            メンバー機能は全員が利用できます。管理者はユーザー・マスタ・アンケートの管理、
+            面談担当は割り当てられた回答の面談記録ができます（役職とは別軸の権限。複数選択可）。
           </p>
         </div>
       </ContentBlock>

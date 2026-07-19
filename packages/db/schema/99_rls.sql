@@ -16,6 +16,7 @@ ALTER TABLE public.sections                   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.positions                  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.urgency_levels             ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.users                      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_roles                 ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_interview_candidates  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.surveys                    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.questions                  ENABLE ROW LEVEL SECURITY;
@@ -49,7 +50,7 @@ BEGIN
   END LOOP;
 END $$;
 
--- positions は権限と無関係な純粋 HR マスタ（admin 判定は users.role が源）。
+-- positions は権限と無関係な純粋 HR マスタ（admin 判定は user_roles が源）。
 -- write は上のループ既定（admin のみ）で十分。code 帯による特別扱いはしない。
 
 -- ---- users: 認証済みは読める（ディレクトリ。階層絞りは API）/ 書きは admin ----
@@ -58,16 +59,28 @@ DROP POLICY IF EXISTS users_write  ON public.users;
 CREATE POLICY users_select ON public.users FOR SELECT USING (app.current_user_id() IS NOT NULL);
 CREATE POLICY users_write  ON public.users FOR ALL USING (app.is_admin()) WITH CHECK (app.is_admin());
 
--- 最後の admin を 0 人にする UPDATE/DELETE を拒否（全員ロックアウト防止）。
+-- ---- user_roles: 保有ロール（認可の源）。SELECT = 自分の行 + admin 全件 / 書きは admin ----
+-- 「誰が admin/interviewer か」の名簿を全認証ユーザーへ晒さない（切替メニューは自分の roles で足りる）。
+DROP POLICY IF EXISTS user_roles_select ON public.user_roles;
+DROP POLICY IF EXISTS user_roles_write  ON public.user_roles;
+CREATE POLICY user_roles_select ON public.user_roles FOR SELECT
+  USING (app.is_admin() OR user_id = app.uid());
+CREATE POLICY user_roles_write ON public.user_roles FOR ALL
+  USING (app.is_admin()) WITH CHECK (app.is_admin());
+
+-- admin ロール行を 0 にする UPDATE/DELETE を拒否（全員ロックアウト防止）。
 -- RLS の WITH CHECK では他行をカウントできないためトリガーで担保する。
--- SECURITY DEFINER 関数 + search_path 固定で RLS をバイパスして全 admin 数を数える。
+-- SECURITY DEFINER 関数 + search_path 固定で RLS をバイパスして全 admin 行数を数える。
+-- BEFORE UPDATE も張る: PK 列でも UPDATE は可能なため、DELETE のみだと
+-- `UPDATE user_roles SET role='interviewer'` による降格がすり抜ける。
+-- users 行 DELETE の CASCADE でも行トリガは発火する（最後の admin ユーザー削除も拒否される）。
 CREATE OR REPLACE FUNCTION app.prevent_last_admin_removal() RETURNS trigger
   LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, app
   AS $$
   BEGIN
-    -- この操作で admin でなくなる行のときだけ検査（admin→admin の更新や member の操作は素通り）。
+    -- この操作で admin 行が失われるときだけ検査（interviewer 行の操作は素通り）。
     IF OLD.role = 'admin' AND (TG_OP = 'DELETE' OR NEW.role <> 'admin') THEN
-      IF (SELECT count(*) FROM public.users WHERE role = 'admin' AND id <> OLD.id) = 0 THEN
+      IF (SELECT count(*) FROM public.user_roles WHERE role = 'admin' AND user_id <> OLD.user_id) = 0 THEN
         RAISE EXCEPTION '最後の管理者は降格・削除できません（最低 1 名の admin が必要）';
       END IF;
     END IF;
@@ -76,8 +89,9 @@ CREATE OR REPLACE FUNCTION app.prevent_last_admin_removal() RETURNS trigger
   $$;
 
 DROP TRIGGER IF EXISTS trg_prevent_last_admin_removal ON public.users;
+DROP TRIGGER IF EXISTS trg_prevent_last_admin_removal ON public.user_roles;
 CREATE TRIGGER trg_prevent_last_admin_removal
-  BEFORE UPDATE OR DELETE ON public.users
+  BEFORE UPDATE OR DELETE ON public.user_roles
   FOR EACH ROW EXECUTE FUNCTION app.prevent_last_admin_removal();
 
 -- ---- user_interview_candidates: 本人 or admin --------------------------

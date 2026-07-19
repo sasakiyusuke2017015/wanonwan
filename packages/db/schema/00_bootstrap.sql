@@ -43,8 +43,8 @@ CREATE OR REPLACE FUNCTION app.current_user_id() RETURNS uuid
   LANGUAGE sql STABLE
   AS $$ SELECT NULLIF(current_setting('app.user_id', true), '')::uuid $$;
 
--- 管理者判定。users テーブルは Phase 2 で作成するため、現段階は常に false。
--- Phase 2 で users.gotrue_id = app.current_user_id() かつ role=admin を参照する実装へ差し替える。
+-- 管理者判定。users / user_roles テーブルは後続スキーマで作成するため、現段階は常に false。
+-- 90_rls_helpers.sql が user_roles（保有ロール）を参照する実装へ差し替える。
 CREATE OR REPLACE FUNCTION app.is_admin() RETURNS boolean
   LANGUAGE sql STABLE
   AS $$ SELECT FALSE $$;

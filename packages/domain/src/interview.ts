@@ -44,6 +44,12 @@ export const ANSWER_STATUSES = [
 export const answerStatusLabel = (s: number | null) =>
   s == null ? "—" : ANSWER_STATUSES.find((x) => x.value === s)?.label ?? String(s);
 
+// 面談担当の指名/解除（answers.interviewer_id）。null は担当解除。
+export const AssignInterviewerSchema = v.object({
+  interviewerId: v.nullable(v.number("interviewerId は数値です")),
+});
+export type AssignInterviewer = v.InferOutput<typeof AssignInterviewerSchema>;
+
 export const RecordInterviewSchema = v.object({
   interviewAt: v.optional(v.nullable(v.string())),
   interviewMethod: v.optional(v.nullable(v.picklist([1, 2, 3]))),

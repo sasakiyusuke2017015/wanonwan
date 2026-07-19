@@ -1,7 +1,7 @@
 import * as v from "valibot";
 
 // 役職マスタ（positions）。code は組織上の肩書きを表す数値（HR マスタ）。
-// 権限（admin か否か）は users.role が持つ別軸のため、ここに admin 帯の特別扱いは無い。
+// 権限（admin か否か）は user_roles が持つ別軸のため、ここに admin 帯の特別扱いは無い。
 const positionCode = v.pipe(
   v.number(),
   v.integer("コードは整数です"),
