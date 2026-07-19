@@ -4,8 +4,8 @@
 |---|---|
 | 作成日時 | 2026-07-19 16:31 JST（17:00 マルチロール化で全面改訂） |
 | 担当 | Claude Code + 笹木さん |
-| ブランチ | `feature/multi-role`（TBD） |
-| 関連 PR | TBD |
+| ブランチ | PR1: `feature/multi-role` / PR2: `feature/role-switcher` |
+| 関連 PR | PR1: [#98](https://github.com/sasakiyusuke2017015/waoon/pull/98) / PR2: TBD |
 | レビュー | 改訂前版: [1643-review](../reviews/2026-07-19-1643-interviewer-role-review.md)（APPROVE）/ 改訂版: [1701-review](../reviews/2026-07-19-1701-interviewer-role-review.md)（BLOCKER 4 論点 → 全反映済み） |
 
 ## 目的
@@ -264,10 +264,10 @@ fixture は test transaction（BEGIN/ROLLBACK）内で自足させ、seed に依
 - [x] Phase 2（RLS 追随: is_admin 参照先変更 / has_role 新設 / user_roles RLS / トリガ移設）
 - [x] Phase 3（domain roles 配列化 + users API 差分適用 + UserForm チェックボックス）
 - [x] Phase 4（指名 API `PUT /answers/[id]/interviewer` + admin 担当者 Select）
-- [ ] Phase 5（/me + active-role API）※PR2
-- [ ] Phase 6（切替メニュー + nav/ガード）※PR2
-- [ ] Phase 7（面談担当向け画面）※PR2
+- [x] Phase 5（/me に roles+activeRole / `PUT /api/v1/auth/active-role`。cookie は baseCookie 再利用・保有集合と毎回突合）
+- [x] Phase 6（HeaderUserMenu に視点切替 / navItems を roles ベースへ / (admin) ガードを activeRole 化 + 切替ボタン）
+- [x] Phase 7（`/interviews` 一覧 + 詳細。answers GET に `?mine=1` フィルタ追加 — admin は RLS で全件見えるため担当分の明示絞り込みが必要だった）
 - [x] Phase 8（ドキュメント負債: CLAUDE.md / 20_org.sql / stale コメント一掃）
-- [x] pgTAP（9 ファイル全通過。rls_interviewer 新規 / rls_role_admin 全面改修）/ Vitest（94 件通過）/ typecheck / build / migration 冪等 2 回適用確認
-- [ ] PR1 作成（基盤）
-- [ ] PR2 作成（切替メニュー + 面談担当向け画面）
+- [x] pgTAP（9 ファイル全通過。rls_interviewer 新規 / rls_role_admin 全面改修）/ Vitest（PR1: 94 件 → PR2: 100 件通過）/ typecheck / build / migration 冪等 2 回適用確認
+- [x] PR1 作成（基盤）: [#98](https://github.com/sasakiyusuke2017015/waoon/pull/98)
+- [ ] PR2 作成（切替メニュー + 面談担当向け画面）: `feature/role-switcher`（実装・検証済み、PR 作成待ち）
