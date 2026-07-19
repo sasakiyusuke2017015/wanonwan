@@ -1,4 +1,5 @@
 code,name,email,gotrue_id,roles,position_code,division_code,department_code,section_code
-padmin,プロビ管理者,padmin@example.com,,admin,,HQ,DEPT1,SEC1
-pinterviewer,プロビ面談担当,pinterviewer@example.com,,interviewer,500,,,SEC1
-pmember,プロビ一般,pmember@example.com,,,300,,,SEC1
+admin1,管理者1,admin1@example.com,,admin,,HQ,DEPT1,SEC1
+interviewer1,面談担当1,interviewer1@example.com,,interviewer,500,,,SEC1
+member1,メンバー1,member1@example.com,,,300,,,SEC1
+multi1,マルチ1,multi1@example.com,,admin;interviewer,500,,,SEC1

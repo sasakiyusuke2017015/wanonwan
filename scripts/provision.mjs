@@ -81,7 +81,7 @@ if (!isDev && composeFileRel === DEV_COMPOSE) {
 const DEV_DEFAULT_USERS_CSV = "infra/provision-users.example.csv";
 // dev は固定 PW で直接ログインできるようにする（localhost dev 限定の使い捨て。seed:gotrue:dev と同じ思想）。
 // stg/prod はランダム PW + must_change + 0600 ファイルのまま（本番で固定 PW にしない）。
-const DEV_FIXED_PASSWORD = "Admin1234!";
+const DEV_FIXED_PASSWORD = "Password1!";
 const usersCsv = flag("users-csv") ?? (isDev ? DEV_DEFAULT_USERS_CSV : undefined);
 // compose ネットワーク名（networks.waoon.name）。dev→waoon / prod→waoon-prod / stg→waoon-stg。
 // dev は無条件 waoon 強制（filename ヒューリスティックに頼らない）。
