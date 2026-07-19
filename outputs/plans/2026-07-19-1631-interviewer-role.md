@@ -271,11 +271,13 @@ fixture は test transaction（BEGIN/ROLLBACK）内で自足させ、seed に依
 - [x] pgTAP（9 ファイル全通過。rls_interviewer 新規 / rls_role_admin 全面改修）/ Vitest（PR1: 94 件 → PR2: 100 件通過）/ typecheck / build / migration 冪等 2 回適用確認
 - [x] PR1（基盤）: [#98](https://github.com/sasakiyusuke2017015/waoon/pull/98) merge 済み（2026-07-19）
 - [x] PR2（切替メニュー + 面談担当向け画面）: [#99](https://github.com/sasakiyusuke2017015/waoon/pull/99) merge 済み（2026-07-19）
-- [ ] **マージ後検証**（ブラウザ / dev 環境）
-  - [ ] 複合保有ユーザー（admin+interviewer）で視点切替メニューが出る・切替でナビが変わる
-  - [ ] メンバー視点で `/admin/*` を開くと「管理者視点に切り替える」案内が出て復帰できる
-  - [ ] 面談担当視点の「担当面談」に自分の担当分だけが並ぶ（admin でも全件にならない）
-  - [ ] admin が回答詳細で担当者を指名 → 当該ユーザー（interviewer）が面談記録できる
-  - [ ] 単一ロール保有者（alice 等）には切替メニューが出ない
-  - [ ] `/admin/users` で 管理者/面談担当 チェックボックスの付け外しが保存される（唯一 admin の interviewer 付け外しが 409 にならない）
-  - [ ] `pnpm provision:dev` が新 CSV スキーマで通る
+- [ ] **マージ後検証**（dev 実起動 + HTTP/API で 2026-07-19 実施。挙動は全項目 PASS）
+  - [x] 複合保有ユーザーの切替: admin ログインで roles=[admin,interviewer,member]・activeRole が切替 API に追随（member→interviewer→admin）。不正値は 400
+  - [x] 保有外ロールへの切替は 422（alice が admin 指定）。cookie 未設定時は最上位保有ロールへフォールバック
+  - [x] 面談担当視点の担当分絞り込み: admin で全件 10 件 / `?mine=1` は 0 件 → bob 指名後、bob の `?mine=1` に 1 件のみ
+  - [x] 指名フロー: member(carol) 指名は 422 / interviewer(bob) 指名は 200 / 指名された bob が面談記録 PUT 成功 / 非 admin(alice) の指名は 403
+  - [x] 単一ロール保有者: alice は roles=[member]（切替メニューの表示条件 roles.length>1 を満たさない）
+  - [x] 唯一 admin のロール差分適用: interviewer 外し→戻しとも 200（誤爆なし）。admin 剥奪は 409「最後の管理者は降格・削除できません」
+  - [x] `pnpm provision:dev` が新 CSV（roles 列）で通り、padmin=[admin] / pinterviewer=[interviewer] / pmember=[] で作成される
+  - [x] ページ到達: 認証付きで `/interviews` / `/admin/users` が 200（未認証は login へ 307）
+  - [ ] ブラウザ目視スポットチェック（切替メニュー・担当面談画面の見た目。笹木さん）
