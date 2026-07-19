@@ -20,6 +20,7 @@ export const GET = withActiveUser(async (_req, claims, { params }: Ctx) => {
              a.next_action      as "nextAction",
              a.urgency_id::int  as "urgencyId",
              a.evaluation,
+             a.interviewer_id   as "interviewerId",
              u.name             as "respondentName",
              s.id               as "surveyId",
              s.title            as "surveyTitle",

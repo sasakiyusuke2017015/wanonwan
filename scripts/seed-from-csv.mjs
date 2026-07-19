@@ -150,6 +150,34 @@ function seedTable({ table, columns, build, conflict = "code" }, rows) {
   return rows.length;
 }
 
+// CSV の roles 列（セミコロン区切り）を検証して配列へ。上位ロールのみ記載し、空 = member のみ
+// （member は暗黙保有のため CSV には書かない規約）。
+const ELEVATED_ROLES = new Set(["admin", "interviewer"]);
+function parseRoles(raw, label) {
+  const roles = (raw ?? "")
+    .split(";")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  for (const role of roles) {
+    if (!ELEVATED_ROLES.has(role)) {
+      console.error(`✗ ${label} の roles が不正です: ${JSON.stringify(role)}（admin / interviewer のみ）`);
+      process.exit(1);
+    }
+  }
+  return roles;
+}
+
+// email で user を引いて user_roles へ投入（users INSERT と同じ実行内でのみ呼ぶ）。
+function insertUserRoles(email, roles) {
+  for (const role of roles) {
+    psql(
+      `INSERT INTO public.user_roles (user_id, role)
+       SELECT id, ${sqlStr(role)} FROM public.users WHERE email = ${sqlStr(email)}
+       ON CONFLICT DO NOTHING;`,
+    );
+  }
+}
+
 // dev users.csv → public.users（gotrue_id 固定。org 参照は code → id 解決）。
 function seedUsersTable(rows) {
   const existing = rowCount("users");
@@ -162,19 +190,18 @@ function seedUsersTable(rows) {
     "code",
     "name",
     "email",
-    "role",
     "position_id",
     "division_id",
     "department_id",
     "section_id",
   ];
   for (const r of rows) {
+    const roles = parseRoles(r.roles, `users.csv ${r.code}`);
     const values = [
       sqlValOrNull(r.gotrue_id),
       sqlStr(r.code),
       sqlStr(r.name),
       sqlStr(r.email),
-      sqlStr(r.role || "member"),
       refSubquery("positions", r.position_code),
       refSubquery("divisions", r.division_code),
       refSubquery("departments", r.department_code),
@@ -183,6 +210,7 @@ function seedUsersTable(rows) {
     psql(
       `INSERT INTO public.users (${cols.join(", ")}) VALUES (${values}) ON CONFLICT (email) DO NOTHING;`,
     );
+    insertUserRoles(r.email, roles);
   }
   console.log(`• users: ${rows.length} 行を投入`);
   return rows.length;
@@ -238,10 +266,10 @@ function seedDemo() {
   if (exists === "0") {
     for (const r of demoUsers) {
       const values = [
-        sqlStr(r.code), sqlStr(r.name), sqlStr(r.email), sqlStr(r.role || "member"),
+        sqlStr(r.code), sqlStr(r.name), sqlStr(r.email),
         refSubquery("positions", r.position_code), refSubquery("sections", r.section_code),
       ].join(", ");
-      psql(`INSERT INTO public.users (code, name, email, role, position_id, section_id)
+      psql(`INSERT INTO public.users (code, name, email, position_id, section_id)
             VALUES (${values}) ON CONFLICT (email) DO NOTHING;`);
     }
     console.log(`• demo_users: ${demoUsers.length} 行を投入`);

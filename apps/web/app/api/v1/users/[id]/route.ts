@@ -14,12 +14,16 @@ export const GET = withActiveUser(async (_req, claims, { params }: Ctx) => {
   const { id } = await params;
 
   const rows = await withUser(claims.sub, (tx) => tx`
-    select id, code, name, email, role,
-           position_id   as "positionId",
-           division_id   as "divisionId",
-           department_id as "departmentId",
-           section_id    as "sectionId"
-    from public.users where id = ${Number(id)}
+    select u.id, u.code, u.name, u.email,
+           coalesce(array_agg(ur.role order by ur.role) filter (where ur.role is not null), '{}') as roles,
+           u.position_id   as "positionId",
+           u.division_id   as "divisionId",
+           u.department_id as "departmentId",
+           u.section_id    as "sectionId"
+    from public.users u
+    left join public.user_roles ur on ur.user_id = u.id
+    where u.id = ${Number(id)}
+    group by u.id
   `);
   if (rows.length === 0) return NextResponse.json({ error: "not found" }, { status: 404 });
   return NextResponse.json({ data: rows[0] });
@@ -37,12 +41,12 @@ export const PUT = withActiveUser(async (req, claims, { params }: Ctx) => {
   if (input.code !== undefined) set.code = input.code;
   if (input.name !== undefined) set.name = input.name;
   if (input.email !== undefined) set.email = input.email;
-  if (input.role !== undefined) set.role = input.role;
   if (input.positionId !== undefined) set.position_id = input.positionId;
   if (input.divisionId !== undefined) set.division_id = input.divisionId;
   if (input.departmentId !== undefined) set.department_id = input.departmentId;
   if (input.sectionId !== undefined) set.section_id = input.sectionId;
-  if (Object.keys(set).length === 0) {
+  const nextRoles = input.roles;
+  if (Object.keys(set).length === 0 && nextRoles === undefined) {
     return NextResponse.json({ error: "更新項目がありません" }, { status: 400 });
   }
 
@@ -85,11 +89,46 @@ export const PUT = withActiveUser(async (req, claims, { params }: Ctx) => {
   }
 
   try {
-    const rows = await withUser(claims.sub, (tx) => tx`
-      update public.users set ${tx(set)}, updated_at = now()
-      where id = ${Number(id)}
-      returning id, code, name, email, role
-    `);
+    const rows = await withUser(claims.sub, async (tx) => {
+      // roles のみの更新でも updated_at は進める（対象行の存在確認を兼ねる）。
+      const updated =
+        Object.keys(set).length > 0
+          ? await tx`
+              update public.users set ${tx(set)}, updated_at = now()
+              where id = ${Number(id)}
+              returning id, code, name, email
+            `
+          : await tx`
+              update public.users set updated_at = now()
+              where id = ${Number(id)}
+              returning id, code, name, email
+            `;
+      const row = updated[0];
+      if (!row) return [];
+
+      if (nextRoles !== undefined) {
+        // 差分適用（全置換にしない）: 唯一の admin が admin を維持したまま他ロールを編集しても、
+        // admin 行を DELETE しないため最後の admin 防止トリガが誤爆しない。
+        // 実際に admin を剥奪する差分のときだけトリガが拒否する（P0001 → 409）。
+        const current = (
+          await tx<{ role: string }[]>`select role from public.user_roles where user_id = ${row.id}`
+        ).map((r) => r.role);
+        const next: string[] = nextRoles;
+        const toRemove = current.filter((role) => !next.includes(role));
+        const toAdd = next.filter((role) => !current.includes(role));
+        for (const role of toRemove) {
+          await tx`delete from public.user_roles where user_id = ${row.id} and role = ${role}`;
+        }
+        for (const role of toAdd) {
+          await tx`insert into public.user_roles (user_id, role) values (${row.id}, ${role})`;
+        }
+      }
+
+      const roles = (
+        await tx<{ role: string }[]>`select role from public.user_roles where user_id = ${row.id} order by role`
+      ).map((r) => r.role);
+      return [{ ...row, roles }];
+    });
     if (rows.length === 0) {
       // DB update が 0 行（RLS で弾かれた等）。GoTrue を先に変えていたら旧 email へ戻す。
       if (emailChanged) await rollbackGotrueEmail(target.gotrueId!, oldEmail);

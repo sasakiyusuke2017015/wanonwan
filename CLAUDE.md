@@ -63,9 +63,10 @@ nginx (TLS終端・ルーティング)
 
 ## ドメイン（旧 1on1 由来）
 
-主要エンティティ: `users` / `surveys` + `questions` / `survey_publications` / `answers` /
-`schedules` / 組織マスタ（本部・部・課・役職）。ロールは組織階層 5 段階
-（employee / section_head / department_head / division_head / admin）。
+主要エンティティ: `users` + `user_roles` / `surveys` + `questions` / `survey_publications` /
+`answers` / `schedules` / 組織マスタ（本部・部・課・役職）。権限ロールは 3 種
+（admin / interviewer / member）のマルチロール。member は全員が暗黙保有し、`user_roles` には
+上位ロールのみ格納。認可は保有ロールの union で判定（役職 = HR 肩書きとは別軸）。
 詳細・Pleasanter SiteId 対応は [Plan §3.2](outputs/plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md)。
 
 ## .claude 構成

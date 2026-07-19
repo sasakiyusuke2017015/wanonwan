@@ -4,9 +4,10 @@
 //      紐付け（行単位で冪等。既存は skip / DB insert 失敗時のみ GoTrue を cleanup）
 //   3) 一時 PW を 0600 ファイルへ書き出し（stdout/CI には出さない）。各ユーザーは初回ログインで PW 変更を強制
 //
-// 投入は人員 CSV（--users-csv）の一括のみ。admin は CSV の role 列に 'admin' を指定する。
-// CSV 列: code,name,email,gotrue_id,role,position_code,division_code,department_code,section_code
-// （gotrue_id は空で GoTrue 採番。role は admin/member。org 系 code は既存マスタ参照・不要なら空）
+// 投入は人員 CSV（--users-csv）の一括のみ。権限は roles 列にセミコロン区切りで上位ロールを指定する
+// （例: 'admin' / 'interviewer' / 'admin;interviewer'。空 = member のみ。member は暗黙保有のため書かない）。
+// CSV 列: code,name,email,gotrue_id,roles,position_code,division_code,department_code,section_code
+// （gotrue_id は空で GoTrue 採番。org 系 code は既存マスタ参照・不要なら空）
 //
 // 使い方（host で実行。stack 起動 + migration 適用後）:
 //   dev:  pnpm provision:dev                                       （既定で infra/provision-users.example.csv を使う）
@@ -201,7 +202,7 @@ if (envFile) loaderArgs.push("--env-file", envFile);
 execFileSync("node", loaderArgs, { stdio: "inherit" });
 
 // --- 2) 投入対象ユーザーの一覧を人員 CSV から組み立てる ---
-// 権限は role 列（'admin'|'member'）。役職(position)とは別軸。
+// 権限は roles 列（セミコロン区切りの上位ロール。空 = member のみ）。役職(position)とは別軸。
 const targets = parse(readFileSync(resolvePath(usersCsv), "utf8"), {
   columns: true,
   skip_empty_lines: true,
@@ -211,7 +212,10 @@ const targets = parse(readFileSync(resolvePath(usersCsv), "utf8"), {
   name: r.name,
   code: r.code,
   gotrueId: r.gotrue_id || undefined,
-  role: r.role || "member",
+  roles: (r.roles ?? "")
+    .split(";")
+    .map((s) => s.trim())
+    .filter(Boolean),
   positionCode: r.position_code,
   divisionCode: r.division_code,
   departmentCode: r.department_code,
@@ -227,9 +231,12 @@ for (const t of targets) {
     failed++;
     continue;
   }
-  // role は 'admin' / 'member' のみ（DB CHECK の手前で typo を分かりやすく弾く）。
-  if (t.role !== "admin" && t.role !== "member") {
-    console.error(`✗ ${t.email}: role は admin / member のみ（指定: ${JSON.stringify(t.role)}）`);
+  // roles は 'admin' / 'interviewer' のみ（DB CHECK の手前で typo を分かりやすく弾く）。
+  const badRole = t.roles.find((role) => role !== "admin" && role !== "interviewer");
+  if (badRole !== undefined) {
+    console.error(
+      `✗ ${t.email}: roles は admin / interviewer のみ・セミコロン区切り（指定: ${JSON.stringify(badRole)}）`,
+    );
     failed++;
     continue;
   }
@@ -266,13 +273,23 @@ for (const t of targets) {
     continue;
   }
 
-  // public.users に紐付け。失敗時は当該行の GoTrue を掃除して orphan を残さない。
+  // public.users + user_roles に紐付け（同一 tx。片方だけ入った中途半端を残さない）。
+  // 失敗時は当該行の GoTrue を掃除して orphan を残さない。
   try {
+    const roleInserts = t.roles
+      .map(
+        (role) => `
+      INSERT INTO public.user_roles (user_id, role)
+      SELECT id, ${sqlStr(role)} FROM public.users WHERE email = ${sqlStr(t.email)};`,
+      )
+      .join("");
     psql(`
-      INSERT INTO public.users (gotrue_id, code, name, email, role, position_id, division_id, department_id, section_id)
-      SELECT ${sqlStr(gotrueId)}::uuid, ${sqlStr(t.code)}, ${sqlStr(t.name)}, ${sqlStr(t.email)}, ${sqlStr(t.role)},
+      BEGIN;
+      INSERT INTO public.users (gotrue_id, code, name, email, position_id, division_id, department_id, section_id)
+      SELECT ${sqlStr(gotrueId)}::uuid, ${sqlStr(t.code)}, ${sqlStr(t.name)}, ${sqlStr(t.email)},
         ${refSub("positions", t.positionCode)}, ${refSub("divisions", t.divisionCode)},
-        ${refSub("departments", t.departmentCode)}, ${refSub("sections", t.sectionCode)};
+        ${refSub("departments", t.departmentCode)}, ${refSub("sections", t.sectionCode)};${roleInserts}
+      COMMIT;
     `);
   } catch (e) {
     console.error(`✗ ${t.email} の public.users insert に失敗。GoTrue を掃除します: ${e.message}`);

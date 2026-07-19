@@ -1,5 +1,5 @@
 -- 組織マスタ（本部 / 部 / 課 / 役職）。Pleasanter 区分マスタ(Wikis)由来。
--- 役職コード(positions.code)が権限ロールを決める（300-499 employee … 990-999 admin）。
+-- 純粋な HR マスタ。権限ロールとは別軸で、認可は user_roles が源（30_users.sql）。
 
 CREATE TABLE IF NOT EXISTS public.divisions (
   id   bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -23,6 +23,6 @@ CREATE TABLE IF NOT EXISTS public.sections (
 
 CREATE TABLE IF NOT EXISTS public.positions (
   id   bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  code int    UNIQUE NOT NULL,   -- ロール判定の源（範囲で employee..admin）
+  code int    UNIQUE NOT NULL,   -- HR 上の序列コード（権限ロールとは無関係）
   name text   NOT NULL
 );

@@ -3,7 +3,7 @@
 BEGIN;
 SELECT plan(4);
 
--- admin（role='admin'）として実行
+-- admin ロール保有者として実行
 SET LOCAL app.user_id = 'cb427b54-eaef-47df-916b-626321d23dc9';
 
 -- テスト対象行を明示投入し seed 非依存にする（admin なので RLS write を通過）。
@@ -22,7 +22,7 @@ SELECT lives_ok(
   'admin は緊急度を更新できる'
 );
 
--- 3) 非 admin（alice = role 'member'）は読める（認証済み select）
+-- 3) 非 admin（alice = 上位ロールなし）は読める（認証済み select）
 SET LOCAL app.user_id = '00000000-0000-0000-0000-0000000a11ce';
 SELECT isnt_empty(
   $$ SELECT 1 FROM public.urgency_levels WHERE code = 1 $$,

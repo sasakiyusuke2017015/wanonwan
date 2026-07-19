@@ -34,7 +34,7 @@ SELECT throws_ok($$
   SELECT 'user_avatar',
          (SELECT id FROM public.users WHERE gotrue_id = 'cb427b54-eaef-47df-916b-626321d23dc9'),
          'waoon', 'avatars/fixture/confirmed2', 'c.png', 'image/png', app.uid(), 200
-$$, '23505', '確定済み(200) は 1 ユーザー 1 枚（2 枚目は unique 違反）');
+$$, '23505', NULL, '確定済み(200) は 1 ユーザー 1 枚（2 枚目は unique 違反）');
 
 SELECT * FROM finish();
 ROLLBACK;
