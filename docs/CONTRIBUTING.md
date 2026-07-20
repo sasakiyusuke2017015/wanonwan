@@ -58,26 +58,28 @@ pnpm provision:dev
 （member は全員が暗黙保有。複数保有者はヘッダーメニューで視点を切り替えられる）。
 stg/prod はランダム PW + 初回変更強制で別管理（この表は dev のみ）。
 
-**provision ユーザー**（`pnpm provision:dev` が発行。PW は全員 `Password1!` 固定）:
+**provision ユーザー**（`pnpm provision:dev` が発行。PW は全員 `Password1!` 固定。
+各ロール 1〜9 の 36 アカウント）:
 
 | email | 権限 |
 |---|---|
-| `admin1@example.com` | 管理者 |
-| `interviewer1@example.com` | 面談担当 |
-| `member1@example.com` | メンバー |
-| `multi1@example.com` | 管理者 + 面談担当（視点切替メニューの確認に使える） |
+| `admin1`〜`admin9`@example.com | 管理者 |
+| `interviewer1`〜`interviewer9`@example.com | 面談担当 |
+| `member1`〜`member9`@example.com | メンバー |
+| `multi1`〜`multi9`@example.com | 管理者 + 面談担当（視点切替メニューの確認に使える） |
 
 **seed ユーザー**（CI / RLS テスト兼デモ用。`pnpm db:seed` の後に `pnpm seed:gotrue:dev` で
-ログイン可能になる。PW の一次ソースは [scripts/seed-gotrue-dev.mjs](../scripts/seed-gotrue-dev.mjs)、
-権限は [packages/db/seed/csv/users.csv](../packages/db/seed/csv/users.csv) の roles 列）:
+ログイン可能になる。**PW は全員 `Password1!` 固定**（一次ソース:
+[scripts/seed-gotrue-dev.mjs](../scripts/seed-gotrue-dev.mjs)）。メール名は pgTAP fixture が
+参照するため固定。権限は [packages/db/seed/csv/users.csv](../packages/db/seed/csv/users.csv) の roles 列:
 
-| email | パスワード | 権限 | 備考 |
-|---|---|---|---|
-| `admin@example.com` | `Admin1234!` | 管理者 + 面談担当 | |
-| `alice@example.com` | `Alice1234!` | メンバー | サンプル回答の回答者 |
-| `bob@example.com` | `Bob1234!` | 面談担当 | アリスの回答の閲覧者でもある |
-| `carol@example.com` | `Carol1234!` | メンバー | 無関係ユーザー（否定テスト用） |
-| `dave@example.com` | `Dave1234!` | メンバー | |
+| email | 権限 | 備考 |
+|---|---|---|
+| `admin@example.com` | 管理者 + 面談担当 | |
+| `alice@example.com` | メンバー | サンプル回答の回答者 |
+| `bob@example.com` | 面談担当 | アリスの回答の閲覧者でもある |
+| `carol@example.com` | メンバー | 無関係ユーザー（否定テスト用） |
+| `dave@example.com` | メンバー | |
 
 ### 個別に回す
 
