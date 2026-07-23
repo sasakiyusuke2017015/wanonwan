@@ -5,7 +5,7 @@
 | 概要 | packages/ui に長く放置されている 13 テスト失敗（6 スイート）を、原因を 3 分類に切り分けて解消する。CI ゲート外のため気付かれずに溜まっていたもの |
 | ステータス | 🟣 マージ承認待ち |
 | 前提 Plan | なし |
-| PR | |
+| PR | [#105](https://github.com/sasakiyusuke2017015/waoon/pull/105) |
 | Review | [コードレビュー](../reviews/2026-07-23-2045-ui-catalog-broken-tests-review.md) |
 
 ## 目的
@@ -120,4 +120,5 @@
 - [x] 実装（A / B / C）
 - [x] 検証（vitest 168 スイート / 1479 テスト全通過・失敗ゼロ / CI parity 10 タスク成功）
 - [x] コードレビュー（APPROVE。NICE-TO-HAVE 6 件のうち 5 件を反映）
-- [ ] PR 作成・マージ
+- [x] PR 作成（#105・CI pass）
+- [ ] マージ（笹木さん承認待ち）
