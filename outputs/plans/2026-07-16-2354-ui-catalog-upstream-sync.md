@@ -3,7 +3,7 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | ui-catalog 上流最新版 (ui.zip) を packages/ui へ選択的マージ。上流のみ変更 115 件採用 / waoon 独自部品維持 / 衝突 33 件個別マージ / 汎用新規部品のみ採用 |
-| ステータス | 🟢 マージ済み（検証中） |
+| ステータス | ✅ 検証完了 |
 | 前提 Plan | なし |
 | PR | [#97](https://github.com/sasakiyusuke2017015/waoon/pull/97) |
 | Review | [計画レビュー](../reviews/2026-07-17-0005-ui-catalog-upstream-sync-review.md) / [コードレビュー](../reviews/2026-07-17-0040-ui-catalog-upstream-sync-code-review.md) |
@@ -163,8 +163,16 @@ PasswordRevealBanner, PasswordRevealModal, ProfilePhotoCard
   - [x] `pnpm --filter @ui-catalog/core lint`
   - [x] `pnpm --filter @ui-catalog/core exec vitest run`（13 失敗 / 6 スイート。develop ベースライン 66 失敗 / 34 スイートの部分集合で**新規失敗ゼロ・28 スイート解消**）
 - [x] PR 作成・レビュー（[#97](https://github.com/sasakiyusuke2017015/waoon/pull/97) merge 済み）
-- [ ] **マージ後検証**
-  - [ ] dev スタックで主要画面の目視確認（admin 一覧 / ダッシュボード / スケジュール / 回答）
-    - [ ] Icon lucide 化で全アイコンが描画される
-    - [ ] テーマ 3 軸（rose / sharp / fabric）の見た目が崩れていない
-    - [ ] `focus-trap-react` 12 で Modal / Dialog のフォーカストラップが機能する
+- [x] **マージ後検証**（2026-07-23・Playwright / Chromium で 8/8 PASS）
+  - [x] 主要 10 画面（dashboard / surveys / schedule / admin 7 画面）を巡回
+    - [x] Icon lucide 化で全アイコンが描画される
+      （`Icon "x" not found` の警告ゼロ、空 svg ゼロ。1 画面あたり 23〜29 アイコン）
+    - [x] テーマ 3 軸の見た目が崩れていない
+      （rose / emerald / indigo で配色が実際に切り替わり、Sidebar の文字コントラストは
+      7.8〜10:1 で WCAG AA 超え。幅 240px 固定・横スクロールなし）
+    - [x] `focus-trap-react` 12 で Modal / Dialog のフォーカストラップが機能する
+      （Dialog = 未保存ガードの確認、Modal = テーマ設定。どちらも Tab 12 回でフォーカスが
+      ダイアログ外へ出ず、Dialog は Escape で閉じる）
+
+> 検証は [第 2 弾 Plan](2026-07-23-1357-appshell-sidebar-adoption.md) のブラウザ検証と同時に実施した。
+> admin 一覧に行アクションが無いため、Dialog は未保存ガードの確認ダイアログで代替している。
