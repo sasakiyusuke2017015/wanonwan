@@ -78,3 +78,32 @@ export const NAV_ITEMS: readonly NavItemDef[] = [
 export function isNavItemActive(href: string, pathname: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
+
+export type NavGroupDef = {
+  id: string;
+  label?: string;
+  /** このグループに属する NavItemDef.id。NAV_ITEMS に無い id は無視する */
+  itemIds: readonly string[];
+};
+
+// Sidebar のグループ分け。項目の出し分け自体は useNavigationItems が
+// アクティブロール基準で行い、ここは「どの見出しの下に並べるか」だけを持つ。
+export const NAV_GROUPS: readonly NavGroupDef[] = [
+  {
+    id: "general",
+    itemIds: ["dashboard", "surveys", "schedule", "interviews"],
+  },
+  {
+    id: "admin",
+    label: "管理",
+    itemIds: [
+      "admin-users",
+      "admin-surveys",
+      "admin-questions",
+      "admin-answers",
+      "admin-org",
+      "admin-positions",
+      "admin-urgencies",
+    ],
+  },
+];
