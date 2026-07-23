@@ -1,5 +1,6 @@
 import { FC, CSSProperties, ReactNode } from 'react'
 
+import { hexReadableTextColor, isHexColor } from '../../utils/hexColor'
 import styles from './Badge.module.scss'
 
 export type BadgeAppearance = 'default' | 'metric' | 'score' | 'status'
@@ -36,6 +37,17 @@ interface BadgeProps {
   tone?: BadgeTone
   /** 直接色を指定（tone より優先。動的な色分け用） */
   color?: BadgeColor
+  /**
+   * マスタの「イメージカラー」等、任意 hex (#RGB / #RRGGBB) の背景色。
+   * 有効な hex のとき tone / color より優先し、文字色はコントラスト自動導出 (YIQ)。
+   * 無効値 / 空は無視して tone / color にフォールバックする。
+   */
+  hexColor?: string | null
+  /**
+   * バッジ先頭に出す小さな丸ロゴ画像の URL (マスタの「イメージロゴ」等)。
+   * null / 空は何も出さない。alt は装飾扱いで空 (ラベル本文が名前を持つため)。
+   */
+  logoSrc?: string | null
   size?: BadgeSize
   width?: string
   className?: string
@@ -50,6 +62,8 @@ export const Badge: FC<BadgeProps> = ({
   styleVariant = 'solid',
   tone,
   color,
+  hexColor,
+  logoSrc,
   size = 'medium',
   width,
   className = '',
@@ -84,9 +98,15 @@ export const Badge: FC<BadgeProps> = ({
     .filter(Boolean)
     .join(' ')
 
+  // 任意 hex は inline style でクラス色を上書きする (invalid はフォールバック)。
+  const useHex = isHexColor(hexColor)
+  const hasLogo = typeof logoSrc === 'string' && logoSrc !== ''
   const style: CSSProperties = {
     ...(width ? { width } : {}),
     borderRadius,
+    ...(useHex ? { backgroundColor: hexColor, color: hexReadableTextColor(hexColor) } : {}),
+    // ロゴ付きはアイコンとラベルを縦中央で並べるため flex 化する (通常時は既存の inline-block)。
+    ...(hasLogo ? { display: 'inline-flex', alignItems: 'center', gap: '0.35em' } : {}),
   }
 
   return (
@@ -97,6 +117,19 @@ export const Badge: FC<BadgeProps> = ({
       data-appearance={appearance}
       data-variant={tone || styleVariant}
     >
+      {hasLogo && (
+        <img
+          src={logoSrc}
+          alt=""
+          style={{
+            width: '1.2em',
+            height: '1.2em',
+            borderRadius: '50%',
+            objectFit: 'cover',
+            flexShrink: 0,
+          }}
+        />
+      )}
       {content}
     </Tag>
   )

@@ -6,3 +6,4 @@ export { useAlert, type AlertState } from './useAlert';
 export { useConfirm, type ConfirmState } from './useConfirm';
 export { useToast, type ToastState } from './useToast';
 export { useUnsavedGuard } from './useUnsavedGuard';
+export { useBodyScrollLock } from './useBodyScrollLock';

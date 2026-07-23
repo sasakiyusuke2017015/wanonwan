@@ -10,6 +10,7 @@ import {
   FC,
   CSSProperties,
 } from 'react';
+import { createPortal } from 'react-dom';
 
 import { useOperationLog } from '../../../infra/devtools';
 import { Button } from '../../molecules/Button';
@@ -254,11 +255,14 @@ export const DropdownMenu: FC<DropdownMenuProps> = ({
   //   「閉じるはずのクリックが open になる」バグになる。
   //   event.composedPath() はイベント発火時のパスを保持するので detach されても
   //   正しく判定できる。
+  //   menu は body へ portal しているので dropdownRef の子孫ではない。menuRef も
+  //   併せて見ないと、メニュー内クリックが「外側」と判定されて閉じてしまう。
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (!dropdownRef.current) return;
       const path = event.composedPath();
       if (path.includes(dropdownRef.current)) return;
+      if (menuRef.current && path.includes(menuRef.current)) return;
       closeMenu();
     };
 
@@ -404,23 +408,34 @@ export const DropdownMenu: FC<DropdownMenuProps> = ({
         {triggerNode}
       </div>
 
-      {isOpen && (
-        <div
-          ref={menuRef}
-          id={menuId}
-          style={menuStyle}
-          className={cn(
-            // アニメーションは style.animation 経由 (ANIMATIONS.dropMenu[variant])。
-            // ここでは枠線・影・角丸など static な見た目だけを class で当てる。
-            'z-50 overflow-hidden rounded-2xl border border-gray-200/60 bg-white/95 shadow-[0_20px_50px_-15px_rgba(15,23,42,0.35),0_8px_20px_-8px_rgba(15,23,42,0.25)] ring-1 ring-black/5 backdrop-blur-md',
-            menuWidth
-          )}
-        >
-          {typeof menuContent === 'function'
-            ? menuContent(closeMenu)
-            : menuContent}
-        </div>
-      )}
+      {/*
+        menu は body へ portal する。position: fixed + z-50 は「viewport 基準で最前面」を
+        意図しているが、DOM 上ここに置くと z-index を持つ祖先 (DataTable の sticky toolbar 等)
+        の stacking context に閉じ込められ、実効 z がその祖先の値で頭打ちになる。結果、
+        祖先より手前の要素 (列並べ替え中のヘッダセル) が menu の上にせり出す。
+        portal すれば root 直下で重なるのでこの頭打ちが無くなり、併せて overflow: hidden な
+        祖先による切り取りと transform 祖先による fixed 基準のズレも回避できる。
+      */}
+      {isOpen &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            ref={menuRef}
+            id={menuId}
+            style={menuStyle}
+            className={cn(
+              // アニメーションは style.animation 経由 (ANIMATIONS.dropMenu[variant])。
+              // ここでは枠線・影・角丸など static な見た目だけを class で当てる。
+              'z-50 overflow-hidden rounded-2xl border border-gray-200/60 bg-white/95 shadow-[0_20px_50px_-15px_rgba(15,23,42,0.35),0_8px_20px_-8px_rgba(15,23,42,0.25)] ring-1 ring-black/5 backdrop-blur-md',
+              menuWidth
+            )}
+          >
+            {typeof menuContent === 'function'
+              ? menuContent(closeMenu)
+              : menuContent}
+          </div>,
+          document.body
+        )}
     </div>
   );
 };

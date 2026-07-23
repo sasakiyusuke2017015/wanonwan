@@ -90,4 +90,23 @@ describe('Badge', () => {
     const badge = container.querySelector('[data-component="badge"]');
     expect(badge).toHaveClass('metricGradient');
   });
+  it('hexColor が有効なら背景をその色にし、文字色はコントラスト自動導出する', () => {
+    const { container } = render(<Badge value="Hex" hexColor="#1d4ed8" />);
+    const badge = container.querySelector('[data-component="badge"]') as HTMLElement;
+    expect(badge.style.backgroundColor).toBe('rgb(29, 78, 216)');
+    expect(badge.style.color).toBe('rgb(255, 255, 255)');
+  });
+
+  it('淡い hexColor はダーク文字になる', () => {
+    const { container } = render(<Badge value="Hex" hexColor="#fde047" />);
+    const badge = container.querySelector('[data-component="badge"]') as HTMLElement;
+    expect(badge.style.color).toBe('rgb(31, 41, 55)');
+  });
+
+  it('無効な hexColor は無視して tone にフォールバックする', () => {
+    const { container } = render(<Badge value="Hex" tone="success" hexColor="not-a-color" />);
+    const badge = container.querySelector('[data-component="badge"]') as HTMLElement;
+    expect(badge.style.backgroundColor).toBe('');
+    expect(badge).toHaveClass('solidGreen');
+  });
 });

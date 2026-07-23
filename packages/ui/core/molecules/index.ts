@@ -42,6 +42,7 @@ export * from './SegmentedControl'
 
 // Data Display
 export * from './DataCountDisplay'
+export * from './SegmentedRatioBar'
 export * from './StatCard'
 export * from './TreeView'
 

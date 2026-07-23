@@ -258,7 +258,7 @@ export * from './infra'       // infra/ 全体
 import { Button, Icon } from '@ui-catalog/core/atoms'
 import { FormField } from '@ui-catalog/core/molecules'
 import { Modal, Dialog } from '@ui-catalog/core/organisms'
-import { AppShell } from '@ui-catalog/core/templates'
+import { AppShellProvider, AppShellRoot } from '@ui-catalog/core/templates/AppShell'
 
 import { useOperationLog } from '@ui-catalog/core/infra/devtools'
 import { ThemeProvider } from '@ui-catalog/core/infra/theme'

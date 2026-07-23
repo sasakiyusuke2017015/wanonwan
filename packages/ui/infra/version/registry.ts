@@ -155,9 +155,15 @@ export const VERSION_REGISTRY = {
   Ticket: '1.0.0',
   ScallopedCard: '1.0.0',
 
+  // AppShell / Sidebar 系 (上流由来)
+  AppShell: '1.0.0',
+  SidebarShell: '1.0.0',
+  SidebarNav: '1.0.0',
+  SidebarAccountMenu: '1.0.0',
+  SegmentedRatioBar: '1.0.0',
+
   // waoon 独自部品 (上流 catalog には無い)
   AlertDialog: '1.0.0',
-  AppShell: '1.0.0',
   ContentBlock: '1.0.0',
   ContextMenu: '1.0.0',
   DetailHeader: '1.0.0',

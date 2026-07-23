@@ -394,3 +394,76 @@
     box-shadow: 0 0 0 0 rgba(52, 211, 153, 0);
   }
 }
+
+/* =============================================================================
+ * AppShell / Sidebar (左ペイン)
+ *
+ * SidebarShell / SidebarNav / AppShellProvider が参照するトークン一式。
+ * runtime テーマ切替を可能にするため、raw 値は :root の変数に置き、
+ * Tailwind utility (bg-sidebar 等) へは @theme inline でブリッジする。
+ * ============================================================================= */
+
+:root {
+  /* sidebar: 一段薄い slate dark (Linear / Notion 風) */
+  --sidebar: oklch(0.235 0.008 260);
+  --sidebar-foreground: oklch(0.97 0 0);
+  --sidebar-primary: oklch(0.64 0.18 260);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.32 0.012 260);
+  --sidebar-accent-foreground: oklch(0.97 0 0);
+  --sidebar-border: oklch(0.32 0.012 260);
+  --sidebar-ring: oklch(0.6 0.15 260);
+
+  /* AppShell レイアウト寸法 */
+  --sidebar-w-expanded: 15rem;
+  --sidebar-w-collapsed: 4rem;
+  --sidebar-w: var(--sidebar-w-expanded);
+  --shell-transition-duration: 200ms;
+}
+
+/* Sidebar 開閉状態の data-attr → CSS 変数切替 (AppShellRoot に付与) */
+[data-sidebar-state='collapsed'] {
+  --sidebar-w: var(--sidebar-w-collapsed);
+}
+[data-sidebar-state='expanded'] {
+  --sidebar-w: var(--sidebar-w-expanded);
+}
+
+/* --topbar-h は AppShellRoot 配下に閉じる。DataTable の sticky は
+ * `var(--topbar-h, 0)` を停留基準に使うため、AppShell を使わない画面で :root に
+ * 定義があると、chrome 高が二重に効いてヘッダ行が下へずれる。 */
+[data-sidebar-state] {
+  --topbar-h: 3.5rem;
+}
+
+/* モバイルは Sidebar を出さないので本文の左 offset も消す。
+ * --sidebar-w は上の [data-sidebar-state] ルールで AppShellRoot 要素そのものに
+ * 宣言されるため、:root 側を上書きしても届かない。同じセレクタに対して、
+ * かつ基底ルールより後ろで上書きする必要がある。 */
+/* 境界は Tailwind の md (48rem) と同じ rem 基準にする。px で書くと、既定フォントサイズを
+ * 変えている環境で「Sidebar は非表示なのに幅だけ残る」ズレが出る。 */
+@media (max-width: 47.999rem) {
+  [data-sidebar-state='collapsed'],
+  [data-sidebar-state='expanded'] {
+    --sidebar-w: 0px;
+  }
+}
+
+/* prefers-reduced-motion でアニメーションを瞬時に */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --shell-transition-duration: 0ms;
+  }
+}
+
+/* CSS 変数 → Tailwind utility のブリッジ (bg-sidebar / text-sidebar-foreground 等) */
+@theme inline {
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}

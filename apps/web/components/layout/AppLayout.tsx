@@ -1,50 +1,41 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Header } from "@ui-catalog/core/templates/Header";
-import { SubHeader } from "@ui-catalog/core/templates/SubHeader";
-import { Footer } from "@ui-catalog/core/templates/Footer";
 import { BackgroundTexture } from "@ui-catalog/core/organisms/BackgroundTexture";
 import { BlurFade } from "@ui-catalog/core/organisms/BlurFade";
-import { FloatingMenuButton } from "@ui-catalog/core/organisms/FloatingMenuButton";
-import { DropdownMenu } from "@ui-catalog/core/organisms/DropdownMenu";
-import { MenuItemList } from "@ui-catalog/core/organisms/MenuItemList";
 import { Icon } from "@ui-catalog/core/atoms";
-import { useDevice } from "@ui-catalog/core/hooks/useDevice";
 import { LAYOUT_SIZES, getThemeConfig } from "@ui-catalog/core/constants";
 import { useTheme, useBackgroundTheme, DEFAULT_GLOBAL_THEME } from "@ui-catalog/core/infra/theme";
+import { AppShellRoot } from "@ui-catalog/core/templates/AppShell";
 import { useNavigationItems } from "./useNavigationItems";
 import { useGuardedNavigate } from "@/hooks/useGuardedNavigate";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
-import { AppSideNav } from "./AppSideNav";
-import { HeaderUserMenu } from "./HeaderUserMenu";
+import { AppSidebar } from "./AppSidebar";
+import { AppTopBar } from "./AppTopBar";
 import { SubHeaderSlotProvider } from "./SubHeaderSlot";
 import { ThemeSettingsModal } from "./ThemeSettingsModal";
+import { sidebarThemeVars } from "./SidebarThemeBridge";
 
-const HEADER_HEIGHT = LAYOUT_SIZES.HEADER_HEIGHT;
-const SUBHEADER_HEIGHT = 44;
-const SIDENAV_WIDTH = LAYOUT_SIZES.LEFT_PANE_WIDTH;
-const FOOTER_HEIGHT = LAYOUT_SIZES.FOOTER_HEIGHT;
 const BOTTOM_TAB_HEIGHT = LAYOUT_SIZES.BOTTOM_TAB_HEIGHT;
+const SUBHEADER_HEIGHT = 44;
 
 // SSR は既定テーマ、クライアント初期描画も既定テーマで一致させ、mount 後に保存テーマへ切り替える
 // （localStorage 由来のテーマで hydration mismatch を起こさないため）。既定値は ui-catalog の単一ソースを参照。
 const DEFAULT_THEME = getThemeConfig(DEFAULT_GLOBAL_THEME.colorTheme, DEFAULT_GLOBAL_THEME.shapeTheme);
 const DEFAULT_BACKGROUND = DEFAULT_GLOBAL_THEME.backgroundTheme;
 
-// 旧 1on1 踏襲のアプリ共通シェル。
-// - サイドナビは折りたたみ式アイコンレール（FloatingMenuButton で開閉、本文が transition で寄る）
-// - ヘッダー右はユーザーメニュー（テーマ / PW変更 / ログアウトを集約、各項目を BlurFade）
-// - 本文は h-screen 内で内側スクロール（chrome は position:fixed）
+// アプリ共通シェル。左 Sidebar (AppShell 基盤) + TopBar + SubHeader 帯 + 本文。
+// - Sidebar の開閉状態は AppShellProvider が cookie に持ち、SSR 初期描画から幅が一致する
+// - モバイルは Sidebar を出さず、画面下部のタブバーで移動する
+// - ページは本文だけでなくページ全体がスクロールする（DataTable の sticky が --topbar-h と
+//   --chrome-subheader-h を停留基準に使うため）
 // /login など未認証ページは AppFrame 側でこのシェルを外す。
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const guardedNavigate = useGuardedNavigate();
   const pathname = usePathname();
-  const { items, me } = useNavigationItems();
+  const { items, me, isLoading } = useNavigationItems();
   const [mounted, setMounted] = useState(false);
-  const [sideOpen, setSideOpen] = useState(true);
   const [themeOpen, setThemeOpen] = useState(false);
   const liveTheme = useTheme();
   const [liveBackground] = useBackgroundTheme();
@@ -60,9 +51,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     [slotContainer],
   );
 
-  // SubHeader はフィルタ展開 (SubHeaderToolbar) で高さが変わる。実高を ResizeObserver で
-  // 測り、本文 paddingTop に反映する。SSR / 初回描画は既定の 44px で一致させ、
-  // mount 後の実測だけで更新する。
+  // SubHeader 帯はフィルタ展開 (SubHeaderToolbar) で高さが変わる。実高を ResizeObserver で
+  // 測り、--chrome-subheader-h として配下へ流す。DataTable の sticky ヘッダはこの値を
+  // 停留基準に足し込むので、帯の裏に潜らない。SSR / 初回描画は既定の 44px で一致させる。
   const subHeaderRef = useRef<HTMLDivElement | null>(null);
   const [subHeaderH, setSubHeaderH] = useState(SUBHEADER_HEIGHT);
   useEffect(() => {
@@ -81,13 +72,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   // 認証ページ全体のタブタイトルを現在セクション名に（"use client" のため document.title 直設定）。
   useDocumentTitle(activeLabel);
 
-  // ナビが 2 件以上のときだけサイドナビ / ハンバーガー / 下部タブを出す（旧踏襲）。
-  const showSideNav = items.length > 1;
-  const sideShift = showSideNav && sideOpen ? SIDENAV_WIDTH : 0;
-  // サイドナビはデスクトップのみ（モバイルは下部タブ）。chrome(SubHeader/Footer) の左寄せも
-  // モバイルでは 0 にする。mounted ガードで hydration mismatch を避ける。
-  const { isMobile } = useDevice();
-  const chromeShift = mounted && isMobile ? 0 : sideShift;
+  // ナビが 2 件以上のときだけ Sidebar / 下部タブを出す（旧踏襲）。
+  const showNav = items.length > 1;
 
   // 旧 AppHeader 踏襲のパンくず（ダッシュボードを起点 + 現在のセクション）。
   const activeItem = items.find((i) => i.active);
@@ -97,182 +83,104 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <SubHeaderSlotProvider value={slotContextValue}>
-    <div className="relative flex h-screen flex-col overflow-hidden">
-      <BackgroundTexture theme={background} />
+      <AppShellRoot className="relative">
+        <BackgroundTexture theme={background} />
 
-      <Header
-        height={HEADER_HEIGHT}
-        bgColor={colors.primaryBgColor}
-        textColor={colors.primaryContrastText}
-        borderColor={colors.primaryBorderColor}
-        leftContent={
-          <div className="flex items-center gap-3 px-2">
-            <Link
-              href="/dashboard"
-              className="text-base font-bold transition-opacity hover:opacity-80"
-              style={{ color: colors.primaryContrastText }}
-              onNavigate={(e) => {
-                // 未保存ガードに合流（modifier クリック等のネイティブ動作は onNavigate では発火しない）。
-                e.preventDefault();
-                guardedNavigate("/dashboard");
-              }}
-            >
-              1on1
-            </Link>
-            {/* パンくずはアプリ層で描画し、リンク遷移を未保存ガードに合流させる
-                （catalog Breadcrumb は素の SPA Link のため dirty なフォームから確認なしに離脱してしまう）。 */}
-            <nav
-              aria-label="breadcrumb"
-              className="flex items-center gap-1 text-sm"
-              style={{ color: colors.primaryContrastText }}
-            >
-              {crumbs.map((c, i) => {
-                const isLast = i === crumbs.length - 1;
-                return (
-                  <span key={c.href} className="flex items-center gap-1">
-                    {isLast ? (
-                      <span>{c.label}</span>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => guardedNavigate(c.href)}
-                        className="transition-opacity hover:opacity-80"
-                      >
-                        {c.label}
-                      </button>
-                    )}
-                    {!isLast && <span aria-hidden>{">"}</span>}
-                  </span>
-                );
-              })}
-            </nav>
-          </div>
-        }
-        rightContent={
-          <div className="flex items-center gap-1 px-2">
-            <DropdownMenu
-              icon="bell"
-              menuWidth="w-60"
-              primaryContrastText={colors.primaryContrastText}
-              menuContent={() => (
-                <MenuItemList>
-                  <MenuItemList.Item>
-                    <span className="text-gray-500">お知らせはありません</span>
-                  </MenuItemList.Item>
-                </MenuItemList>
-              )}
-            />
-            <HeaderUserMenu
-              name={me?.name ?? null}
-              email={me?.email ?? null}
-              roles={me?.roles ?? []}
-              activeRole={me?.activeRole ?? null}
-              primaryContrastText={colors.primaryContrastText}
-              onOpenTheme={() => setThemeOpen(true)}
-            />
-          </div>
-        }
-      />
-
-      {/* サブヘッダー: 既定はアクティブ画面名。ページが SubHeaderPortal を使うと
-          その内容 (SubHeaderToolbar 等) に置き換わり、高さも実測で本文へ反映される。 */}
-      <SubHeader topOffset={HEADER_HEIGHT} leftOffset={chromeShift} innerRef={subHeaderRef}>
-        <div ref={setSlotContainer} />
-        {!slotClaimed && (
-          <div
-            className="flex h-11 items-center px-4 text-sm font-medium transition-all duration-300"
-            style={{ color: colors.secondaryTextColor }}
-          >
-            {activeLabel}
-          </div>
-        )}
-      </SubHeader>
-
-      {showSideNav && (
-        <AppSideNav
-          items={items}
-          isOpen={sideOpen}
-          width={SIDENAV_WIDTH}
-          topOffset={HEADER_HEIGHT}
-          colors={colors}
-        />
-      )}
-
-      {/* デスクトップ: サイドナビ開閉ハンバーガー。モバイルは下部タブのため非表示。 */}
-      {showSideNav && (
-        <div className="hidden md:block">
-          <FloatingMenuButton
-            isOpen={sideOpen}
-            onToggle={() => setSideOpen((v) => !v)}
-            position="bottom-left"
-            backgroundColor={colors.primaryBgColor}
-            borderColor={colors.primaryBorderColor}
-            color={colors.primaryContrastText}
-            openIcon="hamburger"
-            closeIcon="x"
-          />
-        </div>
-      )}
-
-      <main
-        className={`flex-grow overflow-y-auto transition-all duration-300 ${
-          showSideNav && sideOpen ? "md:pl-9" : ""
-        }`}
-        style={{
-          // SubHeader (funnel 展開で高さ可変) の実高に本文を追従させる。
-          // --topbar-h はここでは設定しない: main が独自スクロールする本レイアウトでは
-          // sticky の停留基準が main の paddingTop (= chrome 高) を既に織り込むため、
-          // 設定すると二重適用でヘッダ行が下へずれる (Chromium 実測)。
-          paddingTop: HEADER_HEIGHT + subHeaderH,
-          paddingBottom: FOOTER_HEIGHT,
-        }}
-      >
-        {/* 旧踏襲: 本文はほぼ全幅（px 余白のみ）。画面遷移ごとに BlurFade で出現（pathname key）。 */}
-        <BlurFade key={pathname} className="w-full px-3 pb-24 pt-2 sm:px-5 md:pb-6">
-          {children}
-        </BlurFade>
-      </main>
-
-      <Footer height={FOOTER_HEIGHT} leftOffset={chromeShift}>
+        {/* sidebar トークンをテーマ 3 軸へ連動させ、chrome 帯の実高を配下へ流す。
+            AppShellRoot は style を受け取らないため、直下のラッパで宣言する。 */}
         <div
-          className="flex h-full items-center justify-center text-xs transition-all duration-300"
-          style={{ color: colors.secondaryTextColor }}
-        >
-          waoon — 1on1 アンケート / 面談
-        </div>
-      </Footer>
-
-      {/* モバイル: 下部タブバー。 */}
-      {showSideNav && (
-        <nav
-          className="fixed inset-x-0 bottom-0 z-30 flex items-stretch justify-around border-t md:hidden"
           style={{
-            height: BOTTOM_TAB_HEIGHT,
-            backgroundColor: colors.primaryBgColor,
-            borderColor: colors.primaryBorderColor,
-          }}
+            ...sidebarThemeVars(colors),
+            "--chrome-subheader-h": `${subHeaderH}px`,
+          } as React.CSSProperties}
         >
-          {items.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => guardedNavigate(item.href)}
-              className="flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] transition-colors"
+          {showNav && (
+            <div className="hidden md:block">
+              <AppSidebar
+                items={items}
+                me={me}
+                isLoading={isLoading}
+                activeHref={pathname}
+                onOpenTheme={() => setThemeOpen(true)}
+              />
+            </div>
+          )}
+
+          <AppTopBar
+            crumbs={crumbs}
+            colors={colors}
+            me={me}
+            onOpenTheme={() => setThemeOpen(true)}
+          />
+
+          {/* SubHeader 帯: 既定はアクティブ画面名。ページが SubHeaderPortal を使うと
+              その内容 (SubHeaderToolbar 等) に置き換わる。TopBar 直下に sticky で貼り付く。 */}
+          <div
+            ref={subHeaderRef}
+            className="fixed right-0 z-20 border-b transition-[left] duration-[var(--shell-transition-duration)] ease-out"
+            style={{
+              top: "var(--topbar-h)",
+              left: "var(--sidebar-w)",
+              backgroundColor: colors.secondaryBgColor,
+              borderColor: colors.secondaryBorderColor,
+            }}
+          >
+            <div ref={setSlotContainer} />
+            {!slotClaimed && (
+              <div
+                className="flex h-11 items-center px-4 text-sm font-medium"
+                style={{ color: colors.secondaryTextColor }}
+              >
+                {activeLabel}
+              </div>
+            )}
+          </div>
+
+          <main
+            className="transition-[padding] duration-[var(--shell-transition-duration)] ease-out"
+            style={{
+              paddingLeft: "var(--sidebar-w)",
+              paddingTop: `calc(var(--topbar-h) + ${subHeaderH}px)`,
+            }}
+          >
+            {/* 旧踏襲: 本文はほぼ全幅（px 余白のみ）。画面遷移ごとに BlurFade で出現（pathname key）。 */}
+            <BlurFade key={pathname} className="w-full px-3 pb-24 pt-2 sm:px-5 md:pb-6">
+              {children}
+            </BlurFade>
+          </main>
+
+          {/* モバイル: 下部タブバー。 */}
+          {showNav && (
+            <nav
+              className="fixed inset-x-0 bottom-0 z-30 flex items-stretch justify-around border-t md:hidden"
               style={{
-                color: item.active ? colors.navActiveTextColor : colors.primaryContrastText,
-                backgroundColor: item.active ? colors.navActiveBgColor : undefined,
-                borderRadius: shapes.buttonRadius,
+                height: BOTTOM_TAB_HEIGHT,
+                backgroundColor: colors.primaryBgColor,
+                borderColor: colors.primaryBorderColor,
               }}
             >
-              <Icon name={item.iconName} size={20} />
-              <span className="truncate">{item.label}</span>
-            </button>
-          ))}
-        </nav>
-      )}
+              {items.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => guardedNavigate(item.href)}
+                  className="flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] transition-colors"
+                  style={{
+                    color: item.active ? colors.navActiveTextColor : colors.primaryContrastText,
+                    backgroundColor: item.active ? colors.navActiveBgColor : undefined,
+                    borderRadius: shapes.buttonRadius,
+                  }}
+                >
+                  <Icon name={item.iconName} size={20} />
+                  <span className="truncate">{item.label}</span>
+                </button>
+              ))}
+            </nav>
+          )}
+        </div>
 
-      <ThemeSettingsModal isOpen={themeOpen} onClose={() => setThemeOpen(false)} />
-    </div>
+        <ThemeSettingsModal isOpen={themeOpen} onClose={() => setThemeOpen(false)} />
+      </AppShellRoot>
     </SubHeaderSlotProvider>
   );
 }

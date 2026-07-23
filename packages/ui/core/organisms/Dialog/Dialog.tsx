@@ -17,6 +17,7 @@ import { Button } from '../../molecules/Button';
 import { Icon } from '../../atoms/Icon';
 import { Text } from '../../atoms/Text';
 import { useOperationLog } from '../../../infra/devtools';
+import { useBodyScrollLock } from '../../hooks/ui/useBodyScrollLock';
 
 
 export type DialogType = 'info' | 'warning' | 'error' | 'success' | 'danger';
@@ -110,6 +111,8 @@ export const Dialog: FC<DialogProps> = (props) => {
   const isConfirm = variant === 'confirm';
   const titleId = useId();
   const messageId = useId();
+
+  useBodyScrollLock(isOpen);
 
   // ダイアログの開閉をログ
   useEffect(() => {

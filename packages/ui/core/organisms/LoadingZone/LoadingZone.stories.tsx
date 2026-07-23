@@ -206,9 +206,30 @@ export const OverlayLoading: Story = {
       <LoadingZone
         variant="overlay"
         message="処理中です..."
-        iconName={'loading-orbit'}
+        preset="spinner"
         size={48}
-        color="text-indigo-600"
+      />
+    </div>
+  ),
+};
+
+export const SavingOverlay: Story = {
+  args: {},
+  render: () => (
+    <div
+      style={{ height: '400px', position: 'relative', background: '#f3f4f6' }}
+    >
+      <div className="p-8">
+        <h2 className="mb-4 text-fluid-xl font-bold">編集フォーム</h2>
+        <p>保存処理中は overlay で操作をブロックし、離脱しないよう案内します。</p>
+      </div>
+      <LoadingZone
+        variant="overlay"
+        loading
+        message="保存しています…"
+        description="ページを閉じたり、他のページに移動しないでください。"
+        preset="spinner"
+        size={48}
       />
     </div>
   ),

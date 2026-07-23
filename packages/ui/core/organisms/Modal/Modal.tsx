@@ -8,6 +8,7 @@ import { FocusTrap } from 'focus-trap-react';
 import { IconButton } from '../../molecules/IconButton';
 import { Text } from '../../atoms/Text';
 import { useOperationLog } from '../../../infra/devtools';
+import { useBodyScrollLock } from '../../hooks/ui/useBodyScrollLock';
 import styles from './Modal.module.scss';
 
 interface ModalProps {
@@ -42,6 +43,8 @@ export const Modal: FC<ModalProps> = ({
 }) => {
   const log = useOperationLog('Modal');
   const titleId = useId();
+
+  useBodyScrollLock(isOpen);
 
   useEffect(() => {
     if (isOpen) {
