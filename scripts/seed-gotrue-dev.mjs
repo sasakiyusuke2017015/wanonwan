@@ -2,7 +2,7 @@
 //
 // db:seed は public.users（gotrue_id 固定 UUID）だけを作るため、GoTrue 側の
 // auth.users を別途作らないとログインできない。本スクリプトは GoTrue admin API を
-// seed/csv/users.csv と同じ固定 UUID + email で叩き、db:seed と対で固定 5 ユーザを
+// seed/users/users.csv と同じ固定 UUID + email で叩き、db:seed と対で固定 5 ユーザを
 // ログインできる状態にする。ユーザー定義は users.csv を唯一のソースとし（二重管理を避ける）、
 // dev 固定パスワードだけ email→PW マップで本スクリプトが持つ（PW は CSV に置かない）。
 //
