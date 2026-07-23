@@ -3,9 +3,9 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | ui-catalog 上流の AppShell / Sidebar 基盤（Cookie 永続 + Cmd+B + SSR 対応）を取り込み、apps/web のシェルを Sidebar + TopBar 構成へ全面刷新する。あわせて上流の 46 ファイル修正（DropdownMenu の portal バグ修正含む）を同期 |
-| ステータス | 🟡 実装中 |
+| ステータス | 🟣 マージ承認待ち |
 | 前提 Plan | [ui-catalog 上流同期 第 1 弾](2026-07-16-2354-ui-catalog-upstream-sync.md) |
-| PR | |
+| PR | [#103](https://github.com/sasakiyusuke2017015/waoon/pull/103)（Phase A）/ [#104](https://github.com/sasakiyusuke2017015/waoon/pull/104)（Phase B） |
 | Review | [計画レビュー 1](../reviews/2026-07-23-1410-appshell-sidebar-adoption-review.md) / [計画レビュー 2](../reviews/2026-07-23-1435-appshell-sidebar-adoption-review2.md) / [計画レビュー 3](../reviews/2026-07-23-1500-appshell-sidebar-adoption-review3.md) / [コードレビュー Phase A](../reviews/2026-07-23-1505-appshell-sidebar-phase-a-code-review.md) / [コードレビュー Phase B](../reviews/2026-07-23-1540-appshell-sidebar-phase-b-code-review.md) |
 
 ブランチ: `feature/ui-catalog-sync-2`（Phase A）/ `feature/appshell-sidebar`（Phase B）
@@ -485,10 +485,12 @@ NixOS のため `nixpkgs` の `playwright-driver.browsers` を `PLAYWRIGHT_BROWS
 - [x] Plan 承認（笹木さん OK）
 - [x] Phase A: カタログ同期（16 置換 / 13 マージ / 新規部品採用 / registry 更新）
 - [x] Phase A: 検証（CI parity 10 タスク成功 / vitest 新規失敗ゼロ）→ コードレビュー APPROVE
-- [ ] Phase A: PR 作成・マージ
+- [x] Phase A: PR 作成（#103）
+- [ ] Phase A: マージ
 - [x] Phase B: テーマブリッジ + SSR 配線
 - [x] Phase B: Sidebar / TopBar / SubHeader 帯の構築と旧 chrome 撤去
 - [x] Phase B: 検証（CI parity 10 タスク成功 / vitest 新規失敗ゼロ）→ コードレビュー（BLOCKER 1 件反映済み）
-- [ ] Phase B: PR 作成・マージ
+- [x] Phase B: PR 作成（#104・base は #103 の stacked PR）
+- [ ] Phase B: マージ
 - [x] ブラウザ検証（Playwright / Chromium・20/20 PASS。第 1 弾の未了項目も消化）
 - [ ] マージ後検証（stg 等の別環境があれば）
