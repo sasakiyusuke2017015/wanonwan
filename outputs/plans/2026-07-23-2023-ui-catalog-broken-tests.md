@@ -102,13 +102,14 @@
 | 2026-07-23 | 13 件すべて「実装は正しい」と判断し、テスト / テスト環境を直す | testing.md は「テストではなく実装を直す（テスト自体が間違っているケースを除く）」だが、実測の結果 A は jest-dom の挙動変化、B は実装の意図的移行、C は jsdom の API 不在で、いずれも実装側に欠陥が無いことを確認した |
 | 2026-07-23 | `Toggle` はクラス名ではなく `data-size` 属性で検証する | 旧テストが見ていた `.w-8` 等の **Tailwind ユーティリティが SCSS Modules 移行で消滅した**ため。`Button` / `Input` / `TextArea` / `Segment` が既に `data-size` を持っており規約として整合する（※当初「クラス名がハッシュ化される」を理由に挙げたが、`vitest.config.ts` は `classNameStrategy: 'non-scoped'` でテスト内はリテラル解決されるため誤り。コードレビューで訂正） |
 | 2026-07-23 | `data-component` の命名ゆれ統一はスコープ外 | kebab-case が優勢だが PascalCase も数件あり、横断的な整合作業になる。1 箇所だけ変えると却って不統一が見えにくくなる |
+| 2026-07-23 | 残課題の `LoadingOverlay.accentBgColor` は API 修正ではなく**部品削除**で決着（別 PR） | 利用者ゼロ（barrel export と registry のみ）で、同役割は `PageLoading` が担っている。API を直すには上流部品の `Spinner` に `color` を足すか重複スピナーを抱えるかの二択で、どちらも負債が増える。evergreen 方針の「dead code は削除。必要になれば git log から拾える」に従った |
 
 ## 残課題
 
-- **`LoadingOverlay.accentBgColor` が `preset` 未指定時に黙って無視される**。既定値 `'#3b82f6'` を
-  持ちながら、`preset` 無しの `Spinner` 経路では参照されない（`Spinner` は `variant="info"` 固定）。
-  呼び出し側から見て「色を渡したのに効かない」不透明な API。旧テストが spinner の色を見ていたのは
-  この期待の名残と思われる。
+- ~~`LoadingOverlay.accentBgColor` が `preset` 未指定時に黙って無視される~~
+  → **決着済み**。調査の結果 `LoadingOverlay` は**利用者ゼロ**（barrel export と registry のみ）で、
+  同じ役割は `apps/web` の `PageLoading` が担っていた。API を直しても動作確認されないコードが
+  残るだけなので、[evergreen.md](../../.claude/rules/evergreen.md) に従い部品ごと削除した。
 - `packages/ui` に `test` script を足して **CI ゲートに載せる**件。今回で赤いベースラインが解消し
   「失敗 = 回帰」と即断できる状態になったため、ゲート化の前提は揃った。
 - `useInfiniteTimeline.scrollToDate` のスクロール座標算出の検証。jsdom は要素スクロールを

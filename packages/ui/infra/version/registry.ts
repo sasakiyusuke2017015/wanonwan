@@ -171,7 +171,6 @@ export const VERSION_REGISTRY = {
   Footer: '1.0.0',
   Header: '1.0.0',
   InteractiveTable: '1.0.0',
-  LoadingOverlay: '1.0.0',
   NavItem: '1.0.0',
   Segment: '1.0.0',
   SideNav: '1.0.0',
