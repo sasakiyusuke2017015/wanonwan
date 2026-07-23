@@ -24,7 +24,6 @@ export * from './ProfileMenu'
 // Feedback
 export * from './Toast'
 export * from './LoadingZone'
-export * from './LoadingOverlay'
 export * from './EmptyState'
 export * from './Confetti'
 
