@@ -26,38 +26,36 @@ describe('LoadingOverlay', () => {
     expect(screen.getByText('処理中です')).toBeInTheDocument();
   });
 
-  it('icon が指定された場合、Icon コンポーネントが表示される', () => {
+  it('preset が指定された場合、Icon コンポーネントが表示される', () => {
     const { container } = render(
-      <LoadingOverlay isVisible={true} icon={'spinner'} />
+      <LoadingOverlay isVisible={true} preset="spinner" />
     );
     // Icon コンポーネントは svg 要素
-    expect(container.querySelector('svg')).toBeInTheDocument();
+    expect(container.querySelector('svg[data-component="icon"]')).toBeInTheDocument();
   });
 
-  it('icon が未指定の場合、デフォルトのスピナーが表示される', () => {
+  it('preset が未指定の場合、デフォルトのスピナーが表示される', () => {
     const { container } = render(<LoadingOverlay isVisible={true} />);
     // デフォルトスピナーは animate-spin クラスを持つ div
     expect(container.querySelector('.animate-spin')).toBeInTheDocument();
   });
 
-  it('iconSize が適用される', () => {
+  it('iconSize が Icon のサイズに反映される', () => {
     const { container } = render(
-      <LoadingOverlay
-        isVisible={true}
-        icon={'spinner'}
-        iconSize={100}
-      />
+      <LoadingOverlay isVisible={true} preset="spinner" iconSize={100} />
     );
-    const svg = container.querySelector('svg');
-    expect(svg).toBeInTheDocument();
+    const svg = container.querySelector('svg[data-component="icon"]');
+    expect(svg).toHaveAttribute('width', '100');
   });
 
-  it('accentBgColor が適用される（スピナー）', () => {
+  it('accentBgColor が preset アイコンの色に適用される', () => {
+    // accentBgColor は preset 指定時の Icon の色。preset 未指定は Spinner にフォールバックし、
+    // その配色は Spinner の variant が持つ（accentBgColor は効かない）。
     const { container } = render(
-      <LoadingOverlay isVisible={true} accentBgColor="#ff0000" />
+      <LoadingOverlay isVisible={true} preset="spinner" accentBgColor="#ff0000" />
     );
-    const spinner = container.querySelector('.animate-spin');
-    expect(spinner).toHaveStyle({ borderColor: '#ff0000' });
+    const svg = container.querySelector('svg[data-component="icon"]');
+    expect(svg).toHaveStyle({ color: 'rgb(255, 0, 0)' });
   });
 
   it('minDisplayTime による最低表示時間が機能する', async () => {

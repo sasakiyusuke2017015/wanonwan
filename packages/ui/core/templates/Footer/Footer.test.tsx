@@ -63,6 +63,7 @@ describe('Footer（汎用）', () => {
       </Footer>
     );
     const footer = container.querySelector('footer');
-    expect(footer).toHaveStyle({ backgroundColor: 'red' });
+    // toHaveStyle は色キーワード ('red') を computed 値へ正規化しないため rgb() で比較する
+    expect(footer).toHaveStyle({ backgroundColor: 'rgb(255, 0, 0)' });
   });
 });

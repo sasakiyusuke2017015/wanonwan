@@ -34,3 +34,13 @@ if (typeof globalThis.IntersectionObserver === 'undefined') {
 if (typeof Element.prototype.scrollIntoView === 'undefined') {
   Element.prototype.scrollIntoView = vi.fn()
 }
+
+// Polyfill scrollTo / scrollBy for jsdom (jsdom は要素スクロールを実装しない)。
+// 呼び出せるようにするだけで座標は動かさない。mock にすると呼び出し履歴がテストファイル
+// 横断で溜まり誤用の元になるため、素の no-op にしておく。
+if (typeof Element.prototype.scrollTo === 'undefined') {
+  Element.prototype.scrollTo = () => {}
+}
+if (typeof Element.prototype.scrollBy === 'undefined') {
+  Element.prototype.scrollBy = () => {}
+}

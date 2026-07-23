@@ -27,7 +27,7 @@ describe('ToggleableSection', () => {
         <p>内容</p>
       </ToggleableSection>
     );
-    expect(container.querySelector('[data-component="toggleable-section"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-component="ToggleableSection"]')).toBeInTheDocument();
   });
 
   it('トグルボタンにaria-expanded属性が設定される', () => {
