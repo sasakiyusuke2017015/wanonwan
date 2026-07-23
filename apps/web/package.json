@@ -24,6 +24,7 @@
     "@ui-catalog/core": "workspace:*",
     "@waoon/auth": "workspace:*",
     "@waoon/domain": "workspace:*",
+    "@waoon/storage": "workspace:*",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "framer-motion": "^12.42.2",

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { objectKeyFor } from "./keys";
+import { objectKeyFor } from "./keys.ts";
 
 describe("objectKeyFor", () => {
   it("entity ごとの prefix + id + uuid でキーを組む", () => {

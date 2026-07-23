@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { S3Client } from "@aws-sdk/client-s3";
-import { presignPut, presignGet } from "./presign";
+import { presignPut, presignGet } from "./presign.ts";
 
 // presigning はローカル署名のみ（ネットワーク不要）。ダミー資格情報で URL 生成を検証する。
 const client = new S3Client({

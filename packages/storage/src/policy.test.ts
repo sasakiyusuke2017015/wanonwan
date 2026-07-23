@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isAllowedContentType, isWithinMaxSize, MAX_ATTACHMENT_BYTES } from "./policy";
+import { isAllowedContentType, isWithinMaxSize, MAX_ATTACHMENT_BYTES } from "./policy.ts";
 
 describe("isAllowedContentType", () => {
   it("allowlist の型を許可する", () => {

@@ -1,16 +1,21 @@
 {
-  "name": "@waoon/worker",
+  "name": "@waoon/storage",
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
-    "start": "node --env-file-if-exists=.env src/main.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
-    "@waoon/storage": "workspace:*",
-    "postgres": "^3.4.9"
+    "@aws-sdk/client-s3": "^3.1090.0",
+    "@aws-sdk/s3-request-presigner": "^3.1090.0",
+    "valibot": "^1.4.2"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",

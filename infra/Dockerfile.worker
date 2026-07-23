@@ -9,23 +9,25 @@ ENV PATH=$PNPM_HOME:$PATH
 RUN corepack enable
 WORKDIR /app
 
-# ---- deps: lockfile から依存解決 → worker を自己完結ディレクトリへ deploy ----
+# ---- deps: worker とその workspace 依存だけを解決 ----
 # frozen-lockfile は全 workspace の manifest を要求するため、全 package.json を先に copy。
 FROM base AS deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/web/package.json apps/web/
 COPY apps/worker/package.json apps/worker/
 COPY packages/ packages/
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --prod --filter "@waoon/worker..."
 COPY apps/worker apps/worker
-# pnpm v10 は injected でない workspace の deploy に --legacy が要る（外部依存のみなので問題ない）。
-RUN pnpm --filter @waoon/worker deploy --prod --legacy /app/deployed
 
-# ---- runner: self-contained な deployed のみ載せた最小イメージ ----
+# ---- runner: workspace 構造をそのまま載せた最小イメージ ----
+# `pnpm deploy` で自己完結ディレクトリへ畳まない: workspace package (@waoon/storage) が
+# node_modules 配下の実体としてコピーされると、Node が type-stripping を拒否する
+# (ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING)。symlink のまま運ぶと realpath が
+# packages/ 側に解決されるため、dev と同じく TS を直接実行できる。
 FROM base AS runner
 ENV NODE_ENV=production
 # 非 root（node イメージ同梱の node ユーザー）。
 USER node
-COPY --from=deps --chown=node:node /app/deployed ./
+COPY --from=deps --chown=node:node /app ./
 # worker は tsc build せず、Node の type-stripping で TS を直接実行する（dev の start と同一）。
-CMD ["node", "src/main.ts"]
+CMD ["node", "apps/worker/src/main.ts"]

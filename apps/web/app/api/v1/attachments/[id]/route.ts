@@ -2,9 +2,14 @@ import { NextResponse } from "next/server";
 import { withActiveUser } from "@/lib/auth/route";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
-import { storage, STORAGE_BUCKET } from "@/lib/storage/client";
-import { presignGet, deleteObject, headObject } from "@/lib/storage/presign";
-import { isAllowedContentType, isWithinMaxSize } from "@/lib/storage/policy";
+import {
+  deleteObject,
+  headObject,
+  isAllowedContentType,
+  isWithinMaxSize,
+  presignGet,
+} from "@waoon/storage";
+import { storageBucket, storageContext } from "@/lib/storage";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -17,7 +22,11 @@ export const GET = withActiveUser(async (_req, claims, { params }: Ctx) => {
       tx`select object_key as "objectKey" from public.attachments where id = ${Number(id)} and status = 200`,
   );
   if (!row) return NextResponse.json({ error: "not found" }, { status: 404 });
-  const downloadUrl = await presignGet(storage, STORAGE_BUCKET, (row as { objectKey: string }).objectKey);
+  const downloadUrl = await presignGet(
+    storageContext().signing,
+    storageBucket(),
+    (row as { objectKey: string }).objectKey,
+  );
   return NextResponse.json({ data: { downloadUrl } });
 });
 
@@ -47,7 +56,7 @@ export const PATCH = withActiveUser(async (_req, claims, { params }: Ctx) => {
   // 2) 実オブジェクトを検証。
   let head: { contentLength: number; contentType: string } | null;
   try {
-    head = await headObject(storage, STORAGE_BUCKET, target.objectKey);
+    head = await headObject(storageContext().internal, storageBucket(), target.objectKey);
   } catch (e) {
     console.error("headObject failed", e);
     return NextResponse.json({ error: "ストレージ確認に失敗しました" }, { status: 502 });
@@ -107,7 +116,11 @@ export const DELETE = withActiveUser(async (_req, claims, { params }: Ctx) => {
   if (!deleted[0]) return NextResponse.json({ error: "権限がありません" }, { status: 403 });
 
   try {
-    await deleteObject(storage, STORAGE_BUCKET, (seen as { objectKey: string }).objectKey);
+    await deleteObject(
+      storageContext().internal,
+      storageBucket(),
+      (seen as { objectKey: string }).objectKey,
+    );
   } catch (e) {
     console.error("storage object delete failed", e);
   }
