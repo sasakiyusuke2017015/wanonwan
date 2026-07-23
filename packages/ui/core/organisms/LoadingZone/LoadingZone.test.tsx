@@ -44,6 +44,25 @@ describe('LoadingZone', () => {
     expect(screen.getByText('処理中...')).toBeInTheDocument();
   });
 
+  it('variant="overlay" で description が message の下に表示される', () => {
+    render(
+      <LoadingZone
+        variant="overlay"
+        message="保存しています…"
+        description="ページを閉じたり、他のページに移動しないでください。"
+      />
+    );
+    expect(screen.getByText('保存しています…')).toBeInTheDocument();
+    expect(
+      screen.getByText('ページを閉じたり、他のページに移動しないでください。')
+    ).toBeInTheDocument();
+  });
+
+  it('overlay 以外では description を表示しない', () => {
+    render(<LoadingZone variant="simple" message="処理中..." description="補足文言" />);
+    expect(screen.queryByText('補足文言')).not.toBeInTheDocument();
+  });
+
   it('loading=true の場合、LoadingZone が表示される', () => {
     const { container } = render(
       <LoadingZone variant="simple" loading={true}>

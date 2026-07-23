@@ -30,11 +30,11 @@
 // Toolbar
 // -----------------------------------------------------------------------------
 .toolbar {
-  // ページスクロール時、TopBar (fixed, 高さ --topbar-h) の直下へ吸着させる。
+  // ページスクロール時、chrome (TopBar + その下の帯) の直下へ吸着させる。
   // 黒帯ヘッダ (.th) はさらにこの toolbar の真下に積むため、toolbar 実高を
   // --dt-toolbar-h として測って th の top に足し込む (useStickyToolbarOffset)。
   position: sticky;
-  top: var(--topbar-h, 0);
+  top: calc(var(--topbar-h, 0px) + var(--chrome-subheader-h, 0px));
   z-index: 3;
   display: flex;
   align-items: center;
@@ -384,11 +384,12 @@
 
 // ヘッダ列はダーク (既定): 濃色背景 + 反転文字。
 .th {
-  // ページスクロール時、TopBar (--topbar-h) + toolbar 実高 (--dt-toolbar-h) の直下へ吸着。
-  // toolbar が無いテーブルでは --dt-toolbar-h=0px なので TopBar 直下に吸着する。
+  // ページスクロール時、chrome (--topbar-h + --chrome-subheader-h) と toolbar 実高
+  // (--dt-toolbar-h) の直下へ吸着。toolbar を chrome 側の帯へ出す構成 (SubHeaderPortal) では
+  // --dt-toolbar-h=0px になり、代わりに帯の実高が --chrome-subheader-h に入る。
   // テーブル最下部までスクロールすると、sticky の制約矩形 (table) を抜けて一緒に流れる。
   position: sticky;
-  top: calc(var(--topbar-h, 0px) + var(--dt-toolbar-h, 0px));
+  top: calc(var(--topbar-h, 0px) + var(--chrome-subheader-h, 0px) + var(--dt-toolbar-h, 0px));
   padding: var(--spacing-1) var(--spacing-2);
   text-align: left;
   font-weight: var(--font-weight-medium);

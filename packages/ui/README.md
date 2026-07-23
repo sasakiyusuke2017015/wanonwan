@@ -58,7 +58,8 @@ ui-catalog/
 import { Button, Icon, Input } from '@ui-catalog/core/atoms'
 import { FormField, DatePicker } from '@ui-catalog/core/molecules'
 import { Modal, Dialog, Select } from '@ui-catalog/core/organisms'
-import { Header, AppShell } from '@ui-catalog/core/templates'
+import { Header, SubHeaderToolbar } from '@ui-catalog/core/templates'
+import { AppShellProvider, AppShellRoot } from '@ui-catalog/core/templates/AppShell'
 
 import { useDevice, useDisclosure } from '@ui-catalog/core/hooks'
 import { cn } from '@ui-catalog/core/utils'

@@ -130,27 +130,41 @@
         background: linear-gradient(rgb(255, 254, 252) 0%, var(--tab-surface) 60%);
         border-color: var(--color-border, var(--color-gray-200));
         border-bottom-color: var(--tab-surface);
+        // list 下罫線の隠し方: 高さ +1px / margin-bottom -2px で箱を罫線より 1px 深く
+        // パネル側へ沈め、罫線行をタブの「完全内側」に取り込む。下端をちょうど罫線に
+        // 揃える (34px / -1px) と、端数 DPR (OS 125% 等) やブラウザズームで下端の
+        // アンチエイリアスが半透明になり背後のグレーが 1 本透ける。1px 食い込ませれば
+        // AA 境界はパネルと同色クリームの上に落ちて不可視。外形 (margin box 33px) と
+        // 上端位置は他タブと変わらないので段差は出ない。
+        height: 35px;
+        margin-bottom: -2px;
         // 上端のアクセントバー + 左右に平等な box-shadow (同色アクセント)。
         box-shadow:
           inset 0 3px 0 0 var(--color-accent, var(--color-primary-500)),
           -5px 0 7px -4px color-mix(in srgb, var(--color-accent, var(--color-primary-500)) 35%, transparent),
           5px 0 7px -4px color-mix(in srgb, var(--color-accent, var(--color-primary-500)) 35%, transparent);
         // グローの blur は下方向にも 3px 滲んで本文との境目に影が侵入するため、
-        // タブ下端より下を clip で完全に切る (下 0)。左右は足 (±10px) とグロー、
-        // 上はグローを通すためマイナス inset で残す。タブ自身が margin-bottom -1px で
-        // list 下罫線に重なっているので、下 0 でも罫線は面色で覆われたまま切れない
-        // (拡大スクショで確認済み。-1px 残すと青帯が境目の下に 1px 見える)。
+        // タブ下端 (罫線 +1px) より下を clip で完全に切る。左右は足 (±10px) とグロー、
+        // 上はグローを通すためマイナス inset で残す。
         clip-path: inset(-8px -14px 0);
-        z-index: 4;
+        // 隣接タブ (z-index: 0) のディバイダ / hover ピルより上に出れば足りる。
+        // パネル内の DataTable sticky toolbar (z-index: 3) より下に保つこと —
+        // 上回ると toolbar 内 Tooltip (funnel の「フィルタを切り替える」等) が
+        // タブの面に埋もれる。
+        z-index: 1;
 
         // 下端の両脇に凹カーブの足。透明部分でバーが覗き、円弧(グレー)＋面色で繋ぐ。
+        // 高さ 11px = 円弧 10px + 最下 1px (タブ本体の沈み込みに合わせてパネル側へ
+        // 食い込む行。radial の半径 >10px 圏なので面色 = パネル同色で不可視。ここを
+        // 伸ばさないとタブ脇に回るグローの滲みがこの行で露出する)。円弧は上角起点の
+        // radial なので高さを変えても形は動かない。
         &::before,
         &::after {
           content: '';
           position: absolute;
           bottom: -1px;
           width: 10px;
-          height: 10px;
+          height: 11px;
           z-index: 3;
         }
         &::before {

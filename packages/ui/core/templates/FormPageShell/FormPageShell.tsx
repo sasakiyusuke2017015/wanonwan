@@ -18,10 +18,24 @@ export interface FormPageShellProps {
   status?: ReactNode
   /** ヘッダー右上のアイコンナビ（戻る / 対象ユーザー等）。必要なページだけ渡す。 */
   nav?: PageHeaderIconNavItem[]
+  /**
+   * ヘッダー右に置く任意のアクション要素（AdminPageHeader.actions へそのまま転送）。
+   * nav のアイコンナビで表現できない要素（Client Component のナビ、StatusPill との複合等）用。
+   * `nav` と同時指定した場合は headerActions が優先され、nav は描画しない。
+   */
+  headerActions?: ReactNode
+  /** ヘッダー帯を淡いグラデーション背景にする（AdminPageHeader へ転送。新規作成ページ用）。 */
+  gradient?: boolean
   /** 下部固定フッターのアクション（保存 / やめる等）。省略時はフッター自体を出さない（閲覧ページ用）。 */
   footer?: ReactNode
   /** フッター左に出す保存状態などのテキスト。 */
   footerStatus?: ReactNode
+  /**
+   * フォーム下に置く読み取り専用の関連情報ゾーン（RelatedSection 等）。
+   * children（編集フィールド）とは別スロットにすることで「保存対象はどこまでか」を
+   * ページ側の並べ方に依存せず分離する。
+   */
+  related?: ReactNode
   children: ReactNode
 }
 
@@ -30,8 +44,7 @@ export interface FormPageShellProps {
  *
  * AdminPageHeader（右上に PageHeaderIconNav）と StickyFormFooter を 1 つに合成し、
  * 「戻る導線は右上アイコン・保存は下部フッター」の外郭をページ側 1 部品で揃える。
- * AppShell のコンテンツ padding（p-6）を負マージンで打ち消して全幅帯を出す
- * （exams / courses のフォームと同じ手法）。
+ * コンテンツ領域の padding（p-6）を負マージンで打ち消して全幅帯を出す。
  *
  * Usage:
  * <FormPageShell
@@ -48,8 +61,11 @@ export const FormPageShell: FC<FormPageShellProps> = ({
   icon,
   status,
   nav,
+  headerActions,
+  gradient,
   footer,
   footerStatus,
+  related,
   children,
 }) => {
   return (
@@ -59,9 +75,16 @@ export const FormPageShell: FC<FormPageShellProps> = ({
         subtitle={subtitle}
         icon={icon}
         status={status}
-        actions={nav && nav.length > 0 ? <PageHeaderIconNav items={nav} /> : undefined}
+        gradient={gradient}
+        actions={
+          headerActions ??
+          (nav && nav.length > 0 ? <PageHeaderIconNav items={nav} /> : undefined)
+        }
       />
-      <div className="flex-1 p-6">{children}</div>
+      <div className="flex-1 p-6">
+        {children}
+        {related && <div className="mt-8">{related}</div>}
+      </div>
       {footer && <StickyFormFooter status={footerStatus}>{footer}</StickyFormFooter>}
     </div>
   )

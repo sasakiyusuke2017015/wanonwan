@@ -13,12 +13,12 @@ const meta: Meta<typeof SelectableList> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-type Course = { id: number; title: string; level: string }
+type Course = { id: number; title: string; level: number }
 
 const COURSES: Course[] = [
-  { id: 1, title: 'AIリテラシー入門', level: 'LV0' },
-  { id: 2, title: '生成AI活用ガイド', level: 'LV1' },
-  { id: 3, title: 'AIアプリ開発入門', level: 'LV2' },
+  { id: 1, title: 'AIリテラシー入門', level: 0 },
+  { id: 2, title: '生成AI活用ガイド', level: 1 },
+  { id: 3, title: 'AIアプリ開発入門', level: 2 },
 ]
 
 export const Default: Story = {

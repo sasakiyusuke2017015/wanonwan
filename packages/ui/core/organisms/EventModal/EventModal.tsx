@@ -15,6 +15,7 @@ import { DayOfWeekPicker } from '../../molecules/DayOfWeekPicker/DayOfWeekPicker
 import { IconPicker } from '../../molecules/IconPicker/IconPicker'
 import type { CalendarEvent, EventMode, DayOfWeek } from '../../types/calendar'
 import { resolveOriginalEvent } from '../../utils/calendar/repeatUtils'
+import { useBodyScrollLock } from '../../hooks/ui/useBodyScrollLock'
 
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
@@ -29,6 +30,10 @@ interface EventModalProps {
 
 export function EventModal({ persistEvent, removeEvent }: EventModalProps) {
   const [modal, setModal] = useAtom(eventModalAtom)
+
+  // パネルはクリック位置由来の viewport 座標に絶対配置されるため、背景がスクロールすると
+  // アンカー元のセルからずれる。early return より前に置いて開閉に追随させる。
+  useBodyScrollLock(modal.isOpen)
   const setActiveSlot = useSetAtom(activeSlotAtom)
   const allEvents = useAtomValue(eventsAtom)
   const titleRef = useRef<HTMLInputElement>(null)

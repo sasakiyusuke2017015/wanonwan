@@ -23,6 +23,11 @@ interface LoadingZoneProps {
   children?: React.ReactNode;
   height?: string;
   message?: string;
+  /**
+   * overlay variant で message の下に出す補足文言（小さめ・muted）。
+   * 「保存中はページを閉じない」等の操作抑止ガイドに使う。overlay 以外では表示しない。
+   */
+  description?: string;
   className?: string;
   /** ローディングプリセット */
   preset?: LoadingPreset;
@@ -45,6 +50,7 @@ export const LoadingZone: FC<LoadingZoneProps> = ({
   children,
   height = '100px',
   message = 'データを読み込み中...',
+  description,
   className = '',
   preset,
   size = 32,
@@ -310,7 +316,7 @@ export const LoadingZone: FC<LoadingZoneProps> = ({
             data-component="loading-zone"
             data-variant={variant}
           >
-            <div className="rounded-lg bg-white p-8 text-center shadow-xl">
+            <div className="max-w-sm rounded-lg bg-white p-8 text-center shadow-xl">
               <div className="mb-4 flex justify-center">
                 <Icon
                   preset={preset}
@@ -321,6 +327,9 @@ export const LoadingZone: FC<LoadingZoneProps> = ({
                 />
               </div>
               <p className="text-gray-700">{message}</p>
+              {description && (
+                <p className="mt-2 text-sm text-gray-500">{description}</p>
+              )}
             </div>
           </div>
         );

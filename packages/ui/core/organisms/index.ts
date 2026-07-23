@@ -60,9 +60,11 @@ export * from './PieChart'
 
 // Navigation
 export * from './SortableToggleList'
+export * from './SidebarAccountMenu'
 export * from './SidebarNav'
 export * from './FixedTabBar'
 export * from './SiteHeaderShell'
+export * from './SidebarShell'
 
 // Buttons
 export * from './KeyButton'

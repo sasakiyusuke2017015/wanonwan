@@ -263,7 +263,7 @@ describe('DataTable - mode="client" (default)', () => {
     // picker 内の "氏名" 行 (columnheader ではない方)
     const namePickerLabel = screen
       .getAllByText('氏名')
-      .find((el) => el.closest('[role="columnheader"]') === null)
+      .find((el) => el.closest('th') === null)
     expect(namePickerLabel).toBeDefined()
     const lockRow = namePickerLabel!.closest('div') as HTMLElement
     // 鍵アイコン (常に表示) を持ち、トグル/チェックボックスは持たない
@@ -291,7 +291,7 @@ describe('DataTable - mode="client" (default)', () => {
     // picker 内に操作行 (columnheader ではない "操作") が鍵バッジ付きで出る
     const opPickerLabel = screen
       .getAllByText('操作')
-      .find((el) => el.closest('[role="columnheader"]') === null)
+      .find((el) => el.closest('th') === null)
     expect(opPickerLabel).toBeDefined()
     const lockRow = opPickerLabel!.closest('div[draggable]') as HTMLElement
     // ロック行は切替コントロールを持たないが、並べ替え (ドラッグ) は可能

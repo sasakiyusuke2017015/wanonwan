@@ -1,8 +1,7 @@
 'use client'
 
 import { useRef, useState, useEffect, useCallback } from 'react'
-import { Icon } from '../../atoms/Icon'
-import type { IconName } from '../../constants'
+import { Icon, type AnyIconName } from '../../atoms/Icon'
 import styles from './SegmentedControl.module.scss'
 import { cn } from '../../utils'
 
@@ -10,7 +9,7 @@ export interface SegmentedControlOption<T extends string = string> {
   value: T
   label: string
   /** 任意。指定時はラベルの前にアイコンを表示 (showLabel=false なら icon のみ) */
-  icon?: IconName
+  icon?: AnyIconName
 }
 
 export interface SegmentedControlProps<T extends string = string> {
