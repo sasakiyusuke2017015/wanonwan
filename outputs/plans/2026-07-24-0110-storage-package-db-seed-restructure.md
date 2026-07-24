@@ -6,7 +6,7 @@
 | ステータス | 🟡 実装中 |
 | 前提 Plan | なし |
 | PR | |
-| Review | |
+| Review | [storage コードレビュー](../reviews/2026-07-24-1531-storage-package-review.md)（APPROVE） / [db-seed コードレビュー](../reviews/2026-07-24-1531-db-seed-layout-review.md)（APPROVE） |
 
 ## 目的
 
