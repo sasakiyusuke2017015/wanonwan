@@ -39,7 +39,7 @@ pnpm compose:dev:up
 `compose:dev:up` は次を順に実行する:
 
 1. `docker compose up -d --wait` — postgres + gotrue + minio を起動し healthy まで待つ
-2. `db:migrate` — スキーマ適用（冪等）
+2. `db:migrate` — スキーマ適用（空 DB は snapshot で高速初期化、既存は未適用 migration のみ増分。[packages/db/README.md](../packages/db/README.md)）
 3. `dev` — web を前面起動 → http://localhost:3000（端末を専有する）
 
 **端末 2 — 組織マスタ + ユーザを投入:**

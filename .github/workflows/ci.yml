@@ -37,6 +37,14 @@ jobs:
       - name: Build DB image
         run: pnpm compose:dev:build
 
+      # snapshot drift 検査: migrations を空 DB へ順次適用した結果 == コミット済み snapshot。
+      # migration を足して snapshot 再生成を忘れると差分が出て落ちる（snapshot は生成物）。
+      - name: Snapshot drift check
+        run: |
+          pnpm db:snapshot
+          git diff --exit-code -- packages/db/snapshot/schema.sql \
+            || { echo "::error::snapshot が migrations と不一致。pnpm db:snapshot を実行してコミットしてください"; exit 1; }
+
       - name: Start DB stack
         run: docker compose -f infra/docker-compose.yml up -d --wait
 
