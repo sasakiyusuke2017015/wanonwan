@@ -3,9 +3,9 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | web/worker で重複する S3Client を `@waoon/storage` へ集約し env を必須検証化。あわせて `packages/db/seed/` を master/users/demo に再編 |
-| ステータス | 🟡 実装中 |
+| ステータス | 🟣 マージ承認待ち |
 | 前提 Plan | なし |
-| PR | |
+| PR | [#107](https://github.com/sasakiyusuke2017015/waoon/pull/107)（storage） / [#108](https://github.com/sasakiyusuke2017015/waoon/pull/108)（db-seed） |
 | Review | [storage コードレビュー](../reviews/2026-07-24-1531-storage-package-review.md)（APPROVE） / [db-seed コードレビュー](../reviews/2026-07-24-1531-db-seed-layout-review.md)（APPROVE） |
 
 ## 目的
