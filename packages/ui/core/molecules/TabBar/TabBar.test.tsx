@@ -138,8 +138,11 @@ describe('TabBar', () => {
         activeColor="blue"
       />
     );
+    // 配色は SCSS が `--active` と `[data-color]` の AND で当てる。data-color は全タブに
+    // 付くので、アクティブ側の条件も併せて見ないと「アクティブに色が付く」検証にならない。
     const activeTab = screen.getByText('タブ1').closest('[role="tab"]');
-    expect(activeTab).toHaveClass('border-blue-500');
+    expect(activeTab).toHaveAttribute('data-color', 'blue');
+    expect(activeTab).toHaveClass('tabBar__tab--active');
   });
 
   it('maxLabelWidth が適用される', () => {

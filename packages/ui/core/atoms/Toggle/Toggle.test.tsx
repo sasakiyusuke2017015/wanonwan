@@ -61,21 +61,19 @@ describe('Toggle', () => {
     expect(toggle).toHaveAttribute('data-variant', 'primary');
   });
 
-  it('sizeがsmallの場合、小さいトグルが表示される', () => {
-    const { container } = render(<Toggle size="small" />);
-    const toggleContainer = container.querySelector('.w-8');
-    expect(toggleContainer).toBeInTheDocument();
+  // 寸法値そのものは SCSS Modules の責務なので、公開契約である data-size で検証する
+  // (Tailwind ユーティリティ前提の .w-8 等はスタイル移行で消滅している)
+  it.each(['small', 'medium', 'large'] as const)('size=%s が data-size に反映される', (size) => {
+    const { container } = render(<Toggle size={size} />);
+    expect(container.querySelector('[data-component="toggle"]')).toHaveAttribute('data-size', size);
   });
 
-  it('sizeがmediumの場合、中サイズのトグルが表示される', () => {
-    const { container } = render(<Toggle size="medium" />);
-    const toggleContainer = container.querySelector('.w-11');
-    expect(toggleContainer).toBeInTheDocument();
-  });
-
-  it('sizeがlargeの場合、大きいトグルが表示される', () => {
-    const { container } = render(<Toggle size="large" />);
-    const toggleContainer = container.querySelector('.w-14');
-    expect(toggleContainer).toBeInTheDocument();
+  // label の有無で data-size を付ける要素が変わるため、両方の分岐を通す
+  it('label 付きでも data-size が反映される', () => {
+    const { container } = render(<Toggle label="有効" size="large" />);
+    expect(container.querySelector('[data-component="toggle"]')).toHaveAttribute(
+      'data-size',
+      'large',
+    );
   });
 });

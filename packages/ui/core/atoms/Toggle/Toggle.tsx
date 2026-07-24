@@ -93,6 +93,7 @@ export const Toggle = forwardRef<HTMLInputElement, ToggleProps>(
           onMouseLeave={() => setIsHovered(false)}
           data-component="toggle"
           data-variant={variant}
+          data-size={size}
         >
           <span className={labelClasses}>{label}</span>
           <span className={toggleClasses} style={toggleStyle}>
@@ -119,6 +120,7 @@ export const Toggle = forwardRef<HTMLInputElement, ToggleProps>(
         onMouseLeave={() => setIsHovered(false)}
         data-component="toggle"
         data-variant={variant}
+        data-size={size}
       >
         <input
           ref={ref}
