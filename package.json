@@ -45,7 +45,8 @@
     "compose:prod:migrate": "node scripts/db-migrate.mjs --compose-file infra/docker-compose.prod.yml --env-file infra/.env.prod",
     "provision:dev": "node scripts/provision.mjs --dev --compose-file infra/docker-compose.yml",
     "provision:stg": "node scripts/provision.mjs --compose-file infra/docker-compose.stg.yml --env-file infra/.env.stg",
-    "provision:prod": "node scripts/provision.mjs --compose-file infra/docker-compose.prod.yml --env-file infra/.env.prod"
+    "provision:prod": "node scripts/provision.mjs --compose-file infra/docker-compose.prod.yml --env-file infra/.env.prod",
+    "db:snapshot": "node scripts/db-snapshot.mjs"
   },
   "devDependencies": {
     "csv-parse": "^7.0.1",
