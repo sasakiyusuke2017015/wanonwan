@@ -7,6 +7,9 @@
     "noEmit": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    // @waoon/storage は worker（node が .ts を直接実行）と共用するため、package 内の相対 import が
+    // 拡張子付き（./env.ts）になっている。web の型チェックはそのソースも辿るのでここでも許可する。
+    "allowImportingTsExtensions": true,
     // ベンダリングした ui-catalog(packages/ui) のソースを Next がトランスパイル時に
     // 型チェックする。ui は strict だが noUncheckedIndexedAccess は未使用のため、
     // apps/web 側でこのフラグを無効化して ui ソースの型エラーを避ける（自社 packages は base のまま厳格）。

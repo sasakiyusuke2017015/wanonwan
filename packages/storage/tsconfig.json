@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    // worker は Next のバンドルを介さず node が直接 .ts を実行するため、
+    // package 内の相対 import は拡張子付き（./env.ts）で書く必要がある。
+    "allowImportingTsExtensions": true,
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}

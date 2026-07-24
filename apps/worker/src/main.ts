@@ -2,12 +2,13 @@
 // 投入は DB トリガ（attachments の DELETE 時に bucket/object_key を enqueue）。
 // 失敗時は pgmq.delete しない → visibility timeout 後に再配信されるため at-least-once で安全。
 import postgres from "postgres";
-import { DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { createInternalStorageClient, deleteObject, parseStorageEnv } from "@waoon/storage";
 import { parseGcMessage } from "./gc.ts";
-import { storage } from "./storage.ts";
 import { config } from "./config.ts";
 
 const sql = postgres(config.databaseUrl);
+// worker は presign せず server-side の削除だけを行うため internal endpoint 側の client を使う。
+const storage = createInternalStorageClient(parseStorageEnv());
 
 // キューを 1 バッチ処理し、処理した件数を返す。
 async function tick(): Promise<number> {
@@ -26,7 +27,7 @@ async function tick(): Promise<number> {
       continue;
     }
     try {
-      await storage.send(new DeleteObjectCommand({ Bucket: target.bucket, Key: target.objectKey }));
+      await deleteObject(storage, target.bucket, target.objectKey);
       await sql`SELECT pgmq.delete(${config.queue}, ${row.msg_id}::bigint)`;
     } catch (e) {
       // 削除失敗は ack しない → visibility timeout 後に再試行される。

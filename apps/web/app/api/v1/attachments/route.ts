@@ -5,10 +5,8 @@ import { withActiveUser } from "@/lib/auth/route";
 import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
-import { storage, STORAGE_BUCKET } from "@/lib/storage/client";
-import { objectKeyFor } from "@/lib/storage/keys";
-import { ensureBucket, presignPut } from "@/lib/storage/presign";
-import { isAllowedContentType } from "@/lib/storage/policy";
+import { ensureBucket, isAllowedContentType, objectKeyFor, presignPut } from "@waoon/storage";
+import { storageBucket, storageContext } from "@/lib/storage";
 
 const ENTITY_TYPES = ["interview", "answer", "survey", "user_avatar"] as const;
 
@@ -32,6 +30,7 @@ export const POST = withActiveUser(async (req, claims) => {
   }
 
   const key = objectKeyFor(input.entityType, input.entityId, randomUUID());
+  const bucket = storageBucket();
 
   // アバターは pending を作るだけ（旧 avatar は upload 完了= complete 成功時に置き換える。
   // 作成時に消すと、新 upload を放棄したときに旧 avatar を失うため）。
@@ -42,7 +41,7 @@ export const POST = withActiveUser(async (req, claims) => {
         insert into public.attachments
           (entity_type, entity_id, bucket, object_key, filename, content_type, uploaded_by)
         values
-          (${input.entityType}, ${input.entityId}, ${STORAGE_BUCKET}, ${key},
+          (${input.entityType}, ${input.entityId}, ${bucket}, ${key},
            ${input.filename}, ${input.contentType}, app.uid())
         returning id
       `;
@@ -53,8 +52,10 @@ export const POST = withActiveUser(async (req, claims) => {
   const row = created[0];
   if (!row) return NextResponse.json({ error: "権限がありません" }, { status: 403 });
 
-  await ensureBucket(storage, STORAGE_BUCKET);
-  const uploadUrl = await presignPut(storage, STORAGE_BUCKET, key, input.contentType);
+  // bucket 作成は internal client（compose 内なら minio へ直結）、署名は公開 endpoint の client。
+  const { signing, internal } = storageContext();
+  await ensureBucket(internal, bucket);
+  const uploadUrl = await presignPut(signing, bucket, key, input.contentType);
   return NextResponse.json({ data: { id: row.id, objectKey: key, uploadUrl } }, { status: 201 });
 });
 

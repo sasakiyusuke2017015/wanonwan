@@ -79,6 +79,9 @@ services:
       # 添付（MinIO）。presigned URL は browser-reachable な公開ホストで署名する必要があるため
       # STORAGE_ENDPOINT は nginx 経由の storage サブドメイン（https://storage.<domain>）。
       STORAGE_ENDPOINT: ${STORAGE_ENDPOINT:?STORAGE_ENDPOINT required}
+      # server 側の実通信 (HeadObject / DeleteObject / bucket 作成) は compose 内の minio へ直結し、
+      # 公開ホスト (nginx) を往復させない。
+      STORAGE_INTERNAL_ENDPOINT: http://minio:9000
       STORAGE_ACCESS_KEY: ${MINIO_ROOT_USER:?MINIO_ROOT_USER required}
       STORAGE_SECRET_KEY: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD required}
       STORAGE_BUCKET: ${STORAGE_BUCKET:-waoon}
