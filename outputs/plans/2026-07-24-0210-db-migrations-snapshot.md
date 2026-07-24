@@ -3,7 +3,7 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | DDL を「migrations が真実・snapshot は生成物」体制へ。本番を止めずに更新でき、空 DB は snapshot で高速初期化 |
-| ステータス | 🟣 マージ承認待ち |
+| ステータス | 🟢 マージ済み（検証中） |
 | 前提 Plan | [storage/db-seed 再編](2026-07-24-0110-storage-package-db-seed-restructure.md)（スコープ外に切り出した migrations 方式の本体） |
 | PR | [#109](https://github.com/sasakiyusuke2017015/waoon/pull/109) |
 | Review | [2026-07-24-1146-...-review.md](../reviews/2026-07-24-1146-db-migrations-snapshot-review.md)（APPROVE） |
@@ -153,12 +153,13 @@ pnpm db:snapshot && git diff --exit-code packages/db/snapshot/schema.sql
 
 - [x] 計画確定
 - [x] 実装完了
-- [ ] レビュー完了 … → Review リンク
-- [ ] PR 作成 … → PR リンク
+- [x] レビュー完了 … → [コードレビュー](../reviews/2026-07-24-1146-db-migrations-snapshot-review.md)（APPROVE）
+- [x] PR 作成 … #109（マージ済み）
 - [ ] マージ後検証
   - [x] dev: fresh init が snapshot 高速パスで通る（1.1s / seed OK / pgTAP 9 通過）
   - [x] dev: ダミー 0002 の増分適用（down -v なし）
   - [x] dev: baseline 採用（tracker なし + 既存テーブル → 0001 を適用済み記録）
   - [x] snapshot 再生成が冪等（2 回生成が byte 一致）
-  - [ ] CI drift 検査が期待どおり落ちる／通る（PR で実走確認）
+  - [x] CI drift 検査が通る（#109 の CI で実走 pass）
+  - [x] dev: seed 再編（#108）と統合後の fresh init + snapshot drift 再確認（rebase 後）
   - [ ] stg: snapshot 初回 → 増分 migration の本番相当フロー実証

@@ -3,7 +3,7 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | web/worker で重複する S3Client を `@waoon/storage` へ集約し env を必須検証化。あわせて `packages/db/seed/` を master/users/demo に再編 |
-| ステータス | 🟣 マージ承認待ち |
+| ステータス | 🟢 マージ済み（検証中） |
 | 前提 Plan | なし |
 | PR | [#107](https://github.com/sasakiyusuke2017015/waoon/pull/107)（storage） / [#108](https://github.com/sasakiyusuke2017015/waoon/pull/108)（db-seed） |
 | Review | [storage コードレビュー](../reviews/2026-07-24-1531-storage-package-review.md)（APPROVE） / [db-seed コードレビュー](../reviews/2026-07-24-1531-db-seed-layout-review.md)（APPROVE） |
@@ -187,10 +187,11 @@ pnpm test:db
 
 - [x] 計画確定
 - [x] 実装完了（PR 1: storage）
-- [ ] 実装完了（PR 2: db/seed）
-- [ ] レビュー完了 … → Review リンク
-- [ ] PR 作成 … → PR リンク
+- [x] 実装完了（PR 2: db/seed）
+- [x] レビュー完了 … → [storage](../reviews/2026-07-24-1531-storage-package-review.md) / [db-seed](../reviews/2026-07-24-1531-db-seed-layout-review.md)（APPROVE）
+- [x] PR 作成 … #107 / #108（マージ済み）
 - [ ] マージ後検証
   - [ ] dev: 添付の presign / upload / download / 削除 → worker GC
-  - [ ] dev: fresh init（`compose:dev:down -v` → `up` → `db:migrate` → `db:seed`）
+  - [x] dev: fresh init（`compose:dev:down -v` → `up` → `db:migrate` → `db:seed` → pgTAP 9 通過）
+  - [x] dev: `seed:gotrue:dev` が dev ユーザ 5 名作成（新 seed レイアウトの回帰）
   - [ ] stg: 添付の up/down と worker GC（`STORAGE_INTERNAL_ENDPOINT` 経由になっていること）
