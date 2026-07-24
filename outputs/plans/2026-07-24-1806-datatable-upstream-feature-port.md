@@ -3,9 +3,9 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | ui-catalog 上流 DataTable の**機能**（テキスト/数値範囲/日付フィルタ・FilterField UI・`Column.sortValue`・`ClientQueryState.defaultSort`・行削除 disabled・`filterDefs.ts`）を waoon 版 DataTable へ手移植。SubHeaderToolbar 連携・DataCountDisplay/Pagination の catalog 化など waoon 独自の見た目は保持する |
-| ステータス | 🟡 実装中（コードレビュー APPROVE・PR 未作成） |
+| ステータス | 🟣 マージ承認待ち |
 | 前提 Plan | [ui-catalog 上流最新版の選択的マージ](2026-07-16-2354-ui-catalog-upstream-sync.md)（#97。DataTable は waoon 版優先と判断。本 Plan は機能面のみ上流へ寄せる後追い） |
-| PR | 未作成 |
+| PR | [#110](https://github.com/sasakiyusuke2017015/waoon/pull/110) |
 | Review | [コードレビュー](../reviews/2026-07-24-1848-datatable-upstream-feature-port-review.md) |
 
 ブランチ: `feature/datatable-upstream-feature-port`（develop 起点・未作成）
@@ -165,7 +165,7 @@ waoon 版へ手移植する。方針は「見た目は大きく変えず、機�
         #97 ベースラインの 13 失敗は解消済みで、本変更は新規失敗ゼロ。DataTable は 143 = 132 既存 + 11 新規）
   - [ ] dev スタックで admin 一覧の目視確認（未実施）
 - [x] コードレビュー（`/pr-review` → APPROVE。BLOCKER なし / NICE-TO-HAVE 3 件は下記残課題）
-- [ ] PR 作成（未実施・要確認）
+- [x] PR 作成（[#110](https://github.com/sasakiyusuke2017015/waoon/pull/110)）
 - [ ] 笹木さんマージ承認
 
 ## 残課題（NICE-TO-HAVE・後続タスク）
