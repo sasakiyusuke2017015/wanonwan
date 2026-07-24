@@ -6,7 +6,7 @@
 | ステータス | 🟡 実装中 |
 | 前提 Plan | [storage/db-seed 再編](2026-07-24-0110-storage-package-db-seed-restructure.md)（スコープ外に切り出した migrations 方式の本体） |
 | PR | |
-| Review | |
+| Review | [2026-07-24-1146-...-review.md](../reviews/2026-07-24-1146-db-migrations-snapshot-review.md)（APPROVE） |
 
 ## 目的
 
