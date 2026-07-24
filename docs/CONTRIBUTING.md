@@ -71,7 +71,7 @@ stg/prod はランダム PW + 初回変更強制で別管理（この表は dev 
 **seed ユーザー**（CI / RLS テスト兼デモ用。`pnpm db:seed` の後に `pnpm seed:gotrue:dev` で
 ログイン可能になる。**PW は全員 `Password1!` 固定**（一次ソース:
 [scripts/seed-gotrue-dev.mjs](../scripts/seed-gotrue-dev.mjs)）。メール名は pgTAP fixture が
-参照するため固定。権限は [packages/db/seed/csv/users.csv](../packages/db/seed/csv/users.csv) の roles 列:
+参照するため固定。権限は [packages/db/seed/users/users.csv](../packages/db/seed/users/users.csv) の roles 列:
 
 | email | 権限 | 備考 |
 |---|---|---|

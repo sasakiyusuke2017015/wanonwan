@@ -1,4 +1,4 @@
-// packages/db/seed/csv/*.csv を FK 依存順に postgres へ投入する（初回投入専用）。
+// packages/db/seed/{master,users,demo}/*.csv を FK 依存順に postgres へ投入する（初回投入専用）。
 //
 // 「初回投入専用」: 各対象テーブルは投入前に行数を確認し、非空ならスキップする。
 // CSV が真実の源になるのは空 DB の初回のみで、運用開始後（管理画面で編集・削除した後）の
@@ -23,7 +23,10 @@ import { parse } from "csv-parse/sync";
 import { parseEnvFile } from "./lib/env.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const csvDir = join(root, "packages", "db", "seed", "csv");
+// seed CSV は用途別に分かれている（詳細は packages/db/seed/README.md）。
+const seedDir = join(root, "packages", "db", "seed");
+const masterDir = join(seedDir, "master");
+const demoDir = join(seedDir, "demo");
 
 function flag(name) {
   const i = process.argv.indexOf(`--${name}`);
@@ -41,7 +44,7 @@ const composeFile = resolvePath(
 );
 const envFile = flag("env-file") ?? process.env.ENV_FILE;
 const service = flag("service") ?? process.env.PG_SERVICE ?? "postgres";
-const usersCsv = resolvePath(flag("users-csv") ?? join("packages", "db", "seed", "csv", "users.csv"));
+const usersCsv = resolvePath(flag("users-csv") ?? join("packages", "db", "seed", "users", "users.csv"));
 const seedUsers = !hasFlag("no-users");
 
 const fileEnv = envFile ? parseEnvFile(resolvePath(envFile)) : {};
@@ -249,7 +252,7 @@ function seedDemoTable(table, columns, build) {
     console.log(`• ${table}: 既存 ${existing} 行 → スキップ`);
     return 0;
   }
-  const rows = readCsv(join(csvDir, `${table}.csv`));
+  const rows = readCsv(join(demoDir, `${table}.csv`));
   for (const r of rows) {
     psql(`INSERT INTO public.${table} (${columns.join(", ")}) VALUES (${build(r).join(", ")});`);
   }
@@ -261,7 +264,7 @@ function seedDemo() {
   let n = 0;
 
   // 1) デモ回答者（gotrue_id NULL = ログイン不可の表示用レコード）。demo01 の有無で冪等判定。
-  const demoUsers = readCsv(join(csvDir, "demo_users.csv"));
+  const demoUsers = readCsv(join(demoDir, "demo_users.csv"));
   const exists = psql(`SELECT count(*) FROM public.users WHERE code = 'demo01';`, { capture: true }).trim();
   if (exists === "0") {
     for (const r of demoUsers) {
@@ -346,7 +349,7 @@ function seedDemo() {
 
 let total = 0;
 for (const def of MASTER_TABLES) {
-  const rows = readCsv(join(csvDir, `${def.table}.csv`));
+  const rows = readCsv(join(masterDir, `${def.table}.csv`));
   total += seedTable(def, rows);
 }
 if (seedUsers) {

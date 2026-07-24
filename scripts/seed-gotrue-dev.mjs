@@ -50,7 +50,7 @@ const DEV_PASSWORDS = {
 // users.csv（gotrue_id / email / name）から dev ユーザーを構築。gotrue_id を GoTrue 側 id に使う
 // ことで public.users（db:seed）と整合する。PW は DEV_PASSWORDS から引く（未定義なら失敗）。
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const usersCsvPath = join(root, "packages", "db", "seed", "csv", "users.csv");
+const usersCsvPath = join(root, "packages", "db", "seed", "users", "users.csv");
 const csvRows = parse(readFileSync(usersCsvPath, "utf8"), {
   columns: true,
   skip_empty_lines: true,
