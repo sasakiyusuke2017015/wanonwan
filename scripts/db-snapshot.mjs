@@ -111,6 +111,9 @@ function normalize(dump, migrations, queues) {
     // --exclude-schema=pgmq でも残る pgmq 実体テーブル/シーケンスの ACL 等を落とす
     // （pgmq は bootstrap の拡張 + 下記 pgmq.create で完結。ここに dump 由来行を残さない）。
     if (/pgmq\.(q_|a_)/.test(line) || /Schema: pgmq;/.test(line)) return false;
+    // COMMENT ON EXTENSION は拡張バージョンごとの説明文字列を含む。apt 版が僅かに変わると
+    // 本文と無関係にここだけ変化し drift 検査を誤検知させるため落とす（拡張の有無は本文で担保）。
+    if (/^COMMENT ON EXTENSION /.test(line)) return false;
     return true;
   });
 

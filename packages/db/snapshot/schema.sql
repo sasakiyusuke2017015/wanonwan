@@ -37,8 +37,6 @@ CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA pg_catalog;
 -- Name: EXTENSION pg_cron; Type: COMMENT; Schema: -; Owner: -
 --
 
-COMMENT ON EXTENSION pg_cron IS 'Job scheduler for PostgreSQL';
-
 --
 -- Name: pgmq; Type: EXTENSION; Schema: -; Owner: -
 --
@@ -48,8 +46,6 @@ CREATE EXTENSION IF NOT EXISTS pgmq WITH SCHEMA pgmq;
 --
 -- Name: EXTENSION pgmq; Type: COMMENT; Schema: -; Owner: -
 --
-
-COMMENT ON EXTENSION pgmq IS 'A lightweight message queue. Like AWS SQS and RSMQ but on Postgres.';
 
 --
 -- Name: pgtap; Type: EXTENSION; Schema: -; Owner: -
@@ -61,8 +57,6 @@ CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA public;
 -- Name: EXTENSION pgtap; Type: COMMENT; Schema: -; Owner: -
 --
 
-COMMENT ON EXTENSION pgtap IS 'Unit testing for PostgreSQL';
-
 --
 -- Name: vector; Type: EXTENSION; Schema: -; Owner: -
 --
@@ -72,8 +66,6 @@ CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA public;
 --
 -- Name: EXTENSION vector; Type: COMMENT; Schema: -; Owner: -
 --
-
-COMMENT ON EXTENSION vector IS 'vector data type and ivfflat and hnsw access methods';
 
 --
 -- Name: current_user_id(); Type: FUNCTION; Schema: app; Owner: -
