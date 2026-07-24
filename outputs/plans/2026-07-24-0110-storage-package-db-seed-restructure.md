@@ -191,7 +191,7 @@ pnpm test:db
 - [x] レビュー完了 … → [storage](../reviews/2026-07-24-1531-storage-package-review.md) / [db-seed](../reviews/2026-07-24-1531-db-seed-layout-review.md)（APPROVE）
 - [x] PR 作成 … #107 / #108（マージ済み）
 - [ ] マージ後検証
-  - [ ] dev: 添付の presign / upload / download / 削除 → worker GC
+  - [x] dev: 添付 GC 経路（MinIO put → attachments DELETE → トリガ enqueue → 実 worker ドレイン → DeleteObject → headObject=null / pgmq 残 0）
   - [x] dev: fresh init（`compose:dev:down -v` → `up` → `db:migrate` → `db:seed` → pgTAP 9 通過）
   - [x] dev: `seed:gotrue:dev` が dev ユーザ 5 名作成（新 seed レイアウトの回帰）
-  - [ ] stg: 添付の up/down と worker GC（`STORAGE_INTERNAL_ENDPOINT` 経由になっていること）
+  - [ ] stg: 添付の up/down と worker GC（`STORAGE_INTERNAL_ENDPOINT` 経由）… 稼働中 stg 環境が必要。CD deploy 再開時に実施
