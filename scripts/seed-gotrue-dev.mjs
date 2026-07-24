@@ -2,7 +2,7 @@
 //
 // db:seed は public.users（gotrue_id 固定 UUID）だけを作るため、GoTrue 側の
 // auth.users を別途作らないとログインできない。本スクリプトは GoTrue admin API を
-// seed/users/users.csv と同じ固定 UUID + email で叩き、db:seed と対で固定 5 ユーザを
+// seed/csv/users.csv と同じ固定 UUID + email で叩き、db:seed と対で固定 5 ユーザを
 // ログインできる状態にする。ユーザー定義は users.csv を唯一のソースとし（二重管理を避ける）、
 // dev 固定パスワードだけ email→PW マップで本スクリプトが持つ（PW は CSV に置かない）。
 //
@@ -50,7 +50,7 @@ const DEV_PASSWORDS = {
 // users.csv（gotrue_id / email / name）から dev ユーザーを構築。gotrue_id を GoTrue 側 id に使う
 // ことで public.users（db:seed）と整合する。PW は DEV_PASSWORDS から引く（未定義なら失敗）。
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const usersCsvPath = join(root, "packages", "db", "seed", "csv", "users.csv");
+const usersCsvPath = join(root, "packages", "db", "seed", "users", "users.csv");
 const csvRows = parse(readFileSync(usersCsvPath, "utf8"), {
   columns: true,
   skip_empty_lines: true,
