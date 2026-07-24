@@ -3,9 +3,9 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | DDL を「migrations が真実・snapshot は生成物」体制へ。本番を止めずに更新でき、空 DB は snapshot で高速初期化 |
-| ステータス | 🟡 実装中 |
+| ステータス | 🟣 マージ承認待ち |
 | 前提 Plan | [storage/db-seed 再編](2026-07-24-0110-storage-package-db-seed-restructure.md)（スコープ外に切り出した migrations 方式の本体） |
-| PR | |
+| PR | [#109](https://github.com/sasakiyusuke2017015/waoon/pull/109) |
 | Review | [2026-07-24-1146-...-review.md](../reviews/2026-07-24-1146-db-migrations-snapshot-review.md)（APPROVE） |
 
 ## 目的
