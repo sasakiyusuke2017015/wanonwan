@@ -395,8 +395,10 @@ describe('DataTable - filter ↔ 列表示の連動 (columnKey)', () => {
         filters={[filter]}
       />,
     )
-    // 列は隠れていても、絞り込み中の filter は入力が残る (適用中の状態が見える)
-    expect(screen.getByText('ステータス絞込: 1件')).toBeInTheDocument()
+    // 列は隠れていても、絞り込み中の filter は入力が残る (適用中の状態が見える)。
+    // FilterField カード化後は、値ありで残った filter のラベルが描画されることで確認する
+    // (値が空だと visibleFilters から外れ、このラベルごと消える)。
+    expect(screen.getByText('ステータス絞込')).toBeInTheDocument()
   })
 
   it('値を空にすると、対応列が非表示の filter は入力も隠れる', () => {
@@ -1666,5 +1668,284 @@ describe('DataTable - onFilteredCountChange (絞り込み後件数の通知)', (
       target: { value: '田中' },
     })
     expect(onFilteredCountChange).toHaveBeenLastCalledWith(1, 3)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// 上流由来のフィルタ 3 種 (text / numberRange / date)。client モードでの絞り込みを検証する。
+// ---------------------------------------------------------------------------
+describe('DataTable - filter types (text / numberRange / date, client)', () => {
+  it('text フィルタ: 対象フィールドの部分一致で絞り込む', () => {
+    render(
+      <DataTable
+        columns={columns}
+        rows={rows}
+        showSearch={false}
+        filters={[{ key: 'name', label: '氏名絞込', type: 'text', value: '田中', onChange: vi.fn() }]}
+      />,
+    )
+    expect(screen.getByText('田中 太郎')).toBeInTheDocument()
+    expect(screen.queryByText('佐藤 花子')).toBeNull()
+    expect(screen.queryByText('鈴木 一郎')).toBeNull()
+  })
+
+  it('text フィルタ: 空文字は未適用 (全行表示)', () => {
+    render(
+      <DataTable
+        columns={columns}
+        rows={rows}
+        showSearch={false}
+        filters={[{ key: 'name', label: '氏名絞込', type: 'text', value: '', onChange: vi.fn() }]}
+      />,
+    )
+    expect(screen.getByText('田中 太郎')).toBeInTheDocument()
+    expect(screen.getByText('佐藤 花子')).toBeInTheDocument()
+    expect(screen.getByText('鈴木 一郎')).toBeInTheDocument()
+  })
+
+  it('numberRange フィルタ: min <= 値 <= max の行だけ残す', () => {
+    render(
+      <DataTable
+        columns={columns}
+        rows={rows}
+        showSearch={false}
+        filters={[
+          {
+            key: 'score',
+            label: 'スコア',
+            type: 'numberRange',
+            value: [4, 5],
+            onChange: vi.fn(),
+            min: 0,
+            max: 5,
+          },
+        ]}
+      />,
+    )
+    // 田中 (4.5) / 鈴木 (5.0) は範囲内、佐藤 (3.2) は範囲外
+    expect(screen.getByText('田中 太郎')).toBeInTheDocument()
+    expect(screen.getByText('鈴木 一郎')).toBeInTheDocument()
+    expect(screen.queryByText('佐藤 花子')).toBeNull()
+  })
+
+  it('numberRange フィルタ: value=null は未適用 (全行表示)', () => {
+    render(
+      <DataTable
+        columns={columns}
+        rows={rows}
+        showSearch={false}
+        filters={[
+          { key: 'score', label: 'スコア', type: 'numberRange', value: null, onChange: vi.fn() },
+        ]}
+      />,
+    )
+    expect(screen.getAllByText(/太郎|花子|一郎/)).toHaveLength(3)
+  })
+
+  it('date フィルタ: ISO 文字列の date-only 前方一致で絞り込む', () => {
+    interface DateRow {
+      id: string
+      name: string
+      createdAt: string
+    }
+    const dateRows: DateRow[] = [
+      { id: 'a', name: 'A', createdAt: '2026-07-24T09:00:00Z' },
+      { id: 'b', name: 'B', createdAt: '2026-07-25T10:00:00Z' },
+    ]
+    const dateCols: Column<DateRow>[] = [
+      { key: 'name', label: '名前' },
+      { key: 'createdAt', label: '作成日' },
+    ]
+    render(
+      <DataTable
+        columns={dateCols}
+        rows={dateRows}
+        getRowKey={(r) => r.id}
+        showSearch={false}
+        filters={[
+          { key: 'createdAt', label: '作成日', type: 'date', value: '2026-07-24', onChange: vi.fn() },
+        ]}
+      />,
+    )
+    expect(screen.getByText('A')).toBeInTheDocument()
+    expect(screen.queryByText('B')).toBeNull()
+  })
+
+  it('適用中の text / numberRange / date filter はチップ要約に出る', () => {
+    // チップ要約は collapsible の summary 行にのみ出る (非 collapsible は入力自体が状態を示す)。
+    render(
+      <DataTable
+        columns={columns}
+        rows={rows}
+        showSearch={false}
+        collapsible
+        filters={[
+          { key: 'name', label: '氏名', type: 'text', value: '田中', onChange: vi.fn() },
+          {
+            key: 'score',
+            label: 'スコア',
+            type: 'numberRange',
+            value: [4, 5],
+            onChange: vi.fn(),
+            min: 0,
+            max: 5,
+          },
+        ]}
+      />,
+    )
+    expect(screen.getByText('氏名: "田中"')).toBeInTheDocument()
+    expect(screen.getByText('スコア: 4〜5')).toBeInTheDocument()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Column.sortValue: 行から派生した比較キーでソートする (row[key] を直接使わない列)。
+// ---------------------------------------------------------------------------
+describe('DataTable - Column.sortValue (client)', () => {
+  interface RoleRow {
+    id: string
+    name: string
+    roleCodes: number[]
+  }
+  const roleRows: RoleRow[] = [
+    { id: 'r1', name: 'Alice', roleCodes: [1, 2] }, // max 2
+    { id: 'r2', name: 'Bob', roleCodes: [9] }, // max 9
+    { id: 'r3', name: 'Carol', roleCodes: [1, 5] }, // max 5
+  ]
+
+  it('sortValue が返す数値でソートする (配列列を代表値で並べる)', () => {
+    const roleCols: Column<RoleRow>[] = [
+      { key: 'name', label: '名前' },
+      {
+        key: 'roleCodes',
+        label: '最高権限',
+        sortable: true,
+        sortValue: (r) => Math.max(...r.roleCodes),
+        render: (r) => Math.max(...r.roleCodes),
+      },
+    ]
+    const { container } = render(
+      <DataTable columns={roleCols} rows={roleRows} getRowKey={(r) => r.id} showSearch={false} />,
+    )
+    const header = screen.getByText('最高権限').closest('th')!
+    // asc: Alice(2) → Carol(5) → Bob(9)
+    fireEvent.click(header)
+    let cells = container.querySelectorAll('tbody tr td:first-child')
+    expect(cells[0]).toHaveTextContent('Alice')
+    expect(cells[1]).toHaveTextContent('Carol')
+    expect(cells[2]).toHaveTextContent('Bob')
+    // desc
+    fireEvent.click(header)
+    cells = container.querySelectorAll('tbody tr td:first-child')
+    expect(cells[0]).toHaveTextContent('Bob')
+    expect(cells[2]).toHaveTextContent('Alice')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// ClientQueryState.defaultSort: 既定ソート状態から既定外列をクリックすると
+// 既定を第1キーに引きずらず単一ソートへ切り替える (controlled モード)。
+// ---------------------------------------------------------------------------
+describe('DataTable - ClientQueryState.defaultSort (client, controlled)', () => {
+  const sortableCols: Column<Row>[] = [
+    { key: 'name', label: '氏名', sortable: true },
+    { key: 'score', label: 'スコア', sortable: true, align: 'right' },
+  ]
+
+  it('既定ソート状態から既定外列クリックで、その列の単一ソートへ切替える', () => {
+    const onSortItemsChange = vi.fn()
+    const defaultSort = [{ columnKey: 'name', order: 'asc' as const }]
+    render(
+      <DataTable
+        columns={sortableCols}
+        rows={rows}
+        getRowKey={(r) => r.id}
+        showSearch={false}
+        queryState={{
+          sortItems: defaultSort,
+          defaultSort,
+          onSortItemsChange,
+          search: '',
+          onSearchChange: vi.fn(),
+          page: 0,
+          onPageChange: vi.fn(),
+          pageSize: 20,
+          onPageSizeChange: vi.fn(),
+        }}
+      />,
+    )
+    fireEvent.click(screen.getByText('スコア').closest('th')!)
+    // 既定 (name) を第1キーに残さず、score 単一に切替える
+    expect(onSortItemsChange).toHaveBeenCalledWith([{ columnKey: 'score', order: 'asc' }])
+  })
+
+  it('既定列自身のクリックは通常トグル (asc → desc)', () => {
+    const onSortItemsChange = vi.fn()
+    const defaultSort = [{ columnKey: 'name', order: 'asc' as const }]
+    render(
+      <DataTable
+        columns={sortableCols}
+        rows={rows}
+        getRowKey={(r) => r.id}
+        showSearch={false}
+        queryState={{
+          sortItems: defaultSort,
+          defaultSort,
+          onSortItemsChange,
+          search: '',
+          onSearchChange: vi.fn(),
+          page: 0,
+          onPageChange: vi.fn(),
+          pageSize: 20,
+          onPageSizeChange: vi.fn(),
+        }}
+      />,
+    )
+    fireEvent.click(screen.getByText('氏名').closest('th')!)
+    expect(onSortItemsChange).toHaveBeenCalledWith([{ columnKey: 'name', order: 'desc' }])
+  })
+})
+
+// ---------------------------------------------------------------------------
+// rowActions delete の disabled / disabledReason: 押す前に不可と分かる行は無効化し確認を出さない。
+// ---------------------------------------------------------------------------
+describe('DataTable - rowActions delete disabled', () => {
+  it('disabled=true の行は削除ボタンが無効化され、クリックしても確認ダイアログを開かない', () => {
+    const onDelete = vi.fn()
+    const actions: RowActionDef<Row>[] = [
+      {
+        type: 'delete',
+        onDelete,
+        confirmMessage: () => 'この項目を削除しますか',
+        disabled: (r) => r.status === 'active',
+        disabledReason: () => '使用中のため削除できません',
+      },
+    ]
+    render(<DataTable columns={columns} rows={rows} rowActions={actions} />)
+    // active 行 (田中 / 鈴木) は理由付きで無効化、inactive 行 (佐藤) は通常の削除ボタン
+    const disabledBtns = screen.getAllByRole('button', { name: '使用中のため削除できません' })
+    expect(disabledBtns).toHaveLength(2)
+    disabledBtns.forEach((b) => expect(b).toBeDisabled())
+
+    fireEvent.click(disabledBtns[0])
+    expect(screen.queryByText('この項目を削除しますか')).toBeNull()
+    expect(onDelete).not.toHaveBeenCalled()
+  })
+
+  it('disabled=false の行は通常どおり確認ダイアログを開ける', () => {
+    const actions: RowActionDef<Row>[] = [
+      {
+        type: 'delete',
+        onDelete: vi.fn(),
+        confirmMessage: () => 'この項目を削除しますか',
+        disabled: (r) => r.status === 'active',
+        disabledReason: () => '使用中のため削除できません',
+      },
+    ]
+    render(<DataTable columns={columns} rows={rows} rowActions={actions} />)
+    const deletableBtn = screen.getByRole('button', { name: '削除' })
+    expect(deletableBtn).not.toBeDisabled()
+    fireEvent.click(deletableBtn)
+    expect(screen.getByText('この項目を削除しますか')).toBeInTheDocument()
   })
 })

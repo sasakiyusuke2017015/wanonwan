@@ -3,12 +3,15 @@
 import { useState } from 'react'
 
 import { Icon } from '../../atoms/Icon'
+import { Tooltip } from '../../atoms/Tooltip'
 import { isModifiedClick } from '../../utils'
 import { ConfirmDialog } from '../ConfirmDialog'
 import type { RowActionDef } from './types'
 
-function iconBtnClassName(danger?: boolean): string {
-  return `grid h-8 w-8 place-items-center rounded-md border border-transparent transition-colors ${
+function iconBtnClassName(danger?: boolean, disabled?: boolean): string {
+  const base = 'grid h-8 w-8 place-items-center rounded-md border border-transparent transition-colors'
+  if (disabled) return `${base} cursor-not-allowed text-muted-foreground/40`
+  return `${base} ${
     danger
       ? 'text-muted-foreground hover:border-red-200 hover:bg-red-50 hover:text-red-600'
       : 'text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground'
@@ -21,6 +24,7 @@ function IconBtn({
   danger,
   onClick,
   href,
+  disabled,
 }: {
   icon: React.ReactNode
   label: string
@@ -31,34 +35,42 @@ function IconBtn({
    * 通常クリックは preventDefault して `onClick` (= app の SPA 遷移) を呼ぶ。
    */
   href?: string
+  /** 押下不可。href より優先し、`<button disabled>` として描画する。 */
+  disabled?: boolean
 }) {
-  if (href) {
+  // 機能名は native title でなく Tooltip atom で出す (見た目統一 + focus でも表示)。
+  // 上に出すと 1 行目でヘッダー行に被るため、行の高さ内に収まる left (アイコン左横)。
+  // disabled でも wrapper の :hover は効くため、削除不可の理由 tooltip も出る。
+  if (href && !disabled) {
     return (
-      <a
-        href={href}
-        title={label}
-        aria-label={label}
-        onClick={(e) => {
-          if (isModifiedClick(e)) return // 別タブ等はブラウザに委ねる
-          e.preventDefault()
-          onClick()
-        }}
-        className={iconBtnClassName(danger)}
-      >
-        {icon}
-      </a>
+      <Tooltip content={label} position="left">
+        <a
+          href={href}
+          aria-label={label}
+          onClick={(e) => {
+            if (isModifiedClick(e)) return // 別タブ等はブラウザに委ねる
+            e.preventDefault()
+            onClick()
+          }}
+          className={iconBtnClassName(danger)}
+        >
+          {icon}
+        </a>
+      </Tooltip>
     )
   }
   return (
-    <button
-      type="button"
-      title={label}
-      aria-label={label}
-      onClick={onClick}
-      className={iconBtnClassName(danger)}
-    >
-      {icon}
-    </button>
+    <Tooltip content={label} position="left">
+      <button
+        type="button"
+        aria-label={label}
+        disabled={disabled}
+        onClick={disabled ? undefined : onClick}
+        className={iconBtnClassName(danger, disabled)}
+      >
+        {icon}
+      </button>
+    </Tooltip>
   )
 }
 
@@ -131,16 +143,20 @@ export function RowActionsCell<TRow>({
                 onClick={() => action.onClick(row)}
               />
             )
-          if (action.type === 'delete')
+          if (action.type === 'delete') {
+            const disabled = action.disabled?.(row) ?? false
+            const reason = disabled ? action.disabledReason?.(row) : undefined
             return (
               <IconBtn
                 key="delete"
                 icon={<Icon name="trash" size={15} />}
-                label={action.label ?? '削除'}
-                danger
+                label={reason ?? action.label ?? '削除'}
+                danger={!disabled}
+                disabled={disabled}
                 onClick={() => setDeleteOpen(true)}
               />
             )
+          }
           // toggle — 有効/無効の状態に応じて icon / label / danger を catalog 側で出し分ける。
           if (action.type === 'toggle') {
             const isActive = action.active(row)

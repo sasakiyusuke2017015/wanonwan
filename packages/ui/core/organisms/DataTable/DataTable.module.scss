@@ -96,12 +96,24 @@
   min-width: 0;
 }
 
-// 折りたたみ対象の入力行 (検索 + filter select 群)。
+// 折りたたみ対象の入力行 (検索カード + FilterField カード群)。
 .toolbarInputs {
   display: flex;
-  align-items: center;
+  // 行内のカードは stretch で高さを統一する (がたつき防止)。フィルタが並ぶときは
+  // 検索も同じカードで描画されるため、全項目が同じ外形になる。
+  align-items: stretch;
   gap: var(--spacing-2);
   flex-wrap: wrap;
+}
+
+// フィルタ 1 つ分の FilterField カード。幅はカード側でなく Toolbar が決める。
+.toolbarFilterCard {
+  width: 10rem;
+}
+
+// 検索カードはキーワードが読める分だけ広めに取る。
+.toolbarSearchCard {
+  width: 14rem;
 }
 
 // 適用中フィルタのチップ群。

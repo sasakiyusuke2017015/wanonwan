@@ -9,6 +9,7 @@ import { cn } from '../../utils/cn'
 import { ColumnPicker } from './ColumnPicker'
 import { resolveVisibleColumns } from './columnVisibility'
 import { DataTableContent, resolveEmptyMessage } from './DataTableContent'
+import { filterHasValue } from './filterDefs'
 import { RowActionsCell, resolveDefaultRowActionHandler } from './RowActions'
 import { Toolbar } from './Toolbar'
 import { ROW_ACTIONS_KEY } from './types'
@@ -25,6 +26,13 @@ const PAGE_SIZE_OPTIONS = [20, 50, 100, 200, 500, 1000]
 type SetState<T> = T | ((prev: T) => T)
 function resolveUpdater<T>(next: SetState<T>, prev: T): T {
   return typeof next === 'function' ? (next as (prev: T) => T)(prev) : next
+}
+
+function sameSortItems(a: ServerSortItem[], b: ServerSortItem[]): boolean {
+  return (
+    a.length === b.length &&
+    a.every((s, i) => s.columnKey === b[i].columnKey && s.order === b[i].order)
+  )
 }
 
 function cellTextValue<TRow>(column: Column<TRow>, row: TRow): string {
@@ -99,6 +107,7 @@ export function ClientDataTable<TRow>({
 
   const controlledQuery = queryState != null
   const sortItems = controlledQuery ? queryState.sortItems : internalSortItems
+  const defaultSort = controlledQuery ? queryState.defaultSort : undefined
   const filterText = controlledQuery ? queryState.search : internalFilterText
   const page = controlledQuery ? queryState.page : internalPage
   const pageSize = controlledQuery ? queryState.pageSize : internalPageSize
@@ -200,6 +209,42 @@ export function ClientDataTable<TRow>({
     }
     if (filters) {
       for (const f of filters) {
+        switch (f.type) {
+          case 'text': {
+            const q = f.value.trim().toLowerCase()
+            if (!q) continue
+            // テキスト: 行の値集合のどれかに小文字部分一致すれば一致
+            result = result.filter((row) =>
+              rowFilterValues(row, f.key).some((v) => v.toLowerCase().includes(q)),
+            )
+            continue
+          }
+          case 'numberRange': {
+            if (f.value === null) continue
+            const [lo, hi] = f.value
+            // 数値範囲: 数値化できる値が min <= v <= max なら一致
+            result = result.filter((row) =>
+              rowFilterValues(row, f.key).some((v) => {
+                // Number(' ') === 0 で空白値が範囲 0 に一致してしまうため trim で弾く
+                if (v.trim() === '') return false
+                const n = Number(v)
+                return Number.isFinite(n) && n >= lo && n <= hi
+              }),
+            )
+            continue
+          }
+          case 'date': {
+            const d = f.value.trim()
+            if (!d) continue
+            // 日付: ISO 文字列 (timestamp 含む) の date-only 前方一致
+            result = result.filter((row) =>
+              rowFilterValues(row, f.key).some((v) => v.startsWith(d)),
+            )
+            continue
+          }
+          default:
+            break
+        }
         if (f.multiple) {
           if (f.value.length === 0) continue
           // 複数選択: 行の値集合と選択値集合が 1 つでも交われば一致 (配列列にも対応)
@@ -225,15 +270,23 @@ export function ClientDataTable<TRow>({
       for (const { columnKey, order } of sortItems) {
         const sortCol = visibleColsResolved.find((c) => c.key === columnKey)
         if (!sortCol) continue
-        const av = cellTextValue(sortCol, a)
-        const bv = cellTextValue(sortCol, b)
-        const an = Number(av)
-        const bn = Number(bv)
+        // sortValue があれば派生キーで比較 (数値は数値比較、文字列は ja localeCompare)。
+        // 省略時は従来どおりセル文字列を数値優先で比較する。
+        const rawA = sortCol.sortValue ? sortCol.sortValue(a) : cellTextValue(sortCol, a)
+        const rawB = sortCol.sortValue ? sortCol.sortValue(b) : cellTextValue(sortCol, b)
         let cmp: number
-        if (!Number.isNaN(an) && !Number.isNaN(bn) && av !== '' && bv !== '') {
-          cmp = an - bn
+        if (typeof rawA === 'number' && typeof rawB === 'number') {
+          cmp = rawA - rawB
         } else {
-          cmp = av.localeCompare(bv, 'ja')
+          const av = String(rawA)
+          const bv = String(rawB)
+          const an = Number(av)
+          const bn = Number(bv)
+          if (!Number.isNaN(an) && !Number.isNaN(bn) && av !== '' && bv !== '') {
+            cmp = an - bn
+          } else {
+            cmp = av.localeCompare(bv, 'ja')
+          }
         }
         if (cmp !== 0) return order === 'asc' ? cmp : -cmp
       }
@@ -259,7 +312,19 @@ export function ClientDataTable<TRow>({
   // 開いたとき、マウント直後の setPage(0) が page を 1 ページ目へ潰してしまうため
   // (uncontrolled は初期 page=0 なので無害だが、controlled 固有の退行になる)。
   const filterValuesKey = filters
-    ? filters.map((f) => `${f.key}:${f.multiple ? f.value.join(',') : (f.value ?? '')}`).join('|')
+    ? filters
+        .map((f) => {
+          const v =
+            f.type === 'numberRange'
+              ? (f.value?.join('-') ?? '')
+              : f.type === 'text' || f.type === 'date'
+                ? f.value
+                : f.multiple
+                  ? f.value.join(',')
+                  : (f.value ?? '')
+          return `${f.key}:${v}`
+        })
+        .join('|')
     : ''
   const sortKey = sortItems.map((s) => `${s.columnKey}:${s.order}`).join(',')
   const prevResetKey = useRef<string | null>(null)
@@ -312,11 +377,19 @@ export function ClientDataTable<TRow>({
 
   const handleSortClick = (columnKey: string) => {
     setSortItems((prev) => {
-      const existing = prev.find((s) => s.columnKey === columnKey)
-      if (!existing) return [...prev, { columnKey, order: 'asc' as const }]
+      // 既定ソート状態から「既定に含まれない」列をクリックしたら、既定を第1キーとして
+      // 引きずらず単一ソートを開始する (既定列が全行ユニークだと、追加した列が
+      // タイブレークに埋もれて無反応に見えるのを防ぐ)。既定列自身のクリックは通常トグル。
+      const onDefault = defaultSort != null && sameSortItems(prev, defaultSort)
+      const inDefault = defaultSort?.some((s) => s.columnKey === columnKey) ?? false
+      const baseline = onDefault && !inDefault ? [] : prev
+      const existing = baseline.find((s) => s.columnKey === columnKey)
+      if (!existing) return [...baseline, { columnKey, order: 'asc' as const }]
       if (existing.order === 'asc')
-        return prev.map((s) => (s.columnKey === columnKey ? { ...s, order: 'desc' as const } : s))
-      return prev.filter((s) => s.columnKey !== columnKey)
+        return baseline.map((s) =>
+          s.columnKey === columnKey ? { ...s, order: 'desc' as const } : s,
+        )
+      return baseline.filter((s) => s.columnKey !== columnKey)
     })
   }
 
@@ -324,10 +397,7 @@ export function ClientDataTable<TRow>({
 
   if (columns.length === 0) return null
 
-  const hasActiveFilter =
-    filterText.length > 0 ||
-    (filters?.some((f) => (f.multiple ? f.value.length > 0 : f.value !== null && f.value !== '')) ??
-      false)
+  const hasActiveFilter = filterText.length > 0 || (filters?.some(filterHasValue) ?? false)
   // 選択件数: key モードは selectedKeys.size (ページ跨ぎの総数)、index モードは現ページの selected。
   // 表示件数は NumberTicker 付きの DataCountDisplay に集約 (絞り込み中は「M / N件」)。
   const selectedCount = keyMode ? (selectedKeys?.size ?? 0) : selected.size
