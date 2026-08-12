@@ -5,7 +5,7 @@
 |---|---|
 | 概要 | UI/UX 改善テーマ4。3 本柱: (1) 未保存変更の離脱警告（目玉・`beforeunload` + apps の `NavigationGuardProvider`/`useGuardedNavigate` でプログラム遷移集約 + popstate。catalog は beforeunload+dirty のみ）、(2) 成功/エラーフィードバック統一（MasterForm・設問マスタ単体にトースト・エラーはフォーム=インライン/行アクション=トースト）、(3) 生 UI フォームのカタログ化（QuestionForm・PublicationForm・AnswerForm radio/checkbox・認証）。要判断 4 点確定・**計画レビューで 3→4 PR に再分割**・笹木さん承認済み |
 | ステータス | 🟢 マージ済み（検証中） |
-| PR | TBD |
+| PR | PR-A: [#71](https://github.com/sasakiyusuke2017015/waoon/pull/71) / PR-B: [#72](https://github.com/sasakiyusuke2017015/waoon/pull/72) / PR-C1: [#73](https://github.com/sasakiyusuke2017015/waoon/pull/73) / PR-C2: [#74](https://github.com/sasakiyusuke2017015/waoon/pull/74) / PR-D: [#75](https://github.com/sasakiyusuke2017015/waoon/pull/75) |
 | Review | [計画レビュー](../reviews/2026-07-05-1810-form-ux-unification-review.md) |
 
 ## 目的
@@ -186,11 +186,11 @@ PR-A / C / D:
 - [x] PR-B コードレビュー（代行 code-reviewer + architect・BLOCKER 2 件反映・[Review](../reviews/2026-07-05-1852-form-ux-unification-review.md)）
 - [x] PR-B merge（[#72](https://github.com/sasakiyusuke2017015/waoon/pull/72)・develop 49289cb・CI green）
 - [ ] PR-B マージ後の対話挙動を手動検証（サイドナビ離脱 / 戻る / 暴発なし / beforeunload・要 dev 起動）
-- [ ] PR-C（C1/C2 に分割）
+- [x] PR-C（C1/C2 に分割）
   - [x] C1 実装完了（QuestionForm/PublicationForm カタログ化）→ [#73](https://github.com/sasakiyusuke2017015/waoon/pull/73) merged
   - [x] C2 実装完了（AnswerForm radio/checkbox + QuestionsEditor マスタ追加 select/button・typecheck/lint/build/test green）
   - [x] C2 コードレビュー（代行 code-reviewer・APPROVE・NICE #1 反映・[Review](../reviews/2026-07-05-1930-form-ux-unification-review.md)）
-  - [ ] C2 merge（笹木さん承認）
+  - [x] C2 merge（[#74](https://github.com/sasakiyusuke2017015/waoon/pull/74)・2026-07-05）
 - [x] PR-D 実装完了（change-password 成功トースト・login は teal 固定据え置き）→ [#75](https://github.com/sasakiyusuke2017015/waoon/pull/75) merged
 - [ ] マージ後の手動検証（下記まとめ）
 - [ ] 残課題: AttachmentsPanel の file input / QuestionsEditor の並べ替え・行アクションの catalog 化（別途）
