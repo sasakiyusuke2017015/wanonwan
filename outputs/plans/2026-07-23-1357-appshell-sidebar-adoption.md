@@ -493,4 +493,4 @@ NixOS のため `nixpkgs` の `playwright-driver.browsers` を `PLAYWRIGHT_BROWS
 - [x] Phase B: マージ（#104 → #103 の順で develop へ）
 - [x] ブラウザ検証（Playwright / Chromium・20/20 PASS。第 1 弾の未了項目も消化）
 - [x] マージ後検証（develop 実体で CI success / turbo 10 タスク成功 / Playwright 20-20 PASS）
-- [ ] stg での確認: 未実施（デプロイは secrets 未設定で skip 運用中のためスコープ外）
+- [x] stg での確認: 未実施のままクローズ（デプロイは secrets 未設定で skip 運用中のためスコープ外）

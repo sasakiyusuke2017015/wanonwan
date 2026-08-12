@@ -3,7 +3,7 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | 親 Plan「認証の残」A+B。admin の email/password 変更を GoTrue へ同期（admin client に updateUser 追加）+ 初回 PW の強制変更（force-change を API 層ゲートで enforce、middleware はページ誘導） |
-| ステータス | 🟢 マージ済み（検証中） |
+| ステータス | ✅ 検証完了 |
 | 前提 Plan | [pleasanter-exit-1on1-rebuild](2026-06-11-1730-pleasanter-exit-1on1-rebuild.md) の「認証の残」（[§10](2026-06-11-1730-pleasanter-exit-1on1-rebuild.md#L357): 編集時の email/password の GoTrue 同期 / 初回ログイン後の force-change） |
 
 > provisioning（#19）で「作成時に GoTrue identity 発行 + 初期 PW 生成」までは完了済み。本 Plan は
@@ -196,19 +196,18 @@
 - [x] **再計画レビュー（Codex）** → [NEEDS WORK](../reviews/2026-06-15-0930-auth-gotrue-sync-force-change-replan-review.md)（middleware /api 撤回）
 - [x] 指摘反映（判断 #6 改訂で middleware /api を撤回・API ゲート単独へ、Step 4 / §6 B-3b、Step 5 `claims.email` 欠落時 401）
 - [x] **再々計画レビュー（Codex）** → [APPROVE](../reviews/2026-06-15-0945-auth-gotrue-sync-force-change-replan-review-v2.md)（NICE: §7 文言ズレを即修正済み）
-- [ ] 笹木さん承認
-- [ ] Step 1（client 拡張）→ Step 5（change-password UI）実装（feature/auth-gotrue-sync-force-change）
+- [x] 笹木さん承認
+- [x] Step 1（client 拡張）→ Step 5（change-password UI）実装（feature/auth-gotrue-sync-force-change）
 - [x] 実装: Step 1〜5（admin client / metadata / email 同期 / reset-password / force-change ゲート / change-password）
 - [x] 静的検証: `pnpm typecheck` green / `next build` green（`pnpm lint` は未設定プレースホルダ）
-- [ ] runtime/手動検証（§6 A/B、**B-0=app_metadata が token claim に載るか**）※Docker 必要・笹木さん環境で受け入れ前に実施
 - [x] **コードレビュー（Codex）** → [NEEDS WORK](../reviews/2026-06-15-1015-auth-gotrue-sync-force-change-code-review.md)（PUT の admin ゲート欠落）
 - [x] 指摘反映（PUT に admin ゲート追加、reset-password 404/409 分離）
 - [x] **再コードレビュー（Codex）** → [APPROVE](../reviews/2026-06-15-1030-auth-gotrue-sync-force-change-code-review-v2.md)（残 NICE は B-0 runtime のみ）
 - [x] commit（2 本: feat / docs）→ push → **PR 作成（[#25](https://github.com/sasakiyusuke2017015/waoon/pull/25)）**
 - [x] 笹木さんマージ承認 → **merge 済み（#25, develop）**
-- [ ] **マージ後（受け入れ）検証**（笹木さん環境・Docker）
-  - [ ] **B-0**: 新規作成ユーザーの access token に `app_metadata.must_change_password=true` が載る（崩れたら判断 #2 の DB カラム方式へピボット）
-  - [ ] A-1: admin が email 変更 → 新 email でログイン可・旧 email 不可
-  - [ ] A-3: PW リセットで生成 PW が一度だけ返り、その PW でログイン可
-  - [ ] B-2/B-3: フラグ持ちはページが `/change-password` へ・非 allowlist API は 403・認証 API は素通し
-  - [ ] B-4: current PW 必須、変更後は通常画面へ進め再ログインでも強制されない
+- [x] **マージ後（受け入れ）検証**（2026-06-23・dev スタック / API 経由。使い捨てユーザ verify1 で実施し終了後に GoTrue + `public.users` から削除）
+  - [x] **B-0**: 新規作成ユーザーの access token に `app_metadata.must_change_password=true` が載る（claim 方式が成立＝判断 #2 のピボット不要。`lib/auth/jwt.ts` は JWT の `app_metadata` のみを読むため、下記 force-change 403 が出た時点で claim 搭載が実証されている）
+  - [x] A-1: admin が email 変更（PUT `/v1/users/[id]`）→ 新 email でログイン 200・旧 email 401
+  - [x] A-3: PW リセット（POST `/v1/users/[id]/reset-password`）で生成 PW が応答 `initialPassword` に一度だけ返り（再取得不可）その PW でログイン可・`must_change=true` 再設定
+  - [x] B-2/B-3: フラグ持ちは非 allowlist API が 403（`/v1/surveys`・`/v1/dashboard`）・認証 API と `/change-password` は素通し。**ページ誘導（middleware の `/change-password` リダイレクト）はブラウザ未実施**で、API 層ゲートの 403 で代替確認
+  - [x] B-4: current PW 必須（誤った現 PW は 401）、正しい現 PW で 200・`must_change=false`・業務 API 200

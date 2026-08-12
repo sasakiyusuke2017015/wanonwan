@@ -94,8 +94,11 @@ worker 方式は **専用 Node worker（compose サービス）** に決定（pg
 - [x] Plan ドラフト（本ファイル）
 - [ ] 計画レビュー / 笹木さん承認
 - [x] Phase 1 実装（85_jobs.sql: 純関数 + DEFINER 削除 + cron 登録 / pgTAP 純関数検証）
-- [ ] Phase 1 runtime 検証（Docker・笹木さん: cron 登録 + 実削除）
+- [x] Phase 1 runtime 検証（2026-06-24・dev スタック）: 古い `status=100` を 2 件投入 → `SELECT app.gc_stale_attachments()` が **2 を返して削除**（pending → 0）。pg_cron の `*/30` 登録は schema 上の存在確認まで（実時刻での自動発火は未待機でクローズ）
 - [x] Phase 2a 実装（86: pgmq キュー + DELETE enqueue トリガ / `apps/worker` drain ループ + parseGcMessage unit 8 / pgTAP トリガ存在 / CI worker test）。typecheck(`-r`)・test green
-- [ ] Phase 2a runtime 検証（Docker・笹木さん: 削除→enqueue→worker が MinIO 本体削除）
+- [x] Phase 2a runtime 検証（2026-06-24・dev スタック）: avatar 置換で旧行 delete → `AFTER DELETE` トリガで pgmq enqueue → `pnpm worker:start` で旧 object が MinIO から削除（worker 前 EXISTS → 後 NotFound。現行 object は保持）。壊れたメッセージ（`{"bad":"shape"}`）は `pgmq.archive` 送りで無限再配信なし
 - [x] Phase 2b 実装（Dockerfile.worker + CD の worker image build/push + deploy / stg/prod compose の worker サービス + env 例）。**docker build + 起動 + compose config を実機確認**
-- [ ] Phase 2b runtime 検証（笹木さん stg: CD で waoon-worker push → worker 起動 → 添付削除で本体掃除）
+- [ ] **Phase 2b runtime 検証（stg 実環境・笹木さん）**
+  - [ ] CD で `waoon-worker` image が build / push される
+  - [ ] migration 後の `dc up -d web worker nginx` で worker が起動し、superuser 接続で pgmq を消化する
+  - [ ] 実環境で添付削除 → enqueue → worker が MinIO 本体を削除

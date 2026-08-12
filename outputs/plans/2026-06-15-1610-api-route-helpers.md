@@ -3,7 +3,7 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | force-change PR の per-route ガード直書きを関数合成で集約し、認可ガードを構造的に忘れられなくする pure refactor。withActiveUser / parseBody / withServiceRole / checkRateLimit に集約（27 ファイル・純減 117 行） |
-| ステータス | 🟢 マージ済み（検証中） |
+| ステータス | ✅ 検証完了 |
 
 > **継承ではなく関数合成（higher-order function）**で行う。Next.js App Router の route handler は
 > export された関数で、claims を「ラッパ経由でしか得られない」形にすることで**ガードを構造的に
@@ -173,6 +173,9 @@ auth ルートは「同じ allowlist でも前提が違う」ため **1 種類�
 - [x] 検証: typecheck green / build green（挙動不変は静的精査で確認）
 - [x] **コードレビュー（Agent: code+security）** → [APPROVE](../reviews/2026-06-15-1710-api-route-helpers-code-review.md)
 - [x] PR 作成（develop 向け）→ **[PR #26](https://github.com/sasakiyusuke2017015/waoon/pull/26) merged**
-- [ ] **マージ後 runtime スモーク**（Docker・#25 の B-0 受け入れと同セッションで可）: login / users CRUD / change-password / 任意の業務 GET が従来どおり動く（401/403/429 含む挙動不変）
-- [ ] （後続・別タスク）挙動不変の軽い integration test（429→401→400 順 / me の 2 種 401 / admin 403 等）
-- [ ] （後続・別タスク）新規 route のガード強制: `no-restricted-imports` で認証プリミティブ直 import を禁止（allowlist override）
+- [x] **マージ後 runtime スモーク**（2026-06-23・dev スタック / API 経由）
+  - [x] 認証必須 API に未ログイン → **401**（`/v1/users`・`/v1/surveys`。`withActiveUser` 合成）
+  - [x] admin 専用 API に一般ユーザー(alice) → **403**（POST `/v1/surveys`・POST `/v1/users`。GET `/v1/users` は 200 ＝ read 許可との対比も確認）
+  - [x] login レートリミット → 10 回目で **429 + `Retry-After: 45`**（`loginPerIp=10/60s`。refresh も同機構 `refreshPerIp=30`）
+- [x] （後続・別タスク）挙動不変の軽い integration test → [api-hardening-lint-guard](2026-06-17-2210-api-hardening-lint-guard.md) Phase 2（[#34](https://github.com/sasakiyusuke2017015/waoon/pull/34) merged）で実施
+- [x] （後続・別タスク）新規 route のガード強制: `no-restricted-imports` で認証プリミティブ直 import を禁止 → [api-hardening-lint-guard](2026-06-17-2210-api-hardening-lint-guard.md) Phase 1（[#32](https://github.com/sasakiyusuke2017015/waoon/pull/32) merged）で実施

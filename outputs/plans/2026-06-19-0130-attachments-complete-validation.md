@@ -4,7 +4,7 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | [triage レビュー](../reviews/2026-06-19-0038-plans-review-triage.md) の添付 HIGH/MEDIUM 修正。complete は `HeadObject` でサーバ真値検証（不在422/超過413/不許可415、size は実測）+ presign 前に MIME allowlist + 最大20MB（`policy.ts` unit5）。avatar は作成時に旧を消さず **complete 成功時に置換**（unique index を status=200 限定に変更）。一覧/DL を status=200 限定 |
-| ステータス | 🟢 マージ済み（検証中） |
+| ステータス | ✅ 検証完了 |
 | PR | [#48](https://github.com/sasakiyusuke2017015/waoon/pull/48)（merged） |
 
 ## 1. 目的
@@ -58,5 +58,11 @@
 
 - [x] Plan ドラフト
 - [x] 実装（`policy.ts`+unit5 / `headObject` / POST=MIME 415・avatar 事前削除撤去 / PATCH=HeadObject 検証(422/413/415)+avatar は complete で置換 / GET 一覧・DL を status=200 限定 / 65 index を status=200 限定に DROP+CREATE / client は sizeBytes 送信を廃止）。typecheck・lint・web test 69 green
-- [ ] pgTAP（avatar index の 100+200 共存 / 200+200 違反）— CI で実走（ローカルは 5432 競合で不可）
-- [ ] runtime 検証（Docker・笹木さん: 実 upload→complete で実サイズ反映 / 未完了 422 / 上限 413 / avatar 途中放棄で旧残存 / 一覧に pending 出ない）
+- [x] pgTAP（avatar index の 100+200 共存 / 200+200 違反）— [`avatar_unique_confirmed.test.sql`](../../packages/db/tests/avatar_unique_confirmed.test.sql) が `pnpm test:db` の対象に入り、develop の CI が success
+- [x] **runtime 検証（dev / Docker）**（2026-06-24・API 経由。検証データは全削除済み）
+  - [x] 実 upload → complete で実サイズ反映（complete 応答 `sizeBytes` がサーバ実測値。client からの申告 size は廃止済み）
+  - [x] 未完了（object 不在）で complete → **422**
+  - [x] 上限超過（21MB）で complete → **413**
+  - [x] MIME allowlist 違反 → presign で **415**（complete 側 415 は防御多重として code 上存在）
+  - [x] 一覧 / download に pending（`status=100`）が出ない
+  - [x] avatar は complete 成功時に置換（2 枚 upload 後も `status=200` は 1 件）。**「complete せず途中放棄した場合に旧 avatar が残る」経路は未実施**（置換が complete 契機であることをコードで確認して代替）
