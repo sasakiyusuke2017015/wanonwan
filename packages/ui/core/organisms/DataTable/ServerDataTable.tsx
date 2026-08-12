@@ -9,6 +9,7 @@ import { useEffect, useMemo } from 'react'
 import { ColumnPicker } from './ColumnPicker'
 import { resolveVisibleColumns } from './columnVisibility'
 import { DataTableContent, resolveEmptyMessage } from './DataTableContent'
+import { filterHasValue } from './filterDefs'
 import { RowActionsCell, resolveDefaultRowActionHandler } from './RowActions'
 import { Toolbar } from './Toolbar'
 import { ROW_ACTIONS_KEY } from './types'
@@ -110,11 +111,7 @@ export function ServerDataTable<TRow>({
 
   // 検索 or いずれかの filter に値が入っているか。空表示メッセージの出し分けに使う。
   const hasActiveFilter =
-    (effectiveSearch?.value.length ?? 0) > 0 ||
-    (effectiveFilters?.some((f) =>
-      f.multiple ? f.value.length > 0 : f.value !== null && f.value !== '',
-    ) ??
-      false)
+    (effectiveSearch?.value.length ?? 0) > 0 || (effectiveFilters?.some(filterHasValue) ?? false)
 
   // 表示対象 columns (visibleColumns / hideable / defaultHidden を共有ロジックで解決)
   const visibleCols = resolveVisibleColumns(effectiveColumns, effectiveVisibleColumns)

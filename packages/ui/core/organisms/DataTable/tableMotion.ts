@@ -141,18 +141,22 @@ export function colFlipKeyframes(
  * セルには `layout` を付けない。auto table-layout では行データ (フィルタ等) が変わると
  * 列の自然幅が変わり、`layout` を付けると「フィルタしただけで列が動く」誤作動になるため。
  * トグル時の隣列の詰めは退場の width アニメ自体が table を再レイアウトすることで担う。
- * overflow:hidden 前提。
+ *
+ * overflow はアニメ中だけ hidden にする (非アニメ値なので variant 開始時に即時適用され、
+ * 登場完了時に transitionEnd で visible へ戻す)。常時 hidden にするとセル内の
+ * CSS ツールチップ (行アクションの Tooltip atom 等) がセル境界で切られるため。
  */
 export function cellVariants(variant: TableAnimationVariant): Variants {
   const hiddenOffset =
     variant === 'slideLeft' ? { x: -16, y: 0 } : variant === 'fadeIn' ? { x: 0, y: 0 } : { x: 0, y: -8 }
   return {
-    hidden: { opacity: 0, ...hiddenOffset },
+    hidden: { opacity: 0, overflow: 'hidden', ...hiddenOffset },
     visible: {
       opacity: 1,
       x: 0,
       y: 0,
       transition: { duration: ENTER_SEC, ease: EASE_SMOOTH },
+      transitionEnd: { overflow: 'visible' },
     },
     exit: {
       opacity: 0,
@@ -160,6 +164,7 @@ export function cellVariants(variant: TableAnimationVariant): Variants {
       paddingLeft: 0,
       paddingRight: 0,
       whiteSpace: 'nowrap',
+      overflow: 'hidden',
       transition: { duration: EXIT_SEC, ease: EASE_SMOOTH },
     },
   }

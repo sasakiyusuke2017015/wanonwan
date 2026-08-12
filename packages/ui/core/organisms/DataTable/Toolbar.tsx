@@ -3,11 +3,12 @@
 import { useMemo, type ReactNode } from 'react'
 
 import { Animated } from '../../atoms/Animated'
+import { FilterField } from '../../molecules/FilterField'
 import { Input } from '../../molecules/Input'
-import { Select } from '../../molecules/Select'
 import { IconButton } from '../../molecules/IconButton'
 import { Toggleable } from '../../molecules/Toggleable'
 
+import { filterHasValue } from './filterDefs'
 import type { CollapsibleOptions, FilterDef, SearchDef } from './types'
 import styles from './DataTable.module.scss'
 
@@ -65,12 +66,6 @@ function normalizeCollapsible(
   return { defaultOpen }
 }
 
-/** filter に有効な絞り込み値が入っているか (multiple は 1 件以上、single は非空)。 */
-function filterHasValue(f: FilterDef): boolean {
-  if (f.multiple) return f.value.length > 0
-  return f.value !== null && f.value !== undefined && f.value !== ''
-}
-
 interface ActiveChip {
   key: string
   label: string
@@ -89,8 +84,36 @@ function buildActiveChips(search?: SearchDef, filters?: FilterDef[]): ActiveChip
   }
   if (filters) {
     for (const f of filters) {
+      if (!filterHasValue(f)) continue
+      switch (f.type) {
+        case 'text':
+          chips.push({
+            key: f.key,
+            label: `${f.label}: "${f.value.trim()}"`,
+            onRemove: () => f.onChange(''),
+          })
+          continue
+        case 'date':
+          chips.push({
+            key: f.key,
+            label: `${f.label}: ${f.value.trim()}`,
+            onRemove: () => f.onChange(''),
+          })
+          continue
+        case 'numberRange': {
+          if (f.value === null) continue
+          const [lo, hi] = f.value
+          chips.push({
+            key: f.key,
+            label: `${f.label}: ${lo}〜${hi}`,
+            onRemove: () => f.onChange(null),
+          })
+          continue
+        }
+        default:
+          break
+      }
       if (f.multiple) {
-        if (!f.value || f.value.length === 0) continue
         const labels = f.value.map((v) => f.options.find((o) => o.value === v)?.label ?? v)
         chips.push({
           key: f.key,
@@ -99,7 +122,6 @@ function buildActiveChips(search?: SearchDef, filters?: FilterDef[]): ActiveChip
         })
         continue
       }
-      if (f.value === null || f.value === undefined || f.value === '') continue
       const optionLabel = f.options.find((o) => o.value === f.value)?.label ?? f.value
       chips.push({
         key: f.key,
@@ -114,8 +136,8 @@ function buildActiveChips(search?: SearchDef, filters?: FilterDef[]): ActiveChip
 /**
  * DataTable の toolbar UI を一本化するコンポーネント。
  *
- * client / server どちらのモードからも使われる。検索 box / filter select は
- * `@ui-catalog/core` の Input / Select を内部採用し、見た目をここに集約する。
+ * client / server どちらのモードからも使われる。検索 box と各フィルタは
+ * `@ui-catalog/core` の Input / FilterField カードを内部採用し、見た目をここに集約する。
  * 値の保持・絞り込み実行はモードによって DataTable 内部 / 呼び出し側に分かれるが、
  * このコンポーネントは渡された値を表示し onChange を発火するだけ (presentational)。
  *
@@ -163,9 +185,36 @@ export function Toolbar({
     [filters, visibleColumnKeys],
   )
 
+  const searchKeyDown = search?.onSubmit
+    ? (e: { key: string; preventDefault: () => void }) => {
+        if (e.key === 'Enter') {
+          e.preventDefault()
+          search.onSubmit?.()
+        }
+      }
+    : undefined
+
+  // 検索のカード化はフィルタ「定義」の有無で決める。visibleFilters (列ピッカー連動で
+  // 増減する) に依らせると、列トグルのたびに検索の外形がカード⇔素の box で揺れる。
+  const hasFilterDefs = (filters?.length ?? 0) > 0
+
   const inputs = (
     <div className={styles.toolbarInputs}>
-      {search && (
+      {/* フィルタカードが並ぶ行では、検索も同じカードに入れて高さを揃える (がたつき防止)。
+          フィルタが無いテーブルは従来どおり軽い検索 box のまま。 */}
+      {search && hasFilterDefs && (
+        <FilterField
+          type="text"
+          label="キーワード検索"
+          value={search.value}
+          onChange={search.onChange}
+          onKeyDown={searchKeyDown}
+          placeholder={search.placeholder ?? 'キーワードで検索'}
+          icon="magnifying-glass"
+          className={styles.toolbarSearchCard}
+        />
+      )}
+      {search && !hasFilterDefs && (
         <Input
           type="search"
           size="small"
@@ -174,48 +223,84 @@ export function Toolbar({
           placeholder={search.placeholder ?? 'キーワードで検索'}
           value={search.value}
           onChange={(e) => search.onChange(e.target.value)}
-          onKeyDown={
-            search.onSubmit
-              ? (e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    search.onSubmit?.()
-                  }
-                }
-              : undefined
-          }
+          onKeyDown={searchKeyDown}
         />
       )}
 
       {visibleFilters.map((f) => {
+        switch (f.type) {
+          case 'text':
+            return (
+              <FilterField
+                key={f.key}
+                type="text"
+                label={f.label}
+                value={f.value}
+                onChange={f.onChange}
+                placeholder={f.placeholder}
+                className={styles.toolbarFilterCard}
+              />
+            )
+          case 'date':
+            return (
+              <FilterField
+                key={f.key}
+                type="date"
+                label={f.label}
+                value={f.value}
+                onChange={f.onChange}
+                className={styles.toolbarFilterCard}
+              />
+            )
+          case 'numberRange': {
+            const min = f.min ?? 0
+            const max = f.max ?? 5
+            return (
+              <FilterField
+                key={f.key}
+                type="numberRange"
+                label={f.label}
+                // 未適用 (null) は FilterField (非 null タプル前提) に渡す前に全範囲へ展開し、
+                // 逆にユーザーが全範囲へ戻したら null (未適用) に畳む。
+                value={f.value ?? [min, max]}
+                onChange={(v) => f.onChange(v[0] <= min && v[1] >= max ? null : v)}
+                min={min}
+                max={max}
+                className={styles.toolbarFilterCard}
+              />
+            )
+          }
+          default:
+            break
+        }
         const allowEmpty = f.allowEmpty !== false
         const emptyLabel = f.emptyLabel ?? 'すべて'
         if (f.multiple) {
           return (
-            <Select
+            <FilterField
               key={f.key}
-              multiple
-              size="small"
+              type="multiSelect"
+              label={f.label}
               options={f.options}
               value={f.value}
-              allowEmpty={allowEmpty}
-              placeholder={f.label}
-              emptyLabel={emptyLabel}
-              selectedLabel={(count) => `${f.label}: ${count}件`}
               onChange={(values) => f.onChange(values.map(String))}
+              allowEmpty={allowEmpty}
+              emptyLabel={emptyLabel}
+              className={styles.toolbarFilterCard}
             />
           )
         }
         return (
-          <Select
+          <FilterField
             key={f.key}
-            size="small"
+            type="select"
+            label={f.label}
             options={f.options}
             value={f.value ?? ''}
-            allowEmpty={allowEmpty}
-            placeholder={f.label}
-            emptyLabel={emptyLabel}
             onChange={(value) => f.onChange(value ? String(value) : null)}
+            allowEmpty={allowEmpty}
+            emptyLabel={emptyLabel}
+            className={styles.toolbarFilterCard}
           />
         )
       })}
