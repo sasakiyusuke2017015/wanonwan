@@ -45,7 +45,7 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 | 🟢 マージ済み（検証中） | [SubHeaderToolbar — DataTable の funnel 開閉 Toolbar を SubHeader chrome に統合](plans/2026-07-07-1430-subheader-toolbar.md) | DataTable (ai_edu 由来) の funnel 開閉 Toolbar と SubHeader の固定 chrome を合成した SubHeaderToolbar を新設し、未使用の ui-catalog 資産 (FilterField / DataCountDisplay / Pagination / SearchBar / ResetButton / Badge / Tooltip / Animated 等) を積極採用してテーブル体験を刷新する | [#81](https://github.com/sasakiyusuke2017015/waoon/pull/81)（merged）/ lint fix: [#84](https://github.com/sasakiyusuke2017015/waoon/pull/84)（merged）/ Phase 3-2: [#86](https://github.com/sasakiyusuke2017015/waoon/pull/86) | [Phase 1](reviews/2026-07-07-1822-subheader-toolbar-review.md) / [Phase 2](reviews/2026-07-07-1920-subheader-toolbar-review.md) / [Phase 3](reviews/2026-07-07-2010-subheader-toolbar-review.md) / [Phase 3-2](reviews/2026-07-14-0151-subheader-toolbar-phase3-2-review.md) |
 | ✅ 検証完了 | [ui-catalog 上流最新版の選択的マージ（packages/ui 刷新）](plans/2026-07-16-2354-ui-catalog-upstream-sync.md) | ui-catalog 上流最新版 (ui.zip) を packages/ui へ選択的マージ。上流のみ変更 115 件採用 / waoon 独自部品維持 / 衝突 33 件個別マージ / 汎用新規部品のみ採用 | [#97](https://github.com/sasakiyusuke2017015/waoon/pull/97) | [計画レビュー](reviews/2026-07-17-0005-ui-catalog-upstream-sync-review.md) / [コードレビュー](reviews/2026-07-17-0040-ui-catalog-upstream-sync-code-review.md) |
 | 🟢 マージ済み（検証中） | [マルチロール権限（admin / interviewer / member）とメニューからのロール切替](plans/2026-07-19-1631-interviewer-role.md) | マルチロール権限へ再設計（admin/interviewer/member、member 暗黙保有の `user_roles`・1 人が複数保有可）。ヘッダーメニューの視点切替、面談担当の指名 API + admin UI、担当面談画面を追加。認可 = 保有 union / 切替 = 表示のみ | 基盤: [#98](https://github.com/sasakiyusuke2017015/waoon/pull/98) / 切替+担当面談: [#99](https://github.com/sasakiyusuke2017015/waoon/pull/99) | [計画レビュー（改訂前版）](reviews/2026-07-19-1643-interviewer-role-review.md) / [計画レビュー（マルチロール改訂版）](reviews/2026-07-19-1701-interviewer-role-review.md) |
-| ❌ 撤回 | [左ペインを ui-catalog 新 SidebarNav へ乗せ替え（展開⇄レール切替）](plans/2026-07-21-0224-sidebar-nav-v2.md) | **撤回**（左ペインの `SidebarNav` 単体乗せ替え。実装・検証まで到達したが見た目が要件に届かず、シェルごと刷新する [AppShell/Sidebar 採用](2026-07-23-1357-appshell-sidebar-adoption.md) が後継として完了したため未マージで撤回）。得られた知見（Tailwind v4 で `tailwind.preset.ts` は app ビルドに読まれない / `sidebar-*` トークンは globals.css の `@theme inline` で定義する）は後継 Plan に引き継ぎ済み | TBD | [計画レビュー](reviews/2026-07-21-0235-sidebar-nav-v2-review.md) |
+| ❌ 撤回 | [左ペインを ui-catalog 新 SidebarNav へ乗せ替え（展開⇄レール切替）](plans/2026-07-21-0224-sidebar-nav-v2.md) | **撤回**（左ペインの `SidebarNav` 単体乗せ替え。実装・検証まで到達したが見た目が要件に届かず、シェルごと刷新する [AppShell/Sidebar 採用](plans/2026-07-23-1357-appshell-sidebar-adoption.md) が後継として完了したため未マージで撤回）。得られた知見（Tailwind v4 で `tailwind.preset.ts` は app ビルドに読まれない / `sidebar-*` トークンは globals.css の `@theme inline` で定義する）は後継 Plan に引き継ぎ済み | TBD | [計画レビュー](reviews/2026-07-21-0235-sidebar-nav-v2-review.md) |
 | ✅ 検証完了 | [AppShell / Sidebar 導入とアプリシェル刷新（ui-catalog 上流同期 第 2 弾）](plans/2026-07-23-1357-appshell-sidebar-adoption.md) | ui-catalog 上流の AppShell / Sidebar 基盤（Cookie 永続 + Cmd+B + SSR 対応）を取り込み、apps/web のシェルを Sidebar + TopBar 構成へ全面刷新する。あわせて上流の 46 ファイル修正（DropdownMenu の portal バグ修正含む）を同期 | [#103](https://github.com/sasakiyusuke2017015/waoon/pull/103)（Phase A）/ [#104](https://github.com/sasakiyusuke2017015/waoon/pull/104)（Phase B） | [計画レビュー 1](reviews/2026-07-23-1410-appshell-sidebar-adoption-review.md) / [計画レビュー 2](reviews/2026-07-23-1435-appshell-sidebar-adoption-review2.md) / [計画レビュー 3](reviews/2026-07-23-1500-appshell-sidebar-adoption-review3.md) / [コードレビュー Phase A](reviews/2026-07-23-1505-appshell-sidebar-phase-a-code-review.md) / [コードレビュー Phase B](reviews/2026-07-23-1540-appshell-sidebar-phase-b-code-review.md) |
 | ✅ 検証完了 | [packages/ui の既存テスト 13 失敗を解消する](plans/2026-07-23-2023-ui-catalog-broken-tests.md) | packages/ui に長く放置されている 13 テスト失敗（6 スイート）を、原因を 3 分類に切り分けて解消する。CI ゲート外のため気付かれずに溜まっていたもの | [#105](https://github.com/sasakiyusuke2017015/waoon/pull/105) | [コードレビュー](reviews/2026-07-23-2045-ui-catalog-broken-tests-review.md) |
 | 🟢 マージ済み（検証中） | [@waoon/storage 切り出しと packages/db/seed の用途別再編](plans/2026-07-24-0110-storage-package-db-seed-restructure.md) | web/worker で重複する S3Client を `@waoon/storage` へ集約し env を必須検証化。あわせて `packages/db/seed/` を master/users/demo に再編 | [#107](https://github.com/sasakiyusuke2017015/waoon/pull/107)（storage） / [#108](https://github.com/sasakiyusuke2017015/waoon/pull/108)（db-seed） | [storage コードレビュー](reviews/2026-07-24-1531-storage-package-review.md)（APPROVE） / [db-seed コードレビュー](reviews/2026-07-24-1531-db-seed-layout-review.md)（APPROVE） |
@@ -54,3 +54,188 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 | 🟡 実装中 | [プロジェクト名を waoon → wanonwan に全面改称](plans/2026-08-13-0107-rename-wanonwan.md) | プロジェクト名 waoon を **Wanonwan** へ全面改称。npm パッケージ名 / env 変数 / DB 名 / MinIO バケット / compose project / Cookie / コンテナイメージ / 全ドキュメント（`outputs/` 履歴含む）を一括置換 | — | [計画レビュー](reviews/2026-08-13-0113-rename-wanonwan-review.md) |
 | ⚪ 実装待ち | [VRT（reg-suit + 撮影層 + CI）](plans/2026-08-14-0020-vrt.md) | 仕上げ Phase 4 のサブ Plan。reg-suit + 撮影層（catalog 171 stories + app ページ）で light baseline を敷き、ダークの 143 箇所トークン置換の差分を検出できる状態にする。compare はローカル baseline で成立させ、リモート共有と CI 自動化のみ stg MinIO 待ち | — | [計画レビュー](reviews/2026-08-14-0043-vrt-review.md) |
 | 🟡 実装中 | [ダークモード（semantic トークン反転 + colorScheme 軸）](plans/2026-08-14-0025-dark-mode.md) | 仕上げ Phase 3 のサブ Plan。反転境界を semantic トークン層に引き、`colorScheme` 軸（light/dark/system）+ FOUC 対策を追加。背景テーマ 9 軸とは直交させ、app の 167 箇所のハードコード色を semantic トークンへ repoint する | — | [計画レビュー](reviews/2026-08-14-0043-dark-mode-review.md) / [コードレビュー 3a-3c](reviews/2026-08-14-0933-dark-mode-review.md) |
+
+## 残検証
+
+`🟢 マージ済み（検証中）` の Plan に残っている未チェック項目を全 Plan から集めたもの。
+**検証の真実源は各 Plan のチェックボックス**で、この節はその投影。消化したら対応 Plan の
+チェックボックスを更新して再生成する（別途チェックリストを作らない）。
+
+### [デプロイ基盤（stg/prod compose + nginx + CD + prod provisioning）](plans/2026-06-12-1530-deploy-infra.md)
+
+- [ ] **マージ後検証**（stg 実環境・笹木さん）
+  - [ ] `infra/.env.stg` を実値で用意し `pnpm compose:stg:up` が起動（未設定 secret で起動失敗することも確認）
+  - [ ] CD（develop push）で GHCR build/push → stg deploy、migration が web 起動前に流れる
+  - [ ] nginx 経由 HTTPS でトップ描画 / `/api/v1/auth/login` が nginx 一次レートリミットで 429
+  - [ ] `pnpm provision:prod`（stg 相当）で admin 発行 → そのアカウントでログイン成功
+  - [ ] `backup-db.sh` で dump → 別 DB へ restore 成功
+
+### [編集時の GoTrue 同期 + 初回ログイン後の force-change](plans/2026-06-14-1455-auth-gotrue-sync-force-change.md)
+
+- [ ] 笹木さん承認
+- [ ] Step 1（client 拡張）→ Step 5（change-password UI）実装（feature/auth-gotrue-sync-force-change）
+- [ ] runtime/手動検証（§6 A/B、**B-0=app_metadata が token claim に載るか**）※Docker 必要・笹木さん環境で受け入れ前に実施
+- [ ] **マージ後（受け入れ）検証**（笹木さん環境・Docker）
+  - [ ] **B-0**: 新規作成ユーザーの access token に `app_metadata.must_change_password=true` が載る（崩れたら判断 #2 の DB カラム方式へピボット）
+  - [ ] A-1: admin が email 変更 → 新 email でログイン可・旧 email 不可
+  - [ ] A-3: PW リセットで生成 PW が一度だけ返り、その PW でログイン可
+  - [ ] B-2/B-3: フラグ持ちはページが `/change-password` へ・非 allowlist API は 403・認証 API は素通し
+  - [ ] B-4: current PW 必須、変更後は通常画面へ進め再ログインでも強制されない
+
+### [API ルートの boilerplate を関数合成で集約（認証/admin ラッパ + parseBody + service_role + rate-limit）](plans/2026-06-15-1610-api-route-helpers.md)
+
+- [ ] **マージ後 runtime スモーク**（Docker・#25 の B-0 受け入れと同セッションで可）: login / users CRUD / change-password / 任意の業務 GET が従来どおり動く（401/403/429 含む挙動不変）
+- [ ] （後続・別タスク）挙動不変の軽い integration test（429→401→400 順 / me の 2 種 401 / admin 403 等）
+- [ ] （後続・別タスク）新規 route のガード強制: `no-restricted-imports` で認証プリミティブ直 import を禁止（allowlist override）
+
+### [API 堅牢化: ESLint 立ち上げ + 認証プリミティブ import ガード + 挙動不変 integration test](plans/2026-06-17-2210-api-hardening-lint-guard.md)
+
+- [ ] Phase 1 コードレビュー
+- [ ] Phase 2 実装（integration test）
+- [ ] Phase 2 コードレビュー
+- [ ] PR-A / PR-B マージ
+- [ ] 親 Plan の §残課題チェックを消し込み
+
+### [フォームのフィールド単位 valibot エラー表示](plans/2026-06-17-2240-form-field-level-errors.md)
+
+- [ ] 親（dashboard）の見た目磨き込み #2 を消し込み
+
+### [管理一覧のフィルタ/ソート + StatisticPanel](plans/2026-06-18-1115-admin-list-filter-sort-stats.md)
+
+- [ ] コードレビュー
+- [ ] PR マージ
+- [ ] dashboard 見た目磨き込み #2 の該当項目を消し込み
+
+### [添付ファイル基盤（MinIO + presigned URL）](plans/2026-06-18-1330-attachments-minio.md)
+
+- [ ] Phase 1 コードレビュー
+- [ ] マージ後検証（Docker・笹木さん）
+
+### [AI 機能: 面談メンター提案 + 自由記述の要約/分析（Claude + pgvector）](plans/2026-06-18-1900-ai-pgvector-mentor-summary.md)
+
+- [ ] Plan ドラフト完成（本ファイル）
+- [ ] **§3.1 プライバシー方針の組織/笹木さん承認**（最優先ブロッカー）
+- [ ] §3.2 埋め込みプロバイダ決定 / §3.3 モデル・同期方針確認
+- [ ] 計画レビュー / 笹木さん承認
+- [ ] Phase A コードレビュー
+- [ ] **承認時に確定**: 送信データの最小化/マスキング（§3.1(d)）— 送信 field・文字数・類似件数を確定（レビュー HIGH。有効化前に必須）
+- [ ] マージ後検証（Docker・笹木さん: 承認フラグ + key 設定で要約/メンターが返る・未設定で 503）
+
+### [非同期/定期ジョブ基盤（pg_cron + pgmq）](plans/2026-06-18-2030-async-jobs-pgmq-pgcron.md)
+
+- [ ] 計画レビュー / 笹木さん承認
+- [ ] Phase 1 runtime 検証（Docker・笹木さん: cron 登録 + 実削除）
+- [ ] Phase 2a runtime 検証（Docker・笹木さん: 削除→enqueue→worker が MinIO 本体削除）
+- [ ] Phase 2b runtime 検証（笹木さん stg: CD で waoon-worker push → worker 起動 → 添付削除で本体掃除）
+
+### [添付の complete 実体検証 + アバター置換の安全化（レビュー HIGH 対応）](plans/2026-06-19-0130-attachments-complete-validation.md)
+
+- [ ] pgTAP（avatar index の 100+200 共存 / 200+200 違反）— CI で実走（ローカルは 5432 競合で不可）
+- [ ] runtime 検証（Docker・笹木さん: 実 upload→complete で実サイズ反映 / 未完了 422 / 上限 413 / avatar 途中放棄で旧残存 / 一覧に pending 出ない）
+
+### [turbo (Turborepo) 導入 + scripts ergonomics 整理](plans/2026-06-22-1447-turbo-monorepo.md)
+
+- [ ] PR 作成 → 笹木さんマージ承認
+- [ ] PR merge
+- [ ] マージ後検証（CI green / CD image build）
+
+### [@ui-catalog/core に eslint を整備し lint を機能させる](plans/2026-06-22-1626-ui-eslint-setup.md)
+
+- [ ] PR 作成 → 笹木さんマージ承認
+- [ ] PR merge
+- [ ] マージ後検証（CI green 確認。ui lint/typecheck は実装時に green 済み）
+
+### [DB レイヤを outputs/infra-data → packages/db に移す](plans/2026-06-22-1940-db-layer-to-packages.md)
+
+- [ ] PR 作成 → 笹木さんマージ承認
+- [ ] PR merge
+- [ ] マージ後検証（CD で image SQL 非混入 / CI green）
+
+### [dev の GoTrue ユーザ作成を再現可能にする（dev:up でログインできる状態に）](plans/2026-06-23-0005-dev-gotrue-users-bootstrap.md)
+
+- [ ] PR 作成 → 笹木さんマージ承認
+- [ ] PR merge
+- [ ] マージ後検証（CI green / stg・prod 影響なし）
+
+### [provision を dev/stg/prod 3 環境対応にする（provision:dev 追加）](plans/2026-06-25-0101-provision-dev.md)
+
+- [ ] PR 作成 → 笹木さんマージ承認
+- [ ] PR merge
+- [ ] マージ後検証（CI green / stg・prod は実環境で別途）
+
+### [seed の CSV 化 + マスタ管理基盤（管理画面 / provision 投入 / 順序ローダー）](plans/2026-06-25-1025-seed-csv-master-admin.md)
+
+  - [ ] **ブラウザ手動確認**: `/admin/org`（本部/部/課）・`/admin/positions` の一覧/新規/編集/削除（笹木さん）
+
+### [権限(認可)と役職(HR)の分離 — users.role 導入](plans/2026-06-25-1558-separate-role-from-position.md)
+
+  - [ ] **ブラウザ手動確認**: ユーザー編集の「権限（管理者/一般）」トグル（笹木さん）
+
+### [app shell（レイアウト/テーマ）を旧 1on1 の見た目に寄せる](plans/2026-06-28-2212-app-shell-legacy-look.md)
+
+- [ ] ブラウザ目視（dev 起動、全画面の崩れ確認）
+- [ ] レビュー → PR → develop マージ
+
+### [設問マスタ（設問バンク）＋ seed 選択肢の文言化](plans/2026-06-29-1327-survey-question-master.md)
+
+- [ ] マージ後検証（dev 実機）
+  - [ ] クリーン再投入で回答画面の radio が同意度 5 段階で表示
+  - [ ] 設問マスタ `/admin/questions` の CRUD（eval_item・選択肢の改行入力）
+  - [ ] アンケート編集で「マスタから追加」「外す(unlink)」が効く（他アンケートを巻き込まない）
+  - [ ] 非 admin で設問マスタ画面がガードされる（(admin)/layout.tsx + RLS）
+
+### [緊急度マスタ（surveys / answers 共通）](plans/2026-06-29-1537-urgency-master.md)
+
+- [ ] マージ後検証（dev 実機）
+  - [ ] `/admin/urgencies` の CRUD（非 admin でガード）
+  - [ ] SurveyForm で緊急度を設定 → 保存 → 再表示で保持（編集時に勝手にクリアされない）
+  - [ ] 面談記録（InterviewForm）で緊急度を設定 → 保存 → 保持
+  - [ ] 未設定（null）で保存できる / 設定済みを「なし」にしてクリアできる
+  - [ ] 使用中の緊急度をマスタ削除しようとすると 409
+
+### [緊急度の一覧表示（admin surveys / answers）](plans/2026-06-29-1740-urgency-list-display.md)
+
+- [ ] マージ後検証（dev 実機）
+  - [ ] surveys/answers 一覧に緊急度 Badge が出る（高=赤 / 中=黄 / 低=緑、未設定は "—"）
+  - [ ] 緊急度でソートできる（低↔高、未設定は端）
+  - [ ] マスタ段数を変えても色が破綻しない（相対順位）
+
+### [UI フィードバック基盤（Toast 配線・削除確認・ルート境界）](plans/2026-07-05-0101-ui-feedback-foundation.md)
+
+- [ ] マージ後検証（手動確認チェックを消化）
+  - [ ] 保存成功トーストが遷移後の画面で表示される（SurveyForm → 一覧）
+  - [ ] 失敗（error）トーストが自動で閉じない
+  - [ ] 設問「外す」/ 掲載・添付の削除で ConfirmDialog が出て、キャンセルで何も起きない
+  - [ ] 存在しない URL で not-found 画面が出る
+  - [ ] ページ内エラーで error.tsx（シェル維持 + 再試行）が出る
+
+### [カタログ堅牢化（MarkdownPreview XSS 修正 + モーダルの focus-trap / ARIA）](plans/2026-07-05-0835-ui-catalog-hardening.md)
+
+- [ ] マージ後検証（手動確認チェックを消化）
+
+### [DataTable 移植（ai_edu 版）+ admin 一覧の乗り換え](plans/2026-07-05-0920-datatable-port.md)
+
+- [ ] マージ後検証（手動確認チェックを消化）
+
+### [フォーム UX 統一（テーマ4）](plans/2026-07-05-1745-form-ux-unification.md)
+
+- [ ] PR-B マージ後の対話挙動を手動検証（サイドナビ離脱 / 戻る / 暴発なし / beforeunload・要 dev 起動）
+- [ ] マージ後の手動検証（下記まとめ）
+- [ ] 残課題: AttachmentsPanel の file input / QuestionsEditor の並べ替え・行アクションの catalog 化（別途）
+- [ ] マージ後検証（手動確認チェックを消化）
+
+### [マルチロール権限（admin / interviewer / member）とメニューからのロール切替](plans/2026-07-19-1631-interviewer-role.md)
+
+- [ ] 笹木さんの再承認（改訂版に対して）
+- [ ] **マージ後検証**（dev 実起動 + HTTP/API で 2026-07-19 実施。挙動は全項目 PASS）
+  - [ ] ブラウザ目視スポットチェック（切替メニュー・担当面談画面の見た目。笹木さん）
+
+### [@waoon/storage 切り出しと packages/db/seed の用途別再編](plans/2026-07-24-0110-storage-package-db-seed-restructure.md)
+
+- [ ] マージ後検証
+  - [ ] stg: 添付の up/down と worker GC（`STORAGE_INTERNAL_ENDPOINT` 経由）… 稼働中 stg 環境が必要。CD deploy 再開時に実施
+
+### [packages/db に migrations/ + snapshot/ を導入](plans/2026-07-24-0210-db-migrations-snapshot.md)
+
+- [ ] マージ後検証
+  - [ ] stg: snapshot 初回 → 増分 migration の本番相当フロー実証
