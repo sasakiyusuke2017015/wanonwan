@@ -34,9 +34,9 @@ waoon/
 ├── README.md            ← このファイル
 ├── apps/web/            Next.js アプリ（UI + API Routes + Server Actions + lib/auth）
 ├── packages/            共有パッケージ（@waoon/ui / auth / domain / db）
-│   └── db/              DDL・RLS・seed・pgTAP（db:migrate / db:seed / test:db で適用）
+│   └── db/              DDL・RLS・seed・pgTAP（db:migrate / provision:{env} / test:db で適用）
 ├── infra/               Docker Compose（dev/stg/prod）+ nginx + Dockerfile.web
-├── scripts/             db-migrate / db-seed / provision / check-secrets 等
+├── scripts/             db-migrate / provision（+ provision/ ステップ）/ check-secrets 等
 ├── docs/                ドキュメント全般
 │   ├── CONTRIBUTING.md        開発者ガイド（起動・テスト・PR）
 │   ├── troubleshooting.md     ローカル開発のトラブルシュート
