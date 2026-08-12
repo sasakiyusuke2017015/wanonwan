@@ -3,8 +3,8 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | クリーンな `pnpm dev:up`（特に `compose:dev:down -v` で volume 破棄した後）から |
-| ステータス | 🟢 マージ済み（検証中） |
-| PR | TBD |
+| ステータス | ✅ 検証完了 |
+| PR | [#53](https://github.com/sasakiyusuke2017015/wanonwan/pull/53)（merged） |
 | Review | [計画レビュー](../reviews/2026-06-23-0030-dev-gotrue-users-bootstrap-review.md) / [コードレビュー](../reviews/2026-06-23-0045-dev-gotrue-users-bootstrap-code-review.md) |
 
 ## 目的
@@ -47,11 +47,10 @@ dev の GoTrue ユーザ作成を **決定的・冪等** にし、`dev:up` 一�
 - `package.json`: `dev:up` の連鎖に組み込み（`db:migrate` → **seed:gotrue:dev** → `db:seed` → web）+
   単体実行用 `seed:gotrue:dev` を追加
 - dev 既定パスワードを確定し docs と一致させる（admin=`Admin1234!` 等）
-- `docs/CONTRIBUTING.md` / `outputs/verification/2026-06-20-...md` のログインユーザ記述を
+- `docs/CONTRIBUTING.md` のログインユーザ記述を
   **seed 実体に合わせて修正**（`member@example.com` 問題の解消: seed に追加する or docs を alice 等に直す）
 - `seed/10_users.sql` のコメントを「手動作成前提」から実態に更新
-- docs 修正対象は **CONTRIBUTING.md / outputs/verification/2026-06-20-...md / outputs/README.md の 3 箇所**
-  （`member@example.com` の出現箇所。計画レビュー指摘 6）
+- docs 修正対象は `member@example.com` の出現箇所すべて（計画レビュー指摘 6）
 
 ### やらないこと
 - stg/prod の provisioning（`provision.mjs`）は変更しない（dev 専用の話）
@@ -110,6 +109,5 @@ dev の GoTrue ユーザ作成を **決定的・冪等** にし、`dev:up` 一�
 - [x] Plan 承認（笹木さん）
 - [x] 実装（seed-gotrue-dev.mjs + dev:up 組み込み + docs 案B）
 - [x] コードレビュー（[APPROVE](../reviews/2026-06-23-0045-dev-gotrue-users-bootstrap-code-review.md)。code-reviewer agent。BLOCKER なし / NICE-TO-HAVE 2 件 LOW）
-- [ ] PR 作成 → 笹木さんマージ承認
-- [ ] PR merge
-- [ ] マージ後検証（CI green / stg・prod 影響なし）
+- [x] PR 作成 → 笹木さんマージ承認 → merge（[#53](https://github.com/sasakiyusuke2017015/wanonwan/pull/53)）
+- [x] **マージ後検証**（2026-06-23・dev スタック）: `compose:dev:down -v` からのクリーン作り直しで `pnpm dev:up` が通り、`admin@example.com` / `alice@example.com` ともログイン 200・`/me` のロール正・誤 PW / 未認証は 401。`turbo run typecheck` / web test / `pnpm test:db`（pgTAP）green。stg・prod への影響なし（dev 専用スクリプト）

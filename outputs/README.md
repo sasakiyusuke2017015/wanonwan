@@ -15,8 +15,8 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 |---|---|---|---|---|
 | 🟡 実装中 | [Pleasanter 排除 + 旧 1on1 ドメインの新スタック再構築](plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md) | 旧 1on1 を新スタック(Next.js/Postgres/GoTrue/RLS)で再構築。Phase 0–5 + 見た目踏襲 + provisioning/レートリミット/日時tz + Dashboard/Schedule までマージ済。残=デプロイ基盤（別 Plan へ分離） | — | — |
 | 🟢 マージ済み（検証中） | [デプロイ基盤（stg/prod compose + nginx + CD + prod provisioning）](plans/2026-06-12-1530-deploy-infra.md) | 親 Plan の Phase 6 を独立化。secrets 遮断 / web image / nginx(TLS,rate-limit) / CD / GoTrue prod / prod admin provisioning / backup | — | — |
-| 🟢 マージ済み（検証中） | [編集時の GoTrue 同期 + 初回ログイン後の force-change](plans/2026-06-14-1455-auth-gotrue-sync-force-change.md) | 親 Plan「認証の残」A+B。admin の email/password 変更を GoTrue へ同期（admin client に updateUser 追加）+ 初回 PW の強制変更（force-change を API 層ゲートで enforce、middleware はページ誘導） | — | — |
-| 🟢 マージ済み（検証中） | [API ルートの boilerplate を関数合成で集約（認証/admin ラッパ + parseBody + service_role + rate-limit）](plans/2026-06-15-1610-api-route-helpers.md) | force-change PR の per-route ガード直書きを関数合成で集約し、認可ガードを構造的に忘れられなくする pure refactor。withActiveUser / parseBody / withServiceRole / checkRateLimit に集約（27 ファイル・純減 117 行） | — | — |
+| ✅ 検証完了 | [編集時の GoTrue 同期 + 初回ログイン後の force-change](plans/2026-06-14-1455-auth-gotrue-sync-force-change.md) | 親 Plan「認証の残」A+B。admin の email/password 変更を GoTrue へ同期（admin client に updateUser 追加）+ 初回 PW の強制変更（force-change を API 層ゲートで enforce、middleware はページ誘導） | — | — |
+| ✅ 検証完了 | [API ルートの boilerplate を関数合成で集約（認証/admin ラッパ + parseBody + service_role + rate-limit）](plans/2026-06-15-1610-api-route-helpers.md) | force-change PR の per-route ガード直書きを関数合成で集約し、認可ガードを構造的に忘れられなくする pure refactor。withActiveUser / parseBody / withServiceRole / checkRateLimit に集約（27 ファイル・純減 117 行） | — | — |
 | ✅ 検証完了 | [apps/web に Vitest 導入 + API ヘルパの unit テスト](plans/2026-06-15-1725-web-vitest-helper-tests.md) | api-route-helpers 残課題。apps/web に Vitest を導入し parseBody / withActiveUser / checkRateLimit / withServiceRole / metadata の unit テスト（5 files / 13 tests）。test-only | — | — |
 | 🟢 マージ済み（検証中） | [API 堅牢化: ESLint 立ち上げ + 認証プリミティブ import ガード + 挙動不変 integration test](plans/2026-06-17-2210-api-hardening-lint-guard.md) | api-route-helpers 残課題。認証プリミティブ（getCurrentClaims/getAccessToken/getRefreshToken/verifyAccessToken）の直 import を `no-restricted-imports` で禁止（認可漏れの構造的防止）+ 挙動不変 integration test。前提として apps/web に ESLint flat config を新設し root lint/CI に配線 | ESLint+import ガード: [#32](https://github.com/sasakiyusuke2017015/wanonwan/pull/32)（merged） / integration test: [#34](https://github.com/sasakiyusuke2017015/wanonwan/pull/34)（merged） | — |
 | 🟢 マージ済み（検証中） | [フォームのフィールド単位 valibot エラー表示](plans/2026-06-17-2240-form-field-level-errors.md) | 見た目磨き込み #2。送信時の入力エラーを各 `FormField` 下に日本語表示。`fieldErrorsOf`（静的: safeParse+flatten）+ `requiredFieldErrors`（動的: 設問駆動）+ domain 日本語メッセージ。User/Survey/Answer 全フォーム対応（InterviewForm は全 optional で対象外） | Phase1+2: [#33](https://github.com/sasakiyusuke2017015/wanonwan/pull/33)（merged） / Phase3: [#35](https://github.com/sasakiyusuke2017015/wanonwan/pull/35)（merged） | — |
@@ -24,11 +24,11 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 | 🟢 マージ済み（検証中） | [添付ファイル基盤（MinIO + presigned URL）](plans/2026-06-18-1330-attachments-minio.md) | presigned URL でブラウザが MinIO へ直接 up/down、API は認可+メタのみ。単一 `attachments` 表(polymorphic)+entity_type 別 RLS。Phase1=storage lib+MinIO compose+表/RLS/pgTAP+面談添付 API/UI。Phase2=回答/資料/アバター+`AttachmentsPanel`共通化。Phase3=stg/prod に MinIO + nginx の storage サブドメイン配線 | Phase1: [#40](https://github.com/sasakiyusuke2017015/wanonwan/pull/40)（merged） / Phase2: [#41](https://github.com/sasakiyusuke2017015/wanonwan/pull/41)（merged） / Phase3: [#44](https://github.com/sasakiyusuke2017015/wanonwan/pull/44)（merged） | — |
 | 🟢 マージ済み（検証中） | [AI 機能: 面談メンター提案 + 自由記述の要約/分析（Claude + pgvector）](plans/2026-06-18-1900-ai-pgvector-mentor-summary.md) | Phase A=Claude(`@anthropic-ai/sdk`/Sonnet 4.6)で面談要約（`lib/ai`+`POST /answers/[id]/summary`+UI、merged）。Phase B=pgvector RAG メンター提案（**自前ホスト埋め込み** TEI/e5-small・profile ai・社外送信なし、lazy 生成、`POST /answers/[id]/mentor`+UI、key/URL 未設定で無効）。**いずれもキー/URL 未設定で外部送信ゼロ** | Phase A: [#42](https://github.com/sasakiyusuke2017015/wanonwan/pull/42)（merged） / Phase B: [#43](https://github.com/sasakiyusuke2017015/wanonwan/pull/43)（merged） / 再land fix: [#49](https://github.com/sasakiyusuke2017015/wanonwan/pull/49)（merged） | — |
 | 🟢 マージ済み（検証中） | [非同期/定期ジョブ基盤（pg_cron + pgmq）](plans/2026-06-18-2030-async-jobs-pgmq-pgcron.md) | 拡張だけ入っていた pgmq/pg_cron に実働基盤。Phase1=**添付の孤児掃除**（status 100 の古い行を pg_cron 純 SQL で定期削除。`app.is_stale_attachment`純関数+`app.gc_stale_attachments` SECURITY DEFINER・30分毎）。Phase2a=pgmq キュー + DELETE enqueue トリガ + 専用 Node worker(`apps/worker`)で MinIO 本体削除（parseGcMessage unit 8・superuser 接続・at-least-once）。Phase2b=Dockerfile.worker（pnpm deploy→type-stripping・docker build 実機確認）+ CD の worker image build/push + stg/prod compose の worker サービス | Phase1: [#45](https://github.com/sasakiyusuke2017015/wanonwan/pull/45)（merged） / Phase2a: [#46](https://github.com/sasakiyusuke2017015/wanonwan/pull/46)（merged） / Phase2b: [#47](https://github.com/sasakiyusuke2017015/wanonwan/pull/47)（merged） | — |
-| 🟢 マージ済み（検証中） | [添付の complete 実体検証 + アバター置換の安全化（レビュー HIGH 対応）](plans/2026-06-19-0130-attachments-complete-validation.md) | [triage レビュー](reviews/2026-06-19-0038-plans-review-triage.md) の添付 HIGH/MEDIUM 修正。complete は `HeadObject` でサーバ真値検証（不在422/超過413/不許可415、size は実測）+ presign 前に MIME allowlist + 最大20MB（`policy.ts` unit5）。avatar は作成時に旧を消さず **complete 成功時に置換**（unique index を status=200 限定に変更）。一覧/DL を status=200 限定 | [#48](https://github.com/sasakiyusuke2017015/wanonwan/pull/48)（merged） | — |
+| ✅ 検証完了 | [添付の complete 実体検証 + アバター置換の安全化（レビュー HIGH 対応）](plans/2026-06-19-0130-attachments-complete-validation.md) | [triage レビュー](reviews/2026-06-19-0038-plans-review-triage.md) の添付 HIGH/MEDIUM 修正。complete は `HeadObject` でサーバ真値検証（不在422/超過413/不許可415、size は実測）+ presign 前に MIME allowlist + 最大20MB（`policy.ts` unit5）。avatar は作成時に旧を消さず **complete 成功時に置換**（unique index を status=200 限定に変更）。一覧/DL を status=200 限定 | [#48](https://github.com/sasakiyusuke2017015/wanonwan/pull/48)（merged） | — |
 | 🟢 マージ済み（検証中） | [turbo (Turborepo) 導入 + scripts ergonomics 整理](plans/2026-06-22-1447-turbo-monorepo.md) | monorepo のタスク実行を **turbo (Turborepo)** に統一し、`build` / `lint` / `typecheck` / | [#51](https://github.com/sasakiyusuke2017015/wanonwan/pull/51)（merged） | [計画レビュー](reviews/2026-06-22-1558-turbo-monorepo-review.md) / [コードレビュー](reviews/2026-06-22-1902-turbo-monorepo-review.md) |
 | 🟢 マージ済み（検証中） | [@ui-catalog/core に eslint を整備し lint を機能させる](plans/2026-06-22-1626-ui-eslint-setup.md) | `packages/ui`（`@ui-catalog/core`）の `lint` script は `eslint . --ext .ts,.tsx` だが、 | [#50](https://github.com/sasakiyusuke2017015/wanonwan/pull/50)（merged） | [コードレビュー](reviews/2026-06-22-1755-ui-eslint-setup-review.md) |
 | 🟢 マージ済み（検証中） | [DB レイヤを outputs/infra-data → packages/db に移す](plans/2026-06-22-1940-db-layer-to-packages.md) | DDL / RLS / seed / pgTAP の実体が `outputs/infra-data/` に置かれているが、`outputs/` は本来 | [#52](https://github.com/sasakiyusuke2017015/wanonwan/pull/52)（merged） | [コードレビュー](reviews/2026-06-22-1951-db-layer-to-packages-review.md) |
-| 🟢 マージ済み（検証中） | [dev の GoTrue ユーザ作成を再現可能にする（dev:up でログインできる状態に）](plans/2026-06-23-0005-dev-gotrue-users-bootstrap.md) | クリーンな `pnpm dev:up`（特に `compose:dev:down -v` で volume 破棄した後）から | TBD | [計画レビュー](reviews/2026-06-23-0030-dev-gotrue-users-bootstrap-review.md) / [コードレビュー](reviews/2026-06-23-0045-dev-gotrue-users-bootstrap-code-review.md) |
+| ✅ 検証完了 | [dev の GoTrue ユーザ作成を再現可能にする（dev:up でログインできる状態に）](plans/2026-06-23-0005-dev-gotrue-users-bootstrap.md) | クリーンな `pnpm dev:up`（特に `compose:dev:down -v` で volume 破棄した後）から | [#53](https://github.com/sasakiyusuke2017015/wanonwan/pull/53)（merged） | [計画レビュー](reviews/2026-06-23-0030-dev-gotrue-users-bootstrap-review.md) / [コードレビュー](reviews/2026-06-23-0045-dev-gotrue-users-bootstrap-code-review.md) |
 | 🟢 マージ済み（検証中） | [provision を dev/stg/prod 3 環境対応にする（provision:dev 追加）](plans/2026-06-25-0101-provision-dev.md) | `pnpm provision:stg` / `provision:prod` はあるが **`provision:dev` が無い**。`scripts/provision.mjs` | [#55](https://github.com/sasakiyusuke2017015/wanonwan/pull/55)（merged） | [計画レビュー](reviews/2026-06-25-0130-provision-dev-review.md) / [コードレビュー](reviews/2026-06-25-0144-provision-dev-code-review.md) |
 | 🟢 マージ済み（検証中） | [seed の CSV 化 + マスタ管理基盤（管理画面 / provision 投入 / 順序ローダー）](plans/2026-06-25-1025-seed-csv-master-admin.md) | seed を手書き SQL から CSV 化し FK 依存順ローダー（非空スキップ=初回投入専用）で投入。provision を 2 モード化（単一 admin / `--users-csv` の N 名一括・行単位冪等・一時 PW を 0600 ファイル + must_change）。組織/役職マスタの CRUD 管理画面（`/admin/org`・`/admin/positions`）を新設 | [#56](https://github.com/sasakiyusuke2017015/wanonwan/pull/56) merged | [計画レビュー](reviews/2026-06-25-1031-seed-csv-master-admin-review.md) / [コードレビュー](reviews/2026-06-25-1431-seed-csv-master-admin-code-review.md) |
 | 🟢 マージ済み（検証中） | [権限(認可)と役職(HR)の分離 — users.role 導入](plans/2026-06-25-1558-separate-role-from-position.md) | admin 判定を positions.code 990-999 → `users.role='admin'` へ移行。positions は純粋 HR マスタ化（999 廃止・#56 の昇格ガード撤去）。最後の admin を 0 人にする操作を DB トリガーで拒否。多層防御（RLS + valibot picklist + DB CHECK + トリガー）を pgTAP で担保 | [#57](https://github.com/sasakiyusuke2017015/wanonwan/pull/57) merged | [コードレビュー](reviews/2026-06-25-1627-separate-role-from-position-code-review.md) |
@@ -42,7 +42,7 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 | 🟢 マージ済み（検証中） | [フォーム UX 統一（テーマ4）](plans/2026-07-05-1745-form-ux-unification.md) | UI/UX 改善テーマ4。3 本柱: (1) 未保存変更の離脱警告（目玉・`beforeunload` + apps の `NavigationGuardProvider`/`useGuardedNavigate` でプログラム遷移集約 + popstate。catalog は beforeunload+dirty のみ）、(2) 成功/エラーフィードバック統一（MasterForm・設問マスタ単体にトースト・エラーはフォーム=インライン/行アクション=トースト）、(3) 生 UI フォームのカタログ化（QuestionForm・PublicationForm・AnswerForm radio/checkbox・認証）。要判断 4 点確定・**計画レビューで 3→4 PR に再分割**・笹木さん承認済み | PR-A: [#71](https://github.com/sasakiyusuke2017015/wanonwan/pull/71) / PR-B: [#72](https://github.com/sasakiyusuke2017015/wanonwan/pull/72) / PR-C1: [#73](https://github.com/sasakiyusuke2017015/wanonwan/pull/73) / PR-C2: [#74](https://github.com/sasakiyusuke2017015/wanonwan/pull/74) / PR-D: [#75](https://github.com/sasakiyusuke2017015/wanonwan/pull/75) | [計画レビュー](reviews/2026-07-05-1810-form-ux-unification-review.md) |
 | 🟡 実装中 | [仕上げ（テーマ5・ページタイトル / 公開一覧 UX / ダークモード / VRT）](plans/2026-07-05-2015-finishing-touches.md) | UI/UX 改善テーマ5「仕上げ」。**フェーズ分割**: Phase1 ページタイトル・Phase2 公開一覧 UX（polish・**マージ済み・検証中**）/ Phase3 ダークモード（epic・三層モデル: semantic トークン反転境界 + design.ts 前景調整 + 114 箇所 repoint・FOUC 対策要）/ Phase4 VRT（epic・reg-suit + storycap + MinIO baseline・4-light→3→4-dark の additive 順序）。epic 2 本は着手時に独立サブ Plan 化 | Phase1: [#76](https://github.com/sasakiyusuke2017015/wanonwan/pull/76) merged / Phase2: [#77](https://github.com/sasakiyusuke2017015/wanonwan/pull/77) merged | [計画レビュー](reviews/2026-07-05-2040-finishing-touches-review.md) / [Phase1 コードレビュー](reviews/2026-07-05-2226-finishing-touches-code-review.md) / [Phase2 コードレビュー](reviews/2026-07-05-2300-finishing-touches-phase2-code-review.md) |
 | 🟣 マージ承認待ち | [provision/seed 体系の 2 軸再編（(de)provision:{env}[:{step}]）](plans/2026-07-07-1412-provision-steps.md) | seed/provision 3 スクリプトを「環境 × ステップ + 依存グラフ + deprovision」の単一体系へ再編 | [#112](https://github.com/sasakiyusuke2017015/wanonwan/pull/112) | [計画レビュー](reviews/2026-07-07-1424-provision-steps-review.md) / [コードレビュー](reviews/2026-08-13-0120-provision-steps-review.md) / [コードレビュー v2](reviews/2026-08-13-0926-provision-steps-code-review-v2.md) |
-| 🟢 マージ済み（検証中） | [SubHeaderToolbar — DataTable の funnel 開閉 Toolbar を SubHeader chrome に統合](plans/2026-07-07-1430-subheader-toolbar.md) | DataTable (ai_edu 由来) の funnel 開閉 Toolbar と SubHeader の固定 chrome を合成した SubHeaderToolbar を新設し、未使用の ui-catalog 資産 (FilterField / DataCountDisplay / Pagination / SearchBar / ResetButton / Badge / Tooltip / Animated 等) を積極採用してテーブル体験を刷新する | [#81](https://github.com/sasakiyusuke2017015/wanonwan/pull/81)（merged）/ lint fix: [#84](https://github.com/sasakiyusuke2017015/wanonwan/pull/84)（merged）/ Phase 3-2: [#86](https://github.com/sasakiyusuke2017015/wanonwan/pull/86) | [Phase 1](reviews/2026-07-07-1822-subheader-toolbar-review.md) / [Phase 2](reviews/2026-07-07-1920-subheader-toolbar-review.md) / [Phase 3](reviews/2026-07-07-2010-subheader-toolbar-review.md) / [Phase 3-2](reviews/2026-07-14-0151-subheader-toolbar-phase3-2-review.md) |
+| ✅ 検証完了 | [SubHeaderToolbar — DataTable の funnel 開閉 Toolbar を SubHeader chrome に統合](plans/2026-07-07-1430-subheader-toolbar.md) | DataTable (ai_edu 由来) の funnel 開閉 Toolbar と SubHeader の固定 chrome を合成した SubHeaderToolbar を新設し、未使用の ui-catalog 資産 (FilterField / DataCountDisplay / Pagination / SearchBar / ResetButton / Badge / Tooltip / Animated 等) を積極採用してテーブル体験を刷新する | [#81](https://github.com/sasakiyusuke2017015/wanonwan/pull/81)（merged）/ lint fix: [#84](https://github.com/sasakiyusuke2017015/wanonwan/pull/84)（merged）/ Phase 3-2: [#86](https://github.com/sasakiyusuke2017015/wanonwan/pull/86) | [Phase 1](reviews/2026-07-07-1822-subheader-toolbar-review.md) / [Phase 2](reviews/2026-07-07-1920-subheader-toolbar-review.md) / [Phase 3](reviews/2026-07-07-2010-subheader-toolbar-review.md) / [Phase 3-2](reviews/2026-07-14-0151-subheader-toolbar-phase3-2-review.md) |
 | ✅ 検証完了 | [ui-catalog 上流最新版の選択的マージ（packages/ui 刷新）](plans/2026-07-16-2354-ui-catalog-upstream-sync.md) | ui-catalog 上流最新版 (ui.zip) を packages/ui へ選択的マージ。上流のみ変更 115 件採用 / wanonwan 独自部品維持 / 衝突 33 件個別マージ / 汎用新規部品のみ採用 | [#97](https://github.com/sasakiyusuke2017015/wanonwan/pull/97) | [計画レビュー](reviews/2026-07-17-0005-ui-catalog-upstream-sync-review.md) / [コードレビュー](reviews/2026-07-17-0040-ui-catalog-upstream-sync-code-review.md) |
 | 🟢 マージ済み（検証中） | [マルチロール権限（admin / interviewer / member）とメニューからのロール切替](plans/2026-07-19-1631-interviewer-role.md) | マルチロール権限へ再設計（admin/interviewer/member、member 暗黙保有の `user_roles`・1 人が複数保有可）。ヘッダーメニューの視点切替、面談担当の指名 API + admin UI、担当面談画面を追加。認可 = 保有 union / 切替 = 表示のみ | 基盤: [#98](https://github.com/sasakiyusuke2017015/wanonwan/pull/98) / 切替+担当面談: [#99](https://github.com/sasakiyusuke2017015/wanonwan/pull/99) | [計画レビュー（改訂前版）](reviews/2026-07-19-1643-interviewer-role-review.md) / [計画レビュー（マルチロール改訂版）](reviews/2026-07-19-1701-interviewer-role-review.md) |
 | ❌ 撤回 | [左ペインを ui-catalog 新 SidebarNav へ乗せ替え（展開⇄レール切替）](plans/2026-07-21-0224-sidebar-nav-v2.md) | **撤回**（左ペインの `SidebarNav` 単体乗せ替え。実装・検証まで到達したが見た目が要件に届かず、シェルごと刷新する [AppShell/Sidebar 採用](plans/2026-07-23-1357-appshell-sidebar-adoption.md) が後継として完了したため未マージで撤回）。得られた知見（Tailwind v4 で `tailwind.preset.ts` は app ビルドに読まれない / `sidebar-*` トークンは globals.css の `@theme inline` で定義する）は後継 Plan に引き継ぎ済み | TBD | [計画レビュー](reviews/2026-07-21-0235-sidebar-nav-v2-review.md) |
@@ -64,37 +64,17 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 ### [デプロイ基盤（stg/prod compose + nginx + CD + prod provisioning）](plans/2026-06-12-1530-deploy-infra.md)
 
 - [ ] **マージ後検証**（stg 実環境・笹木さん）
+  - [ ] `pnpm check:secrets:stg` が弱い secret（`dev-only-...` 等）を弾き、実値では通る
   - [ ] `infra/.env.stg` を実値で用意し `pnpm compose:stg:up` が起動（未設定 secret で起動失敗することも確認）
   - [ ] CD（develop push）で GHCR build/push → stg deploy、migration が web 起動前に流れる
-  - [ ] nginx 経由 HTTPS でトップ描画 / `/api/v1/auth/login` が nginx 一次レートリミットで 429
+  - [ ] nginx 経由 HTTPS でトップ描画 / X-Forwarded-For の実 IP 注入が効く / `/api/v1/auth/login` が nginx 一次レートリミットで 429
   - [ ] `pnpm provision:prod`（stg 相当）で admin 発行 → そのアカウントでログイン成功
   - [ ] `backup-db.sh` で dump → 別 DB へ restore 成功
-
-### [編集時の GoTrue 同期 + 初回ログイン後の force-change](plans/2026-06-14-1455-auth-gotrue-sync-force-change.md)
-
-- [ ] 笹木さん承認
-- [ ] Step 1（client 拡張）→ Step 5（change-password UI）実装（feature/auth-gotrue-sync-force-change）
-- [ ] runtime/手動検証（§6 A/B、**B-0=app_metadata が token claim に載るか**）※Docker 必要・笹木さん環境で受け入れ前に実施
-- [ ] **マージ後（受け入れ）検証**（笹木さん環境・Docker）
-  - [ ] **B-0**: 新規作成ユーザーの access token に `app_metadata.must_change_password=true` が載る（崩れたら判断 #2 の DB カラム方式へピボット）
-  - [ ] A-1: admin が email 変更 → 新 email でログイン可・旧 email 不可
-  - [ ] A-3: PW リセットで生成 PW が一度だけ返り、その PW でログイン可
-  - [ ] B-2/B-3: フラグ持ちはページが `/change-password` へ・非 allowlist API は 403・認証 API は素通し
-  - [ ] B-4: current PW 必須、変更後は通常画面へ進め再ログインでも強制されない
-
-### [API ルートの boilerplate を関数合成で集約（認証/admin ラッパ + parseBody + service_role + rate-limit）](plans/2026-06-15-1610-api-route-helpers.md)
-
-- [ ] **マージ後 runtime スモーク**（Docker・#25 の B-0 受け入れと同セッションで可）: login / users CRUD / change-password / 任意の業務 GET が従来どおり動く（401/403/429 含む挙動不変）
-- [ ] （後続・別タスク）挙動不変の軽い integration test（429→401→400 順 / me の 2 種 401 / admin 403 等）
-- [ ] （後続・別タスク）新規 route のガード強制: `no-restricted-imports` で認証プリミティブ直 import を禁止（allowlist override）
+  - [ ] prod でも同手順（`*:prod`）で再現
 
 ### [API 堅牢化: ESLint 立ち上げ + 認証プリミティブ import ガード + 挙動不変 integration test](plans/2026-06-17-2210-api-hardening-lint-guard.md)
 
-- [ ] Phase 1 コードレビュー
-- [ ] Phase 2 実装（integration test）
-- [ ] Phase 2 コードレビュー
-- [ ] PR-A / PR-B マージ
-- [ ] 親 Plan の §残課題チェックを消し込み
+- [ ] 親 Plan（[pleasanter-exit-1on1-rebuild §10 残課題](plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md#L339)）の該当項目を消し込み
 
 ### [フォームのフィールド単位 valibot エラー表示](plans/2026-06-17-2240-form-field-level-errors.md)
 
@@ -109,7 +89,10 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 ### [添付ファイル基盤（MinIO + presigned URL）](plans/2026-06-18-1330-attachments-minio.md)
 
 - [ ] Phase 1 コードレビュー
-- [ ] マージ後検証（Docker・笹木さん）
+- [ ] **マージ後検証（Phase 3・stg/prod 実環境・笹木さん）**
+  - [ ] `storage.<domain>` の DNS A レコード + 証明書 SAN に storage 名が入っている
+  - [ ] 公開ホスト経由で実 upload / download（SigV4 整合・サブドメイン方式）
+  - [ ] `check-secrets` が `MINIO_ROOT_PASSWORD` を必須チェックする
 
 ### [AI 機能: 面談メンター提案 + 自由記述の要約/分析（Claude + pgvector）](plans/2026-06-18-1900-ai-pgvector-mentor-summary.md)
 
@@ -119,19 +102,19 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 - [ ] 計画レビュー / 笹木さん承認
 - [ ] Phase A コードレビュー
 - [ ] **承認時に確定**: 送信データの最小化/マスキング（§3.1(d)）— 送信 field・文字数・類似件数を確定（レビュー HIGH。有効化前に必須）
-- [ ] マージ後検証（Docker・笹木さん: 承認フラグ + key 設定で要約/メンターが返る・未設定で 503）
+- [ ] **マージ後検証: gate on 側** — **§3.1 の組織承認 + 実 API キー待ちでブロック中**（承認が下りるまで実施しない）
+  - [ ] gate on で「AI 要約」→ 要約が返る（面談者 / admin のみ・他人 403・空 400・Claude 失敗 502）
+  - [ ] `pnpm compose:ai:up` 後「メンター提案」→ 類似過去面談を文脈に提案（`EMBEDDINGS_URL` 設定）
+  - [ ] gate on 時もプロンプト本文がサーバログに残らない
+  - [ ] stg / prod に key・URL を secret 配備して要約 / メンターが返る。レイテンシとコストが許容範囲
 
 ### [非同期/定期ジョブ基盤（pg_cron + pgmq）](plans/2026-06-18-2030-async-jobs-pgmq-pgcron.md)
 
 - [ ] 計画レビュー / 笹木さん承認
-- [ ] Phase 1 runtime 検証（Docker・笹木さん: cron 登録 + 実削除）
-- [ ] Phase 2a runtime 検証（Docker・笹木さん: 削除→enqueue→worker が MinIO 本体削除）
-- [ ] Phase 2b runtime 検証（笹木さん stg: CD で wanonwan-worker push → worker 起動 → 添付削除で本体掃除）
-
-### [添付の complete 実体検証 + アバター置換の安全化（レビュー HIGH 対応）](plans/2026-06-19-0130-attachments-complete-validation.md)
-
-- [ ] pgTAP（avatar index の 100+200 共存 / 200+200 違反）— CI で実走（ローカルは 5432 競合で不可）
-- [ ] runtime 検証（Docker・笹木さん: 実 upload→complete で実サイズ反映 / 未完了 422 / 上限 413 / avatar 途中放棄で旧残存 / 一覧に pending 出ない）
+- [ ] **Phase 2b runtime 検証（stg 実環境・笹木さん）**
+  - [ ] CD で `wanonwan-worker` image が build / push される
+  - [ ] migration 後の `dc up -d web worker nginx` で worker が起動し、superuser 接続で pgmq を消化する
+  - [ ] 実環境で添付削除 → enqueue → worker が MinIO 本体を削除
 
 ### [turbo (Turborepo) 導入 + scripts ergonomics 整理](plans/2026-06-22-1447-turbo-monorepo.md)
 
@@ -150,12 +133,6 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 - [ ] PR 作成 → 笹木さんマージ承認
 - [ ] PR merge
 - [ ] マージ後検証（CD で image SQL 非混入 / CI green）
-
-### [dev の GoTrue ユーザ作成を再現可能にする（dev:up でログインできる状態に）](plans/2026-06-23-0005-dev-gotrue-users-bootstrap.md)
-
-- [ ] PR 作成 → 笹木さんマージ承認
-- [ ] PR merge
-- [ ] マージ後検証（CI green / stg・prod 影響なし）
 
 ### [provision を dev/stg/prod 3 環境対応にする（provision:dev 追加）](plans/2026-06-25-0101-provision-dev.md)
 

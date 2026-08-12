@@ -97,8 +97,9 @@
 - [x] Plan ドラフト完成（本ファイル）
 - [x] 計画レビュー / 笹木さん承認（2026-06-17 承認）
 - [x] Phase 1 実装（ESLint flat config + `no-restricted-imports` ガード + root lint + CI lint ステップ）。`pnpm lint` / `pnpm -r typecheck` green、違反 0・ガード発火を確認
-- [ ] Phase 1 コードレビュー
-- [ ] Phase 2 実装（integration test）
-- [ ] Phase 2 コードレビュー
-- [ ] PR-A / PR-B マージ
-- [ ] 親 Plan の §残課題チェックを消し込み
+- [x] Phase 1 コードレビュー（チャット内で実施。saved Review file なし＝笹木さんのマージ承認で代替）
+- [x] Phase 2 実装（integration test）
+- [x] Phase 2 コードレビュー（チャット内で実施。saved Review file なし＝笹木さんのマージ承認で代替）
+- [x] PR-A [#32](https://github.com/sasakiyusuke2017015/wanonwan/pull/32) / PR-B [#34](https://github.com/sasakiyusuke2017015/wanonwan/pull/34) マージ
+- [x] **マージ後検証**（2026-06-23・dev スタック）: `pnpm --filter @wanonwan/web lint` green。`no-restricted-imports` が `app/api/**/route.ts` に対し認証プリミティブ直 import を禁止する設定を確認
+- [ ] 親 Plan（[pleasanter-exit-1on1-rebuild §10 残課題](2026-06-11-1730-pleasanter-exit-1on1-rebuild.md#L339)）の該当項目を消し込み
