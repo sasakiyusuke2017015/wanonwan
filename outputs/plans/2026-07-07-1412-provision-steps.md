@@ -5,7 +5,7 @@
 | 概要 | seed/provision 3 スクリプトを「環境 × ステップ + 依存グラフ + deprovision」の単一体系へ再編 |
 | ステータス | 🟣 マージ承認待ち |
 | 前提 Plan | [provision-dev](2026-06-25-0101-provision-dev.md) / [seed-csv-master-admin](2026-06-25-1025-seed-csv-master-admin.md) |
-| PR | |
+| PR | [#112](https://github.com/sasakiyusuke2017015/waoon/pull/112) |
 | Review | [計画レビュー](../reviews/2026-07-07-1424-provision-steps-review.md) / [コードレビュー](../reviews/2026-08-13-0120-provision-steps-review.md) / [コードレビュー v2](../reviews/2026-08-13-0926-provision-steps-code-review-v2.md) |
 
 ## 目的
