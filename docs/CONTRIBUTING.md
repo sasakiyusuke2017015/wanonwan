@@ -48,9 +48,16 @@ pnpm compose:dev:up
 pnpm provision:dev
 ```
 
-`provision:dev` は組織マスタ seed と人員 CSV（既定 [infra/provision-users.example.csv](../infra/provision-users.example.csv)）の
-ユーザ発行を行う（行単位で冪等。再実行は skip）。別 CSV を使うなら
-`pnpm provision:dev --users-csv <path>`。
+`provision:dev` は 4 ステップ（`master` → `user` → `demo` → `fixture`）をまとめて流す。
+ステップだけを流したいときは `pnpm provision:dev:demo` のように指定でき、依存ステップは
+自動で先行実行される。別の人員 CSV を使うなら `pnpm provision:dev --users-csv <path>`。
+
+| ステップ | 内容 | 再実行時 |
+|---|---|---|
+| `master` | 組織マスタ 5 表（divisions / departments / sections / positions / urgency_levels） | テーブルが非空ならスキップ |
+| `user` | 人員 CSV → GoTrue 発行 + `public.users` / `user_roles` | 行単位で skip（CSV に足した行だけ入る） |
+| `demo` | 画面確認用のアンケート / 回答 / スケジュール一式 | 番兵行（`users.code='demo01'`）があればスキップ |
+| `fixture` | pgTAP が前提にする最小データ（`packages/db/seed/*.sql`） | SQL 自体が冪等 |
 
 ### dev ログイン一覧（固定パスワード・dev 限定）
 
@@ -58,35 +65,27 @@ pnpm provision:dev
 （member は全員が暗黙保有。複数保有者はヘッダーメニューで視点を切り替えられる）。
 stg/prod はランダム PW + 初回変更強制で別管理（この表は dev のみ）。
 
-**provision ユーザー**（`pnpm provision:dev` が発行。PW は全員 `Password1!` 固定。
-各ロール 1〜9 の 36 アカウント）:
-
-| email | 権限 |
-|---|---|
-| `admin1`〜`admin9`@example.com | 管理者 |
-| `interviewer1`〜`interviewer9`@example.com | 面談担当 |
-| `member1`〜`member9`@example.com | メンバー |
-| `multi1`〜`multi9`@example.com | 管理者 + 面談担当（視点切替メニューの確認に使える） |
-
-**seed ユーザー**（CI / RLS テスト兼デモ用。`pnpm db:seed` の後に `pnpm seed:gotrue:dev` で
-ログイン可能になる。**PW は全員 `Password1!` 固定**（一次ソース:
-[scripts/seed-gotrue-dev.mjs](../scripts/seed-gotrue-dev.mjs)）。メール名は pgTAP fixture が
-参照するため固定。権限は [packages/db/seed/users/users.csv](../packages/db/seed/users/users.csv) の roles 列:
+`pnpm provision:dev` が発行する 36 アカウント（各ロール 1〜9）。**PW は全員 `Password1!` 固定**。
+一次ソースは [packages/db/seed/users/users.csv](../packages/db/seed/users/users.csv) の `roles` 列。
 
 | email | 権限 | 備考 |
 |---|---|---|
-| `admin@example.com` | 管理者 + 面談担当 | |
-| `alice@example.com` | メンバー | サンプル回答の回答者 |
-| `bob@example.com` | 面談担当 | アリスの回答の閲覧者でもある |
-| `carol@example.com` | メンバー | 無関係ユーザー（否定テスト用） |
-| `dave@example.com` | メンバー | |
+| `admin1`〜`admin9`@example.com | 管理者 | `admin1` は pgTAP が admin として使う |
+| `interviewer1`〜`interviewer9`@example.com | 面談担当 | `interviewer1` はサンプル回答の閲覧者 |
+| `member1`〜`member9`@example.com | メンバー | `member1` はサンプル回答の回答者 / `member2` は無関係ユーザー（否定テスト用） |
+| `multi1`〜`multi9`@example.com | 管理者 + 面談担当 | 視点切替メニューの確認に使える |
+
+`admin1` / `interviewer1` / `member1` / `member2` は **固定 `gotrue_id`** を持つ。pgTAP が
+`SET LOCAL app.user_id` にこの UUID を直接埋め込むため、CSV の該当行の `gotrue_id` は変更しない。
 
 ### 個別に回す
 
 | コマンド | 用途 |
 |---|---|
 | `pnpm db:migrate` | スキーマ適用 |
-| `pnpm provision:dev` | 組織マスタ + ユーザ投入 |
+| `pnpm provision:dev` | 全ステップ投入（master → user → demo → fixture） |
+| `pnpm provision:dev:{master,user,demo,fixture}` | 1 ステップだけ投入（依存は自動で先行） |
+| `pnpm deprovision:dev:{master,user,demo} --yes` | 1 ステップだけ削除（`--yes` 無しは件数表示のみ。[seed/README.md](../packages/db/seed/README.md)） |
 | `pnpm dev` | web のみ（DB は起動済み前提） |
 | `pnpm compose:dev:down` | 停止（web も止める。データは保持。`-v` でボリュームも削除） |
 | `pnpm compose:dev:logs` | コンテナログ追従 |

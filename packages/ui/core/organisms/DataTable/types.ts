@@ -16,18 +16,13 @@ export interface FilterOption {
 }
 
 interface FilterDefBase {
-  /** フィルタ対象キー (主に react key / 識別用) */
+  /** フィルタ対象キー (主に react key / 識別用。client モードでは row フィールド名) */
   key: string
-  /** select の見出し / placeholder / aria-label */
+  /** フィルタカードの見出しラベル */
   label: string
-  options: FilterOption[]
-  /** 先頭に空(未選択)選択肢を出す (default: true) */
-  allowEmpty?: boolean
-  /** 空(未選択)オプションのラベル (default: DataTable 側で「すべて」) */
-  emptyLabel?: string
   /**
    * この filter を特定の列の表示/非表示に連動させる場合の対応列 key (`Column.key`)。
-   * 指定すると、その列が column picker (gear) で **非表示のとき filter 入力も隠れる**。
+   * 指定すると、その列が column picker (列ピッカー) で **非表示のとき filter 入力も隠れる**。
    * 列を表示すると filter も現れる (列ピッカーとフィルタの連動)。
    * 未指定の filter は列の表示状態に関わらず常時表示 (後方互換)。
    * 値が入ったままの filter は、列を隠しても適用中チップとしては残り解除できる。
@@ -35,8 +30,18 @@ interface FilterDefBase {
   columnKey?: string
 }
 
+/** select 系フィルタ共通 (既存互換のため判別子 `type` を持たない = undefined)。 */
+interface SelectFilterDefBase extends FilterDefBase {
+  type?: undefined
+  options: FilterOption[]
+  /** 先頭に空(未選択)選択肢を出す (default: true) */
+  allowEmpty?: boolean
+  /** 空(未選択)オプションのラベル (default: DataTable 側で「すべて」) */
+  emptyLabel?: string
+}
+
 /** 単一選択フィルタ */
-export interface SingleFilterDef extends FilterDefBase {
+export interface SingleFilterDef extends SelectFilterDefBase {
   multiple?: false
   /** 現在値 (null = 未選択) */
   value: string | null
@@ -44,18 +49,68 @@ export interface SingleFilterDef extends FilterDefBase {
 }
 
 /** 複数選択フィルタ (Select の multiple UI を使う。選択中はチェックマーク表示) */
-export interface MultiFilterDef extends FilterDefBase {
+export interface MultiFilterDef extends SelectFilterDefBase {
   multiple: true
   value: string[]
   onChange: (values: string[]) => void
 }
 
 /**
- * toolbar の filter (select) 定義。
- * 値の保持と実際の絞り込みは mode で分岐するが、UI 生成は DataTable が引き受ける。
- * client / server どちらでも `value` / `onChange` は controlled (必須)。
+ * テキストフィルタ。client モードでは対象フィールドの小文字部分一致で絞り込む。
+ * server モードでは表示のみ (絞り込みは呼び出し側が API param 等で実装する)。
  */
-export type FilterDef = SingleFilterDef | MultiFilterDef
+export interface TextFilterDef extends FilterDefBase {
+  type: 'text'
+  /** 現在値 ('' = 未適用) */
+  value: string
+  onChange: (value: string) => void
+  placeholder?: string
+}
+
+/**
+ * 数値範囲フィルタ。client モードでは `min <= Number(値) <= max` で絞り込む。
+ * min / max は非負数を前提とする (URL 直列化が `min-max` 形式のため)。
+ * server モードでは表示のみ (絞り込みは呼び出し側が実装する)。
+ */
+export interface NumberRangeFilterDef extends FilterDefBase {
+  type: 'numberRange'
+  /**
+   * 現在値。**未適用は必ず null で表現する** (全範囲タプル [min, max] を渡すと
+   * 「適用中」扱いになり、数値化できない行の除外とチップ表示が走る)。
+   * Toolbar はユーザーが全範囲へ戻した操作を null に畳んで onChange する。
+   */
+  value: [number, number] | null
+  onChange: (value: [number, number] | null) => void
+  /** 範囲の下限 (default: 0) */
+  min?: number
+  /** 範囲の上限 (default: 5) */
+  max?: number
+}
+
+/**
+ * 日付フィルタ (YYYY-MM-DD テキスト入力)。client モードでは ISO 文字列の
+ * date-only 前方一致で絞り込む。server モードでは表示のみ。
+ */
+export interface DateFilterDef extends FilterDefBase {
+  type: 'date'
+  /** 現在値 ('' = 未適用) */
+  value: string
+  onChange: (value: string) => void
+}
+
+/**
+ * toolbar の filter 定義。
+ * 値の保持と実際の絞り込みは mode で分岐するが、UI 生成 (FilterField カード) は
+ * DataTable が引き受ける。client / server どちらでも `value` / `onChange` は
+ * controlled (必須)。select 系 (単一/複数) は既存互換のため `type` を持たず、
+ * `multiple` で判別する。
+ */
+export type FilterDef =
+  | SingleFilterDef
+  | MultiFilterDef
+  | TextFilterDef
+  | NumberRangeFilterDef
+  | DateFilterDef
 
 /**
  * toolbar の検索 box 定義。debounce は呼び出し側 hook で吸収する。
@@ -107,22 +162,8 @@ export interface PaginationDef {
  * Toolbar の filter row を funnel アイコンボタンで開閉可能にする collapse オプション。
  * `collapsible: true` で default (defaultOpen=true) を使う。
  * 細かく指定したい場合は object 形を渡す。
- *
- * ToggleableSection ベースだった頃の `title` / `borderColor` は funnel アイコン
- * 化に伴い無視される。互換のため型は残しているが、新規呼び出しでは渡さないこと。
  */
 export interface CollapsibleOptions {
-  /**
-   * @deprecated funnel アイコンボタン化に伴い無視されます。次回の breaking
-   * release で削除予定。Toolbar 左端に出る funnel ボタン自体には title はなく、
-   * `aria-label="フィルタを切り替える"` が固定で付きます。
-   */
-  title?: string
-  /**
-   * @deprecated funnel アイコンボタン化に伴い無視されます。次回の breaking
-   * release で削除予定。
-   */
-  borderColor?: string
   /** 初期表示状態 (default: true = 展開) */
   defaultOpen?: boolean
 }
@@ -190,6 +231,13 @@ export type RowActionDef<TRow> =
       confirmTitle?: string
       confirmMessage?: (row: TRow) => string
       onDelete: (row: TRow) => Promise<void> | void
+      /**
+       * true を返す行は削除ボタンを disabled にし、確認ダイアログを開かない。
+       * 「使用中で消せない」等、押す前に不可と分かる行を無駄に確認させないため。
+       */
+      disabled?: (row: TRow) => boolean
+      /** disabled 時にボタンへ出す理由 (title / aria-label に使う)。 */
+      disabledReason?: (row: TRow) => string
     }
   | {
       type: 'custom'
@@ -233,6 +281,13 @@ export interface Column<TRow> {
   render?: (row: TRow) => ReactNode
   /** client モードでクリックソート可能にする (server モードでは無視) */
   sortable?: boolean
+  /**
+   * client ソート時の比較キーを行から導出する (省略時は `String(row[key])`)。
+   * 数値を返すと数値比較、文字列なら ja localeCompare。配列や render 由来で
+   * `row[key]` が直接ソートに使えない列を代表値で並べたいときに使う
+   * (例: role_codes を `Math.max` で「最高権限」順にソート)。
+   */
+  sortValue?: (row: TRow) => string | number
   /**
    * column picker での表示/非表示トグルを許可するか (default: true)。
    * `false` の列は常時表示で、picker 上では切替コントロールを持たず「常に表示」の鍵バッジで示す。
@@ -360,6 +415,15 @@ export type { TableAnimationVariant }
  */
 export interface ClientQueryState {
   sortItems: ServerSortItem[]
+  /**
+   * 既定ソート (URL に sort 指定が無いときの初期並び)。指定すると:
+   * - `sortItems` がこの値のとき、ヘッダの該当列に矢印が出る (並びの根拠が UI で見える)。
+   * - 既定ソート状態から *既定に含まれない* 列をクリックすると、既定を第1キーとして
+   *   引きずらず、その列の単一ソートに切り替える (`handleSortClick` が使用)。
+   *   既定列が全行ユニークだと他列クリックがタイブレークに埋もれて無反応に見えるのを防ぐ。
+   * 主に `useClientTableUrlState({ sort: { defaultSort } })` が供給する。
+   */
+  defaultSort?: ServerSortItem[]
   onSortItemsChange: (items: ServerSortItem[]) => void
   search: string
   onSearchChange: (value: string) => void

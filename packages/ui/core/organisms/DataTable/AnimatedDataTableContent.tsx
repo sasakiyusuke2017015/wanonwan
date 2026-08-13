@@ -233,6 +233,11 @@ export function AnimatedDataTableContent<TRow>({
         const deltaX = prevLeft - newLeft
         // 左へ動く列 (deltaX>0) は下に沈んで「手前」、右へ動く列は上に浮いて「奥」。
         // front (手前) を上の z + 不透明背景にして、奥の列を確実に覆う (重なり破綻を防ぐ)。
+        // z の絶対値は静止側との関係で決める:
+        // - th: 静止ヘッダ (sticky z2) / toolbar (sticky z3) と同じ文脈で重なるため、それより
+        //   手前 (4/5) に上げないと動く黒帯セルが裏へ回る。position は sticky のまま触らない
+        //   (relative に上書きするとスクロール吸着中のヘッダだけ跳ねて落ちる)。
+        // - td: 手前/奥 (1/0) は付けるが黒帯 (z2) は超えない (行は常にヘッダの下をくぐる)。
         const goingDownFront = deltaX > 0
         const sel =
           typeof CSS !== 'undefined' && typeof CSS.escape === 'function' ? CSS.escape(key) : key
@@ -240,8 +245,9 @@ export function AnimatedDataTableContent<TRow>({
         const { keyframes, options } = colFlipKeyframes(deltaX)
         cells?.forEach((cell) => {
           if (typeof cell.animate !== 'function') return
-          cell.style.position = 'relative'
-          cell.style.zIndex = goingDownFront ? '2' : '1'
+          const isHeader = cell.tagName === 'TH'
+          if (!isHeader) cell.style.position = 'relative'
+          cell.style.zIndex = isHeader ? (goingDownFront ? '5' : '4') : goingDownFront ? '1' : '0'
           cell.style.backgroundColor = resolveOpaqueBg(cell)
           touched.push(cell)
           moveAnims.push(cell.animate(keyframes, options))
@@ -314,10 +320,7 @@ export function AnimatedDataTableContent<TRow>({
                     animate="visible"
                     exit="exit"
                     className={cn(styles.th, isSortable && styles.thSortable, col.headerClassName)}
-                    style={{
-                      ...(col.width !== undefined ? { width: col.width } : {}),
-                      overflow: 'hidden',
-                    }}
+                    style={col.width !== undefined ? { width: col.width } : undefined}
                     onClick={isSortable ? () => onSortClick?.(col.key) : undefined}
                     aria-sort={
                       isSorted ? (order === 'desc' ? 'descending' : 'ascending') : undefined
@@ -402,7 +405,6 @@ export function AnimatedDataTableContent<TRow>({
                           animate="visible"
                           exit="exit"
                           className={cn(styles.td, ALIGN_CLASS[align], col.cellClassName)}
-                          style={{ overflow: 'hidden' }}
                         >
                           {renderCellContent(col, row)}
                         </motion.td>

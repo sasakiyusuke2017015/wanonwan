@@ -60,6 +60,6 @@ pg_dump 出力は決定的になるよう正規化する（`\restrict` のラン
 
 ```bash
 pnpm compose:dev:down -v && pnpm compose:dev:up   # snapshot 高速パスで初期化
-pnpm db:seed                                       # 初期データ（seed/README.md）
+pnpm provision:dev                                 # 初期データ（seed/README.md）
 pnpm test:db                                       # pgTAP
 ```
