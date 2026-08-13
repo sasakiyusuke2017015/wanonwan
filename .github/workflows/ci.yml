@@ -62,7 +62,7 @@ jobs:
         run: pnpm db:migrate
 
       - name: Seed
-        run: pnpm db:seed
+        run: pnpm provision:dev
 
       - name: pgTAP (RLS)
         run: pnpm test:db

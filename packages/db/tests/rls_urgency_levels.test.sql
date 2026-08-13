@@ -22,7 +22,7 @@ SELECT lives_ok(
   'admin は緊急度を更新できる'
 );
 
--- 3) 非 admin（alice = 上位ロールなし）は読める（認証済み select）
+-- 3) 非 admin（member1 = 上位ロールなし）は読める（認証済み select）
 SET LOCAL app.user_id = '00000000-0000-0000-0000-0000000a11ce';
 SELECT isnt_empty(
   $$ SELECT 1 FROM public.urgency_levels WHERE code = 1 $$,

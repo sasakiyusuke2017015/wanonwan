@@ -19,7 +19,7 @@ SELECT lives_ok(
   'admin は役職を更新できる'
 );
 
--- 3) 非 admin（alice = 上位ロールなし）は役職を作成できない（RLS 42501）
+-- 3) 非 admin（member1 = 上位ロールなし）は役職を作成できない（RLS 42501）
 SET LOCAL app.user_id = '00000000-0000-0000-0000-0000000a11ce';
 SELECT throws_ok(
   $$ INSERT INTO public.positions (code, name) VALUES (420, 'x') $$,
