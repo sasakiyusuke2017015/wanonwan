@@ -5,7 +5,7 @@
 
 > [02-target](02-target.md) の原則を実物のテンプレに落とす。ここは**提案**で、本物の
 > [`_template.md`](../_template.md) 改訂は Step 6（rules 反映）で行う。
-> 設計判断: [thinking-log](../../../docs/thinking-log/2026-07-06-information-properties-and-placement.md)。
+> 設計判断: [index](index.md#背景の分析軸)。
 
 ## 設計の要点（現行からの差分）
 

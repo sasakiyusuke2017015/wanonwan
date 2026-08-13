@@ -35,8 +35,6 @@ seed 由来のみの安全な削除つき）へ再編する。
 - seed CSV の内容変更（[`packages/db/seed/csv/`](../../packages/db/seed/csv/) のデータは現状維持）
 - MinIO / avatar 系ステップ（waoon は MinIO 未採用）
 - compose 起動時の自動 provision（one-shot 連携は将来検討）
-- [`docs/技術選定/_techmemo-decoded.md`](../../docs/技術選定/_techmemo-decoded.md) の
-  `db:seed` 言及の更新（decode 原本 = 歴史文書のため）
 
 ## 現状コンテキスト（2026-07-07 時点）
 

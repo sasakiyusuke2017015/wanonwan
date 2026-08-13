@@ -5,22 +5,20 @@
 
 ## プロジェクト概要
 
-waoon は、旧 **1on1（アンケート／面談）アプリ**を技術選定メモのスタックで **再構築**する
+waoon は、旧 **1on1（アンケート／面談）アプリ**を下記の採用スタックで **再構築**する
 プロジェクト。旧アプリがデータストア兼管理 UI に使っていた **Pleasanter を完全排除**し、
 **Docker + PostgreSQL + GoTrue + RLS + API 一本化**へ移行する。
 
 - 対象ドメイン（ユーザー / アンケート / 回答 / 面談）は旧 1on1 由来。
-- スタック・開発思想は技術選定メモ由来。
 - 基盤（認証 / DB + RLS / API / 管理・回答・面談・ダッシュボード・スケジュール）は実装・マージ済み。
   デプロイ基盤と一部認証フローを検証中（[詳細 Plan](outputs/plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md) / [進捗ダッシュボード](outputs/README.md)）。
 
 | 一次情報 | 場所 |
 |---|---|
-| 技術選定メモ（採否 + 確度 + 思想） | [docs/技術選定/_techmemo-decoded.md](docs/技術選定/_techmemo-decoded.md)（原本: `docs/技術選定/技術選定メモ_*.Csv`） |
 | 旧 1on1 ソース（**参照のみ・流用しない**） | ローカルの `docs/99_archive/legacy-1on1/`（`.gitignore`・リポジトリ非同梱） |
 | 実装 Plan | [outputs/plans/](outputs/plans/) |
 
-## 採用スタック（技術選定メモより）
+## 採用スタック
 
 | 領域 | 採用 |
 |------|------|
@@ -88,5 +86,5 @@ nginx (TLS終端・ルーティング)
 
 - **ホスト**: GitHub（`origin = https://github.com/sasakiyusuke2017015/waoon.git`）。CI は `.github/workflows/`。
 - **ブランチ戦略**: [git-workflow.md](.claude/rules/git-workflow.md) の **3 層 `feature→develop→main`** に統一
-  （技術選定メモの GitHub Flow は不採用）。
+  （GitHub Flow は不採用）。
 - **旧 1on1 ソース（`docs/99_archive/`）はリポジトリ非同梱**（`.gitignore`。ローカル参照のみ・流用しない）。

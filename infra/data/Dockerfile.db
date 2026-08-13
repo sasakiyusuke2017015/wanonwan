@@ -1,6 +1,6 @@
 # waoon PostgreSQL 15 + 拡張同梱イメージ
 # 純正 postgres:15-bookworm をベースに、PGDG apt で pgvector / pg_cron / pgtap を入れ、
-# pgmq はソースビルドで同梱する（技術選定メモ M-0636）。
+# pgmq はソースビルドで同梱する。
 FROM postgres:15-bookworm
 
 ARG PGMQ_VERSION=v1.4.4

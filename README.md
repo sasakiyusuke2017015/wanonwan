@@ -24,8 +24,6 @@
 | テスト | Vitest / pgTAP / Playwright |
 | Git / CI | GitHub（`sasakiyusuke2017015/waoon`）+ GitHub Actions |
 
-詳細な採否・根拠は [docs/技術選定/_techmemo-decoded.md](docs/技術選定/_techmemo-decoded.md)（技術選定メモ）。
-
 ## このリポジトリの構成
 
 ```
@@ -40,7 +38,6 @@ waoon/
 ├── docs/                ドキュメント全般
 │   ├── CONTRIBUTING.md        開発者ガイド（起動・テスト・PR）
 │   ├── troubleshooting.md     ローカル開発のトラブルシュート
-│   ├── 技術選定/              技術選定メモ（decoded + 原本 Shift-JIS CSV）
 │   └── （99_archive/          旧 1on1 ソース。リポジトリ非同梱・ローカル参照のみ）
 ├── .claude/             Claude Code 用ルール・コマンド・エージェント・スキル
 └── outputs/
