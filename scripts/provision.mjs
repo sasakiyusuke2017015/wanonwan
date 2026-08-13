@@ -173,6 +173,14 @@ const psql = createPsql({
   user: pgSuperuser,
   database: pgDatabase,
 });
+// 接続確認を先に 1 回だけ行う。以降の psql 呼び出しは接続できる前提で書けるし、
+// stack 未起動という一番ありがちな失敗が Node の stack trace ではなく 1 行で出る。
+try {
+  psql("SELECT 1;", { capture: true });
+} catch {
+  die(`${envName} の postgres に接続できません（stack は起動していますか: ${envDef.composeFile}）`);
+}
+
 const gotrue = createGoTrueClient({ network: flag("network") ?? envDef.network, jwtSecret });
 
 const options = {
@@ -186,20 +194,26 @@ if (isRemove) {
   const sets = STEPS[step].module.seedSets({ options });
 
   // 1) 依存 seed 残存チェック。自動巻き込み削除はしない。
-  const dependents = DEPENDENTS[step].map((name) => ({
-    name,
-    sets: STEPS[name].module.seedSets({ options }),
-  }));
+  // 残存判定には residualSets（あれば）を使う。seedSets は削除計画用で人員 CSV を要求するが、
+  // 依存の残存を見るだけの場面では CSV が無いことがある（`deprovision:{stg,prod}:master`）。
+  const dependents = DEPENDENTS[step].map((name) => {
+    const mod = STEPS[name].module;
+    return { name, sets: mod.residualSets ? mod.residualSets() : mod.seedSets({ options }) };
+  });
   const residual = residualDependents(psql, dependents);
   if (residual.length > 0) {
     console.error(`✗ ${step} に依存する seed が残っています: ${residual.map((r) => r.name).join(" / ")}`);
     for (const r of residual) {
       // fixture は deprovision alias を持たない（dev 専用。作り直しは compose down -v）。
-      console.error(
-        r.name === "fixture"
-          ? "  fixture は個別削除できません。dev は `pnpm compose:dev:down -v` で作り直してください"
-          : `  先に実行してください: pnpm deprovision:${envName}:${r.name} --yes`,
-      );
+      if (r.name === "fixture") {
+        console.error("  fixture は個別削除できません。dev は `pnpm compose:dev:down -v` で作り直してください");
+      } else if (!envDef.removable.includes(r.name)) {
+        // stg/prod の user のように、そもそも削除入口を塞いでいる依存。実行できない
+        // コマンドを案内しないよう、理由を出して手詰まりであることを明示する。
+        console.error(`  ${envName} では ${r.name} を削除できません（削除可: ${envDef.removable.join(" / ")}）`);
+      } else {
+        console.error(`  先に実行してください: pnpm deprovision:${envName}:${r.name} --yes`);
+      }
     }
     process.exit(1);
   }
@@ -231,18 +245,40 @@ if (isRemove) {
     process.exit(0);
   }
 
-  deleteAll(psql, sets, conditions);
+  // DB の外に持つ状態（user なら GoTrue identity）は、DELETE で辿れなくなる前に控える。
+  const externalTargets = STEPS[step].module.externalTargets?.({ psql, options }) ?? [];
+
+  deleteAll(psql, sets, conditions, STEPS[step].module.suspendedTriggers?.() ?? []);
   console.log(`\ndone: deprovision ${envName} ${step} — ${total} 行を削除`);
+
+  if (externalTargets.length > 0) {
+    const { removed, failed } = STEPS[step].module.removeExternal({ gotrue, targets: externalTargets });
+    console.log(`✓ GoTrue identity を ${removed} 件削除`);
+    if (failed.length > 0) {
+      console.error(`\n✗ GoTrue identity が ${failed.length} 件残りました（手動で削除してください）:`);
+      for (const f of failed) console.error(`  ${f.id}: ${f.reason}`);
+      console.error("  残したままだと次の provision で同じ email が 422 になり全行失敗します");
+      process.exit(1);
+    }
+  }
   process.exit(0);
 }
 
 console.log(`• ${envName}: ${plan.join(" → ")}`);
 
+// 行単位の失敗はここで打ち切るが、直ちに exit はしない。発行済みの一時 PW を下の
+// credentials 出力に通してから終了する（作成済みユーザーの PW を落とすと復旧手段が admin
+// によるリセットしか無くなる）。
 let credentials = [];
+let aborted = null;
 for (const step of plan) {
   console.log(`\n— ${step} —`);
   const result = STEPS[step].module.provision({ psql, gotrue, options });
   if (step === "user") credentials = result.credentials;
+  if (result?.failed > 0) {
+    aborted = { step, ...result };
+    break;
+  }
 }
 
 // PW の提示。
@@ -264,6 +300,14 @@ if (plan.includes("user")) {
     chmodSync(credPath, 0o600); // umask の影響を受けないよう明示
     console.log(`\n✓ 初期パスワードを書き出しました（stdout には出しません）: ${credPath}`);
   }
+}
+
+if (aborted) {
+  console.error(
+    `\n✗ ${aborted.step} ステップで ${aborted.failed} 行が失敗しました` +
+      `（作成 ${aborted.created} / スキップ ${aborted.skipped}）。上の ✗ 行を確認してください`,
+  );
+  process.exit(1);
 }
 
 console.log(`\ndone: provision ${envName} — ${plan.join(" / ")}`);

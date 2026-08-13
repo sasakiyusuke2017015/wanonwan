@@ -6,17 +6,18 @@
 //
 // 環境差（固定 PW / ランダム PW + must_change、既定 CSV）はディスパッチャが options で渡し、
 // 本ステップは env を知らない。
+import { basename } from "node:path";
 import { parseRoles, readCsv } from "../lib/csv.mjs";
 import { generateInitialPassword } from "../lib/gotrue.mjs";
 import { refSubquery, sqlInList, sqlStr } from "../lib/psql.mjs";
 
-function toTarget(r) {
+function toTarget(r, csvLabel) {
   return {
     email: r.email,
     name: r.name,
     code: r.code,
     gotrueId: r.gotrue_id || undefined,
-    roles: parseRoles(r.roles, `users.csv ${r.code}`),
+    roles: parseRoles(r.roles, `${csvLabel} ${r.code}`),
     positionCode: r.position_code,
     divisionCode: r.division_code,
     departmentCode: r.department_code,
@@ -27,7 +28,9 @@ function toTarget(r) {
 // options: { usersCsv, fixedPassword?, mustChangePassword }
 // 戻り値の credentials は「新規発行した行」のみ。提示方法（stdout / 0600 ファイル）は呼び出し側の責務。
 export function provision({ psql, gotrue, options }) {
-  const targets = readCsv(options.usersCsv).map(toTarget);
+  // エラー文言は実際に読んだファイルを指す（stg/prod は --users-csv で別ファイルを渡す）。
+  const csvLabel = basename(options.usersCsv);
+  const targets = readCsv(options.usersCsv).map((r) => toTarget(r, csvLabel));
   const credentials = [];
   let created = 0;
   let skipped = 0;
@@ -103,10 +106,9 @@ export function provision({ psql, gotrue, options }) {
     created++;
   }
 
-  if (failed > 0) {
-    throw new Error(`user ステップで ${failed} 行が失敗しました`);
-  }
-  return { created, skipped, credentials };
+  // 失敗しても throw しない。発行済みの一時 PW を呼び出し側が書き出してから中断できるようにする
+  // （途中で throw すると、作成済みユーザーの PW が失われて誰もログインできなくなる）。
+  return { created, skipped, failed, credentials };
 }
 
 // seed 由来の行 = 人員 CSV の email に一致する users 行と、その user_roles 行。
@@ -119,4 +121,52 @@ export function seedSets({ options }) {
     { table: "user_roles", where: `user_id IN (SELECT id FROM public.users WHERE email IN ${emails})` },
     { table: "users", where: `email IN ${emails}` },
   ];
+}
+
+// 依存残存チェック専用の集合。`deprovision:{stg,prod}:master` は人員 CSV を持たない
+// （stg/prod では user が removable でないため --users-csv を要求しない）ので、
+// seedSets を使うと readCsv(undefined) でクラッシュする。
+// user ステップが入れた行は必ず gotrue_id を持ち、demo の users 行は gotrue_id NULL なので、
+// これを CSV 非依存の識別子として使う。
+export function residualSets() {
+  return [{ table: "users", where: "gotrue_id IS NOT NULL" }];
+}
+
+// 削除中だけ止めるトリガー。
+//
+// trg_prevent_last_admin_removal は「最後の admin を消させない」ための行トリガーで、
+// 稼働中のシステムを守るものだが、user ステップ全体の撤去は admin を含めて 0 人にするのが
+// 正しい終状態なので必ず衝突する（止めないと deprovision:{env}:user は常に失敗する）。
+// 削除と同一トランザクション内でのみ無効化し、commit / rollback のどちらでも元に戻す。
+export function suspendedTriggers() {
+  return [{ table: "user_roles", trigger: "trg_prevent_last_admin_removal" }];
+}
+
+// user ステップは DB の外（GoTrue）にも状態を持つ。public.users を消した後では gotrue_id を
+// 辿れないため、削除前に対象を控える。
+export function externalTargets({ psql, options }) {
+  const emails = sqlInList(readCsv(options.usersCsv).map((r) => r.email));
+  return psql(
+    `SELECT gotrue_id FROM public.users WHERE email IN ${emails} AND gotrue_id IS NOT NULL;`,
+    { capture: true },
+  )
+    .trim()
+    .split("\n")
+    .filter(Boolean);
+}
+
+// DB 削除の後に GoTrue identity を消す。ここを飛ばすと auth.users が残り、次の
+// provision で createUser が 422 になって全行失敗する（`compose down -v` 以外に復旧手段が無い）。
+// DB を先に消すのは、途中で失敗したときに「DB に居るのにログインできない行」を作らないため。
+// 残った identity は id を提示して手動削除に委ねる。
+export function removeExternal({ gotrue, targets }) {
+  const failed = [];
+  for (const id of targets) {
+    try {
+      gotrue.deleteUser(id);
+    } catch (e) {
+      failed.push({ id, reason: e.stdout || e.message });
+    }
+  }
+  return { removed: targets.length - failed.length, failed };
 }

@@ -3,10 +3,10 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | seed/provision 3 スクリプトを「環境 × ステップ + 依存グラフ + deprovision」の単一体系へ再編 |
-| ステータス | 🟡 実装中 |
+| ステータス | 🟣 マージ承認待ち |
 | 前提 Plan | [provision-dev](2026-06-25-0101-provision-dev.md) / [seed-csv-master-admin](2026-06-25-1025-seed-csv-master-admin.md) |
 | PR | |
-| Review | [計画レビュー](../reviews/2026-07-07-1424-provision-steps-review.md) |
+| Review | [計画レビュー](../reviews/2026-07-07-1424-provision-steps-review.md) / [コードレビュー](../reviews/2026-08-13-0120-provision-steps-review.md) / [コードレビュー v2](../reviews/2026-08-13-0926-provision-steps-code-review-v2.md) |
 
 ## 目的
 
@@ -287,6 +287,11 @@ pnpm test:db                                          # pgTAP（CI 相当）
 | 2026-08-13 | 非 seed 参照チェックは CASCADE FK だけでなく **全 FK**（NO ACTION 含む）を対象にする | Plan 当初は CASCADE FK + text 参照のみを想定していた。NO ACTION は DELETE が失敗して安全側に倒れるが、生の FK 違反エラーになり原因が読み取れない。同じ判定ロジックで全 FK を見れば、参照元テーブルと件数を提示して中断できる。検査コストは削除時のみで軽微 |
 | 2026-08-13 | seed 自身の CASCADE junction 行（demo の `survey_questions`、user の `user_roles`）を**削除計画に明示**する | 計画に無い参照元はすべて「非 seed」と判定されるため、seed 自身が作った junction 行で削除が常に中断してしまう。明示すれば巻き添えが意図的なものになり、かつ両端とも seed の行だけを対象にするので「demo 設問を画面で別アンケートに紐付けた行」は残って正しく検出される |
 | 2026-08-13 | 参照チェックを DO ブロックとして **DELETE と同一トランザクション**に埋め込む | 実装当初は事前チェックと DELETE が別トランザクションで、Plan が塞ぐと決めた TOCTOU がそのまま残っていた（自己レビューで検出）。事前チェックは提示用に残しつつ、権威ある判定を tx 内の `RAISE EXCEPTION` に移した |
+| 2026-08-13 | 依存残存チェックを `seedSets` から分離し、`residualSets()`（CSV 非依存）を導入 | `deprovision:{stg,prod}:master` は人員 CSV を持たない（stg/prod は user が removable でないため `--users-csv` を要求しない）ので、CSV を読む `seedSets` を残存判定に使うと必ずクラッシュしていた（コードレビュー HIGH）。user ステップの行は必ず `gotrue_id` を持ち demo の users 行は NULL なので、これを CSV 非依存の識別子にできる |
+| 2026-08-13 | `deprovision:{env}:user` は **GoTrue identity も削除**する。順序は DB → GoTrue | 削除しないと `auth.users` が残り、次の provision で全行 422 になって `compose down -v` 以外に復旧手段が無くなる（コードレビュー HIGH）。DB を先に消すのは、途中失敗で「DB に居るのにログインできない行」を作らないため。GoTrue 側が失敗した分は id を列挙して手動削除に委ね、exit 1 で気付けるようにする |
+| 2026-08-13 | `deprovision:{env}:user` は削除と同一 tx 内で `trg_prevent_last_admin_removal` を **無効化 → DELETE → 再有効化** する | 実走で判明: このトリガーは「自分以外の admin 行が 0 なら拒否」なので、admin 0 人が正しい終状態である user ステップ全体の撤去と必ず衝突し、`deprovision:{env}:user` が構造的に常に失敗していた。トリガーの意図は稼働中システムの保護であり、明示的な撤去操作（`--yes` 必須・dev 限定・参照ガード通過済み）では対象外とみなす。tx 内 DDL なので abort すれば無効化ごと巻き戻る。GUC 方式（トリガー関数に脱出口を足す）はスキーマ変更が必要でスコープ外 |
+| 2026-08-13 | user ステップは行失敗で throw せず、集計を返してディスパッチャが打ち切る | throw だと発行済みの一時 PW が書き出される前に落ち、作成済みユーザーの PW が失われる（stg/prod では admin リセット以外に復旧手段が無い）。集計ロスの解消（コードレビュー MEDIUM）と PW 保全を同時に満たす |
+| 2026-08-13 | 複合 FK は対応せず、検出したら die する | 列ごとに分解すると「どれか 1 列一致で参照あり」と誤判定する（コードレビュー MEDIUM）。現行スキーマに複合 FK は無く、テストもできないため、黙って誤判定するより明示的に止める |
 
 ## 残課題（任意）
 
@@ -297,10 +302,11 @@ pnpm test:db                                          # pgTAP（CI 相当）
 ## ステータス
 
 - [x] 計画確定（2026-07-07 計画レビュー APPROVE / 2026-08-13 に現状コンテキストを再取得し前提 5 点を訂正）
-- [ ] 実装完了
+- [x] 実装完了
   - [x] dev ユーザー CSV の一本化 + pgTAP / fixture の識別子追随（2026-08-13）
   - [x] provision 再編（lib / steps / dispatcher / alias / CI 差し替え / 旧スクリプト削除 / docs）（2026-08-13）
   - [x] deprovision 新規（依存残存 / 全 FK + text 参照チェック / SERIALIZABLE + tx 内ガード / `--yes`）（2026-08-13）
+  - [x] コードレビュー指摘の反映（HIGH 2 + 実走で判明した BLOCKER 1 + MEDIUM/LOW）（2026-08-13）
 - [ ] dev 検証（実施済みぶん）
   - [x] fresh init → `provision:dev` → pgTAP 9 通過
   - [x] 冪等（再実行で全 skip・行数不変）
@@ -310,9 +316,13 @@ pnpm test:db                                          # pgTAP（CI 相当）
   - [x] `master` 削除が user・demo・fixture 残存で中断、`user` 削除が fixture 残存で中断
   - [x] 実データ混在（demo 掲載への手動回答）で削除中断。tx 内ガードも単体で発火し全体 rollback
   - [x] CI Seed 相当の所要時間を計測（`provision:dev` ≈ 30 秒 / GoTrue 発行 36 名込み）
-  - [ ] Web ログイン（`admin1` / `member1` / `interviewer1` / `multi1`）
+  - [x] **`deprovision:dev:user --yes` → 再 `provision:dev:user` の往復**（2026-08-13・ボリューム作り直し後）:
+        削除で `users` / `auth.users` / `user_roles` とも 0 件・GoTrue identity 36 件削除・
+        `trg_prevent_last_admin_removal` は `tgenabled='O'` に復旧。再投入で 36 名すべて作成成功
+  - [ ] Web ログイン（`admin1` / `member1` / `interviewer1` / `multi1`）— ブラウザ未実施
   - [ ] CI グリーン（PR 後）
-- [ ] レビュー完了
+- [x] レビュー完了（[コードレビュー](../reviews/2026-08-13-0120-provision-steps-review.md) BLOCKED →
+      指摘反映 → [コードレビュー v2](../reviews/2026-08-13-0926-provision-steps-code-review-v2.md) APPROVE）
 - [ ] PR 作成
 - [ ] マージ後検証
   - [ ] dev: 検証節の全シナリオ

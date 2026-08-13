@@ -14,13 +14,17 @@
 // READ COMMITTED では検査後に commit された並行トランザクションの行が DELETE に可視化し、
 // CASCADE で巻き添えになる（TOCTOU）。
 import { die } from "./cli.mjs";
-import { sqlInList } from "./psql.mjs";
+import { sqlInList, sqlStr } from "./psql.mjs";
 
 // 削除対象テーブルを参照する FK を pg_constraint から動的に列挙する。
 // 静的なリストにすると将来の FK 追加でチェックを素通りする。
+//
+// 複合 FK は扱わない。列ごとに独立した 1 列 FK として展開すると
+// 「どれか 1 列が一致するだけで参照あり」と誤判定し、無関係な行で削除が止まる（またはその逆）。
+// 現行スキーマに複合 FK は無いので、検出したら黙って誤判定せずに die する。
 function referencingForeignKeys(psql, tables) {
   const rows = psql(
-    `SELECT c.confrelid::regclass::text, c.conrelid::regclass::text,
+    `SELECT c.conname, c.confrelid::regclass::text, c.conrelid::regclass::text,
             a.attname, ra.attname,
             CASE c.confdeltype WHEN 'c' THEN 'CASCADE' WHEN 'n' THEN 'SET NULL'
                                WHEN 'd' THEN 'SET DEFAULT' ELSE 'NO ACTION' END
@@ -33,14 +37,27 @@ function referencingForeignKeys(psql, tables) {
         AND c.confrelid::regclass::text IN ${sqlInList(tables)};`,
     { capture: true },
   );
-  return rows
+  const fks = rows
     .trim()
     .split("\n")
     .filter(Boolean)
     .map((line) => {
-      const [target, source, targetCol, sourceCol, onDelete] = line.split("|");
-      return { target, source, targetCol, sourceCol, onDelete };
+      const [name, target, source, targetCol, sourceCol, onDelete] = line.split("|");
+      return { name, target, source, targetCol, sourceCol, onDelete };
     });
+
+  const columnsPerConstraint = new Map();
+  for (const fk of fks) {
+    columnsPerConstraint.set(fk.name, (columnsPerConstraint.get(fk.name) ?? 0) + 1);
+  }
+  const composite = [...columnsPerConstraint].filter(([, n]) => n > 1).map(([name]) => name);
+  if (composite.length > 0) {
+    die(
+      `複合 FK には対応していません: ${composite.join(" / ")}。` +
+        "参照チェックを列ごとに分解すると誤判定するため中止しました（deprovision.mjs の対応が必要です）",
+    );
+  }
+  return fks;
 }
 
 // FK を持たない text / polymorphic 参照。pg_constraint には出ないので明示リストで持つ。
@@ -132,7 +149,7 @@ export function nonSeedReferences(psql, conditions) {
 // READ COMMITTED では、事前チェック後に commit された並行トランザクションの行が DELETE から
 // 可視になり CASCADE で巻き添えになる（TOCTOU）。チェックを別 tx で先に済ませても同じ穴が開くため、
 // 検査を DO ブロックとして同じトランザクションに埋め込み、違反があれば RAISE で全体を abort する。
-export function deleteAll(psql, sets, conditions) {
+export function deleteAll(psql, sets, conditions, suspendedTriggers = []) {
   const guards = conditions
     .map(
       (c) => `DO $guard$
@@ -140,18 +157,26 @@ DECLARE n bigint;
 BEGIN
   SELECT count(*) INTO n FROM public.${c.source} WHERE ${c.where};
   IF n > 0 THEN
-    RAISE EXCEPTION 'seed 由来でない参照が % 件あります (% -> %)', n, '${c.source}', '${c.target}';
+    RAISE EXCEPTION 'seed 由来でない参照が % 件あります (% -> %)', n, ${sqlStr(c.source)}, ${sqlStr(c.target)};
   END IF;
 END
 $guard$;`,
     )
     .join("\n");
   const deletes = sets.map((s) => `DELETE FROM public.${s.table} WHERE ${s.where};`).join("\n");
+  // ALTER TABLE もトランザクション内なので、abort すれば無効化ごと巻き戻る。
+  const disable = suspendedTriggers
+    .map((t) => `ALTER TABLE public.${t.table} DISABLE TRIGGER ${t.trigger};`)
+    .join("\n");
+  const enable = suspendedTriggers
+    .map((t) => `ALTER TABLE public.${t.table} ENABLE TRIGGER ${t.trigger};`)
+    .join("\n");
 
   try {
-    psql(`BEGIN ISOLATION LEVEL SERIALIZABLE;\n${guards}\n${deletes}\nCOMMIT;\n`, {
-      captureStderr: true,
-    });
+    psql(
+      `BEGIN ISOLATION LEVEL SERIALIZABLE;\n${guards}\n${disable}\n${deletes}\n${enable}\nCOMMIT;\n`,
+      { captureStderr: true },
+    );
   } catch (e) {
     const msg = `${e.message || ""}\n${e.stderr || ""}`;
     if (/could not serialize|40001/.test(msg)) {
@@ -160,6 +185,10 @@ $guard$;`,
     if (/seed 由来でない参照/.test(msg)) {
       die("削除直前に seed 由来でない参照が現れたため中止しました（何も削除していません）");
     }
+    // それ以外の SQL エラー（トリガー・制約違反など）も、Node の stack ではなく
+    // postgres が出した ERROR 行を見せて止める。何も削除されていない（tx は abort 済み）。
+    const pgError = /^ERROR: .*/m.exec(e.stderr ?? "");
+    if (pgError) die(`削除に失敗しました（何も削除していません）: ${pgError[0]}`);
     throw e;
   }
 }
