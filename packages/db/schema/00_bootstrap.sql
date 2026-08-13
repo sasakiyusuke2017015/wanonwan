@@ -3,7 +3,7 @@
 -- これにより GoTrue が接続できる状態（auth スキーマ + supabase_auth_admin ロール）を先に作る。
 -- 本番(stg/prod)のパスワードは env 由来へ差し替える（Phase 6）。dev 専用の固定値。
 
--- ロール分離（技術選定メモ「DB ユーザの権限分離」）:
+-- ロール分離:
 --   supabase_auth_admin … GoTrue 用、auth スキーマのみ
 --   app_user            … apps/web 用、public スキーマのみ（auth に触らない）
 DO $$

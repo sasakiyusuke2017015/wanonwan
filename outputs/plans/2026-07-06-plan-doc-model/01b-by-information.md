@@ -5,7 +5,7 @@
 
 # Step 1b: 情報軸の評価（＋生データ）
 
-> 各**情報項目**を、[thinking-log の道具](../../../docs/thinking-log/2026-07-06-information-properties-and-placement.md)
+> 各**情報項目**を [index](index.md#背景の分析軸) の道具
 > = 〈生成様式（一方向 / 対話的）× 時間的性質（不変 / 状態機械 / 陳腐化）〉で分類し、
 > そこから**推奨一次媒体**と**コピー可否**を導く。ドキュメント軸は [01a](01a-by-document.md)。
 >

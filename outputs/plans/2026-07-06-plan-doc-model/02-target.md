@@ -4,7 +4,7 @@
 # Step 2: あるべき姿の原則（target）
 
 > Step 1 の結論「不具合は〈状態機械 × 複製〉に集中」を受けて決めた設計原則。
-> 分析軸は [thinking-log](../../../docs/thinking-log/2026-07-06-information-properties-and-placement.md)。
+> 分析軸は [index](index.md#背景の分析軸)。
 
 ## 背骨の原則（合意済み）
 

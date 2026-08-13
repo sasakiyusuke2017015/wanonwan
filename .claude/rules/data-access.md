@@ -12,7 +12,7 @@ paths:
 
 # データアクセス規約
 
-DB アクセス層 (`apps/web/src/lib/db/*` / `/api/v1/*` / Server Action) を **どこから / どう呼ぶか** のルール。技術選定メモ [M-0637](../../docs/02_設計/技術選定メモ.csv) の 2026-05-22 B 案緩和を実装レベルで具体化する。
+DB アクセス層 (`apps/web/src/lib/db/*` / `/api/v1/*` / Server Action) を **どこから / どう呼ぶか** のルール。
 
 > 本ファイルが言及する **「Server 側」 = Server Component / Server Action / pg_cron Job / 単体スクリプト**。**「Client 側」 = `'use client'` 指定のあるコンポーネント** (ブラウザ実行コード) を指す。
 

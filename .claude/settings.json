@@ -2,7 +2,6 @@
   "permissions": {
     "allow": [
       "Bash(unzip -l 1on1-main.zip)",
-      "Bash(iconv -f SHIFT-JIS -t UTF-8 \"技術選定メモ_2026_06_11 15_45_19.Csv\")",
       "Bash(cp -r claude-setting/.claude .claude)",
       "Bash(rm -f .claude/settings.local.json)",
       "Bash(python3 -)",
