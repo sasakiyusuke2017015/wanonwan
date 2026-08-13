@@ -126,6 +126,7 @@ Phase 1 → 2（polish・低〜中リスク）を先に回し、Phase 3（ダー
 | 2026-07-05 | Phase 1 実装: ルート metadata に `title.template="%s ｜ waoon"` + `useDocumentTitle` フック新設。**AppLayout で `activeLabel`（現在セクション名）を document.title に一括設定** + login/change-password は個別 | 認証ページは全て AppLayout 配下で NAV_ITEMS の prefix match により意味あるセクション名にマップされる（一覧/編集/新規/マスタ配下すべて）。30 ページ個別編集を回避。ページ個別タイトル（編集 vs 一覧）が要る箇所は将来 useDocumentTitle を個別追加 |
 | 2026-07-05 | Phase 2 実装: 回答状態は `answers.status >= 200` で提出判定（100=下書き扱い・「続きから回答」導線）。締切訴求は日付粒度・閲覧者ローカル TZ の `deadlineInfo`（本日締切/あとN日/締切超過・提出済みには非表示）。`me/surveys` の order を `end_at asc nulls last` に。スケルトンは `SurveyCardSkeleton` として catalog に吸収 | ドメイン定数 `ANSWER_STATUSES`（100/200/400/900）と整合。コードレビュー初回 NEEDS WORK（BLOCKER: テストが `+09:00` 固定で UTC CI で落ちる）→ テストを TZ 非依存（オフセットなしローカル時刻）に修正して APPROVE。`TZ` env 固定は Windows Node で効かないため不採用 |
 
+| 2026-08-14 | epic 2 本のサブ Plan を作成（[VRT](2026-08-14-0020-vrt.md) / [dark-mode](2026-08-14-0025-dark-mode.md)）。あわせて要判断 6 件のうち 4 件を確定: 順序は **4-light → 3 → 4-dark**（親 Plan どおり）/ VRT 被覆は **catalog 171 + app ページ**（Playwright 新規導入）/ baseline は **stg MinIO 待ち**（4b/4c をブロック項目化）/ dark と背景 9 軸は **直交** | 着手にあたり現状を再実測したところ、親 Plan の調査（2026-07-05）以降に #97 / #103 / #104 / #110 が入り数字が動いていた（ハードコード色 114 → **143 箇所**、stories 141 → **171**、Storybook 10.2 想定 → **10.5.2**、Playwright は未導入のまま）。143 箇所は app 側で story が 0 のため、catalog VRT だけでは安全網にならず被覆拡大を選択した |
 | 2026-07-05 | マージ後検証（dev + headless chromium）で 2 バグ発見 → `fix/finishing-touches-followups` | (1) フルロード時に Next のストリーミング metadata が `useDocumentTitle` の設定を約 7ms 後に上書き（MutationObserver 実測）→ hook を head 監視の再設定方式に。(2) SurveyCard の headerColor が CSS クラス名前提でアプリはカラー値を渡しており期間ヘッダーが白地白文字で不可視（従来から）→ 契約を CSS カラー値 + inline style に変更（[followup レビュー](../reviews/2026-07-05-2343-finishing-touches-followups-review.md): APPROVE）|
 
 ## 要ユーザー判断
@@ -151,8 +152,8 @@ Phase 1/2 は判断不要で着手可。以下は各 epic の**サブ Plan 着�
 - [x] Phase 1 コードレビュー（代行 code-reviewer・APPROVE・[Review](../reviews/2026-07-05-2226-finishing-touches-code-review.md)）
 - [x] Phase 1 merge（笹木さん承認・[#76](https://github.com/sasakiyusuke2017015/waoon/pull/76)）
 - [x] Phase 2（公開一覧 UX）実装・コードレビュー（代行・初回 NEEDS WORK→修正反映→APPROVE・[Review](../reviews/2026-07-05-2300-finishing-touches-phase2-code-review.md)）・merge（[#77](https://github.com/sasakiyusuke2017015/waoon/pull/77)）
-- [ ] Phase 3（ダークモード）: 独立サブ Plan 作成 + 要判断確定 → 実装（複数 PR）・レビュー・merge
-- [ ] Phase 4（VRT）: 独立サブ Plan 作成 + 要判断確定 → 実装・レビュー・merge
+- [ ] Phase 3（ダークモード）: サブ Plan [2026-08-14-0025-dark-mode](2026-08-14-0025-dark-mode.md) 作成済み（2026-08-14）→ 実装（複数 PR）・レビュー・merge
+- [ ] Phase 4（VRT）: サブ Plan [2026-08-14-0020-vrt](2026-08-14-0020-vrt.md) 作成済み（2026-08-14）→ 実装・レビュー・merge
 - [ ] **マージ後検証（Phase 1/2・dev 実機。2026-07-05 に Claude Code が headless chromium で実施）**
   - [x] ページタイトル: クライアント遷移は正常（`アンケート ｜ waoon`）。**フルロード/リロードで metadata に上書きされ "waoon" に戻るバグを発見** → `fix/finishing-touches-followups` で修正・実機再確認済み
   - [x] 公開一覧: スケルトン / エラー再試行（abort→再試行→復帰）/ 締切バッジ（あと1日・あと2日・遠い締切と提出済みは非表示）/ 下書きの「続きから回答」導線 / 3 カラム / 締切昇順 / StatisticList 3 値
