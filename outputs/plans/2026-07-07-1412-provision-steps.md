@@ -166,16 +166,25 @@ master ──┬── user ──── fixture（dev 専用）
 scripts/
 ├── provision.mjs            ディスパッチャ（env 定義・ステップ解決・依存グラフ・--remove）
 ├── provision/
-│   ├── master.mjs           各ステップ: provision() / deprovision() をエクスポート
-│   ├── user.mjs
+│   ├── master.mjs           各ステップ: provision() と、削除用の seedSets() をエクスポート
+│   ├── user.mjs             （+ residualSets() / suspendedTriggers() / externalTargets() / removeExternal()）
 │   ├── demo.mjs
-│   └── fixture.mjs
+│   └── fixture.mjs          （seedSets() は依存残存チェック専用。削除 alias は持たない）
 └── lib/
     ├── env.mjs              （既存）
-    ├── psql.mjs             compose exec psql ラッパ・SQL エスケープ
-    ├── csv.mjs              CSV 読込・code→id 解決サブクエリ
-    └── gotrue.mjs           service_role JWT・admin API クライアント（単一 const 原則を維持）
+    ├── cli.mjs              引数パーサ・リポジトリルート解決・die
+    ├── psql.mjs             compose exec psql ラッパ・SQL エスケープ・参照解決サブクエリ
+    ├── csv.mjs              CSV 読込・roles 列の検証
+    ├── gotrue.mjs           service_role JWT・admin API クライアント（単一 const 原則を維持）
+    └── deprovision.mjs      依存残存 / 非 seed 参照チェック・SERIALIZABLE 削除
 ```
+
+ステップの契約は `provision()` + `seedSets()`。`deprovision()` は各ステップに持たせず、
+`lib/deprovision.mjs` が `seedSets()` の返す「テーブル + seed 行を選ぶ述語」を解釈して
+検査と削除を行う（環境ごとの許可判定はディスパッチャの責務）。`user` だけは追加で
+`residualSets()`（CSV を読まない残存判定）/ `suspendedTriggers()`（削除 tx 内だけ無効化する
+トリガー）/ `externalTargets()`・`removeExternal()`（DB 外の GoTrue identity）を
+エクスポートする。
 
 ### package.json alias
 
@@ -292,6 +301,7 @@ pnpm test:db                                          # pgTAP（CI 相当）
 | 2026-08-13 | `deprovision:{env}:user` は削除と同一 tx 内で `trg_prevent_last_admin_removal` を **無効化 → DELETE → 再有効化** する | 実走で判明: このトリガーは「自分以外の admin 行が 0 なら拒否」なので、admin 0 人が正しい終状態である user ステップ全体の撤去と必ず衝突し、`deprovision:{env}:user` が構造的に常に失敗していた。トリガーの意図は稼働中システムの保護であり、明示的な撤去操作（`--yes` 必須・dev 限定・参照ガード通過済み）では対象外とみなす。tx 内 DDL なので abort すれば無効化ごと巻き戻る。GUC 方式（トリガー関数に脱出口を足す）はスキーマ変更が必要でスコープ外 |
 | 2026-08-13 | user ステップは行失敗で throw せず、集計を返してディスパッチャが打ち切る | throw だと発行済みの一時 PW が書き出される前に落ち、作成済みユーザーの PW が失われる（stg/prod では admin リセット以外に復旧手段が無い）。集計ロスの解消（コードレビュー MEDIUM）と PW 保全を同時に満たす |
 | 2026-08-13 | 複合 FK は対応せず、検出したら die する | 列ごとに分解すると「どれか 1 列一致で参照あり」と誤判定する（コードレビュー MEDIUM）。現行スキーマに複合 FK は無く、テストもできないため、黙って誤判定するより明示的に止める |
+| 2026-08-13 | commit は「provision 再編」→「deprovision 新規」ではなく、**「識別子の一本化」→「provision/deprovision 再編」**の 2 本に分けた | 実装計画では Phase 1/2 を commit で分離してレビューを切る想定だったが、両フェーズが `provision.mjs` / `package.json` / ステップ 4 本 / docs を共有し、行単位の分割ができなかった。代わりに RLS テストの意味が変わる「識別子の一本化」を独立 commit に切り出し、そこだけ単独でレビューできるようにした |
 
 ## 残課題（任意）
 
