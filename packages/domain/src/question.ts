@@ -1,6 +1,6 @@
 import * as v from "valibot";
 
-// questions（DDL 40_surveys.sql）。回答形式は旧 1on1 の 7 種。
+// questions（DDL: packages/db/migrations/0001_initial.sql）。回答形式は旧 1on1 の 7 種。
 export const QUESTION_TYPES = [
   { value: "radio", label: "ラジオボタン" },
   { value: "select", label: "セレクトボックス" },

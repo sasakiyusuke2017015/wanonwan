@@ -21,7 +21,7 @@ $$;
 CREATE SCHEMA IF NOT EXISTS auth AUTHORIZATION supabase_auth_admin;
 CREATE SCHEMA IF NOT EXISTS app;   -- RLS ヘルパ等を置く
 
--- 拡張（pg_cron は shared_preload_libraries の関係で別ファイル 10_pg_cron.sql / db:migrate で作成）
+-- 拡張（pg_cron は shared_preload_libraries の関係でdb:migrate で作成）
 CREATE EXTENSION IF NOT EXISTS vector;   -- pgvector
 CREATE EXTENSION IF NOT EXISTS pgtap;
 CREATE EXTENSION IF NOT EXISTS pgmq;     -- pgmq は自前で pgmq スキーマを作る
@@ -44,7 +44,7 @@ CREATE OR REPLACE FUNCTION app.current_user_id() RETURNS uuid
   AS $$ SELECT NULLIF(current_setting('app.user_id', true), '')::uuid $$;
 
 -- 管理者判定。users / user_roles テーブルは後続スキーマで作成するため、現段階は常に false。
--- 90_rls_helpers.sql が user_roles（保有ロール）を参照する実装へ差し替える。
+-- migrations の RLS ヘルパ関数が user_roles（保有ロール）を参照する実装へ差し替える。
 CREATE OR REPLACE FUNCTION app.is_admin() RETURNS boolean
   LANGUAGE sql STABLE
   AS $$ SELECT FALSE $$;

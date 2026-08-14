@@ -1,6 +1,6 @@
 import * as v from "valibot";
 
-// survey_publications（DDL 50_publications.sql）。掲載状況コードと表示名。
+// survey_publications（DDL: packages/db/migrations/0001_initial.sql）。掲載状況コードと表示名。
 export const PUBLICATION_STATUSES = [
   { value: 100, label: "未掲載" },
   { value: 150, label: "予約" },
