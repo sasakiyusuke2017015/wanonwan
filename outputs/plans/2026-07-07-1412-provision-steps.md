@@ -36,8 +36,6 @@ seed 由来のみの安全な削除つき）へ再編する。
 - MinIO / avatar 系ステップ（添付は presigned URL でブラウザ直 up/down し、seed 対象の実体を
   持たないため provision の管轄外）
 - compose 起動時の自動 provision（one-shot 連携は将来検討）
-- [`docs/技術選定/_techmemo-decoded.md`](../../docs/技術選定/_techmemo-decoded.md) の
-  `db:seed` 言及の更新（decode 原本 = 歴史文書のため）
 
 ## 現状コンテキスト（2026-08-13 時点）
 
