@@ -1701,5 +1701,8 @@ GRANT USAGE ON SEQUENCE public.users_id_seq TO app_user;
 -- pgmq キュー（pg_dump 対象外。実体を pgmq.create で冪等再作成）
 DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pgmq.list_queues() WHERE queue_name = 'attachment_gc') THEN PERFORM pgmq.create('attachment_gc'); END IF; END $$;
 
+-- pg_cron ジョブ（pg_dump 対象外。jobname 一致で更新されるため冪等）
+SELECT cron.schedule('gc-stale-attachments', '*/30 * * * *', ' SELECT app.gc_stale_attachments() ');
+
 -- 適用済み migration の記録（snapshot 適用で schema_migrations を埋める）
 INSERT INTO public.schema_migrations(version) VALUES ('0001_initial');
