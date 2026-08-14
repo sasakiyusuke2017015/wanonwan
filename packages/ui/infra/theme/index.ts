@@ -3,7 +3,7 @@
  *
  * @example
  * ```tsx
- * import { useTheme, useColorTheme } from '@ui-catalog/core/theme'
+ * import { useTheme, useColorTheme } from '@ui-catalog/core/infra/theme'
  *
  * const { colors, shapes } = useTheme()
  * const [colorTheme, setColorTheme] = useColorTheme()
@@ -13,6 +13,8 @@
 // 型
 export type {
   ColorTheme,
+  ColorScheme,
+  ResolvedColorScheme,
   ShapeTheme,
   BackgroundTheme,
   ThemeConfig,
@@ -27,6 +29,7 @@ export type {
 export {
   DEFAULT_GLOBAL_THEME,
   DEFAULT_ANIMATION,
+  DEFAULT_COLOR_SCHEME,
   DEFAULT_FULL_THEME,
   THEME_STORAGE_KEYS,
 } from './types'
@@ -43,6 +46,9 @@ export {
 // Jotai Atoms
 export {
   colorThemeAtom,
+  colorSchemeAtom,
+  systemColorSchemeAtom,
+  resolvedColorSchemeAtom,
   shapeThemeAtom,
   backgroundThemeAtom,
   tableRowAnimationAtom,
@@ -71,6 +77,9 @@ export {
   useResetAllTheme,
   useFullTheme,
 } from './useTheme'
+
+// 明暗（light / dark / system）
+export { useApplyColorScheme, useColorScheme } from './colorScheme'
 
 // コンポーネント別テーマ（汎用基盤のみ）
 // 注意: 具体的なコンポーネント名・ラベル・Atoms は apps 側で定義

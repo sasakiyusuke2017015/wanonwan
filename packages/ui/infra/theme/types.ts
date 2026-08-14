@@ -45,6 +45,19 @@ export interface GlobalThemeSettings {
 }
 
 /**
+ * 明暗の選択。`system` は OS 設定に追従する。
+ *
+ * 色テーマ・背景テーマとは **直交** する軸。dark を選んでも背景テーマの選択は保持され、
+ * 反転するのは semantic トークン（面・境界・テキスト）だけ。
+ */
+export type ColorScheme = 'light' | 'dark' | 'system'
+
+/**
+ * `system` を解決した後の実際の明暗。`<html data-theme-mode>` に入る値。
+ */
+export type ResolvedColorScheme = 'light' | 'dark'
+
+/**
  * アニメーション設定
  */
 export interface AnimationSettings {
@@ -80,6 +93,11 @@ export const DEFAULT_GLOBAL_THEME: GlobalThemeSettings = {
 }
 
 /**
+ * 明暗の既定。OS 設定に従う。
+ */
+export const DEFAULT_COLOR_SCHEME: ColorScheme = 'system'
+
+/**
  * デフォルトのアニメーション設定
  */
 export const DEFAULT_ANIMATION: AnimationSettings = {
@@ -107,6 +125,7 @@ export const DEFAULT_FULL_THEME: FullThemeSettings = {
  */
 export const THEME_STORAGE_KEYS = {
   COLOR_THEME: 'uiColorTheme',
+  COLOR_SCHEME: 'uiColorScheme',
   SHAPE_THEME: 'uiShape',
   BACKGROUND_THEME: 'uiBackground',
   TABLE_ROW_ANIMATION: 'uiTableRowAnimationVariant',

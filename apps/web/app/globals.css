@@ -5,6 +5,6 @@
 @source "../../../packages/ui/core";
 
 body {
-  background: var(--color-white, #ffffff);
-  color: var(--color-black, #111827);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
 }
