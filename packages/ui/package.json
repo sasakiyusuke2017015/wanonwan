@@ -69,7 +69,8 @@
     "./infra/devtools": "./infra/devtools/index.ts",
     "./infra/version": "./infra/version/index.ts",
     "./infra/theme": "./infra/theme/index.ts",
-    "./tailwind-preset": "./tailwind.preset.ts"
+    "./tailwind-preset": "./tailwind.preset.ts",
+    "./infra/theme/colorSchemeScript": "./infra/theme/colorSchemeScript.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

@@ -347,6 +347,53 @@
 }
 
 /* =============================================================================
+ * Dark mode
+ *
+ * 反転境界は **semantic トークン層**。ここで面・境界・テキストの値だけを差し替えると、
+ * これらを参照している部品（catalog / アプリ）がまとめて反転する。
+ *
+ * ブランド色（--color-primary 系）と palette 系（--color-gray-500 等）は**触らない**。
+ * ブランド色相の調整は infra/theme 側の inline 生成（design.ts）が担当する。
+ *
+ * 切替は `<html data-theme-mode="dark">`。OS 設定への追従は
+ * `prefers-color-scheme` を直接見ずに、アプリ側が data 属性へ解決してから付与する
+ * （手動トグルと system 選択を同じ 1 経路で扱い、二重制御を作らないため）。
+ * ============================================================================= */
+
+@custom-variant dark (&:where([data-theme-mode="dark"] *));
+
+[data-theme-mode="dark"] {
+  /* Text */
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #94a3b8;
+  --color-text-inverse: #0f172a;
+  --color-text: #e2e8f0;
+
+  /* Background
+   * bg-subtle は DataTable の zebra（偶数行の面）。面色 --color-surface と**同値にしない**。
+   * light では surface #ffffff に対し #f8fafc で縞が出ているので、dark でも一段ずらす。 */
+  --color-bg-primary: #0f172a;
+  --color-bg-secondary: #1e293b;
+  --color-bg-tertiary: #334155;
+  --color-bg-subtle: #243244;
+  --color-bg-surface: #1e293b;
+
+  /* Surface */
+  --color-surface: #1e293b;
+  --color-surface-hover: #334155;
+
+  /* Border
+   * light の濃さの序列（light < 通常 < primary）を dark でも保つ。
+   * border-light は DataTable の行区切り（.td の border-bottom）なので、
+   * 面色 --color-surface と同値にすると罫線が消える。 */
+  --color-border-light: #293548;
+  --color-border: #334155;
+  --color-border-secondary: #334155;
+  --color-border-primary: #475569;
+}
+
+/* =============================================================================
  * Keyframes (Tailwind v4 では @keyframes を素の CSS で書く)
  * ============================================================================= */
 

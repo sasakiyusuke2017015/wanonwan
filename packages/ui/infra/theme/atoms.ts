@@ -17,9 +17,11 @@ import type {
   TableRowAnimationVariant,
   DropMenuAnimationVariant,
 } from '../../core/constants'
+import type { ColorScheme, ResolvedColorScheme } from './types'
 import {
   DEFAULT_GLOBAL_THEME,
   DEFAULT_ANIMATION,
+  DEFAULT_COLOR_SCHEME,
   THEME_STORAGE_KEYS,
 } from './types'
 import { atomWithStorageSync } from './storage'
@@ -54,6 +56,36 @@ export const backgroundThemeAtom = atomWithStorageSync<BackgroundTheme>(
   DEFAULT_GLOBAL_THEME.backgroundTheme
 )
 backgroundThemeAtom.debugLabel = 'backgroundTheme'
+
+/**
+ * 明暗 Atom（light / dark / system）
+ *
+ * 色テーマ・背景テーマとは直交する軸。`system` は OS 設定に追従する。
+ */
+export const colorSchemeAtom = atomWithStorageSync<ColorScheme>(
+  THEME_STORAGE_KEYS.COLOR_SCHEME,
+  DEFAULT_COLOR_SCHEME
+)
+colorSchemeAtom.debugLabel = 'colorScheme'
+
+/**
+ * OS の明暗設定。`system` を解決するためだけに使う。
+ *
+ * 初期値は light 固定。実際の値は `useApplyColorScheme` が mount 直後に `matchMedia` を
+ * 読んで set し、以後は `change` を購読して追従する。ここで module 評価時に読むと
+ * SSR と client で初期値が食い違う入口になるだけで、購読側が即座に上書きするため利得が無い。
+ */
+export const systemColorSchemeAtom = atom<ResolvedColorScheme>('light')
+systemColorSchemeAtom.debugLabel = 'systemColorScheme'
+
+/**
+ * `system` を解決した後の実際の明暗（派生）。`<html data-theme-mode>` に入る値。
+ */
+export const resolvedColorSchemeAtom = atom<ResolvedColorScheme>((get) => {
+  const scheme = get(colorSchemeAtom)
+  return scheme === 'system' ? get(systemColorSchemeAtom) : scheme
+})
+resolvedColorSchemeAtom.debugLabel = 'resolvedColorScheme'
 
 // ============================================
 // アニメーション Atoms
@@ -121,6 +153,7 @@ export const resetThemeAtom = atom(null, (_get, set) => {
   set(colorThemeAtom, DEFAULT_GLOBAL_THEME.colorTheme)
   set(shapeThemeAtom, DEFAULT_GLOBAL_THEME.shapeTheme)
   set(backgroundThemeAtom, DEFAULT_GLOBAL_THEME.backgroundTheme)
+  set(colorSchemeAtom, DEFAULT_COLOR_SCHEME)
 })
 resetThemeAtom.debugLabel = 'resetTheme'
 

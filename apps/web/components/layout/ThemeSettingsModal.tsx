@@ -6,11 +6,18 @@ import { Button } from "@ui-catalog/core/molecules";
 import { Stack, Text } from "@ui-catalog/core/atoms";
 import {
   useColorTheme,
+  useColorScheme,
   useShapeTheme,
   useBackgroundTheme,
   useResetAllTheme,
   useTheme,
 } from "@ui-catalog/core/infra/theme";
+
+const COLOR_SCHEME_OPTIONS = [
+  { value: "light", label: "ライト" },
+  { value: "dark", label: "ダーク" },
+  { value: "system", label: "端末に合わせる" },
+] as const;
 
 const COLOR_OPTIONS = [
   { value: "emerald", label: "エメラルド" },
@@ -44,8 +51,11 @@ type Props = {
   onClose: () => void;
 };
 
-// テーマ 3 軸（色 / 形 / 背景）の切替パネル。設定は @ui-catalog の Jotai atom 経由で localStorage 永続化される。
+// テーマ 4 軸（明暗 / 色 / 形 / 背景）の切替パネル。設定は @ui-catalog の Jotai atom 経由で
+// localStorage 永続化される。明暗は色・背景と直交し、反転するのは semantic トークン
+// （面 / 境界 / テキスト）だけで、選んだ色テーマ・背景テーマはそのまま保持される。
 export function ThemeSettingsModal({ isOpen, onClose }: Props) {
+  const { colorScheme, setColorScheme } = useColorScheme();
   const [colorTheme, setColorTheme] = useColorTheme();
   const [shapeTheme, setShapeTheme] = useShapeTheme();
   const [backgroundTheme, setBackgroundTheme] = useBackgroundTheme();
@@ -61,6 +71,17 @@ export function ThemeSettingsModal({ isOpen, onClose }: Props) {
       borderRadius={shapes.modalRadius}
     >
       <Stack gap={20}>
+        <Stack gap={8}>
+          <Text size="sm" weight="bold">
+            明暗
+          </Text>
+          <PillSelect
+            options={COLOR_SCHEME_OPTIONS}
+            value={colorScheme}
+            onChange={(v) => setColorScheme(v as typeof colorScheme)}
+          />
+        </Stack>
+
         <Stack gap={8}>
           <Text size="sm" weight="bold">
             色

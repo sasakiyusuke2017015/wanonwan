@@ -5,6 +5,7 @@ import {
   SIDEBAR_STATE_COOKIE,
   parseSidebarState,
 } from "@ui-catalog/core/templates/AppShell/sidebarState";
+import { COLOR_SCHEME_PRE_PAINT_SCRIPT } from "@ui-catalog/core/infra/theme/colorSchemeScript";
 import { Providers } from "./providers";
 import { AppFrame } from "@/components/layout/AppFrame";
 
@@ -21,7 +22,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const sidebarState = parseSidebarState((await cookies()).get(SIDEBAR_STATE_COOKIE)?.value);
 
   return (
-    <html lang="ja">
+    // 明暗は paint 前の inline script が <html> へ data-theme-mode を書き込む。
+    // サーバ HTML には属性が無いため、その差分で hydration 警告が出るのを抑止する。
+    <html lang="ja" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: COLOR_SCHEME_PRE_PAINT_SCRIPT }} />
+      </head>
       <body>
         <Providers>
           <AppFrame initialSidebarState={sidebarState}>{children}</AppFrame>
