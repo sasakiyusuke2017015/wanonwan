@@ -1,6 +1,6 @@
 import * as v from "valibot";
 
-// surveys（DDL 40_surveys.sql）に対応するドメイン型 + バリデータ。
+// surveys（DDL: packages/db/migrations/0001_initial.sql）に対応するドメイン型 + バリデータ。
 export const SURVEY_STATUSES = ["draft", "active", "closed"] as const;
 export const SurveyStatusSchema = v.picklist(SURVEY_STATUSES);
 export type SurveyStatus = v.InferOutput<typeof SurveyStatusSchema>;

@@ -44,7 +44,7 @@ export function resolveActiveRole(
 export const SetActiveRoleSchema = v.object({ role: UserRoleSchema });
 export type SetActiveRole = v.InferOutput<typeof SetActiveRoleSchema>;
 
-// users（DDL 30_users.sql）に対応するドメイン型 + バリデータ。
+// users（DDL: packages/db/migrations/0001_initial.sql）に対応するドメイン型 + バリデータ。
 export const UserSchema = v.object({
   id: v.number(),
   code: v.string(),

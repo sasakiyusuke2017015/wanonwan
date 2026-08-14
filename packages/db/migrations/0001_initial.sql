@@ -1,17 +1,17 @@
 -- 0001_initial — 初期スキーマ（app 層 DDL 一式）。
--- 現行 schema/{10..99} を統合したもの。ロール/スキーマ/拡張(vector/pgtap/pgmq)は
+-- app テーブル・RLS・関数を 1 本に統合している。ロール/スキーマ/拡張(vector/pgtap/pgmq)は
 -- 00_bootstrap.sql（initdb.d）が先に作る前提。ここは app テーブル・RLS・関数のみ。
 -- 変更は本ファイルではなく後続 migration（0002_ 以降）で足す。
 
--- ===== from schema/10_pg_cron.sql =====
+-- ===== 拡張: pg_cron =====
 -- pg_cron は shared_preload_libraries に登録済み（Dockerfile.db）。
 -- サーバ完全起動後でないと有効化できないため、initdb.d ではなく db:migrate で作成する。
 -- cron.database_name = wanonwan（Dockerfile.db）。
 CREATE EXTENSION IF NOT EXISTS pg_cron;
 
--- ===== from schema/20_org.sql =====
+-- ===== 組織マスタ（本部 / 部 / 課 / 役職） =====
 -- 組織マスタ（本部 / 部 / 課 / 役職）。Pleasanter 区分マスタ(Wikis)由来。
--- 純粋な HR マスタ。権限ロールとは別軸で、認可は user_roles が源（30_users.sql）。
+-- 純粋な HR マスタ。権限ロールとは別軸で、認可は user_roles が源（本ファイルの「ユーザー / 権限ロール」節）。
 
 CREATE TABLE IF NOT EXISTS public.divisions (
   id   bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS public.positions (
   name text   NOT NULL
 );
 
--- ===== from schema/30_users.sql =====
+-- ===== ユーザー / 権限ロール =====
 -- ユーザー（Pleasanter ユーザーマスタ 27924 由来）。
 -- 認証は GoTrue。業務ユーザーと GoTrue identity を gotrue_id で紐付ける（provisioning は管理画面で）。
 -- パスワード/ロック/失敗回数は GoTrue 側が持つため列に持たない。
@@ -90,10 +90,10 @@ CREATE TABLE IF NOT EXISTS public.user_interview_candidates (
   PRIMARY KEY (user_id, candidate_user_id)
 );
 
--- ===== from schema/35_urgency.sql =====
+-- ===== 緊急度マスタ =====
 -- 緊急度マスタ（urgency_levels）。高 / 中 / 低 などの段階を表す業務マスタ。
 -- surveys / answers から urgency_id で参照される（参照側の列追加は 40_surveys / 60_answers 内）。
--- 役職と無関係な純粋業務マスタ。RLS は 99_rls.sql のマスタ系（認証済み select / admin write）。
+-- 役職と無関係な純粋業務マスタ。RLS は「RLS ポリシー」節のマスタ系（認証済み select / admin write）。
 -- FK 順のため surveys(40) / answers(60) より前の番号で作成する。
 
 CREATE TABLE IF NOT EXISTS public.urgency_levels (
@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS public.urgency_levels (
   name text   NOT NULL
 );
 
--- ===== from schema/40_surveys.sql =====
+-- ===== アンケート / 設問 =====
 -- アンケート（27917）/ 質問（27916）/ 使用質問 M:N（ClassA）/ 配信対象（ClassB/E/H/I）。
 -- AI プロンプト列は保持のみ（使用は Phase 2 機能。MVP は Coming Soon）。
 
@@ -122,7 +122,7 @@ CREATE TABLE IF NOT EXISTS public.surveys (
   updated_at        timestamptz NOT NULL DEFAULT now()
 );
 
--- 緊急度（urgency_levels, 35_urgency.sql）への参照。nullable。既存 DB へは冪等 ALTER で追加。
+-- 緊急度（urgency_levels）への参照。nullable。既存 DB へは冪等 ALTER で追加。
 ALTER TABLE public.surveys
   ADD COLUMN IF NOT EXISTS urgency_id bigint REFERENCES public.urgency_levels(id);
 
@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS public.survey_targets (
   target_code text   NOT NULL
 );
 
--- ===== from schema/50_publications.sql =====
+-- ===== アンケート掲載 =====
 -- 掲載設定（27918, Issues）。アンケートの公開・期間・状況。
 -- status: 100 未掲載 / 150 予約 / 160 処理中 / 200 実施中 / 900 完了 / 910 保留 / 990 エラー
 -- 回答受付は status=200（実施中）のときのみ（業務ルールは API 層で担保）。
@@ -175,7 +175,7 @@ CREATE TABLE IF NOT EXISTS public.survey_publications (
 CREATE INDEX IF NOT EXISTS idx_publications_survey ON public.survey_publications(survey_id);
 CREATE INDEX IF NOT EXISTS idx_publications_status ON public.survey_publications(status);
 
--- ===== from schema/60_answers.sql =====
+-- ===== 回答 / 面談記録 =====
 -- 回答結果（27919）。1on1 の中核（機微情報: 健康状態・評価・面談メモ）。
 -- status: 100 未回答 / 200 回答済 / 400 面談調整済 / 900 完了
 -- 多値（面談候補 ClassG / 面談内容閲覧者 ClassH）は中間テーブルへ正規化。閲覧者は RLS の可視範囲に直結。
@@ -203,7 +203,7 @@ CREATE TABLE IF NOT EXISTS public.answers (
   updated_at       timestamptz NOT NULL DEFAULT now()
 );
 
--- 緊急度（urgency_levels, 35_urgency.sql）への参照。nullable。面談記録時に面談者 / admin が設定。
+-- 緊急度（urgency_levels）への参照。nullable。面談記録時に面談者 / admin が設定。
 ALTER TABLE public.answers
   ADD COLUMN IF NOT EXISTS urgency_id bigint REFERENCES public.urgency_levels(id);
 
@@ -225,14 +225,14 @@ CREATE TABLE IF NOT EXISTS public.answer_viewers (
   PRIMARY KEY (answer_id, user_id)
 );
 
--- ===== from schema/65_attachments.sql =====
+-- ===== 添付ファイル =====
 -- 添付ファイルのメタデータ。本体は MinIO（presigned URL 経由でブラウザ直 up/down）。
 -- entity_type/entity_id で対象へ polymorphic に紐づく:
 --   answer       … アンケート回答の添付（entity_id = answers.id）
 --   interview    … 面談記録の添付（entity_id = answers.id。面談データは answers 上）
 --   user_avatar  … ユーザーのアバター（entity_id = users.id、1 ユーザー 1 枚）
 --   survey       … アンケートの説明資料（entity_id = surveys.id）
--- 可視性は entity_type ごとに親の RLS へ委譲する（99_rls.sql）。
+-- 可視性は entity_type ごとに親の RLS へ委譲する（「RLS ポリシー」節）。
 CREATE TABLE IF NOT EXISTS public.attachments (
   id           bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   entity_type  text   NOT NULL CHECK (entity_type IN ('answer', 'interview', 'user_avatar', 'survey')),
@@ -257,7 +257,7 @@ DROP INDEX IF EXISTS public.attachments_one_avatar_per_user;
 CREATE UNIQUE INDEX attachments_one_avatar_per_user
   ON public.attachments (entity_id) WHERE entity_type = 'user_avatar' AND status = 200;
 
--- ===== from schema/66_answer_embeddings.sql =====
+-- ===== 回答ベクトル（pgvector） =====
 -- AI メンター提案（RAG）用の面談ベクトル。自前ホスト埋め込み（e5-small=384次元）を保存する。
 -- lazy 生成（必要時にアプリが UPDATE）。RLS は answers のポリシーをそのまま継承する
 -- （列追加のみ・行可視性は既存の answers_select/insert/update/delete が決める）。
@@ -268,7 +268,7 @@ ALTER TABLE public.answers ADD COLUMN IF NOT EXISTS embedding vector(384);
 CREATE INDEX IF NOT EXISTS answers_embedding_idx
   ON public.answers USING hnsw (embedding vector_cosine_ops);
 
--- ===== from schema/70_schedules.sql =====
+-- ===== スケジュール =====
 -- スケジュール（27929, Issues）。面談日時・イベント。
 CREATE TABLE IF NOT EXISTS public.schedules (
   id         bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -286,8 +286,8 @@ CREATE TABLE IF NOT EXISTS public.schedules (
 
 CREATE INDEX IF NOT EXISTS idx_schedules_start ON public.schedules(start_at);
 
--- ===== from schema/85_jobs.sql =====
--- 非同期/定期ジョブ。pg_cron(10_pg_cron.sql で作成)で SQL を定期実行する土台。
+-- ===== 定期ジョブ（pg_cron） =====
+-- 非同期/定期ジョブ。pg_cron（本ファイル冒頭で作成）で SQL を定期実行する土台。
 -- 最初の実ジョブ: 添付の孤児掃除（presigned 発行のみで upload 未完了= status 100 の古い行を削除）。
 -- 外部(MinIO 本体)には触れない純 SQL。MinIO オブジェクト本体の掃除は後続(pgmq + app worker)。
 -- 詳細・段階分け: outputs/plans/2026-06-18-2030-async-jobs-pgmq-pgcron.md
@@ -329,7 +329,7 @@ REVOKE ALL ON FUNCTION app.gc_stale_attachments(interval) FROM PUBLIC;
 -- pg_cron 登録。同名 jobname なので migrate 再実行で冪等更新（重複登録されない）。30 分毎。
 SELECT cron.schedule('gc-stale-attachments', '*/30 * * * *', $$ SELECT app.gc_stale_attachments() $$);
 
--- ===== from schema/86_attachment_gc_queue.sql =====
+-- ===== 添付 GC キュー（pgmq） =====
 -- 添付 GC の非同期キュー（pgmq）。attachments の行が削除されたら MinIO の本体も消す必要があるが、
 -- pg_cron/SQL は外部(MinIO)に届かない。そこで「削除時に bucket/object_key をキューへ積む」→
 -- 専用 Node worker(apps/worker) がドレインして DeleteObject、という形にする。
@@ -368,7 +368,7 @@ CREATE TRIGGER attachments_gc_enqueue
   AFTER DELETE ON public.attachments
   FOR EACH ROW EXECUTE FUNCTION app.enqueue_attachment_gc();
 
--- ===== from schema/90_rls_helpers.sql =====
+-- ===== RLS ヘルパ関数 =====
 -- RLS ヘルパ。current_user_id()(gotrue uuid) から業務ユーザーへ解決する。
 -- users/positions を読むため SECURITY DEFINER で RLS をバイパス（search_path 固定で hijack 防止）。
 
@@ -377,7 +377,7 @@ CREATE OR REPLACE FUNCTION app.uid() RETURNS bigint
   LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, app
   AS $$ SELECT u.id FROM public.users u WHERE u.gotrue_id = app.current_user_id() $$;
 
--- 管理者判定（認可ロール）。権限は役職(position)と別軸で user_roles が源（30_users.sql）。
+-- 管理者判定（認可ロール）。権限は役職(position)と別軸で user_roles が源（「ユーザー / 権限ロール」節）。
 -- 認可は保有ロールの集合(union)で判定する。UI のアクティブロール切替は表示状態であり、ここでは見ない。
 CREATE OR REPLACE FUNCTION app.is_admin() RETURNS boolean
   LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, app
@@ -433,7 +433,7 @@ GRANT EXECUTE ON FUNCTION app.is_answer_viewer(bigint) TO app_user;
 GRANT EXECUTE ON FUNCTION app.owns_or_interviews_answer(bigint) TO app_user;
 GRANT EXECUTE ON FUNCTION app.interviews_answer(bigint) TO app_user;
 
--- ===== from schema/99_rls.sql =====
+-- ===== RLS ポリシー =====
 -- =====================================================================
 -- RLS（最終ガード）。主認可は API 層、ここは「本人 / admin / 明示 viewer」の最小ガード。
 -- 組織階層（課長=同課 等）の絞り込みは API 層が担う（計画レビュー §3.3 確定）。
