@@ -136,4 +136,12 @@ Anthropic に埋め込み API が無いため、メンター提案の RAG（類�
 - [x] Phase B 実装（embeddings コンテナ(profile ai) + `lib/ai/embed`(unit 4) + `answers.embedding vector(384)` + hnsw + `lib/ai/mentor`(unit 2) + `POST /answers/[id]/mentor`(key/URL-gate 503・面談者/admin・lazy 埋め込み・pgvector 近傍・Claude 提案) + InterviewForm に UI）。typecheck/lint/test green。**非同期基盤は使わず lazy 生成で MVP**（孤児/再 index は後続）
 - [x] レビュー指摘 BLOCKER 対応: 外部送信を二重 gate 化（key + `AI_EXTERNAL_PROCESSING_APPROVED`）+ `check-secrets` で key あり・承認無しを fail-closed 拒否 + .env.example + Plan 矛盾解消
 - [ ] **承認時に確定**: 送信データの最小化/マスキング（§3.1(d)）— 送信 field・文字数・類似件数を確定（レビュー HIGH。有効化前に必須）
-- [ ] マージ後検証（Docker・笹木さん: 承認フラグ + key 設定で要約/メンターが返る・未設定で 503）
+- [x] **マージ後検証: gate off 側**（2026-06-24・dev スタック）
+  - [x] dev 既定（key / approved 未設定）で summary・mentor とも **503**。DB アクセス前に早期 return で外部送信ゼロ
+  - [x] fail-safe: `ANTHROPIC_API_KEY` のみ設定・`AI_EXTERNAL_PROCESSING_APPROVED` 未設定でも **503**（`aiEnabled = key && approved`）
+  - [x] プロンプト本文がサーバログに残らない（gate off 時に prompt / interview_memo / anthropic 送信跡なし）
+- [ ] **マージ後検証: gate on 側** — **§3.1 の組織承認 + 実 API キー待ちでブロック中**（承認が下りるまで実施しない）
+  - [ ] gate on で「AI 要約」→ 要約が返る（面談者 / admin のみ・他人 403・空 400・Claude 失敗 502）
+  - [ ] `pnpm compose:ai:up` 後「メンター提案」→ 類似過去面談を文脈に提案（`EMBEDDINGS_URL` 設定）
+  - [ ] gate on 時もプロンプト本文がサーバログに残らない
+  - [ ] stg / prod に key・URL を secret 配備して要約 / メンターが返る。レイテンシとコストが許容範囲

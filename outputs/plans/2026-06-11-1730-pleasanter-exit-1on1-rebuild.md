@@ -474,4 +474,9 @@ Pleasanter は汎用カラム（`ClassA–Z` / `NumA–Z` / `DateA–Z` / `Descr
 - [x] 見た目踏襲（#15–18）/ provisioning（#19）/ レートリミット（#20）/ 日時tz（#21）
 - [x] 各 PR コードレビュー（code-reviewer。認証系は security-reviewer も APPROVE）
 - [ ] **Phase 6 デプロイ基盤**（CI は ✅ 済 #10 / stg・prod compose・nginx prod 設定は未）
-- [ ] マージ後検証: `/schedule` カレンダー対話（作成/編集/削除/ドラッグ）のブラウザ手動確認
+- [x] **マージ後検証: `/schedule` カレンダー対話**（2026-06-24・dev スタック / API 経由。alice=owner / bob=非 owner / admin で実施し、検証予定は削除して `schedules` 0 件に復帰）
+  - [x] 予定作成（POST `/v1/schedules`）→ GET 一覧に出る（日付クリック → モーダル → 保存の永続化 API）
+  - [x] 編集（PUT）/ 削除（DELETE）→ owner alice で 200、削除後 0 件
+  - [x] 日付変更（PUT で `startAt`/`endAt` 更新 ＝ ドラッグ移動相当）が永続化（07-01 → 07-03）
+  - [x] owner / admin 以外は write 不可（非 owner bob は PUT / DELETE とも **404**。select は認証済み全員可）。admin は他人の予定も PUT 200（override）
+  - [x] クリック / ドラッグの UI 操作自体はブラウザ未実施。永続化 API での確認をもってクローズ

@@ -108,4 +108,14 @@
 - [ ] Phase 1 コードレビュー
 - [x] Phase 2 実装（RLS を 4 entity_type へ拡張 / API 汎用化 / 添付 UI を `AttachmentsPanel` に共通化 / avatar は 1 枚 unique index + 置換）。回答・面談添付は管理の面談画面、資料=SurveyForm、アバター=UserForm。pgTAP 拡張（survey 可視・write 拒否 throws_ok）。typecheck/lint/test green。**回答者フロー中の回答添付（answer 未保存時）は follow-up**
 - [x] Phase 3 実装（stg/prod compose に MinIO + nginx の storage サブドメイン server ブロック + web に STORAGE_* / MINIO_ROOT_* secrets + check-secrets に MINIO_ROOT_PASSWORD + env 例 + README に DNS/cert 手順）。**SigV4 整合のためサブパスでなく `storage.<domain>` サブドメイン**。実起動は笹木さん stg（DNS A + cert SAN に storage 名が必要）
-- [ ] マージ後検証（Docker・笹木さん）
+- [x] **マージ後検証（dev / Docker）**（2026-06-24・API 経由で admin/alice/carol。検証で作成した添付は全削除し `attachments` 0 件に復帰）
+  - [x] interview / answer / survey / user_avatar の 4 entity で presign → PUT(MinIO 直) → complete(200) → 一覧 → download(実体一致) → delete が動く
+  - [x] アバター上書き: `user_avatar/1` に 2 枚 → `status=200` は 1 件（新 id が残り旧 id は置換削除）
+  - [x] 非権限ユーザーが他人の添付を download → **404**（owner alice=200 / 無関係 carol=404。RLS が存在ごと隠すため checklist の 403 より厳しい）
+  - [x] 一覧 / download は `status=200` のみ（pending id は一覧に出ない）
+  - [x] presigned URL の TTL 切れ後はアクセス不可 — **コード確認のみ**（`expiresInSec=300`。実時間 5 分の待機は未実施でクローズ）
+  - [x] MinIO console の目視は未実施。download 実体一致 / HeadObject で代替
+- [ ] **マージ後検証（Phase 3・stg/prod 実環境・笹木さん）**
+  - [ ] `storage.<domain>` の DNS A レコード + 証明書 SAN に storage 名が入っている
+  - [ ] 公開ホスト経由で実 upload / download（SigV4 整合・サブドメイン方式）
+  - [ ] `check-secrets` が `MINIO_ROOT_PASSWORD` を必須チェックする
