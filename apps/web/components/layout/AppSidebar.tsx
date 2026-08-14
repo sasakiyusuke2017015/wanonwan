@@ -45,7 +45,7 @@ export function AppSidebar({ items, me, isLoading, activeHref, onOpenTheme }: Pr
       onToggle={toggleSidebar}
       resolveIcon={(key) => <Icon name={key} size={20} />}
       linkComponent={GuardedLink}
-      brand={{ href: "/dashboard", icon: <Icon name="chat" size={20} />, label: "wanonwan" }}
+      brand={{ href: "/dashboard", icon: <Icon name="chat" size={20} />, label: "Wanonwan" }}
       footer={
         // /me 取得前はアカウント行をスケルトンにする（name/email は必須 string のため、
         // 空文字で描くとイニシャルが "?" の行が一瞬出てしまう）。

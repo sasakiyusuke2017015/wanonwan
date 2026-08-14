@@ -137,7 +137,7 @@ export default function LoginPage() {
           <h1 className="text-3xl font-bold text-white">1on1 へようこそ</h1>
           <p className="mt-3 text-teal-100">効果的な 1on1 ミーティングを実現</p>
         </div>
-        <div className="text-right text-xs text-teal-200">© 2026 wanonwan</div>
+        <div className="text-right text-xs text-teal-200">© 2026 Wanonwan</div>
       </div>
 
       {/* デスクトップ: 右フォームパネル */}
@@ -155,7 +155,7 @@ export default function LoginPage() {
           <h1 className="text-xl font-bold text-white">1on1 へようこそ</h1>
           <p className="mt-1 text-sm text-teal-100">効果的な 1on1 ミーティングを実現</p>
         </div>
-        <AuthFormCard copyrightText="© 2026 wanonwan">
+        <AuthFormCard copyrightText="© 2026 Wanonwan">
           <Suspense fallback={null}>
             <LoginForm />
           </Suspense>

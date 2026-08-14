@@ -3,10 +3,10 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | プロジェクト名 waoon を **Wanonwan** へ全面改称。npm パッケージ名 / env 変数 / DB 名 / MinIO バケット / compose project / Cookie / コンテナイメージ / 全ドキュメント（`outputs/` 履歴含む）を一括置換し、env キー改名で fail-open する `check-secrets.mjs` を fail-closed 化する |
-| ステータス | 🟦 コードレビュー待ち |
+| ステータス | 🟣 マージ承認待ち |
 | 前提 Plan | [provision-steps](2026-07-07-1412-provision-steps.md)（マージ済み） |
 | PR | |
-| Review | [計画レビュー](../reviews/2026-08-13-0113-rename-wanonwan-review.md) |
+| Review | [計画レビュー](../reviews/2026-08-13-0113-rename-wanonwan-review.md) / [コードレビュー](../reviews/2026-08-14-1125-rename-wanonwan-code-review.md) |
 
 ## 目的
 
@@ -207,6 +207,7 @@ pnpm provision:dev
 | snapshot が DB 名変更で drift | CI の drift 検査で落ちる | 検証表でローカル先行確認。drift したら `pnpm db:snapshot` で再生成してコミット |
 | MinIO 旧バケット `waoon` のオブジェクトが取り残される | dev は再作成で消える。stg は添付が参照不能に | dev は volume ごと破棄。stg は Step 8 で再構築（stg の添付は検証データのみ） |
 | 全セッション無効化 | dev / stg の利用者が要再ログイン | dev は provision で再作成、stg は検証用途のみ。事前周知不要と判断 |
+| localStorage キー `waoon.rememberedEmail` の改名 | ログイン画面の「メールを記憶」が初回アクセスで空になる。旧キーは expiry を持たずブラウザに残り続ける | 再入力のみで実害は軽微と判断（コードレビューの NICE-TO-HAVE） |
 | 旧 Cookie がブラウザに残存 | `waoon-access` 等は新コードのログアウト処理では削除されず expiry まで送られ続ける | dev（localhost）/ stg（検証用途）のため実害なしと判断。再調査を防ぐため記録のみ残す |
 | [PR #116](https://github.com/sasakiyusuke2017015/waoon/pull/116)（docs 撤去）と衝突 | `CLAUDE.md` / `README.md` で軽微なコンフリクト | #116 のマージ後に着手するか、develop 起点で切って後で rebase する |
 | 機械置換の巻き込み事故 | 意図しない文字列破壊 | `waoon` は他語の部分文字列にならない固有語。Step 5 で `git diff` 全読み + 残存ゼロ検証 |
@@ -257,7 +258,7 @@ pnpm provision:dev
   - [x] MinIO に `wanonwan` バケットが冪等作成される
   - [x] ログインが `wanonwan-access` / `wanonwan-refresh` を発行
   - [x] check-secrets が旧キーで exit 1・新キーで exit 0
-- [ ] コードレビュー完了 … → Review リンク
+- [x] コードレビュー完了（BLOCKER 1 件を同ブランチで修正）
 - [ ] PR 作成 … → PR リンク
 - [ ] マージ後検証
   - [ ] CI green

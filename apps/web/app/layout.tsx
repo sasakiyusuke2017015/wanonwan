@@ -10,7 +10,7 @@ import { Providers } from "./providers";
 import { AppFrame } from "@/components/layout/AppFrame";
 
 export const metadata: Metadata = {
-  title: { default: "wanonwan", template: "%s ｜ wanonwan" },
+  title: { default: "Wanonwan", template: "%s ｜ Wanonwan" },
   description: "1on1 アンケート / 面談アプリ（再構築）",
 };
 
