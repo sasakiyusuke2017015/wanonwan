@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
   }
   try {
-    const session = await gotrue.refresh(refreshToken);
+    const session = await gotrue().refresh(refreshToken);
     await setSession(session);
     return NextResponse.json({
       user: { id: session.user.id, email: session.user.email, role: session.user.role },

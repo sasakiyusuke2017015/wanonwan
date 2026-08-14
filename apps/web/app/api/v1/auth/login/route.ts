@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   const input = parsed;
 
   try {
-    const session = await gotrue.signInWithPassword(input.email, input.password);
+    const session = await gotrue().signInWithPassword(input.email, input.password);
     await setSession(session);
     return NextResponse.json({
       user: { id: session.user.id, email: session.user.email, role: session.user.role },

@@ -8,9 +8,10 @@ vi.mock("@/lib/auth/current-user", async (imp) => {
   return { ...actual, getCurrentClaims: vi.fn() };
 });
 vi.mock("@/lib/db/client", () => ({ withUser: vi.fn() }));
-vi.mock("@/lib/auth/gotrue", () => ({
-  gotrue: { admin: { createUser: vi.fn(), deleteUser: vi.fn() } },
-}));
+vi.mock("@/lib/auth/gotrue", () => {
+  const client = { admin: { createUser: vi.fn(), deleteUser: vi.fn() } };
+  return { gotrue: () => client };
+});
 vi.mock("@/lib/auth/service-role", () => ({ withServiceRole: vi.fn() }));
 vi.mock("@/lib/auth/provisioning", () => ({ generateInitialPassword: vi.fn(() => "pw-xxxx") }));
 

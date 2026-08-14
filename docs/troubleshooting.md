@@ -3,6 +3,19 @@
 「何かおかしくなった時のやり直し方」を現在形で記す（特定バージョンからの移行手順は書かない。
 [evergreen.md](../.claude/rules/evergreen.md)）。
 
+## `required variable X is missing a value` / `✗ X が未設定です`
+
+env ファイルが無い（または必要なキーが欠けている）。compose もスクリプトも既定値を
+持たないので、接続情報は必ず env で明示する。
+
+```powershell
+Copy-Item infra/.env.example infra/.env
+Copy-Item apps/web/.env.example apps/web/.env.local
+```
+
+`.env.example` に無いキーを要求された場合は、そのキーを `.env.example` 側にも追加する
+（dev で必要な値は example が常に網羅している状態を保つ）。
+
 ## 完全に作り直したい / DB がおかしい
 
 DB ボリュームごと破棄して作り直す:

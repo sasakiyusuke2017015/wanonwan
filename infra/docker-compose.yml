@@ -9,17 +9,17 @@ services:
     image: wanonwan-postgres:15
     container_name: wanonwan-postgres
     environment:
-      POSTGRES_USER: ${PG_SUPERUSER:-postgres}
-      POSTGRES_PASSWORD: ${PG_SUPERUSER_PASSWORD:-postgres}
-      POSTGRES_DB: ${PG_DATABASE:-wanonwan}
+      POSTGRES_USER: ${PG_SUPERUSER:?PG_SUPERUSER required}
+      POSTGRES_PASSWORD: ${PG_SUPERUSER_PASSWORD:?PG_SUPERUSER_PASSWORD required}
+      POSTGRES_DB: ${PG_DATABASE:?PG_DATABASE required}
     ports:
-      - "${PG_PORT:-5432}:5432"
+      - "${PG_PORT:?PG_PORT required}:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
       # 初回起動時のブートストラップ（ロール/スキーマ/拡張/RLS ヘルパ）。gotrue 接続前提を満たす。
       - ../packages/db/schema/00_bootstrap.sql:/docker-entrypoint-initdb.d/00_bootstrap.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_SUPERUSER:-postgres} -d ${PG_DATABASE:-wanonwan}"]
+      test: ["CMD-SHELL", "pg_isready -U ${PG_SUPERUSER} -d ${PG_DATABASE}"]
       interval: 5s
       timeout: 5s
       retries: 12
@@ -34,12 +34,12 @@ services:
         condition: service_healthy
     environment:
       GOTRUE_DB_DRIVER: postgres
-      GOTRUE_DB_DATABASE_URL: "postgres://supabase_auth_admin:${AUTH_ADMIN_PASSWORD:-authadmin}@postgres:5432/${PG_DATABASE:-wanonwan}?search_path=auth&sslmode=disable"
-      GOTRUE_SITE_URL: ${SITE_URL:-http://localhost:3000}
-      API_EXTERNAL_URL: ${API_EXTERNAL_URL:-http://localhost:9999}
+      GOTRUE_DB_DATABASE_URL: "postgres://supabase_auth_admin:${AUTH_ADMIN_PASSWORD:?AUTH_ADMIN_PASSWORD required}@postgres:5432/${PG_DATABASE}?search_path=auth&sslmode=disable"
+      GOTRUE_SITE_URL: ${SITE_URL:?SITE_URL required}
+      API_EXTERNAL_URL: ${API_EXTERNAL_URL:?API_EXTERNAL_URL required}
       GOTRUE_API_HOST: 0.0.0.0
       PORT: "9999"
-      GOTRUE_JWT_SECRET: ${JWT_SECRET:-dev-only-change-me-please-32bytes-minimum}
+      GOTRUE_JWT_SECRET: ${JWT_SECRET:?JWT_SECRET required}
       GOTRUE_JWT_EXP: "3600"
       GOTRUE_JWT_AUD: authenticated
       GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
@@ -48,7 +48,7 @@ services:
       GOTRUE_MAILER_AUTOCONFIRM: "true"
       GOTRUE_LOG_LEVEL: info
     ports:
-      - "${GOTRUE_PORT:-9999}:9999"
+      - "${GOTRUE_PORT:?GOTRUE_PORT required}:9999"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9999/health"]
       interval: 10s
@@ -62,11 +62,11 @@ services:
     container_name: wanonwan-minio
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER required}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD required}
     ports:
-      - "${MINIO_PORT:-9000}:9000"
-      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+      - "${MINIO_PORT:?MINIO_PORT required}:9000"
+      - "${MINIO_CONSOLE_PORT:?MINIO_CONSOLE_PORT required}:9001"
     volumes:
       - minio-data:/data
     networks: [wanonwan]
@@ -82,7 +82,7 @@ services:
     profiles: ["ai"]
     command: ["--model-id", "intfloat/multilingual-e5-small"]
     ports:
-      - "${EMBEDDINGS_PORT:-8081}:80"
+      - "${EMBEDDINGS_PORT:?EMBEDDINGS_PORT required}:80"
     volumes:
       - embeddings-data:/data
     networks: [wanonwan]

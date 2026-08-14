@@ -12,9 +12,10 @@ vi.mock("@/lib/auth/current-user", async (imp) => {
   const actual = await imp<typeof import("@/lib/auth/current-user")>();
   return { ...actual, getCurrentClaims: vi.fn() };
 });
-vi.mock("@/lib/auth/gotrue", () => ({
-  gotrue: { signInWithPassword: vi.fn(), admin: { updateUser: vi.fn() } },
-}));
+vi.mock("@/lib/auth/gotrue", () => {
+  const client = { signInWithPassword: vi.fn(), admin: { updateUser: vi.fn() } };
+  return { gotrue: () => client };
+});
 vi.mock("@/lib/auth/service-role", () => ({ withServiceRole: vi.fn() }));
 vi.mock("@/lib/auth/session", () => ({ setSession: vi.fn() }));
 

@@ -8,10 +8,6 @@ import { createHmac, randomBytes } from "node:crypto";
 
 const CURL_IMAGE = "curlimages/curl:8.11.1";
 
-// dev の compose 既定値（`${JWT_SECRET:-...}`）。GoTrue はこの secret でトークンを検証するため、
-// dev の逆ガード検査と署名は同一の const を参照する（別々に書くと片方だけ変えて 401 になる）。
-export const DEV_JWT_SECRET = "dev-only-change-me-please-32bytes-minimum";
-
 const base64url = (buf) => Buffer.from(buf).toString("base64url");
 
 // GoTrue admin API 用の service_role JWT（HS256, 60s）。apps/web の provisioning.ts と同等。

@@ -5,14 +5,20 @@ const base = {
   STORAGE_ENDPOINT: "http://localhost:9000",
   STORAGE_ACCESS_KEY: "minioadmin",
   STORAGE_SECRET_KEY: "minioadmin",
+  STORAGE_BUCKET: "attachments",
 };
 
 describe("parseStorageEnv", () => {
   it("必須が揃えば既定値を埋めて返す", () => {
     const env = parseStorageEnv(base);
     expect(env.STORAGE_REGION).toBe("us-east-1");
-    expect(env.STORAGE_BUCKET).toBe("wanonwan");
+    expect(env.STORAGE_BUCKET).toBe("attachments");
     expect(env.STORAGE_INTERNAL_ENDPOINT).toBeUndefined();
+  });
+
+  it("バケット名が無ければ throw する（既定値で別環境を掴ませない）", () => {
+    const { STORAGE_BUCKET: _, ...withoutBucket } = base;
+    expect(() => parseStorageEnv(withoutBucket)).toThrow(/STORAGE_BUCKET/);
   });
 
   it("認証情報が無ければ throw する（既定値で動かさない）", () => {
