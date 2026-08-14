@@ -61,6 +61,27 @@ fix/zzz      ──┘                              （リリース時）
 
 > **マージ先は常に `develop`**。`main` へは `develop` からのみマージする。
 
+### base を feature ブランチにしない（作業が宙づりになる）
+
+PR の base を別の feature ブランチにすると、**その親が先に `develop` へマージされたあとに
+子 PR をマージした瞬間、子の作業はどこにも届かなくなる**。行き先のブランチは既に
+`develop` へ出たあとなので、以後 `develop` に反映される経路が無い。
+
+GitHub 上は `MERGED` と表示されるため、PR 一覧を眺めても気付けない。実際に
+`outputs/verification` の撤去と LoadingOverlay の削除がこれで宙づりになり、
+どちらも数週間後に別件の調査で偶然発覚した。
+
+検知はスクリプトで行う:
+
+```bash
+pnpm check:merges
+```
+
+merged PR のうち **マージコミットが `origin/develop` の履歴に無いもの**を列挙する
+（[`scripts/check-merge-targets.mjs`](../../scripts/check-merge-targets.mjs)）。
+検出されたら、head ブランチから `develop` へ cherry-pick して入れ直す。
+**解決するまで head ブランチを削除しない**（復元元が失われる）。
+
 ### `develop` 直 push 例外: `outputs/**`
 
 `outputs/plans/**` / `outputs/reviews/**` / `outputs/README.md` の更新は
