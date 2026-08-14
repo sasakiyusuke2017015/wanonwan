@@ -5,7 +5,7 @@
 | 概要 | プロジェクト名 waoon を **Wanonwan** へ全面改称。npm パッケージ名 / env 変数 / DB 名 / MinIO バケット / compose project / Cookie / コンテナイメージ / 全ドキュメント（`outputs/` 履歴含む）を一括置換し、env キー改名で fail-open する `check-secrets.mjs` を fail-closed 化する |
 | ステータス | 🟣 マージ承認待ち |
 | 前提 Plan | [provision-steps](2026-07-07-1412-provision-steps.md)（マージ済み） |
-| PR | |
+| PR | [#117](https://github.com/sasakiyusuke2017015/waoon/pull/117) |
 | Review | [計画レビュー](../reviews/2026-08-13-0113-rename-wanonwan-review.md) / [コードレビュー](../reviews/2026-08-14-1125-rename-wanonwan-code-review.md) |
 
 ## 目的
@@ -259,7 +259,7 @@ pnpm provision:dev
   - [x] ログインが `wanonwan-access` / `wanonwan-refresh` を発行
   - [x] check-secrets が旧キーで exit 1・新キーで exit 0
 - [x] コードレビュー完了（BLOCKER 1 件を同ブランチで修正）
-- [ ] PR 作成 … → PR リンク
+- [x] PR 作成 … [#117](https://github.com/sasakiyusuke2017015/waoon/pull/117)
 - [ ] マージ後検証
   - [ ] CI green
   - [ ] GitHub リポジトリ rename + `git remote set-url`（笹木さん）
