@@ -2,7 +2,7 @@ import * as v from "valibot";
 
 // valibot スキーマで value を検証し、フィールド名 → 先頭エラーメッセージのマップを返す。
 // 検証成功なら空オブジェクト。フォーム submit 時の field 単位エラー表示に使う。
-// メッセージはスキーマ側（@waoon/domain）で日本語化したものをそのまま出す。
+// メッセージはスキーマ側（@wanonwan/domain）で日本語化したものをそのまま出す。
 export function fieldErrorsOf<TSchema extends v.GenericSchema>(
   schema: TSchema,
   value: unknown,

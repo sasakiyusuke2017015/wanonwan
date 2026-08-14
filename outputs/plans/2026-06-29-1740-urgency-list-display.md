@@ -5,7 +5,7 @@
 | 概要 | 緊急度（高/中/低）を admin 一覧（surveys / answers）に色付き Badge で表示。一覧 API に urgency_levels を join、色はマスタ段数可変に耐える相対順位方式、ソートは urgencyCode 基準 |
 | ステータス | 🟢 マージ済み（検証中） |
 | 前提 Plan | [緊急度マスタ](2026-06-29-1537-urgency-master.md) |
-| PR | [#79](https://github.com/sasakiyusuke2017015/waoon/pull/79) |
+| PR | [#79](https://github.com/sasakiyusuke2017015/wanonwan/pull/79) |
 | Review | [コードレビュー](../reviews/2026-07-06-0739-urgency-list-display-review.md) |
 
 ---
@@ -26,7 +26,7 @@
    - いずれも未設定は null。
 2. **一覧ページに緊急度カラムを追加（色付き Badge）**
    - `admin/surveys/page.tsx`・`admin/answers/page.tsx` の `COLUMNS` に「緊急度」列を追加。
-   - セルは `Column.render` で **`@waoon/ui` の `Badge` atom** を描画（高=red / 中=yellow / 低=green、
+   - セルは `Column.render` で **`@wanonwan/ui` の `Badge` atom** を描画（高=red / 中=yellow / 低=green、
      未設定は薄い "—" テキスト）。
    - ソート可能にする（`urgencyCode` 基準）。検索は緊急度名（`urgencyName`）に乗せる。
 
@@ -79,7 +79,7 @@
 5. typecheck / build / lint / 関連テスト。
 
 ## 検証
-- `pnpm -r typecheck` / `pnpm --filter @waoon/web build` / lint。
+- `pnpm -r typecheck` / `pnpm --filter @wanonwan/web build` / lint。
 - 手動（dev 実機）:
   - surveys/answers 一覧に緊急度列が出る（設定済みは 高=赤 / 中=黄 / 低=緑 の Badge、未設定は "—"）。
   - 緊急度でソートできる（昇順/降順で 低↔高、未設定は端に寄る）。
@@ -117,7 +117,7 @@
 | 2026-06-29 | ソートは urgencyCode 基準 | name の文字列ソートでなく緊急度の順序（低→高）で並べるため |
 | 2026-07-06 | 表示を**色付き Badge** に格上げ（テキストラベルから変更） | pull した develop で `DataTable` の `Column` に `render?:(row)=>ReactNode` が追加され、`AdminListTable` の共有改修なしで行内 Badge を描画可能になった。旧 Plan の「スコープ外」前提が解消したため |
 | 2026-07-06 | 対象は surveys / answers **両方** | 笹木さん確定 |
-| 2026-07-06 | Badge は既存 `@waoon/ui` の `Badge` atom を使用（新規部品なし） | `color=red/yellow/green` が揃い緊急度 高/中/低 に直結。ui-catalog 吸収方針とも整合 |
+| 2026-07-06 | Badge は既存 `@wanonwan/ui` の `Badge` atom を使用（新規部品なし） | `color=red/yellow/green` が揃い緊急度 高/中/低 に直結。ui-catalog 吸収方針とも整合 |
 | 2026-07-06 | 色は `code` 固定値でなく**相対順位**で決める | マスタ段数が可変で、code ハードコードは増減・振り直しで破綻するため |
 | 2026-07-06 | 緊急度列の**名前検索は非対応**にする | `DataTable` は列の生値でソート/検索する（[ClientDataTable.tsx:190-240](../../packages/ui/core/organisms/DataTable/ClientDataTable.tsx#L190-L240)）。ソート順（code）を優先し `key="urgencyCode"`（数値）にしたため名前検索は効かない。緊急度は少数値でソートすれば足りるため許容 |
 | 2026-07-06 | 未設定はソート用 code を `9999` に正規化 | `render` は表示専用でソートは生値依存。未設定（null）を数値ソートで末尾へ寄せるための番兵。表示は `urgencyName` の null で "—" 判定（`9999` は表示に出さない） |

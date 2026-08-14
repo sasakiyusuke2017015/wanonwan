@@ -50,10 +50,10 @@
 - **触る（新規）**:
   - `apps/web/app/api/v1/users/[id]/reset-password/route.ts` — admin による PW リセット（service_role で PW 再生成 + フラグ付与、生成値を一度だけ返す）。
   - `apps/web/app/api/v1/auth/change-password/route.ts` — 認証ユーザーが **current PW を再確認**して自分の PW を変更 + フラグ解除 + セッション再発行。IP レートリミット付き。
-  - `apps/web/app/change-password/page.tsx` — 強制変更 UI（`@waoon/ui` 定石。現 PW + 新 PW + 確認入力）。
+  - `apps/web/app/change-password/page.tsx` — 強制変更 UI（`@wanonwan/ui` 定石。現 PW + 新 PW + 確認入力）。
 - **触らない（第一候補・claim 方式の場合）**: 業務テーブルの DDL / RLS。dev compose。GoTrue の docker 設定（`MAILER_AUTOCONFIRM=true` のまま）。`signInWithPassword` / `refresh` / `setSession` の既存挙動。
 - **触る可能性（フォールバック・DB カラム方式の場合のみ／判断 #2）**: Step 3-B0 で「access token に `app_metadata` が載らない」と判明した場合に限り、`packages/db` の migration に `public.users.must_change_password boolean not null default false` を追加し、判定をレイアウト Server Component + API ゲートで DB から行う。**claim 方式が通れば DDL は触らない。** どちらか一方のみを真実源とし、両持ちしない。
-- **前提（所与）**: Next.js 16 / React 19 / GoTrue `supabase/auth:v2.189.0`（HS256・`GOTRUE_JWT_SECRET`）/ `@waoon/ui` / Jotai。現行スタックは所与。
+- **前提（所与）**: Next.js 16 / React 19 / GoTrue `supabase/auth:v2.189.0`（HS256・`GOTRUE_JWT_SECRET`）/ `@wanonwan/ui` / Jotai。現行スタックは所与。
 
 ---
 
@@ -90,7 +90,7 @@
 
 > B は A の `updateUser` 基盤に乗る。Step 1（client 基盤）→ Step 2（A）→ Step 3〜5（B）の順。
 
-### Step 1 — `@waoon/auth` admin client 拡張（A・B 共通基盤）
+### Step 1 — `@wanonwan/auth` admin client 拡張（A・B 共通基盤）
 1. `types.ts`: `UpdateUserAttributes = { email?; password?; emailConfirm?; appMetadata?; userMetadata? }` を追加。`GoTrueClient.admin` に `updateUser(id, attrs, serviceRoleToken): Promise<GoTrueUser>` を追加。`CreateUserInput` に `appMetadata?` を追加。
 2. `client.ts`: `admin.updateUser` を `PUT /admin/users/{id}`（body は `email`/`password`/`email_confirm`/`app_metadata`/`user_metadata` を **指定されたものだけ**送る）で実装。`createUser` は `app_metadata: input.appMetadata` を送る。
 - 【検証】`pnpm typecheck` green。client の型が新メソッドを公開している。
@@ -129,7 +129,7 @@
    - PW 更新 + フラグ解除: `gotrue.admin.updateUser(claims.sub, { password:newPassword, appMetadata: mustChangeAppMetadata(false) })`。**この時点で変更は確定**。
    - `gotrue.signInWithPassword(claims.email, newPassword)` の **戻り session（access+refresh）を `setSession`** に渡しフラグ無しの新世代へ差し替え。**この再ログイン/setSession は best-effort**（失敗しても「変更完了。再ログインしてください」を返す＝PW が変わったのに失敗扱いで詰むのを防ぐ）。
    - 成功・失敗とも new/current PW を含めない汎用メッセージ。`console.error` に GoTrue レスポンスボディを丸ごと出さない。
-2. `app/change-password/page.tsx`: `@waoon/ui`（ContentBlock + FormField + FormActions）で 現 PW + 新 PW + 確認入力（new == confirm は UI 側検証）→ API 呼び出し → 成功で `/` へ。
+2. `app/change-password/page.tsx`: `@wanonwan/ui`（ContentBlock + FormField + FormActions）で 現 PW + 新 PW + 確認入力（new == confirm は UI 側検証）→ API 呼び出し → 成功で `/` へ。
 - 【検証】新規ユーザー初回ログイン → `/change-password` 強制 → 現 PW + 新 PW で変更 → 通常画面へ進め、再ログインでも飛ばされない。current PW 不一致は 401。
 
 ---
@@ -204,7 +204,7 @@
 - [x] **コードレビュー（Codex）** → [NEEDS WORK](../reviews/2026-06-15-1015-auth-gotrue-sync-force-change-code-review.md)（PUT の admin ゲート欠落）
 - [x] 指摘反映（PUT に admin ゲート追加、reset-password 404/409 分離）
 - [x] **再コードレビュー（Codex）** → [APPROVE](../reviews/2026-06-15-1030-auth-gotrue-sync-force-change-code-review-v2.md)（残 NICE は B-0 runtime のみ）
-- [x] commit（2 本: feat / docs）→ push → **PR 作成（[#25](https://github.com/sasakiyusuke2017015/waoon/pull/25)）**
+- [x] commit（2 本: feat / docs）→ push → **PR 作成（[#25](https://github.com/sasakiyusuke2017015/wanonwan/pull/25)）**
 - [x] 笹木さんマージ承認 → **merge 済み（#25, develop）**
 - [ ] **マージ後（受け入れ）検証**（笹木さん環境・Docker）
   - [ ] **B-0**: 新規作成ユーザーの access token に `app_metadata.must_change_password=true` が載る（崩れたら判断 #2 の DB カラム方式へピボット）

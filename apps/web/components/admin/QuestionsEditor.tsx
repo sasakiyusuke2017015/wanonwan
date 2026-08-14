@@ -7,7 +7,7 @@ import { Select, Button } from "@ui-catalog/core/molecules";
 import { useConfirm } from "@ui-catalog/core/hooks/ui";
 import { useTheme } from "@ui-catalog/core/infra/theme";
 import { useAppToast } from "@ui-catalog/core/providers";
-import { QUESTION_TYPES, type AnswerType } from "@waoon/domain";
+import { QUESTION_TYPES, type AnswerType } from "@wanonwan/domain";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import {
   QuestionForm,

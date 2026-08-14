@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import * as v from "valibot";
-import { CreateSurveySchema, RecordInterviewSchema } from "@waoon/domain";
+import { CreateSurveySchema, RecordInterviewSchema } from "@wanonwan/domain";
 import { fieldErrorsOf } from "./field-errors";
 
 describe("CreateSurveySchema 定員 range", () => {

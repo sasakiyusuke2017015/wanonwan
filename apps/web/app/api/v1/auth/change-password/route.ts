@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import * as v from "valibot";
-import { GoTrueError } from "@waoon/auth";
+import { GoTrueError } from "@wanonwan/auth";
 import { getCurrentClaims } from "@/lib/auth/current-user";
 import { gotrue } from "@/lib/auth/gotrue";
 import { withServiceRole } from "@/lib/auth/service-role";

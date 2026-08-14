@@ -51,7 +51,7 @@
 ## 検証
 
 - [x] `pnpm -r typecheck` green（全パッケージ）
-- [x] `pnpm --filter @waoon/web build` 成功（全 admin ルート生成）
+- [x] `pnpm --filter @wanonwan/web build` 成功（全 admin ルート生成）
 - [x] `pnpm test:db` all passed（6 files・admin 帯昇格不可含む）
 - [x] API 実機（dev サーバ）: admin CRUD / FK 削除 409 / admin帯 995 → 400 / 非admin → 403
 

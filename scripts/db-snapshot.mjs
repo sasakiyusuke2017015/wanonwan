@@ -4,9 +4,9 @@
 // これは生成物。migration を足したら `pnpm db:snapshot` で再生成し、コミットする。
 // CI が「再生成して diff が出ないこと」を検証する（drift 検査）。
 //
-// 使い捨てコンテナで生成する理由: pg_cron は cron.database_name（=waoon、Dockerfile.db で固定）
-// の DB でしか CREATE できず、0001_initial が cron.schedule() を呼ぶため、生成は waoon という名の
-// DB に対して行う必要がある。dev の waoon DB を壊さないよう別コンテナを立てて捨てる。
+// 使い捨てコンテナで生成する理由: pg_cron は cron.database_name（=wanonwan、Dockerfile.db で固定）
+// の DB でしか CREATE できず、0001_initial が cron.schedule() を呼ぶため、生成は wanonwan という名の
+// DB に対して行う必要がある。dev の wanonwan DB を壊さないよう別コンテナを立てて捨てる。
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { dirname, join } from "node:path";
@@ -18,15 +18,15 @@ const bootstrap = join(dbDir, "schema", "00_bootstrap.sql");
 const migrationsDir = join(dbDir, "migrations");
 const outFile = join(dbDir, "snapshot", "schema.sql");
 
-const IMAGE = "waoon-postgres:15";
-const CONTAINER = "waoon-snapshot-tmp";
+const IMAGE = "wanonwan-postgres:15";
+const CONTAINER = "wanonwan-snapshot-tmp";
 
 function docker(args, opts = {}) {
   return execFileSync("docker", args, { encoding: "utf8", ...opts });
 }
 function psqlExec(sql) {
   return docker(
-    ["exec", "-i", CONTAINER, "psql", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "waoon"],
+    ["exec", "-i", CONTAINER, "psql", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "wanonwan"],
     { input: sql, stdio: ["pipe", "inherit", "inherit"] },
   );
 }
@@ -46,7 +46,7 @@ const migrations = readdirSync(migrationsDir)
 cleanup();
 docker([
   "run", "-d", "--name", CONTAINER,
-  "-e", "POSTGRES_DB=waoon",
+  "-e", "POSTGRES_DB=wanonwan",
   "-e", "POSTGRES_PASSWORD=postgres",
   IMAGE,
 ]);
@@ -56,7 +56,7 @@ try {
   let ready = false;
   for (let i = 0; i < 60; i++) {
     try {
-      docker(["exec", CONTAINER, "pg_isready", "-U", "postgres", "-d", "waoon"], { stdio: "ignore" });
+      docker(["exec", CONTAINER, "pg_isready", "-U", "postgres", "-d", "wanonwan"], { stdio: "ignore" });
       ready = true;
       break;
     } catch {
@@ -83,12 +83,12 @@ try {
   //    除外し、キューは pgmq.create() で再現する（下記）。
   const raw = docker([
     "exec", CONTAINER, "pg_dump", "--schema-only", "--no-owner", "--exclude-schema=pgmq",
-    "-U", "postgres", "-d", "waoon",
+    "-U", "postgres", "-d", "wanonwan",
   ]);
 
   // 実在キューを読み、snapshot 適用時に冪等再作成する（キュー名をハードコードしない）。
   const queues = docker(
-    ["exec", "-i", CONTAINER, "psql", "-tA", "-U", "postgres", "-d", "waoon"],
+    ["exec", "-i", CONTAINER, "psql", "-tA", "-U", "postgres", "-d", "wanonwan"],
     { input: "SELECT queue_name FROM pgmq.list_queues() ORDER BY queue_name;" },
   )
     .trim()

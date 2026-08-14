@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { UserRole } from "@waoon/domain";
+import type { UserRole } from "@wanonwan/domain";
 import { apiGet, apiSend } from "@/lib/api/client";
 
 type Me = { isAdmin: boolean; name: string | null; roles?: UserRole[]; activeRole?: UserRole };

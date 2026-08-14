@@ -5,14 +5,14 @@
 |---|---|
 | 概要 | UI/UX 改善テーマ5「仕上げ」。**フェーズ分割**: Phase1 ページタイトル・Phase2 公開一覧 UX（polish・**マージ済み・検証中**）/ Phase3 ダークモード（epic・三層モデル: semantic トークン反転境界 + design.ts 前景調整 + 114 箇所 repoint・FOUC 対策要）/ Phase4 VRT（epic・reg-suit + storycap + MinIO baseline・4-light→3→4-dark の additive 順序）。epic 2 本は着手時に独立サブ Plan 化 |
 | ステータス | 🟡 実装中 |
-| PR | Phase1: [#76](https://github.com/sasakiyusuke2017015/waoon/pull/76) merged / Phase2: [#77](https://github.com/sasakiyusuke2017015/waoon/pull/77) merged |
+| PR | Phase1: [#76](https://github.com/sasakiyusuke2017015/wanonwan/pull/76) merged / Phase2: [#77](https://github.com/sasakiyusuke2017015/wanonwan/pull/77) merged |
 | Review | [計画レビュー](../reviews/2026-07-05-2040-finishing-touches-review.md) / [Phase1 コードレビュー](../reviews/2026-07-05-2226-finishing-touches-code-review.md) / [Phase2 コードレビュー](../reviews/2026-07-05-2300-finishing-touches-phase2-code-review.md) |
 
 ## 目的
 
 UI/UX 改善テーマ5「仕上げ」。ロードマップの 4 項目を扱う。調査（2026-07-05・Explore 3 並列）で、サイズが**小さな polish 2 本**と**大きな epic 2 本**に分かれることが判明したため、フェーズに分割して直列で回す。
 
-1. **ページタイトル**（polish）— 全ページのタブが `"waoon"` 固定。
+1. **ページタイトル**（polish）— 全ページのタブが `"wanonwan"` 固定。
 2. **公開一覧 UX**（polish）— `/surveys` の空状態・ローディング・エラー・締切訴求・回答状態粒度。
 3. **ダークモード**（epic）— 実質未対応。トークン層・状態軸・切替 UI・ハードコード色の CSS 変数化が必要。
 4. **VRT**（epic）— Storybook 資産はあるが VRT 未配線。reg-suit + 撮影層 + ストレージ + CI が新規。
@@ -27,9 +27,9 @@ UI/UX 改善テーマ5「仕上げ」。ロードマップの 4 項目を扱う�
 ## 現状コンテキスト（調査で確定）
 
 ### ページタイトル
-- `app/layout.tsx` の `metadata = { title: "waoon", ... }` のみ。`title.template`（`%s | waoon`）未設定・個別 `metadata`/`generateMetadata` は**ゼロ**。
+- `app/layout.tsx` の `metadata = { title: "wanonwan", ... }` のみ。`title.template`（`%s | wanonwan`）未設定・個別 `metadata`/`generateMetadata` は**ゼロ**。
 - `page.tsx` 35 本中 **29 本が `"use client"`** で `metadata` を export 不能。`(admin)/layout.tsx` も `"use client"`（admin ガード）で metadata の受け皿が無い。
-- → 全タブが `"waoon"` 固定。
+- → 全タブが `"wanonwan"` 固定。
 
 ### 公開一覧 `/surveys`（[app/surveys/page.tsx](../../apps/web/app/surveys/page.tsx)）
 - 空状態=破線＋一文（CTA なし）/ ローディング=テキスト / エラー=`error.message` 直出し（リトライなし）。
@@ -55,7 +55,7 @@ UI/UX 改善テーマ5「仕上げ」。ロードマップの 4 項目を扱う�
 
 | 対象 | 変更 |
 |---|---|
-| `app/layout.tsx` | `metadata.title` を `{ default: "waoon", template: "%s ｜ waoon" }` に |
+| `app/layout.tsx` | `metadata.title` を `{ default: "wanonwan", template: "%s ｜ wanonwan" }` に |
 | セクション server `layout.tsx`（新設 or 既存の server 化） | admin / surveys 等の route group に静的 `metadata` を持つ server layout を置く。client ページに被せる |
 | 動的ページ（`[publishId]`・admin 編集）| `generateMetadata`（server 化できる範囲）or client 用 `useDocumentTitle` フック 1 本で補完 |
 
@@ -123,7 +123,7 @@ Phase 1 → 2（polish・低〜中リスク）を先に回し、Phase 3（ダー
 | 2026-07-05 | Chromatic は採用せず reg-suit 路線（残置依存は整理対象）| 技術選定メモの SaaS 非採用方針と整合 |
 | 2026-07-05 | 計画レビュー（代行 planner + architect）: Phase1/2 APPROVE / Phase3/4 は NEEDS WORK を反映（[Review](../reviews/2026-07-05-2040-finishing-touches-review.md)）| ダーク方式を三層モデルに置換 / FOUC・body 地色・`@custom-variant dark`・背景軸×dark をリスク/要判断に追加 / VRT の安全網主張を「light 不変の担保」に修正 + 4-light→3→4-dark の additive 順序 / MinIO CI 到達性を決定項目化 |
 | 2026-07-05 | **epic 2 本（ダーク/VRT）は着手時に独立サブ Plan 化**（`…-dark-mode.md` / `…-vrt.md`）。本 Plan は roadmap + Phase1/2 実装 Plan + Phase3/4 意図の位置づけ | 各々 goal/scope/risk/verification を持つ単独 Plan 相当の規模。判断ログ追記では実装ゲートの情報量が不足（architect #C）|
-| 2026-07-05 | Phase 1 実装: ルート metadata に `title.template="%s ｜ waoon"` + `useDocumentTitle` フック新設。**AppLayout で `activeLabel`（現在セクション名）を document.title に一括設定** + login/change-password は個別 | 認証ページは全て AppLayout 配下で NAV_ITEMS の prefix match により意味あるセクション名にマップされる（一覧/編集/新規/マスタ配下すべて）。30 ページ個別編集を回避。ページ個別タイトル（編集 vs 一覧）が要る箇所は将来 useDocumentTitle を個別追加 |
+| 2026-07-05 | Phase 1 実装: ルート metadata に `title.template="%s ｜ wanonwan"` + `useDocumentTitle` フック新設。**AppLayout で `activeLabel`（現在セクション名）を document.title に一括設定** + login/change-password は個別 | 認証ページは全て AppLayout 配下で NAV_ITEMS の prefix match により意味あるセクション名にマップされる（一覧/編集/新規/マスタ配下すべて）。30 ページ個別編集を回避。ページ個別タイトル（編集 vs 一覧）が要る箇所は将来 useDocumentTitle を個別追加 |
 | 2026-07-05 | Phase 2 実装: 回答状態は `answers.status >= 200` で提出判定（100=下書き扱い・「続きから回答」導線）。締切訴求は日付粒度・閲覧者ローカル TZ の `deadlineInfo`（本日締切/あとN日/締切超過・提出済みには非表示）。`me/surveys` の order を `end_at asc nulls last` に。スケルトンは `SurveyCardSkeleton` として catalog に吸収 | ドメイン定数 `ANSWER_STATUSES`（100/200/400/900）と整合。コードレビュー初回 NEEDS WORK（BLOCKER: テストが `+09:00` 固定で UTC CI で落ちる）→ テストを TZ 非依存（オフセットなしローカル時刻）に修正して APPROVE。`TZ` env 固定は Windows Node で効かないため不採用 |
 
 | 2026-08-14 | epic 2 本のサブ Plan を作成（[VRT](2026-08-14-0020-vrt.md) / [dark-mode](2026-08-14-0025-dark-mode.md)）。あわせて要判断 6 件のうち 4 件を確定: 順序は **4-light → 3 → 4-dark**（親 Plan どおり）/ VRT 被覆は **catalog 171 + app ページ**（Playwright 新規導入）/ baseline は **stg MinIO 待ち**（4b/4c をブロック項目化）/ dark と背景 9 軸は **直交** | 着手にあたり現状を再実測したところ、親 Plan の調査（2026-07-05）以降に #97 / #103 / #104 / #110 が入り数字が動いていた（ハードコード色 114 → **143 箇所**、stories 141 → **171**、Storybook 10.2 想定 → **10.5.2**、Playwright は未導入のまま）。143 箇所は app 側で story が 0 のため、catalog VRT だけでは安全網にならず被覆拡大を選択した |
@@ -150,15 +150,15 @@ Phase 1/2 は判断不要で着手可。以下は各 epic の**サブ Plan 着�
 - [x] 計画レビュー（代行 planner + architect）: Phase1/2 APPROVE / Phase3/4 設計指摘を反映（[Review](../reviews/2026-07-05-2040-finishing-touches-review.md)）
 - [x] Phase 1（ページタイトル）実装完了（title.template + useDocumentTitle + AppLayout 一括・typecheck/lint/build/test green）
 - [x] Phase 1 コードレビュー（代行 code-reviewer・APPROVE・[Review](../reviews/2026-07-05-2226-finishing-touches-code-review.md)）
-- [x] Phase 1 merge（笹木さん承認・[#76](https://github.com/sasakiyusuke2017015/waoon/pull/76)）
-- [x] Phase 2（公開一覧 UX）実装・コードレビュー（代行・初回 NEEDS WORK→修正反映→APPROVE・[Review](../reviews/2026-07-05-2300-finishing-touches-phase2-code-review.md)）・merge（[#77](https://github.com/sasakiyusuke2017015/waoon/pull/77)）
+- [x] Phase 1 merge（笹木さん承認・[#76](https://github.com/sasakiyusuke2017015/wanonwan/pull/76)）
+- [x] Phase 2（公開一覧 UX）実装・コードレビュー（代行・初回 NEEDS WORK→修正反映→APPROVE・[Review](../reviews/2026-07-05-2300-finishing-touches-phase2-code-review.md)）・merge（[#77](https://github.com/sasakiyusuke2017015/wanonwan/pull/77)）
 - [ ] Phase 3（ダークモード）: サブ Plan [2026-08-14-0025-dark-mode](2026-08-14-0025-dark-mode.md) 作成済み（2026-08-14）→ 実装（複数 PR）・レビュー・merge
 - [ ] Phase 4（VRT）: サブ Plan [2026-08-14-0020-vrt](2026-08-14-0020-vrt.md) 作成済み（2026-08-14）→ 実装・レビュー・merge
 - [ ] **マージ後検証（Phase 1/2・dev 実機。2026-07-05 に Claude Code が headless chromium で実施）**
-  - [x] ページタイトル: クライアント遷移は正常（`アンケート ｜ waoon`）。**フルロード/リロードで metadata に上書きされ "waoon" に戻るバグを発見** → `fix/finishing-touches-followups` で修正・実機再確認済み
+  - [x] ページタイトル: クライアント遷移は正常（`アンケート ｜ wanonwan`）。**フルロード/リロードで metadata に上書きされ "wanonwan" に戻るバグを発見** → `fix/finishing-touches-followups` で修正・実機再確認済み
   - [x] 公開一覧: スケルトン / エラー再試行（abort→再試行→復帰）/ 締切バッジ（あと1日・あと2日・遠い締切と提出済みは非表示）/ 下書きの「続きから回答」導線 / 3 カラム / 締切昇順 / StatisticList 3 値
   - [x] 回答ページ: 期間・締切・下書きバッジの再掲 / ローディング・エラー体裁
   - [x] **SurveyCard の期間ヘッダーが白地白文字で不可視のバグを発見**（headerColor の契約不一致・従来から）→ 同 fix ブランチで修正・実機再確認済み
   - [x] **ログイン画面のメール欄 blur で InvalidStateError**（笹木さん報告・catalog `Input` が type を問わず `setSelectionRange` を呼ぶ・テーマ4 由来）→ 同 fix ブランチで selection 対応 type に限定 + 回帰テスト・実機再確認済み
   - [ ] 空状態（EmptyState）: 掲載ゼロの状態が必要なため未検証（seed 環境では常に掲載あり。笹木さん判断でスキップ可）
-  - [x] followup fix（タイトル上書き / 期間ヘッダー / Input blur）の PR merge（[#78](https://github.com/sasakiyusuke2017015/waoon/pull/78)）
+  - [x] followup fix（タイトル上書き / 期間ヘッダー / Input blur）の PR merge（[#78](https://github.com/sasakiyusuke2017015/wanonwan/pull/78)）

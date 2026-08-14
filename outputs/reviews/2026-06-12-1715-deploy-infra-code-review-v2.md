@@ -36,7 +36,7 @@
 - `provision.mjs` は migration 適用済みが前提 → 使い方コメントに「先に migrate を流す」を追記（code）。
 - CD の `git checkout` がローカル変更で詰まり得る → `git checkout -f` + 「実値 env は host 事前配置」コメント（code / arch）。
 - 初回 initdb の待ち時間 → CD の healthcheck 待ちループを 60s に延長（arch）。
-- `PG_DATABASE` は pg_cron が `waoon` 前提 → example に「変更不可」注記（code）。
+- `PG_DATABASE` は pg_cron が `wanonwan` 前提 → example に「変更不可」注記（code）。
 - 既存 volume で PW を変えても rotate されない運用上の落とし穴 → `05_rotate_roles.sh` に手動 `ALTER ROLE` 手順をコメント追記（arch）。
 
 ### 残課題へ（後続）

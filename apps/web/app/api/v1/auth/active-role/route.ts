@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { SetActiveRoleSchema, heldRoles, type ElevatedRole } from "@waoon/domain";
+import { SetActiveRoleSchema, heldRoles, type ElevatedRole } from "@wanonwan/domain";
 import { withActiveUser } from "@/lib/auth/route";
 import { setActiveRoleCookie } from "@/lib/auth/session";
 import { parseBody } from "@/lib/api/request";

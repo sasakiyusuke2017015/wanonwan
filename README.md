@@ -1,4 +1,4 @@
-# waoon
+# Wanonwan
 
 旧 **1on1（アンケート／面談）アプリ**を、セルフホスト OSS スタックで再構築するプロジェクト。
 旧アプリの **Pleasanter 依存（データストア兼管理 UI）を完全排除**し、
@@ -22,16 +22,16 @@
 | UI | ui-catalog（`packages/ui` にベンダリング = pnpm workspace）/ Tailwind CSS v4 / TanStack Query |
 | 構成 | pnpm workspace モノレポ / Docker Compose（dev・stg・prod） |
 | テスト | Vitest / pgTAP / Playwright |
-| Git / CI | GitHub（`sasakiyusuke2017015/waoon`）+ GitHub Actions |
+| Git / CI | GitHub（`sasakiyusuke2017015/wanonwan`）+ GitHub Actions |
 
 ## このリポジトリの構成
 
 ```
-waoon/
+wanonwan/
 ├── CLAUDE.md            プロジェクト概要 + AI 駆動開発の前提
 ├── README.md            ← このファイル
 ├── apps/web/            Next.js アプリ（UI + API Routes + Server Actions + lib/auth）
-├── packages/            共有パッケージ（@waoon/ui / auth / domain / db）
+├── packages/            共有パッケージ（@wanonwan/ui / auth / domain / db）
 │   └── db/              DDL・RLS・seed・pgTAP（db:migrate / provision:{env} / test:db で適用）
 ├── infra/               Docker Compose（dev/stg/prod）+ nginx + Dockerfile.web
 ├── scripts/             db-migrate / provision（+ provision/ ステップ）/ check-secrets 等

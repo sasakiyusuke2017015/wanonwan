@@ -6,7 +6,7 @@
 |---|---|
 | 概要 | api-route-helpers 残課題。認証プリミティブ（getCurrentClaims/getAccessToken/getRefreshToken/verifyAccessToken）の直 import を `no-restricted-imports` で禁止（認可漏れの構造的防止）+ 挙動不変 integration test。前提として apps/web に ESLint flat config を新設し root lint/CI に配線 |
 | ステータス | 🟢 マージ済み（検証中） |
-| PR | ESLint+import ガード: [#32](https://github.com/sasakiyusuke2017015/waoon/pull/32)（merged） / integration test: [#34](https://github.com/sasakiyusuke2017015/waoon/pull/34)（merged） |
+| PR | ESLint+import ガード: [#32](https://github.com/sasakiyusuke2017015/wanonwan/pull/32)（merged） / integration test: [#34](https://github.com/sasakiyusuke2017015/wanonwan/pull/34)（merged） |
 
 ---
 
@@ -52,7 +52,7 @@
    - allowlist override（ban 解除）: `app/api/v1/auth/{me,logout,refresh,change-password}/route.ts`。
    - `ignores`: `.next`, `node_modules`, ビルド生成物, `**/*.test.ts`（テストは別途）。
 3. `apps/web/package.json` に `"lint": "eslint ."` を追加。
-4. ルート `package.json` の `lint` を `pnpm --filter @waoon/web lint` に置換（echo 廃止）。
+4. ルート `package.json` の `lint` を `pnpm --filter @wanonwan/web lint` に置換（echo 廃止）。
 5. 立ち上げで出た違反を解消（**ガード rule は error 固定**。それ以外で多発するルールは warn 降格 or 無効化して「CI green + ガード有効」を最優先）。
 6. CI [.github/workflows/ci.yml](../../.github/workflows/ci.yml) に `pnpm lint` ステップを追加（typecheck の後）。
 7. 検証: 業務 route にわざと `getCurrentClaims` 直 import を足すと lint error、allowlist の auth route では出ないことを確認 → 戻す。
@@ -63,13 +63,13 @@
    - **順序**: rate-limit 超過で `429`（認証前）→ 未認証で `401` → 認証済みだが body 不正で `400`。
    - **/me**: アクセストークン無しの 401 と、トークン不正の 401（2 種）を別ケースで。
    - **admin ゲート**: 非 admin の `403`。
-9. `pnpm --filter @waoon/web test` で green。CI は既に test を回すか確認し、無ければ追加（#27 の範囲を確認）。
+9. `pnpm --filter @wanonwan/web test` で green。CI は既に test を回すか確認し、無ければ追加（#27 の範囲を確認）。
 
 ## 4. 検証
 
-- `pnpm --filter @waoon/web lint` が green、かつガード rule が業務 route で発火する（手動で違反を入れて確認）。
+- `pnpm --filter @wanonwan/web lint` が green、かつガード rule が業務 route で発火する（手動で違反を入れて確認）。
 - `pnpm -r typecheck` green。
-- `pnpm --filter @waoon/web test` green（Phase 2 の新規テスト含む）。
+- `pnpm --filter @wanonwan/web test` green（Phase 2 の新規テスト含む）。
 - CI（PR）で lint / typecheck / build / test / pgTAP が通る。
 - **Docker 不要**で全工程完結（実起動・受け入れ検証は範囲外）。
 

@@ -8,7 +8,7 @@ import { Checkbox } from "@ui-catalog/core/atoms";
 import { FormField, Input, Select, Button } from "@ui-catalog/core/molecules";
 import { useTheme } from "@ui-catalog/core/infra/theme";
 import { useAppToast } from "@ui-catalog/core/providers";
-import { CreateUserSchema, UpdateUserSchema, type ElevatedRole } from "@waoon/domain";
+import { CreateUserSchema, UpdateUserSchema, type ElevatedRole } from "@wanonwan/domain";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import { fieldErrorsOf } from "@/lib/forms/field-errors";
 import { isDirtyPayload } from "@/lib/forms/dirty";

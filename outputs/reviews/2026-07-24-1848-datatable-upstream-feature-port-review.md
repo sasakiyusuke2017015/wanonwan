@@ -10,7 +10,7 @@
 
 ## サマリ
 
-上流 DataTable の機能（text/numberRange/date フィルタ・`Column.sortValue`・`ClientQueryState.defaultSort`・行削除 disabled・`filterDefs.ts`）を waoon 版へ手移植した差分を、型・ランタイム・テスト・waoon 連携保持の観点で確認した。判別ユニオン分岐、numberRange の null 畳み込み、defaultSort の handleSortClick 分岐、filterHasValue 一元化、leading/toolbar gating/onFilteredCountChange/DataCountDisplay/Pagination の保持に BLOCKER なし。新規 11 テストは意味のある assertion を持ち false-green ではない。
+上流 DataTable の機能（text/numberRange/date フィルタ・`Column.sortValue`・`ClientQueryState.defaultSort`・行削除 disabled・`filterDefs.ts`）を wanonwan 版へ手移植した差分を、型・ランタイム・テスト・wanonwan 連携保持の観点で確認した。判別ユニオン分岐、numberRange の null 畳み込み、defaultSort の handleSortClick 分岐、filterHasValue 一元化、leading/toolbar gating/onFilteredCountChange/DataCountDisplay/Pagination の保持に BLOCKER なし。新規 11 テストは意味のある assertion を持ち false-green ではない。
 
 ## 判定スコープ
 
@@ -37,7 +37,7 @@
 
 4. **filterHasValue 一元化**: Toolbar のローカル定義を削除し `filterDefs.ts` へ集約。Toolbar（チップ/visibleFilters）・ClientDataTable（`hasActiveFilter`）・ServerDataTable（`hasActiveFilter`）が同一関数を使用。絞り込み中判定・チップ・空メッセージ出し分けが揃う。
 
-5. **waoon 連携の保持**: `leading` は collapsible summary（`Toolbar.tsx:382`）と非 collapsible toolbarLeft（`Toolbar.tsx:413`）の 2 箇所で保持。`toolbar='internal'|'external'` gating・`onFilteredCountChange`・`DataCountDisplay`・catalog `Pagination`・`Animated` チップ・`Toggleable` collapse・`--dt-header-*` は差分対象外＝保持。上流の削除を誤って引きずった箇所なし。
+5. **wanonwan 連携の保持**: `leading` は collapsible summary（`Toolbar.tsx:382`）と非 collapsible toolbarLeft（`Toolbar.tsx:413`）の 2 箇所で保持。`toolbar='internal'|'external'` gating・`onFilteredCountChange`・`DataCountDisplay`・catalog `Pagination`・`Animated` チップ・`Toggleable` collapse・`--dt-header-*` は差分対象外＝保持。上流の削除を誤って引きずった箇所なし。
 
 6. **テスト**: 新規 11 ケースは実データで in/out を検証しており false-green でない（部分一致・範囲境界・null 未適用・date 前方一致・チップ文言・sortValue の asc/desc 順・defaultSort の単一化とトグル・delete disabled の無効化と非 disabled 経路）。既存 1 件の更新（`ステータス絞込: 1件` → `ステータス絞込`）は FilterField カード化で `selectedLabel` が消えるための妥当な DOM 前提更新。
 

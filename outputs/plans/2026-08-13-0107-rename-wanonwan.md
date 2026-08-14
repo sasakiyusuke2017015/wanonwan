@@ -3,7 +3,7 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | プロジェクト名 waoon を **Wanonwan** へ全面改称。npm パッケージ名 / env 変数 / DB 名 / MinIO バケット / compose project / Cookie / コンテナイメージ / 全ドキュメント（`outputs/` 履歴含む）を一括置換し、env キー改名で fail-open する `check-secrets.mjs` を fail-closed 化する |
-| ステータス | ⚪ 実装待ち |
+| ステータス | 🟦 コードレビュー待ち |
 | 前提 Plan | [provision-steps](2026-07-07-1412-provision-steps.md)（マージ済み） |
 | PR | |
 | Review | [計画レビュー](../reviews/2026-08-13-0113-rename-wanonwan-review.md) |
@@ -180,7 +180,7 @@ pnpm provision:dev
 
 | 項目 | コマンド | 期待 |
 |---|---|---|
-| 残存ゼロ | `git grep -i waoon \| wc -l` | `0` |
+| 残存ゼロ | `git grep -c -i waoon` | 本 Plan / 本 Review / ダッシュボードの 3 件のみ（判断ログ参照） |
 | stale link | `node scripts/gen-outputs-readme.mjs` | 差分なし（Step 5 で生成済み） |
 | 型 | `pnpm -r typecheck` | pass |
 | Lint | `pnpm -r lint` | pass |
@@ -189,7 +189,7 @@ pnpm provision:dev
 | snapshot drift | `pnpm db:snapshot` の後に `git diff --exit-code -- packages/db/snapshot/schema.sql` | 差分なし |
 | DB / RLS | `pnpm test:db` | pgTAP 全 pass |
 | unit | `pnpm -r test` | pass |
-| pg_cron | `pnpm db:psql -c "select current_database(); select count(*) from cron.job;"` | `wanonwan` / job 登録済み |
+| pg_cron | `pnpm db:psql -c "show cron.database_name;" -c "select extname from pg_extension where extname='pg_cron';"` | `wanonwan` / 拡張あり（不一致だと `CREATE EXTENSION pg_cron` 自体が失敗するため、これが改称成功の証明になる） |
 | バケット | 添付を 1 件アップロードし MinIO に `wanonwan` バケットが冪等作成される | 成功 |
 | Cookie | dev でログインし DevTools で `wanonwan-access` / `wanonwan-refresh` を確認 | 新名で発行 |
 | fail-closed | 旧キーのままの env に `node scripts/check-secrets.mjs <file>` | 非 0 終了 |
@@ -223,16 +223,40 @@ pnpm provision:dev
 | 2026-08-14 | `check-secrets.mjs` の fail-closed 化をスコープに追加 | 計画レビューの BLOCKER。env キー改名は旧キーを黙って無視するため、プレースホルダ検知が no-op 化する。同スクリプトの宣言目的（fail-closed で止める）に反する |
 | 2026-08-14 | sed に `Waoon` の変換規則を追加 | 前回計測時は 2 種のみだったが、計画レビュー自身が本文に `Waoon` を書いたため 3 種になった。`git grep -i waoon` = 0 の検証を通すために必要 |
 | 2026-08-14 | 着手条件を満たしたため ⚪ 実装待ちへ | provision-steps が PR #112 で develop にマージ済み。影響範囲は 788 → 910 箇所に増加（ダークモード対応の取り込み分） |
+| 2026-08-14 | **本 Plan と本 Review は一括置換の対象から除外**する（`outputs/` 全置換の唯一の例外） | 実行すると「旧名 → 新名」の対が両側とも新名になり、`waoon → wanonwan` が `wanonwan → wanonwan` に崩壊して文書として成立しなくなった。改称を説明する文書は旧名を保持する必要がある。ダッシュボードは本 Plan の概要を投影するため 1 箇所だけ旧名が残る |
+| 2026-08-14 | 検証項目「cron.job が登録済み」を「`cron.database_name` 一致 + 拡張の存在」に差し替え | 実測で `cron.job` は 0 件。`db:migrate` は空 DB に snapshot を適用する経路を選ぶが、snapshot は app スキーマの pg_dump で `cron.schedule()` を含まない。`snapshot/schema.sql` は本 PR で無変更のため **rename 前から同じ挙動**であり、スコープ外（残課題に記載） |
+| 2026-08-14 | develop が #114 / #115 / #116 で進んだため rebase せず作り直した | 衝突は内容 10 件 + modify/delete 5 件。解決内容が「develop 側を採用して改称を当て直す」の繰り返しになり、新 develop で sed を流し直すのと同結果になる。#114 の新ダッシュボード生成器も自動で取り込める |
+
+## 残課題
+
+- **snapshot 経路では pg_cron ジョブが登録されない**（本 Plan の範囲外・既存の挙動）。
+  [`db-migrate.mjs`](../../scripts/db-migrate.mjs) は空 DB に
+  [`snapshot/schema.sql`](../../packages/db/snapshot/schema.sql) を 1 本適用するが、snapshot は
+  app スキーマの pg_dump なので [`0001_initial.sql`](../../packages/db/migrations/0001_initial.sql) の
+  `cron.schedule('gc-stale-attachments', ...)` を含まない。クリーンな dev では添付 GC の定期ジョブが動かない。
+- `apps/web/.env.local` が無いと添付 API が 500 になる（[`apps/web/.env.example`](../../apps/web/.env.example)
+  に「dev でも .env.local を作ること」と明記済み。本 Plan では検証時に env を明示して回避）。
+- `outputs/verification/2026-06-20-merged-features-verification.md` が origin/develop に残存。
+  [`plan-review-workflow.md`](../../.claude/rules/plan-review-workflow.md) は
+  「`outputs/` 直下に置けるのは `plans/` / `reviews/` / `README.md` だけ」と定めており不整合。
 
 ## ステータス
 
 - [x] 計画確定
 - [x] 計画レビュー反映（BLOCKER 1 + NICE-TO-HAVE 5）
 - [x] Step 0: 着手条件（provision-steps マージ済み）
-- [ ] Step 1: dev の旧スタック撤去（`down -v` + 旧イメージ削除）
-- [ ] Step 2–5: 機械置換 / check-secrets fail-closed 化 / lockfile 再生成 / 目視補正 + 再生成
-- [ ] Step 6: dev 再構築（build / up / provision）
-- [ ] Step 7: 検証（残存ゼロ / typecheck / lint / build / snapshot drift / test:db / pg_cron / バケット / Cookie / fail-closed）
+- [x] Step 1: dev の旧スタック撤去（`down -v` + 旧イメージ削除）
+- [x] Step 2–5: 機械置換 / check-secrets fail-closed 化 / lockfile 再生成 / 目視補正 + 再生成
+- [x] Step 6: dev 再構築（build / up / provision）
+- [x] Step 7: 検証
+  - [x] 残存ゼロ（除外 3 件のみ）
+  - [x] `pnpm turbo run typecheck lint build test` — 12 タスク全 pass
+  - [x] snapshot drift なし
+  - [x] `pnpm test:db` — pgTAP 9 ファイル全 pass
+  - [x] `cron.database_name` = `wanonwan` / pg_cron 拡張あり
+  - [x] MinIO に `wanonwan` バケットが冪等作成される
+  - [x] ログインが `wanonwan-access` / `wanonwan-refresh` を発行
+  - [x] check-secrets が旧キーで exit 1・新キーで exit 0
 - [ ] コードレビュー完了 … → Review リンク
 - [ ] PR 作成 … → PR リンク
 - [ ] マージ後検証

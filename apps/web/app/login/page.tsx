@@ -9,11 +9,11 @@ import { LoginButton } from "@ui-catalog/core/organisms/LoginButton";
 import type { LoginButtonState } from "@ui-catalog/core/organisms/LoginButton";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
-const REMEMBER_KEY = "waoon.rememberedEmail";
+const REMEMBER_KEY = "wanonwan.rememberedEmail";
 
 // 旧 1on1 の LoginLayout をそのまま踏襲（2カラム: 左ブランディング teal / 右フォーム）。
-// 旧はテーマに依らずログインだけ teal 固定。画像アセット（ロゴ/キャラ）は waoon に無いので省略。
-// 認証は waoon の email/password（/api/v1/auth/login）に合わせる。
+// 旧はテーマに依らずログインだけ teal 固定。画像アセット（ロゴ/キャラ）は wanonwan に無いので省略。
+// 認証は wanonwan の email/password（/api/v1/auth/login）に合わせる。
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
@@ -137,7 +137,7 @@ export default function LoginPage() {
           <h1 className="text-3xl font-bold text-white">1on1 へようこそ</h1>
           <p className="mt-3 text-teal-100">効果的な 1on1 ミーティングを実現</p>
         </div>
-        <div className="text-right text-xs text-teal-200">© 2026 waoon</div>
+        <div className="text-right text-xs text-teal-200">© 2026 wanonwan</div>
       </div>
 
       {/* デスクトップ: 右フォームパネル */}
@@ -155,7 +155,7 @@ export default function LoginPage() {
           <h1 className="text-xl font-bold text-white">1on1 へようこそ</h1>
           <p className="mt-1 text-sm text-teal-100">効果的な 1on1 ミーティングを実現</p>
         </div>
-        <AuthFormCard copyrightText="© 2026 waoon">
+        <AuthFormCard copyrightText="© 2026 wanonwan">
           <Suspense fallback={null}>
             <LoginForm />
           </Suspense>

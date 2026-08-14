@@ -5,7 +5,7 @@
 | 概要 | 緊急度（高/中/低）を共通マスタ化。PR-1=urgency_levels テーブル+RLS+`/admin/urgencies`+API+seed+pgTAP / PR-2=surveys・answers に urgency_id 配線（SurveyForm・InterviewForm に書き手 UI）。設問マスタ Phase2 から分離 |
 | ステータス | 🟢 マージ済み（検証中） |
 | 前提 Plan | [設問マスタ Phase 2](2026-06-29-1327-survey-question-master.md)（本 Plan へ分離） |
-| PR | PR-1: [#62](https://github.com/sasakiyusuke2017015/waoon/pull/62)（merged）/ PR-2: [#63](https://github.com/sasakiyusuke2017015/waoon/pull/63) |
+| PR | PR-1: [#62](https://github.com/sasakiyusuke2017015/wanonwan/pull/62)（merged）/ PR-2: [#63](https://github.com/sasakiyusuke2017015/wanonwan/pull/63) |
 | Review | [計画(Claude)](../reviews/2026-06-29-1612-urgency-master-review.md) / [コード PR-1(agent)](../reviews/2026-06-29-1631-urgency-master-code-review-pr1.md) / [コード PR-2(agent)](../reviews/2026-06-29-1708-urgency-master-code-review-pr2.md) |
 
 ---
@@ -101,7 +101,7 @@ PR 分割（dead column を避けるため、列追加と書き手 UI を同じ 
 
 ## 検証
 
-- `pnpm -r typecheck` / `pnpm --filter @waoon/web build` / lint。
+- `pnpm -r typecheck` / `pnpm --filter @wanonwan/web build` / lint。
 - `pnpm test:db`: `rls_urgency_levels`（非 admin write 拒否 / 認証 select）。FK 追加後に既存 RLS 回帰。
 - 手動（dev 実機）:
   - `/admin/urgencies` の CRUD（非 admin でガード）。
@@ -145,12 +145,12 @@ PR 分割（dead column を避けるため、列追加と書き手 UI を同じ 
 - [x] PR-1: urgency_levels テーブル + RLS（ENABLE 明示）+ pgTAP
 - [x] PR-1: domain（Create/Update）+ API（urgencies CRUD）
 - [x] PR-1: MASTER_CONFIGS + /admin/urgencies + ナビ + seed
-- [x] PR-1: コードレビュー（code/security agent）APPROVE → [#62](https://github.com/sasakiyusuke2017015/waoon/pull/62)
+- [x] PR-1: コードレビュー（code/security agent）APPROVE → [#62](https://github.com/sasakiyusuke2017015/wanonwan/pull/62)
 - [x] answers 書き手範囲＝面談側のみ（面談者/admin）で実装 / 一覧表示は別 Plan
 - [x] PR-2: surveys/answers の urgency_id 冪等 ALTER
 - [x] PR-2: surveys 書き手（domain/API/SurveyForm）
 - [x] PR-2: answers 書き手（RecordInterviewSchema/API/InterviewForm）
-- [x] PR-2: コードレビュー（code BLOCKER→修正→APPROVE / security APPROVE）→ [#63](https://github.com/sasakiyusuke2017015/waoon/pull/63)
+- [x] PR-2: コードレビュー（code BLOCKER→修正→APPROVE / security APPROVE）→ [#63](https://github.com/sasakiyusuke2017015/wanonwan/pull/63)
 - [x] 笹木さん #62 / #63 マージ承認（develop へマージ済み）
 - [ ] マージ後検証（dev 実機）
   - [ ] `/admin/urgencies` の CRUD（非 admin でガード）

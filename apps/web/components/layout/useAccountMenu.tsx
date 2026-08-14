@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ROLE_LABELS, type UserRole } from "@waoon/domain";
+import { ROLE_LABELS, type UserRole } from "@wanonwan/domain";
 import { Icon } from "@ui-catalog/core/atoms";
 import type { SidebarAccountMenuSection } from "@ui-catalog/core/organisms/SidebarAccountMenu";
 import { useAppToast } from "@ui-catalog/core/providers";

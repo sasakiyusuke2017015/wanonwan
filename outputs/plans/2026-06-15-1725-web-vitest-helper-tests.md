@@ -60,15 +60,15 @@ apps/web に **Vitest を導入**し、refactor で追加した API ヘルパ（
 
 ## 5. 実装ステップ
 
-1. `vitest` を apps/web の devDep に追加（`pnpm --filter @waoon/web add -D vitest`）。バージョンは packages/ui と揃える（^4）。
+1. `vitest` を apps/web の devDep に追加（`pnpm --filter @wanonwan/web add -D vitest`）。バージョンは packages/ui と揃える（^4）。
 2. `apps/web/vitest.config.ts` + `test/server-only-shim.ts` を作成（§3）。`package.json` に `"test": "vitest run"` / `"test:watch": "vitest"`。
 3. 5 つの `*.test.ts` を作成（§4）。
-4. `pnpm --filter @waoon/web test` green を確認。`pnpm --filter @waoon/web exec tsc --noEmit` が引き続き green（テストファイル込み）。
-5. （任意）ルート `package.json` の集約 `test` に web を含める / CI（`.github/workflows`）に `pnpm --filter @waoon/web test` を追加するかは笹木さん判断（本 PR では緑化までに留め、CI 配線は別途でも可）。
+4. `pnpm --filter @wanonwan/web test` green を確認。`pnpm --filter @wanonwan/web exec tsc --noEmit` が引き続き green（テストファイル込み）。
+5. （任意）ルート `package.json` の集約 `test` に web を含める / CI（`.github/workflows`）に `pnpm --filter @wanonwan/web test` を追加するかは笹木さん判断（本 PR では緑化までに留め、CI 配線は別途でも可）。
 
 ## 6. 検証（受け入れ基準）
 
-- `pnpm --filter @waoon/web test` が全 green（5 ファイル）。
+- `pnpm --filter @wanonwan/web test` が全 green（5 ファイル）。
 - `tsc --noEmit` green（テスト込みで型エラー無し）。
 - テストが **挙動の核（401/403/400/429・フラグ読取・委譲）** を実際に assert している。
 - production コードに変更が無い（テスト/設定のみ）。
@@ -95,7 +95,7 @@ apps/web に **Vitest を導入**し、refactor で追加した API ヘルパ（
 - [x] Plan ドラフト完成（本ファイル）
 - [x] 計画レビュー → **省略**（test-only・低リスク、笹木さん合意）
 - [x] 実装（test/web-vitest-helper-tests）: Vitest 導入 + 5 テスト（13 ケース）
-- [x] 検証: `pnpm --filter @waoon/web test` green（5 files / 13 tests）/ `tsc --noEmit` green
+- [x] 検証: `pnpm --filter @wanonwan/web test` green（5 files / 13 tests）/ `tsc --noEmit` green
 - [x] コードレビュー → **省略**（test-only。出来上がったテストを笹木さんが PR で確認）
-- [x] PR 作成（develop 向け）→ **[PR #27](https://github.com/sasakiyusuke2017015/waoon/pull/27) merged**
+- [x] PR 作成（develop 向け）→ **[PR #27](https://github.com/sasakiyusuke2017015/wanonwan/pull/27) merged**
 - [x] 検証完了: test green（CI/ローカル）が回帰の検証。runtime ゲートなし（test-only）

@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const testsDir = join(root, "packages", "db", "tests");
 const composeFile = join(root, "infra", "docker-compose.yml");
-const db = process.env.PG_DATABASE ?? "waoon";
+const db = process.env.PG_DATABASE ?? "wanonwan";
 const appPassword = process.env.APP_USER_PASSWORD ?? "app";
 
 const files = readdirSync(testsDir)

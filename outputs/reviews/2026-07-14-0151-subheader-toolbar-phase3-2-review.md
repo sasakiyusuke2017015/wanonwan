@@ -6,7 +6,7 @@
 | レビュアー | Claude Code（code-reviewer サブエージェント） |
 | 対象 Plan | [`plans/2026-07-07-1430-subheader-toolbar.md`](../plans/2026-07-07-1430-subheader-toolbar.md) |
 | ブランチ | `feature/subheader-toolbar-phase3-2` |
-| 関連 PR | [#86](https://github.com/sasakiyusuke2017015/waoon/pull/86) |
+| 関連 PR | [#86](https://github.com/sasakiyusuke2017015/wanonwan/pull/86) |
 | レビュー種別 | 実装 |
 
 ## 判定
@@ -47,7 +47,7 @@ PR 本文に一行残す（コード変更不要 → 本 Review と PR 本文に
 
 ## 検証
 
-- `pnpm --filter @waoon/web lint` / `typecheck` / `test`（20 files / 87 tests）green
+- `pnpm --filter @wanonwan/web lint` / `typecheck` / `test`（20 files / 87 tests）green
 - dev 実機（compose:dev + provision + web dev）で admin 4 画面 SSR 200・旧 h1 除去・
   サーバログにエラーなし・各 API（users 14 / surveys 4 / answers 10 / questions 14 行）応答確認
 - 未検証ギャップ: SubHeaderToolbar は createPortal のため SSR HTML に現れず、ブラウザ実機での

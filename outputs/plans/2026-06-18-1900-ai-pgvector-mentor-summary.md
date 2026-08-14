@@ -6,7 +6,7 @@
 |---|---|
 | 概要 | Phase A=Claude(`@anthropic-ai/sdk`/Sonnet 4.6)で面談要約（`lib/ai`+`POST /answers/[id]/summary`+UI、merged）。Phase B=pgvector RAG メンター提案（**自前ホスト埋め込み** TEI/e5-small・profile ai・社外送信なし、lazy 生成、`POST /answers/[id]/mentor`+UI、key/URL 未設定で無効）。**いずれもキー/URL 未設定で外部送信ゼロ** |
 | ステータス | 🟢 マージ済み（検証中） |
-| PR | Phase A: [#42](https://github.com/sasakiyusuke2017015/waoon/pull/42)（merged） / Phase B: [#43](https://github.com/sasakiyusuke2017015/waoon/pull/43)（merged） / 再land fix: [#49](https://github.com/sasakiyusuke2017015/waoon/pull/49)（merged） |
+| PR | Phase A: [#42](https://github.com/sasakiyusuke2017015/wanonwan/pull/42)（merged） / Phase B: [#43](https://github.com/sasakiyusuke2017015/wanonwan/pull/43)（merged） / 再land fix: [#49](https://github.com/sasakiyusuke2017015/wanonwan/pull/49)（merged） |
 
 ---
 
@@ -95,7 +95,7 @@ Anthropic に埋め込み API が無いため、メンター提案の RAG（類�
 
 ## 5. 検証
 
-- `pnpm --filter @waoon/web test`（ai lib のモック unit test）/ `typecheck` / `lint` green。
+- `pnpm --filter @wanonwan/web test`（ai lib のモック unit test）/ `typecheck` / `lint` green。
 - pgTAP: embedding 列の RLS（他人の面談 embedding を引けない）。
 - **マージ後（Docker・笹木さん）**: 実 API キーで要約/提案が返る、類似検索が妥当、レイテンシ/コスト確認。
 - ※外部 API 呼び出しは CI では叩かない（モック）。実呼び出しは笹木さん環境。

@@ -71,7 +71,7 @@ HTML `required` 撤去の代替として機能している。
 - `AnswerForm` が乗る `/surveys/[publishId]` は "use client" + useQuery で、フォーム本体はクライアント描画のみ（SSR 時は読み込み中表示）。`useTheme()` 直接利用・mounted ゲート無しは妥当。`FormActions` も同様の前提でコメント済み。
 - `/surveys` も "use client" + useQuery で、データ依存部分は描画されないため Card/Badge/Text の SSR mismatch は発生しない。
 
-typecheck（`pnpm --filter @waoon/web typecheck`）green を確認。
+typecheck（`pnpm --filter @wanonwan/web typecheck`）green を確認。
 
 ---
 
@@ -81,7 +81,7 @@ typecheck（`pnpm --filter @waoon/web typecheck`）green を確認。
 
 `q.choices` に空文字 `""` が含まれると、`{value: "", label: ""}` という選択肢が生成される。ユーザーがこれを選んでも `strVal=""` → `value={undefined}` に潰れ、再描画で placeholder 表示に戻り、`isAnswered("")` も false 扱いになる（必須なら正規選択しても弾かれる）。
 
-実害は無い: 入力経路の `QuestionsEditor`（`split("\n").map(trim).filter(Boolean)`）が空文字 choice を除去するため、現状空文字 choice は生成され得ない。ただし `@waoon/domain` の `choices: v.array(v.string())` はスキーマ層で非空を強制していないため、将来別経路で混入する可能性は残る。
+実害は無い: 入力経路の `QuestionsEditor`（`split("\n").map(trim).filter(Boolean)`）が空文字 choice を除去するため、現状空文字 choice は生成され得ない。ただし `@wanonwan/domain` の `choices: v.array(v.string())` はスキーマ層で非空を強制していないため、将来別経路で混入する可能性は残る。
 
 対応案（後続・任意）: domain スキーマで `v.array(v.pipe(v.string(), v.minLength(1)))` 相当に締めるか、AnswerForm 側で `options` 生成時に空文字を除外する。
 

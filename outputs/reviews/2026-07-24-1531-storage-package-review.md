@@ -1,4 +1,4 @@
-# Review: @waoon/storage 切り出し（storage-package）
+# Review: @wanonwan/storage 切り出し（storage-package）
 
 | 項目 | 値 |
 |---|---|
@@ -22,7 +22,7 @@
 
 | 重大度 | ファイル:行 | 指摘 | 対応 |
 |---|---|---|---|
-| ~~BLOCKER 候補~~ **誤検知→consistency 対応** | `apps/web/next.config.ts:6` | code-reviewer が「`transpilePackages` に `@waoon/storage` が無く build を壊す」と指摘 | **実測で決着**: build は有無どちらでも通る（Turbopack が workspace TS を解決）。当初の build 失敗はレビュー中のブランチ切替による stale `node_modules` が原因で、この指摘とは無関係だった。ただし同種の `@waoon/domain`/`@waoon/auth` が登録済みで、非 Turbopack(webpack) fallback 時の安全と一貫性のため **`@waoon/storage` を追加**した |
+| ~~BLOCKER 候補~~ **誤検知→consistency 対応** | `apps/web/next.config.ts:6` | code-reviewer が「`transpilePackages` に `@wanonwan/storage` が無く build を壊す」と指摘 | **実測で決着**: build は有無どちらでも通る（Turbopack が workspace TS を解決）。当初の build 失敗はレビュー中のブランチ切替による stale `node_modules` が原因で、この指摘とは無関係だった。ただし同種の `@wanonwan/domain`/`@wanonwan/auth` が登録済みで、非 Turbopack(webpack) fallback 時の安全と一貫性のため **`@wanonwan/storage` を追加**した |
 | LOW [NICE] | `packages/storage/src/presign.ts:15-31` | `ensureBucket` の Map キーが bucket 名のみ。将来「同一 bucket 名を別 client で ensure」すると先勝ちキャッシュで別 client 結果を再利用 | 現状 internal client 単一経路で実害なし。キーを `endpoint+bucket` にすると堅い |
 | LOW [NICE] | `packages/storage/src/client.ts` | 署名用/内部用の両 client が同一 MinIO root 認証を使う。将来 scoped 資格情報に分離すると最小権限強化 | 既存踏襲・許容 |
 | LOW [NICE] | `packages/storage/src/presign.ts:presignPut` | presign 時点でサイズ未制約。上限超過オブジェクトが complete 拒否まで MinIO に滞留（孤児）。軽微な DoS 余地 | presigned PUT では content-length-range を表現できず設計上の割り切り。孤児回収戦略があると堅い |
@@ -41,8 +41,8 @@
 ## 検証
 
 - [x] `pnpm -r typecheck` green（clean `node_modules`）
-- [x] `pnpm --filter @waoon/storage test` green（17）
-- [x] `pnpm --filter @waoon/web build` green（`.next` クリア後・transpilePackages 有無どちらでも）
+- [x] `pnpm --filter @wanonwan/storage test` green（17）
+- [x] `pnpm --filter @wanonwan/web build` green（`.next` クリア後・transpilePackages 有無どちらでも）
 - [x] 実 MinIO で presign PUT/GET・HeadObject・delete 往復（実装時確認済み）
 - [ ] stg で `STORAGE_INTERNAL_ENDPOINT` 経由の内部通信（マージ後検証）
 

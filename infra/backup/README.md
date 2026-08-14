@@ -21,9 +21,9 @@ stack を起動して postgres が空の状態から復元する。`-Fc` dump �
 docker compose --env-file infra/.env.prod -f infra/docker-compose.prod.yml up -d postgres
 
 # 2) dump を restore（既存オブジェクトを置換しつつ復元）
-cat /var/backups/waoon/waoon-YYYYMMDD-HHMMSS.dump | \
+cat /var/backups/wanonwan/wanonwan-YYYYMMDD-HHMMSS.dump | \
   docker compose --env-file infra/.env.prod -f infra/docker-compose.prod.yml exec -T postgres \
-  pg_restore -U postgres -d waoon --clean --if-exists --no-owner
+  pg_restore -U postgres -d wanonwan --clean --if-exists --no-owner
 
 # 3) schema を最新化（dump 後に追加された migration を流す。冪等）
 node scripts/db-migrate.mjs --compose-file infra/docker-compose.prod.yml --env-file infra/.env.prod

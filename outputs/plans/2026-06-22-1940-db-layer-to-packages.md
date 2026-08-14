@@ -4,7 +4,7 @@
 |---|---|
 | 概要 | DDL / RLS / seed / pgTAP の実体が `outputs/infra-data/` に置かれているが、`outputs/` は本来 |
 | ステータス | 🟢 マージ済み（検証中） |
-| PR | [#52](https://github.com/sasakiyusuke2017015/waoon/pull/52)（merged） |
+| PR | [#52](https://github.com/sasakiyusuke2017015/wanonwan/pull/52)（merged） |
 | Review | [コードレビュー](../reviews/2026-06-22-1951-db-layer-to-packages-review.md) |
 
 ## 目的
@@ -18,7 +18,7 @@ Plan / Review / 検証ドキュメントの置き場であり、**現役のソ�
 
 ### やること
 - `outputs/infra-data/{schema,seed,tests}/**` を `packages/db/{schema,seed,tests}/**` に移動（git mv）
-- `packages/db/package.json` を新設（`@waoon/db`、private。workspace の正規メンバーにする）
+- `packages/db/package.json` を新設（`@wanonwan/db`、private。workspace の正規メンバーにする）
 - 現役の参照を全て新パスへ更新:
   - `scripts/db-migrate.mjs` / `db-seed.mjs` / `db-test.mjs` / `provision.mjs`
   - `infra/docker-compose.yml` / `.stg.yml` / `.prod.yml` の bootstrap マウントパス
@@ -60,7 +60,7 @@ Plan / Review / 検証ドキュメントの置き場であり、**現役のソ�
 1. `git mv outputs/infra-data/schema packages/db/schema`（seed / tests も同様）。
 2. `packages/db/package.json` を新設:
    ```json
-   { "name": "@waoon/db", "version": "0.1.0", "private": true }
+   { "name": "@wanonwan/db", "version": "0.1.0", "private": true }
    ```
    （turbo タスクは持たない＝turbo は無視。将来 db:* スクリプトをここへ寄せる余地）
 3. スクリプト 4 本のパス文字列を `outputs/infra-data` → `packages/db` に更新（先頭コメントも）。
@@ -74,16 +74,16 @@ Plan / Review / 検証ドキュメントの置き場であり、**現役のソ�
    （web/worker image に SQL を入れない。`pnpm install --frozen-lockfile` のため package.json は context に残す）
 6. `README.md` のディレクトリ図を更新（`outputs/` から infra-data 行を消し、`packages/db/` を追記）。
 7. CLAUDE.md にディレクトリ言及があれば更新。
-8. `pnpm install` で `@waoon/db` が workspace に認識され lockfile が更新されることを確認。
+8. `pnpm install` で `@wanonwan/db` が workspace に認識され lockfile が更新されることを確認。
 
 ## 検証
 
-- [x] `pnpm install` 後 `@waoon/db` が workspace に出る（6 メンバーに表示）
+- [x] `pnpm install` 後 `@wanonwan/db` が workspace に出る（6 メンバーに表示）
 - [x] `pnpm compose:dev:down -v` → `compose:dev:up` で **initdb（bootstrap 新パス）が効き、gotrue まで Healthy**
       （bootstrap が新パスからマウントされ auth role/schema が作られた証拠 = 最重要項目クリア）
 - [x] `pnpm db:migrate`（14 file）/ `pnpm db:seed`（3 file）が新パスで冪等に通る
 - [x] `pnpm test:db`（pgTAP 5 file）が新パスで全 pass
-- [x] turbo verify（typecheck/lint/build/test）10 タスク green（@waoon/db 追加後も無影響）
+- [x] turbo verify（typecheck/lint/build/test）10 タスク green（@wanonwan/db 追加後も無影響）
 - [x] `git grep infra-data` の残りは技術選定メモ（履歴）のみ。現役ファイルに残存なし
 - [ ] CD: `docker build -f infra/Dockerfile.web .` で web image に `packages/db/schema` 等が含まれない
       （`.dockerignore` 追加済み。bootstrap は volume マウントで image 非依存のため breakage ではなく bloat 確認。CI/笹木さんで確認）
@@ -95,7 +95,7 @@ Plan / Review / 検証ドキュメントの置き場であり、**現役のソ�
 |---|---|---|
 | compose の bootstrap マウントパス更新漏れ | 新環境の initdb で role 作成が走らず DB 起動失敗 | 検証で `compose:dev:down -v` から作り直して確認。dev/stg/prod 3 本すべて更新 |
 | `.dockerignore` 未対応で web image に SQL 混入 | image 肥大（機能影響は無） | SQL サブディレクトリを dockerignore。検証で image 内を確認 |
-| pnpm-workspace が package.json 無しの `packages/db` を拾い警告 | install 時 warning | `@waoon/db` の package.json を置いて正規メンバー化（本 Plan で対応） |
+| pnpm-workspace が package.json 無しの `packages/db` を拾い警告 | install 時 warning | `@wanonwan/db` の package.json を置いて正規メンバー化（本 Plan で対応） |
 | 過去 Plan のリンク切れ | ドキュメントの参照切れ | evergreen 方針で許容（履歴は当時の事実）。README/CLAUDE など現役 docs のみ更新 |
 | #51（turbo）と並行でのコンフリクト | rebase 衝突 | #51 が package.json/CLAUDE を触る。**#51 マージ後に develop 起点で着手**（または rebase で吸収） |
 

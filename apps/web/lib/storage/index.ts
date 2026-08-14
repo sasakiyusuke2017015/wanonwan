@@ -4,10 +4,10 @@ import {
   createStorageClient,
   parseStorageEnv,
   type StorageEnv,
-} from "@waoon/storage";
+} from "@wanonwan/storage";
 import type { S3Client } from "@aws-sdk/client-s3";
 
-// @waoon/storage は framework 非依存（worker も使う）。Next.js の server-only 規律と
+// @wanonwan/storage は framework 非依存（worker も使う）。Next.js の server-only 規律と
 // env の読み出しはこのアダプタに閉じる。
 //
 // env の検証は初回アクセス時に行う（module 評価時に走らせると、STORAGE_* を渡さない

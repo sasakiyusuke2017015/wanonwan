@@ -4,7 +4,7 @@
 |---|---|
 | 概要 | monorepo のタスク実行を **turbo (Turborepo)** に統一し、`build` / `lint` / `typecheck` / |
 | ステータス | 🟢 マージ済み（検証中） |
-| PR | [#51](https://github.com/sasakiyusuke2017015/waoon/pull/51)（merged） |
+| PR | [#51](https://github.com/sasakiyusuke2017015/wanonwan/pull/51)（merged） |
 | Review | [計画レビュー](../reviews/2026-06-22-1558-turbo-monorepo-review.md) / [コードレビュー](../reviews/2026-06-22-1902-turbo-monorepo-review.md) |
 
 ## 目的
@@ -14,7 +14,7 @@ monorepo のタスク実行を **turbo (Turborepo)** に統一し、`build` / `l
 笹木さんがプロジェクト間を行き来する際の学習コストを下げる**こと。副次的に依存グラフ順の
 実行明示・ローカル/CI キャッシュによる再実行スキップが得られる。
 
-あわせて、ai-education に存在し waoon に欠けている **clean 系スクリプト**を追加し、
+あわせて、ai-education に存在し wanonwan に欠けている **clean 系スクリプト**を追加し、
 [docs-style.md](../../.claude/rules/docs-style.md) が既に言及している `clean:build` の
 実体を用意する（現状は doc にだけ存在してスクリプトが無い）。
 
@@ -32,7 +32,7 @@ monorepo のタスク実行を **turbo (Turborepo)** に統一し、`build` / `l
 ### やらないこと（スコープ外）
 
 - **Dockerfile への turbo 導入はしない**。[infra/Dockerfile.web](../../infra/Dockerfile.web) は
-  image 内で `pnpm --filter @waoon/web build` を直接呼ぶ設計を維持する（image に turbo を
+  image 内で `pnpm --filter @wanonwan/web build` を直接呼ぶ設計を維持する（image に turbo を
   足さない / build context を変えない）。CD 経路は無変更。
 - **既存スクリプトの大規模リネームはしない**（`dev:up` / `compose:dev:*` / `db:*` /
   `test:db` 等）。これらは CLAUDE.md・検証ファイル・docs-style・git-workflow など複数 docs が
@@ -45,12 +45,12 @@ monorepo のタスク実行を **turbo (Turborepo)** に統一し、`build` / `l
 - workspace: `apps/web` `apps/worker` / `packages/auth` `packages/domain` `packages/ui`
   （[pnpm-workspace.yaml](../../pnpm-workspace.yaml)）。turbo.json なし・turbo 依存なし。
 - 各 package の scripts（実測）:
-  - `@waoon/web`: dev / build(next build) / start / typecheck / lint / test(vitest run) / test:watch
-  - `@waoon/worker`: start / typecheck / test
-  - `@waoon/auth` `@waoon/domain`: typecheck のみ
+  - `@wanonwan/web`: dev / build(next build) / start / typecheck / lint / test(vitest run) / test:watch
+  - `@wanonwan/worker`: start / typecheck / test
+  - `@wanonwan/auth` `@wanonwan/domain`: typecheck のみ
   - `@ui-catalog/core`(packages/ui): typecheck / lint / clean / storybook 系 / test:storybook 他
-- root scripts 現状（抜粋）: `typecheck=pnpm -r typecheck` / `lint=pnpm --filter @waoon/web lint` /
-  `build=pnpm --filter @waoon/web build`。**root に `test` は無い**（CI が web/worker を個別実行）。
+- root scripts 現状（抜粋）: `typecheck=pnpm -r typecheck` / `lint=pnpm --filter @wanonwan/web lint` /
+  `build=pnpm --filter @wanonwan/web build`。**root に `test` は無い**（CI が web/worker を個別実行）。
 - CI（[ci.yml](../../.github/workflows/ci.yml)）: Typecheck → Lint → Build(web) → Test(web) →
   Test(worker) → DB スタック起動 → migrate → seed → pgTAP → down。
 - packageManager: `pnpm@10.15.1` / engines: node>=22, pnpm>=10。
@@ -63,7 +63,7 @@ monorepo のタスク実行を **turbo (Turborepo)** に統一し、`build` / `l
 
 本 Plan で **唯一 CI を赤にしうる実リスクは lint 拡大**（turbo 化で `@ui-catalog/core` の
 eslint が CI で初めて走る）。これは ui の lint が未設定の dead script だったため発覚し、
-別 PR [#50](https://github.com/sasakiyusuke2017015/waoon/pull/50)（[ui-eslint Plan](2026-06-22-1626-ui-eslint-setup.md)）で
+別 PR [#50](https://github.com/sasakiyusuke2017015/wanonwan/pull/50)（[ui-eslint Plan](2026-06-22-1626-ui-eslint-setup.md)）で
 ui に eslint を整備し lint を green 化して **解消済み**。develop には #50 がマージ済みで、
 `pnpm --filter @ui-catalog/core lint` は exit 0。よって本 Plan は当初の完全形
 （`lint: turbo run lint` 込み）で進める。
@@ -167,7 +167,7 @@ ui に eslint を整備し lint を green 化して **解消済み**。develop �
 | 日付 | 判断 | 理由 |
 |---|---|---|
 | 2026-06-22 | turbo を採用する | 技術選定メモは「pnpm + pnpm workspace」で turbo を**却下したのではなく未検討**。ai-education が turbo を採用しており、両プロジェクトの操作体系を揃えることで笹木さんの学習コストを下げる狙い。turbo は既存スクリプトをラップする additive な導入で剥がしやすく低リスク |
-| 2026-06-22 | Dockerfile に turbo を入れない | image 内 build は `pnpm --filter @waoon/web build` で完結しており、turbo を足すと image 肥大化と build context 変更のリスク。CD 経路は触らない |
+| 2026-06-22 | Dockerfile に turbo を入れない | image 内 build は `pnpm --filter @wanonwan/web build` で完結しており、turbo を足すと image 肥大化と build context 変更のリスク。CD 経路は触らない |
 | 2026-06-22 | 既存スクリプトの大規模リネームはしない（ergonomics は additive のみ） | `dev:up` / `compose:dev:*` / `test:db` 等は複数 docs が参照。ai-education 名へのリネームは広範な doc drift を生むコストが、得られる一貫性メリットを上回ると判断。clean 系の追加に留め、リネームが本当に要るなら別 Plan |
 | 2026-06-22 | turbo.json: typecheck は `^typecheck`、build/test の `^build` は予防的宣言 | 計画レビュー（Codex N-1 + architect）反映。全 package が持つ typecheck だけが依存グラフ順を実体化できる。build を持つ package は web のみのため `^build` は現状 no-op だが、将来 build を持つ package 追加時の予防的宣言として残す |
 | 2026-06-22 | root `test` は web + worker の Vitest 集約に留め、DB/pgTAP は分離維持 | 計画レビュー（Codex N-4）反映。`pnpm test` 新設で「全テストか？」の誤解を防ぐ。DB/pgTAP は起動前提が異なるため `test:db` として CI でも turbo 外に分離 |

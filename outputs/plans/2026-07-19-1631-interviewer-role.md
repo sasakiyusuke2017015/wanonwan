@@ -5,7 +5,7 @@
 | 概要 | マルチロール権限へ再設計（admin/interviewer/member、member 暗黙保有の `user_roles`・1 人が複数保有可）。ヘッダーメニューの視点切替、面談担当の指名 API + admin UI、担当面談画面を追加。認可 = 保有 union / 切替 = 表示のみ |
 | ステータス | 🟢 マージ済み（検証中） |
 | 前提 Plan | [separate-role-from-position](2026-06-25-1558-separate-role-from-position.md)（「1 ユーザー 1 role」決定を本 Plan で明示的に変更） |
-| PR | 基盤: [#98](https://github.com/sasakiyusuke2017015/waoon/pull/98) / 切替+担当面談: [#99](https://github.com/sasakiyusuke2017015/waoon/pull/99) |
+| PR | 基盤: [#98](https://github.com/sasakiyusuke2017015/wanonwan/pull/98) / 切替+担当面談: [#99](https://github.com/sasakiyusuke2017015/wanonwan/pull/99) |
 | Review | [計画レビュー（改訂前版）](../reviews/2026-07-19-1643-interviewer-role-review.md) / [計画レビュー（マルチロール改訂版）](../reviews/2026-07-19-1701-interviewer-role-review.md) |
 
 ## 目的
@@ -151,7 +151,7 @@
 ### Phase 5 — /me 拡張 + アクティブロール切替 API（PR2）
 
 - [auth/me/route.ts](../../apps/web/app/api/v1/auth/me/route.ts): `roles`（保有 = `['member', ...user_roles]`）と `activeRole` を追加。`isAdmin` は当面併存（`= roles.includes('admin')`）。業務ロールはトップレベル、GoTrue JWT の `user.role` はそのまま（混同しない）。
-- 新規 `PUT /api/v1/auth/active-role`: Body `{ role }` を保有ロールと突き合わせて検証し、cookie `waoon_active_role` に保存（不正値は 422）。cookie 属性は [session.ts](../../apps/web/lib/auth/session.ts) の `baseCookie` を再利用（httpOnly / sameSite lax / secure）— JS から書き換えて UI を騙す余地を消す。
+- 新規 `PUT /api/v1/auth/active-role`: Body `{ role }` を保有ロールと突き合わせて検証し、cookie `wanonwan_active_role` に保存（不正値は 422）。cookie 属性は [session.ts](../../apps/web/lib/auth/session.ts) の `baseCookie` を再利用（httpOnly / sameSite lax / secure）— JS から書き換えて UI を騙す余地を消す。
 - **不変条件**: `/me` は cookie 値を信頼せず、**毎回保有ロール集合と突き合わせて検証し、非包含なら破棄**して最上位保有ロール（admin > interviewer > member）へフォールバックする（単なる利便フォールバックではなくセキュリティ上の必須動作。実装コメントに明記）。
 - アクティブロールは**表示状態**。API の認可判定には使わない（判断ログ参照）。
 
@@ -203,7 +203,7 @@ fixture は test transaction（BEGIN/ROLLBACK）内で自足させ、seed に依
 
 ### 型・ビルド・E2E 相当
 
-- `pnpm -r typecheck` / `pnpm --filter @waoon/web build`（CI と同じ）。
+- `pnpm -r typecheck` / `pnpm --filter @wanonwan/web build`（CI と同じ）。
 - **PR1 中間状態の確認**: `/me` が `isAdmin` のみ（roles/activeRole は PR2）の状態で、`app.is_admin()` の参照先切替後も nav・`(admin)` ガードが従来どおり動くこと。
 - seed / provisioning 動作確認: `seed-from-csv.mjs` と `provision.mjs` が新 CSV スキーマ（roles 列）で通ること。
 - ブラウザ確認（seed 使用）: 複合保有ユーザーで切替メニュー → ナビが変わる / member 視点で `/admin` に入れない（案内表示）/ interviewer 視点で担当一覧だけ見える / admin が担当を指名 → 当該ユーザーで面談記録ができる。
@@ -269,8 +269,8 @@ fixture は test transaction（BEGIN/ROLLBACK）内で自足させ、seed に依
 - [x] Phase 7（`/interviews` 一覧 + 詳細。answers GET に `?mine=1` フィルタ追加 — admin は RLS で全件見えるため担当分の明示絞り込みが必要だった）
 - [x] Phase 8（ドキュメント負債: CLAUDE.md / 20_org.sql / stale コメント一掃）
 - [x] pgTAP（9 ファイル全通過。rls_interviewer 新規 / rls_role_admin 全面改修）/ Vitest（PR1: 94 件 → PR2: 100 件通過）/ typecheck / build / migration 冪等 2 回適用確認
-- [x] PR1（基盤）: [#98](https://github.com/sasakiyusuke2017015/waoon/pull/98) merge 済み（2026-07-19）
-- [x] PR2（切替メニュー + 面談担当向け画面）: [#99](https://github.com/sasakiyusuke2017015/waoon/pull/99) merge 済み（2026-07-19）
+- [x] PR1（基盤）: [#98](https://github.com/sasakiyusuke2017015/wanonwan/pull/98) merge 済み（2026-07-19）
+- [x] PR2（切替メニュー + 面談担当向け画面）: [#99](https://github.com/sasakiyusuke2017015/wanonwan/pull/99) merge 済み（2026-07-19）
 - [ ] **マージ後検証**（dev 実起動 + HTTP/API で 2026-07-19 実施。挙動は全項目 PASS）
   - [x] 複合保有ユーザーの切替: admin ログインで roles=[admin,interviewer,member]・activeRole が切替 API に追随（member→interviewer→admin）。不正値は 400
   - [x] 保有外ロールへの切替は 422（alice が admin 指定）。cookie 未設定時は最上位保有ロールへフォールバック

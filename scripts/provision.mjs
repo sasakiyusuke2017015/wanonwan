@@ -58,7 +58,7 @@ const ORDER = ["master", "user", "demo", "fixture"];
 const ENVS = {
   dev: {
     composeFile: "infra/docker-compose.yml",
-    network: "waoon",
+    network: "wanonwan",
     allowed: ["master", "user", "demo", "fixture"],
     bundle: ["master", "user", "demo", "fixture"],
     removable: ["master", "user", "demo"],
@@ -70,7 +70,7 @@ const ENVS = {
   stg: {
     composeFile: "infra/docker-compose.stg.yml",
     envFile: "infra/.env.stg",
-    network: "waoon-stg",
+    network: "wanonwan-stg",
     allowed: ["master", "user", "demo"],
     bundle: ["master", "user"],
     // stg/prod の user は実メール・実在人物の GoTrue identity と機微情報（健康状態・面談メモ）を
@@ -81,7 +81,7 @@ const ENVS = {
   prod: {
     composeFile: "infra/docker-compose.prod.yml",
     envFile: "infra/.env.prod",
-    network: "waoon-prod",
+    network: "wanonwan-prod",
     allowed: ["master", "user"],
     bundle: ["master"],
     removable: ["master"],
@@ -140,7 +140,7 @@ for (const step of plan) {
 let envFile, pgSuperuser, pgDatabase, jwtSecret;
 if (isDev) {
   pgSuperuser = process.env.PG_SUPERUSER || "postgres";
-  pgDatabase = process.env.PG_DATABASE || "waoon";
+  pgDatabase = process.env.PG_DATABASE || "wanonwan";
   jwtSecret = process.env.JWT_SECRET ?? DEV_JWT_SECRET;
   // dev 逆ガード: dev 値でなければ die（本番 secret での誤実行を防ぐ）。dev 値でない secret で
   // 署名すると、dev 既定で検証する GoTrue に弾かれ login 不能な orphan になる。
@@ -154,7 +154,7 @@ if (isDev) {
   }
   const env = parseEnvFile(envFile);
   pgSuperuser = env.PG_SUPERUSER || "postgres";
-  pgDatabase = env.PG_DATABASE || "waoon";
+  pgDatabase = env.PG_DATABASE || "wanonwan";
   jwtSecret = env.JWT_SECRET;
   if (!jwtSecret || jwtSecret.includes("dev-only-change-me")) {
     die("JWT_SECRET が未設定か dev 値です。先に check:secrets を通してください");

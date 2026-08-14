@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { CreateDivisionSchema } from "@waoon/domain";
+import { CreateDivisionSchema } from "@wanonwan/domain";
 import { withActiveUser } from "@/lib/auth/route";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";

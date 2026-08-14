@@ -6,7 +6,7 @@
 |---|---|
 | 概要 | 見た目磨き込み #2。AdminListTable に client-side 検索/ソート（`searchKeys`/`sortable`）を汎用追加 + 集計パネル。ロジックは純関数 `filterRows`/`sortRows`（unit test 7 件）。users/surveys/answers 全一覧に適用 + status 別集計を `StatisticList` で表示（StatisticPanel の pie は分析側に委ね軽量化） |
 | ステータス | 🟢 マージ済み（検証中） |
-| PR | [#36](https://github.com/sasakiyusuke2017015/waoon/pull/36)（merged） |
+| PR | [#36](https://github.com/sasakiyusuke2017015/wanonwan/pull/36)（merged） |
 
 ---
 
@@ -60,7 +60,7 @@ AdminListTable に汎用機能として足し、各ページは「どの列を�
 
 ## 4. 検証
 
-- `pnpm --filter @waoon/web test` green（filter-sort 純関数の unit test 追加）。
+- `pnpm --filter @wanonwan/web test` green（filter-sort 純関数の unit test 追加）。
 - `pnpm lint` / `pnpm -r typecheck` green。
 - 手動（Docker 不要・コンポーネント目視できる範囲）: 検索で行が絞られる / ソートで並びが変わる / 集計値が件数と一致。
   - ※実データ取得まで通す確認は Docker 起動が要るため範囲外。純ロジックは unit test で担保。

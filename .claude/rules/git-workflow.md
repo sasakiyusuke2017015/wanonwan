@@ -258,7 +258,7 @@ commit が浮いた状態で別ブランチに移動すると、その commit �
 - トリガー: `develop` / `main` への PR 作成・更新時 / push 時
 - チェック内容:
   - `pnpm -r typecheck`（TypeScript 型チェック）
-  - `pnpm --filter @waoon/web build`（web ビルド）
+  - `pnpm --filter @wanonwan/web build`（web ビルド）
   - `pnpm test:db`（pgTAP / RLS。DB スタックを起動して実行）
 
 CI が失敗したままのブランチはマージ不可。
@@ -277,7 +277,7 @@ CI が失敗したままのブランチはマージ不可。
 - 推奨は **`wip:` commit + Draft PR**。作業途中でもブランチに commit してリモートに push し、GitHub で Draft PR を立ち上げる。ダッシュボードに「やりかけのタスク」が可視化されるので埋もれない。元のブランチに戻ったら `git reset HEAD~` で wip commit を剥がして作業継続できる。
 - 並行作業が頻繁に必要なら **`git worktree`** を使い、別ディレクトリとしてブランチを物理的に分離する。VSCode を複数ウィンドウで開けるので、コンテナ / 依存関係 / TS Server の状態も分離できる:
   ```powershell
-  git worktree add ../waoon-wip feature/xxx
+  git worktree add ../wanonwan-wip feature/xxx
   ```
 
 エージェントを複数稼働させる場合のブランチ・PR 滞留制御は [`agent-orchestration.md`](./agent-orchestration.md#2-並列稼働の制限) も参照。

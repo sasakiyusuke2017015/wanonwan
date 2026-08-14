@@ -11,7 +11,7 @@ describe("parseStorageEnv", () => {
   it("必須が揃えば既定値を埋めて返す", () => {
     const env = parseStorageEnv(base);
     expect(env.STORAGE_REGION).toBe("us-east-1");
-    expect(env.STORAGE_BUCKET).toBe("waoon");
+    expect(env.STORAGE_BUCKET).toBe("wanonwan");
     expect(env.STORAGE_INTERNAL_ENDPOINT).toBeUndefined();
   });
 

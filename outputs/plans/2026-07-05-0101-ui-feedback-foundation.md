@@ -5,7 +5,7 @@
 |---|---|
 | 概要 | UI/UX 改善テーマ1。catalog 実装済みの Toast/ConfirmDialog をアプリ配線（保存/削除の成功トースト・破壊的操作の確認ダイアログ）+ `global-error`/`error`/`not-found`/`loading` のルート境界新設。Toast は遷移をまたぐ app Provider 方式（catalog に ToastProvider 追加・zIndex 10010） |
 | ステータス | 🟢 マージ済み（検証中） |
-| PR | [#64](https://github.com/sasakiyusuke2017015/waoon/pull/64) |
+| PR | [#64](https://github.com/sasakiyusuke2017015/wanonwan/pull/64) |
 | Review | [計画レビュー](../reviews/2026-07-05-0115-ui-feedback-foundation-review.md) / [コードレビュー](../reviews/2026-07-05-0210-ui-feedback-foundation-code-review.md) |
 
 ## 目的
@@ -60,7 +60,7 @@ UI/UX 監査（2026-07-05 チャット内）で High と判定された 3 ギャ
   成功表示があり、トーストへ統一する。
 - 参考実装: ai_edu フォークの `global-error.tsx` / `not-found.tsx`（error.digest の
   「エラー ID」表示、root `<html>/<body>` を自前で描画する制約コメント）。
-  waoon 向けには文言・スタイルを調整して移植する。
+  wanonwan 向けには文言・スタイルを調整して移植する。
 
 ## 実装計画
 
@@ -96,7 +96,7 @@ UI/UX 監査（2026-07-05 チャット内）で High と判定された 3 ギャ
 
 ## 検証
 
-- `pnpm -r typecheck` / `pnpm lint` / `pnpm --filter @waoon/web test`
+- `pnpm -r typecheck` / `pnpm lint` / `pnpm --filter @wanonwan/web test`
 - `pnpm --filter @ui-catalog/core lint`（root `pnpm lint` は web のみのため個別実行。レビュー N-4）
   - **残課題**: packages/ui には lint script はあるが eslint 本体が devDependencies に無く実行不能
     （ベンダリング時からの既存状態）。eslint 導入は別タスクとする
@@ -135,7 +135,7 @@ UI/UX 監査（2026-07-05 チャット内）で High と判定された 3 ギャ
 - [x] Plan 承認（計画レビュー APPROVE 2026-07-05）
 - [x] 実装完了（typecheck / web lint / test 69 / build すべて green）
 - [x] コードレビュー完了（APPROVE 2026-07-05・NICE-TO-HAVE 反映済み）
-- [x] PR 作成（[#64](https://github.com/sasakiyusuke2017015/waoon/pull/64)・CI green）
+- [x] PR 作成（[#64](https://github.com/sasakiyusuke2017015/wanonwan/pull/64)・CI green）
 - [x] merge 済み（PR #64）
 - [ ] マージ後検証（手動確認チェックを消化）
   - [ ] 保存成功トーストが遷移後の画面で表示される（SurveyForm → 一覧）

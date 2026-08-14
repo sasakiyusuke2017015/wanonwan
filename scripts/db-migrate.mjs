@@ -36,7 +36,7 @@ const service = flag("service") ?? process.env.PG_SERVICE ?? "postgres";
 const fileEnv = envFile ? parseEnvFile(resolvePath(envFile)) : {};
 const migrationsDir = join(root, "packages", "db", "migrations");
 const snapshotFile = join(root, "packages", "db", "snapshot", "schema.sql");
-const db = process.env.PG_DATABASE ?? fileEnv.PG_DATABASE ?? "waoon";
+const db = process.env.PG_DATABASE ?? fileEnv.PG_DATABASE ?? "wanonwan";
 const user = process.env.PG_SUPERUSER ?? fileEnv.PG_SUPERUSER ?? "postgres";
 
 // docker compose [--env-file X] -f compose exec -T <service> psql ...

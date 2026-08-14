@@ -23,8 +23,8 @@
 - **B-1**: dev 逆ガードが検査する secret = 実際に GoTrue 署名に使う secret の一致保証が曖昧だった。
   → 対応: 実装計画 step 3 で**単一 `const JWT_SECRET`**（ガード＝署名で同一変数・二重管理禁止）を明記。
   検証に「`JWT_SECRET` 未 export の素の dev で `provision:dev` → 発行ユーザ login 200」を追加（実署名一致を E2E で担保）。
-- **B-2**: `--dev` 非指定で dev compose を渡すと network が `waoon-stg` にフォールバックする危険。
-  → 対応: step 2 で `--dev` は network=`waoon` 強制、step 4 で「`--dev` 無し + dev compose は die」「`--dev` + 非 dev compose は die」。
+- **B-2**: `--dev` 非指定で dev compose を渡すと network が `wanonwan-stg` にフォールバックする危険。
+  → 対応: step 2 で `--dev` は network=`wanonwan` 強制、step 4 で「`--dev` 無し + dev compose は die」「`--dev` + 非 dev compose は die」。
   検証に「`--dev` 無しで dev compose 直実行 → die」を追加。stg/prod の既存判定は温存。
 
 ## NICE-TO-HAVE（反映済み / 実装時メモ）

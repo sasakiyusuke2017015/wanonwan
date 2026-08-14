@@ -4,7 +4,7 @@
 |---|---|
 | 概要 | seed を手書き SQL から CSV 化し FK 依存順ローダー（非空スキップ=初回投入専用）で投入。provision を 2 モード化（単一 admin / `--users-csv` の N 名一括・行単位冪等・一時 PW を 0600 ファイル + must_change）。組織/役職マスタの CRUD 管理画面（`/admin/org`・`/admin/positions`）を新設 |
 | ステータス | 🟢 マージ済み（検証中） |
-| PR | [#56](https://github.com/sasakiyusuke2017015/waoon/pull/56) merged |
+| PR | [#56](https://github.com/sasakiyusuke2017015/wanonwan/pull/56) merged |
 | Review | [計画レビュー](../reviews/2026-06-25-1031-seed-csv-master-admin-review.md) / [コードレビュー](../reviews/2026-06-25-1431-seed-csv-master-admin-code-review.md) |
 
 ---
@@ -124,11 +124,11 @@ dev / stg / prod すべてに入れられるようにする。あわせて組織
    - `app.is_admin()` ゲート → RLS（admin write）最終ガード。`users` ルートの POST パターン踏襲。
    - **B-1: admin 帯昇格防止**。positions の `code` 990-999 の **作成・更新**を API 層 Zod + RLS `WITH CHECK`
      の二重で拒否。`users.position_id` への 990-999 付与は専用ゲート（自己昇格不可・最後の admin を割らない）。
-   - 入力バリデーションは `@waoon/domain` に Zod スキーマ追加（`positions.code` は int・一意・990-999 を一般作成不可）。
+   - 入力バリデーションは `@wanonwan/domain` に Zod スキーマ追加（`positions.code` は int・一意・990-999 を一般作成不可）。
    - 削除時の FK 参照は 409 で弾く（**子マスタ + `users` 参照 + admin position 削除禁止 + 自己所属削除**を対象。N-4/R6）。
 10. **RLS 追加**: `99_rls.sql` に positions の admin 帯 `WITH CHECK`（990-999 の write を別途制限）を追加し、pgTAP で昇格不可を検証（B-1）。
 11. **UI**: `admin/org`（本部/部/課のツリー or タブ）と `admin/positions` の一覧/新規/編集/削除。
-    - `AdminListTable` / `UserForm` / `FormActions` を再利用。新規部品は `@waoon/ui` 吸収を検討。
+    - `AdminListTable` / `UserForm` / `FormActions` を再利用。新規部品は `@wanonwan/ui` 吸収を検討。
 12. **検証**: admin で一般役職 CRUD 成功 / **admin 帯の作成・付与は admin でも拒否** / 非 admin で 403・RLS 拒否。Vitest + pgTAP + 必要なら Playwright。
 
 ### 影響ファイル（想定）
@@ -137,7 +137,7 @@ dev / stg / prod すべてに入れられるようにする。あわせて組織
   `apps/web/app/api/v1/{divisions,departments,sections,positions}/route.ts`,
   `apps/web/app/(admin)/admin/org/*`, `.../admin/positions/*`, pgTAP（admin 昇格不可）
 - 変更: `scripts/db-seed.mjs`, `scripts/provision.mjs`, `scripts/seed-gotrue-dev.mjs`（CSV 駆動化）,
-  `packages/db/schema/99_rls.sql`（admin 帯 WITH CHECK）, `@waoon/domain`（Zod）, `package.json`（`csv-parse`）, `.gitignore`（stg/prod 人員 CSV）
+  `packages/db/schema/99_rls.sql`（admin 帯 WITH CHECK）, `@wanonwan/domain`（Zod）, `package.json`（`csv-parse`）, `.gitignore`（stg/prod 人員 CSV）
 - 削除: `packages/db/seed/00_org.sql`, `packages/db/seed/10_users.sql`
 - 影響注意: dev `users.csv` の固定 UUID は唯一のソース。`seed-gotrue-dev.mjs` がこれを読む（不一致で login 不能 orphan）
 
@@ -153,7 +153,7 @@ dev / stg / prod すべてに入れられるようにする。あわせて組織
 - 削除 409: 子マスタ参照・`users` 参照・admin position 削除・自己所属削除がいずれも弾かれる（N-4）。
 - CSV エスケープ: `name` にカンマ/引用符/改行/`'); DROP` を含む行が安全に投入される（N-2）。
 - stg/prod: 人員 CSV が VCS に commit されていない（`git ls-files` で確認。B-5）。一時 PW ファイル配布 → 初回ログイン → mustChange で PW 変更可（R-B2）。
-- `pnpm -r typecheck` / `pnpm --filter @waoon/web build` 通過（CI 相当）。
+- `pnpm -r typecheck` / `pnpm --filter @wanonwan/web build` 通過（CI 相当）。
 
 ## リスク
 
@@ -204,7 +204,7 @@ dev / stg / prod すべてに入れられるようにする。あわせて組織
   - [x] typecheck 全パッケージ / web build 成功
   - [x] API 実機: admin CRUD / FK 削除 409 / admin帯 995 → 400 / 非admin → 403
 - [x] コードレビュー（[2026-06-25-1431](../reviews/2026-06-25-1431-seed-csv-master-admin-code-review.md)・**APPROVE**）→ 共通指摘の positions.code 生値補間を修正済み
-- [x] PR 作成・マージ（[#56](https://github.com/sasakiyusuke2017015/waoon/pull/56) merged）
+- [x] PR 作成・マージ（[#56](https://github.com/sasakiyusuke2017015/wanonwan/pull/56) merged）
 - [x] マージ後検証（develop で再確認）
   - [x] develop クリーン投入 + pgTAP all passed（7 files）
   - [x] API 実機（dev サーバ）: admin CRUD / FK 削除 409 / admin帯拒否 / 非admin 403

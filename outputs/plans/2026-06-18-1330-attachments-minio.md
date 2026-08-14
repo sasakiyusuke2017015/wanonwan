@@ -6,7 +6,7 @@
 |---|---|
 | 概要 | presigned URL でブラウザが MinIO へ直接 up/down、API は認可+メタのみ。単一 `attachments` 表(polymorphic)+entity_type 別 RLS。Phase1=storage lib+MinIO compose+表/RLS/pgTAP+面談添付 API/UI。Phase2=回答/資料/アバター+`AttachmentsPanel`共通化。Phase3=stg/prod に MinIO + nginx の storage サブドメイン配線 |
 | ステータス | 🟢 マージ済み（検証中） |
-| PR | Phase1: [#40](https://github.com/sasakiyusuke2017015/waoon/pull/40)（merged） / Phase2: [#41](https://github.com/sasakiyusuke2017015/waoon/pull/41)（merged） / Phase3: [#44](https://github.com/sasakiyusuke2017015/waoon/pull/44)（merged） |
+| PR | Phase1: [#40](https://github.com/sasakiyusuke2017015/wanonwan/pull/40)（merged） / Phase2: [#41](https://github.com/sasakiyusuke2017015/wanonwan/pull/41)（merged） / Phase3: [#44](https://github.com/sasakiyusuke2017015/wanonwan/pull/44)（merged） |
 
 ---
 
@@ -34,14 +34,14 @@
 - ストレージは**完全に未着手**（compose に MinIO 無し、storage コード・S3 SDK 無し、添付テーブル無し）。
 - **設計の意図は evergreen.md に明記**: presigned URL をブラウザから直接叩く前提で `STORAGE_ENDPOINT` は browser-reachable。
 - CLAUDE.md「DB アクセスは必ず API 経由」は **DB の話**。ストレージの presigned 方式は「API が認可して URL 発行 → ブラウザが直接 MinIO」で、API が gatekeeper である点は維持される（SDK 直叩きの禁止に反しない）。
-- dev compose は `${VAR:-default}` パターン + healthcheck + named volume + `waoon` network。MinIO もこれに倣う。
+- dev compose は `${VAR:-default}` パターン + healthcheck + named volume + `wanonwan` network。MinIO もこれに倣う。
 - 認可は二層（API 層 + RLS）。添付メタデータも RLS 対象テーブルにする。
 
 ## 3. 設計判断（要レビュー）
 
 ### ストレージ方式
 - **MinIO（S3 互換）** を compose に追加。SDK は **`@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner`**（標準・MinIO 互換）。
-- **単一バケット `waoon` + キー prefix**（`answers/`・`interviews/`・`avatars/`・`surveys/`）。バケット分割はしない。
+- **単一バケット `wanonwan` + キー prefix**（`answers/`・`interviews/`・`avatars/`・`surveys/`）。バケット分割はしない。
 - presigned **PUT（upload）** と **GET（download）** を API が発行。TTL 短め（例 5 分）。
 
 ### メタデータ（添付テーブル）
@@ -77,7 +77,7 @@
 
 ## 5. 検証
 
-- `pnpm --filter @waoon/web test`（storage lib unit test）/ `pnpm test:db`（attachments RLS pgTAP）/ `typecheck` / `lint` green。
+- `pnpm --filter @wanonwan/web test`（storage lib unit test）/ `pnpm test:db`（attachments RLS pgTAP）/ `typecheck` / `lint` green。
 - **マージ後（Docker・笹木さん）**: dev で各対象の upload→download→delete、presigned TTL 切れ、非権限ユーザーが他人の添付 URL を取得できない（403）、アバター上書きが 1 枚を保つ。
 
 ## 6. リスクと緩和

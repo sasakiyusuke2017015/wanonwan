@@ -1,4 +1,4 @@
-# トラブルシュート — waoon ローカル開発
+# トラブルシュート — Wanonwan ローカル開発
 
 「何かおかしくなった時のやり直し方」を現在形で記す（特定バージョンからの移行手順は書かない。
 [evergreen.md](../.claude/rules/evergreen.md)）。
@@ -8,7 +8,7 @@
 DB ボリュームごと破棄して作り直す:
 
 ```bash
-pnpm compose:dev:down -v   # コンテナ + 名前付きボリューム(waoon_db-data) を削除
+pnpm compose:dev:down -v   # コンテナ + 名前付きボリューム(wanonwan_db-data) を削除
 pnpm compose:dev:up        # 起動(--wait) → migrate → web（端末を専有）
 pnpm provision:dev         # 別端末で: 組織マスタ + ユーザ投入
 ```

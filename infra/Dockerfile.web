@@ -1,6 +1,6 @@
 # apps/web の本番 image。Next.js standalone 出力で最小ランタイムを作る。
 # pnpm モノレポなので build context はリポジトリ root（infra/ ではない）。
-#   docker build -f infra/Dockerfile.web -t waoon-web .
+#   docker build -f infra/Dockerfile.web -t wanonwan-web .
 
 # ---- base: pnpm を有効化した node ----
 FROM node:24-alpine AS base
@@ -24,7 +24,7 @@ COPY --from=deps /app/packages ./packages
 # apps/web/node_modules（.bin/next を含む）は deps から明示的に持ち込む必要がある。
 COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
 COPY . .
-RUN pnpm --filter @waoon/web build
+RUN pnpm --filter @wanonwan/web build
 
 # ---- runner: standalone 出力だけを載せた最小イメージ ----
 FROM base AS runner

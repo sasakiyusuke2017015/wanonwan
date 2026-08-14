@@ -48,9 +48,9 @@ packages/db/
 
 ## snapshot 再生成の仕組み（`db:snapshot`）
 
-使い捨ての postgres コンテナ（`waoon-postgres:15`）を立て、bootstrap → migrations を順に適用し
-pg_dump する。dev の `waoon` DB は触らない。pg_cron は `cron.database_name='waoon'` に固定のため
-生成も `waoon` という名の DB に対して行う（[scripts/db-snapshot.mjs](../../scripts/db-snapshot.mjs)）。
+使い捨ての postgres コンテナ（`wanonwan-postgres:15`）を立て、bootstrap → migrations を順に適用し
+pg_dump する。dev の `wanonwan` DB は触らない。pg_cron は `cron.database_name='wanonwan'` に固定のため
+生成も `wanonwan` という名の DB に対して行う（[scripts/db-snapshot.mjs](../../scripts/db-snapshot.mjs)）。
 
 pg_dump 出力は決定的になるよう正規化する（`\restrict` のランダムトークンと版情報行を除去、
 `CREATE SCHEMA`→`IF NOT EXISTS`、関数を `OR REPLACE` 化、pgmq のキュー実体は除外して

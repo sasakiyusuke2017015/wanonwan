@@ -1,4 +1,4 @@
-import type { UserRole } from "@waoon/domain";
+import type { UserRole } from "@wanonwan/domain";
 import type { IconName } from "@ui-catalog/core/constants";
 
 export type NavItemDef = {

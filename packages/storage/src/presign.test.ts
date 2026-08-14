@@ -12,15 +12,15 @@ const client = new S3Client({
 
 describe("presign", () => {
   it("presignPut は bucket/key を含む署名付き URL（TTL 反映）", async () => {
-    const url = await presignPut(client, "waoon", "interviews/5/abc", "image/png", 300);
-    expect(url).toContain("/waoon/interviews/5/abc");
+    const url = await presignPut(client, "wanonwan", "interviews/5/abc", "image/png", 300);
+    expect(url).toContain("/wanonwan/interviews/5/abc");
     expect(url).toContain("X-Amz-Signature");
     expect(url).toContain("X-Amz-Expires=300");
   });
 
   it("presignGet も署名付き URL を返す", async () => {
-    const url = await presignGet(client, "waoon", "interviews/5/abc", 120);
-    expect(url).toContain("/waoon/interviews/5/abc");
+    const url = await presignGet(client, "wanonwan", "interviews/5/abc", 120);
+    expect(url).toContain("/wanonwan/interviews/5/abc");
     expect(url).toContain("X-Amz-Signature");
     expect(url).toContain("X-Amz-Expires=120");
   });

@@ -34,7 +34,7 @@
 
 `[NICE-TO-HAVE]`（差し戻さない・後追い可）:
 
-1. **将来の多重呼び出しは無限ループになり得る**: 仮に AppLayout 配下のページが個別に `useDocumentTitle("X")` を呼ぶと、AppLayout の observer（desired="…セクション名"）とページの observer（desired="X ｜ waoon"）が互いの書き込みに反応して延々と title を奪い合う（各 observer 単体は収束するが、2 者間では発散）。現状の設計（AppLayout 一括 + BARE_PATHS のみ個別）が崩れると顕在化する潜在リスク。コメントに「同一ツリーで併用しない」前提を一行残すか、AppLayout 側で `data-managed-title` 的な単一管理に寄せる将来対応を Plan の残課題に積むと安全。実装安全性には現状影響しないため後追いで可。
+1. **将来の多重呼び出しは無限ループになり得る**: 仮に AppLayout 配下のページが個別に `useDocumentTitle("X")` を呼ぶと、AppLayout の observer（desired="…セクション名"）とページの observer（desired="X ｜ wanonwan"）が互いの書き込みに反応して延々と title を奪い合う（各 observer 単体は収束するが、2 者間では発散）。現状の設計（AppLayout 一括 + BARE_PATHS のみ個別）が崩れると顕在化する潜在リスク。コメントに「同一ツリーで併用しない」前提を一行残すか、AppLayout 側で `data-managed-title` 的な単一管理に寄せる将来対応を Plan の残課題に積むと安全。実装安全性には現状影響しないため後追いで可。
 
 2. **観測スコープの注記**: `subtree: true` で head 全体を見る設計判断（title element の付け替えを捕捉するため）は妥当だが、その意図は既存コメントからは読み取りにくい。「title だけでなく head childList を見るのは Next が title element を差し替えるため」の一文があると次の読者が narrowing を試みて壊すのを防げる。
 

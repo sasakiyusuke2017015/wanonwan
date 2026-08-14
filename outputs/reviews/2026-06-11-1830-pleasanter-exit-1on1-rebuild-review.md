@@ -5,7 +5,7 @@
 | 作成日時 | 2026-06-11 18:30 JST |
 | レビュアー | Claude Code |
 | 対象 Plan | [`plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md`](../plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md) |
-| ブランチ | TBD（GitHub: `sasakiyusuke2017015/waoon`） |
+| ブランチ | TBD（GitHub: `sasakiyusuke2017015/wanonwan`） |
 | 関連 PR | TBD |
 | レビュー種別 | 計画 |
 

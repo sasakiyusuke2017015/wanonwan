@@ -18,7 +18,7 @@
 
 ## 総評
 
-スコープは妥当。特に `dev:up` / `compose:dev:*` / `test:db` など doc 参照が多い既存 script をリネームせず、ergonomics を clean 系の追加に留める判断は安全側に倒せている。Dockerfile.web を `pnpm --filter @waoon/web build` のまま維持する方針も、CD 経路を変えないという目的と整合している。
+スコープは妥当。特に `dev:up` / `compose:dev:*` / `test:db` など doc 参照が多い既存 script をリネームせず、ergonomics を clean 系の追加に留める判断は安全側に倒せている。Dockerfile.web を `pnpm --filter @wanonwan/web build` のまま維持する方針も、CD 経路を変えないという目的と整合している。
 
 CI を `pnpm turbo run typecheck lint build test` に集約しつつ、DB image build / compose up / migrate / seed / pgTAP / down を turbo 外に残す構成にも穴は見当たらない。root `test` は unit test の集約で、DB/pgTAP は引き続き `test:db` という分離が保たれている。
 
@@ -30,12 +30,12 @@ CI を `pnpm turbo run typecheck lint build test` に集約しつつ、DB image 
 
 ### [NICE-TO-HAVE] N-1: `typecheck` の `dependsOn` は意図を明記するか `^typecheck` を検討する
 
-Plan の `turbo.json` 案では `typecheck: { "dependsOn": ["^build"] }` になっている。一方、現状の workspace 依存先である `@waoon/auth` / `@waoon/domain` / `@ui-catalog/core` は `build` script を持たず、`typecheck` script を持つ。つまり `typecheck` については「依存パッケージの typecheck を先に通す」という順序は明示されない。
+Plan の `turbo.json` 案では `typecheck: { "dependsOn": ["^build"] }` になっている。一方、現状の workspace 依存先である `@wanonwan/auth` / `@wanonwan/domain` / `@ui-catalog/core` は `build` script を持たず、`typecheck` script を持つ。つまり `typecheck` については「依存パッケージの typecheck を先に通す」という順序は明示されない。
 
 全 package の `typecheck` 自体は `turbo run typecheck` で実行されるため、即時の品質ゲート欠落ではない。ただし Plan の目的に「依存グラフ順の実行明示」が含まれるなら、以下のどちらかを Plan に明記すると実装時に迷わない。
 
 - `typecheck: { "dependsOn": ["^typecheck"] }` にして、依存先の型チェック完了後に依存元を型チェックする。
-- あえて `^build` のみとするなら、waoon の package は source export 前提なので順序保証より全体実行を重視する、と理由を書く。
+- あえて `^build` のみとするなら、wanonwan の package は source export 前提なので順序保証より全体実行を重視する、と理由を書く。
 
 ### [NICE-TO-HAVE] N-2: 検証項目に root alias の確認を追加するとよい
 
@@ -52,7 +52,7 @@ Plan の `turbo.json` 案では `typecheck: { "dependsOn": ["^build"] }` にな�
 
 `lint`: web のみから web + ui、`test`: root 未定義から web + worker へ広がる、というリスク整理は現状 script と一致している。CI では worker test が既に走っているため、`test` の CI リスクは重複解消寄りで妥当。
 
-ただし [docs/CONTRIBUTING.md](../../docs/CONTRIBUTING.md) のテスト表は現状 `pnpm --filter @waoon/web test` を案内している。root `pnpm test` を新設するなら、docs 反映 Phase で CONTRIBUTING の「テスト・チェック」表を最小更新対象として明記すると、操作体系統一の目的と揃う。
+ただし [docs/CONTRIBUTING.md](../../docs/CONTRIBUTING.md) のテスト表は現状 `pnpm --filter @wanonwan/web test` を案内している。root `pnpm test` を新設するなら、docs 反映 Phase で CONTRIBUTING の「テスト・チェック」表を最小更新対象として明記すると、操作体系統一の目的と揃う。
 
 ### [NICE-TO-HAVE] N-4: 判断ログに「root `test` は DB/pgTAP を含まない」を残すとよい
 

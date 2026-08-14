@@ -1,4 +1,4 @@
-# waoon PostgreSQL 15 + 拡張同梱イメージ
+# wanonwan PostgreSQL 15 + 拡張同梱イメージ
 # 純正 postgres:15-bookworm をベースに、PGDG apt で pgvector / pg_cron / pgtap を入れ、
 # pgmq はソースビルドで同梱する。
 FROM postgres:15-bookworm
@@ -23,4 +23,4 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # pg_cron は shared_preload_libraries が必須。pgmq は CREATE EXTENSION で動的有効化。
 RUN echo "shared_preload_libraries='pg_cron'" >> /usr/share/postgresql/postgresql.conf.sample \
-    && echo "cron.database_name='waoon'" >> /usr/share/postgresql/postgresql.conf.sample
+    && echo "cron.database_name='wanonwan'" >> /usr/share/postgresql/postgresql.conf.sample

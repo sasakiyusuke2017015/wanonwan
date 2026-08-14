@@ -1,5 +1,5 @@
 import "server-only";
-import { createGoTrueClient } from "@waoon/auth";
+import { createGoTrueClient } from "@wanonwan/auth";
 import { GOTRUE_URL } from "./env";
 
 // アプリ全体で共有する GoTrue クライアント（サーバ専用）。

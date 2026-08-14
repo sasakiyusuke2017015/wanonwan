@@ -51,7 +51,7 @@ jobs:
       - name: Wait for Postgres
         run: |
           for i in $(seq 1 30); do
-            if docker compose -f infra/docker-compose.yml exec -T postgres pg_isready -U postgres -d waoon; then
+            if docker compose -f infra/docker-compose.yml exec -T postgres pg_isready -U postgres -d wanonwan; then
               echo "postgres ready"; exit 0
             fi
             sleep 2

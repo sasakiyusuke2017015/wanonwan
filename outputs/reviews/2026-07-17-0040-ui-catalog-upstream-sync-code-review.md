@@ -49,9 +49,9 @@ lucide-react の静的 import、IconButton Tooltip 内蔵化に伴う二重表�
 うち 1 箇所は実際の ESLint ルール値（深い import 禁止の `group`）。apps/web はこの config を
 extends していないため実効影響ゼロだが、名前統一の取りこぼし。→ **6 箇所を `@ui-catalog/core` に置換済み**
 
-### [NICE-TO-HAVE] VERSION_REGISTRY / versions.json が現存 waoon 部品を落とした
+### [NICE-TO-HAVE] VERSION_REGISTRY / versions.json が現存 wanonwan 部品を落とした
 
-上流のクリーン JSON で全面置換した結果、export されて現存する waoon 部品
+上流のクリーン JSON で全面置換した結果、export されて現存する wanonwan 部品
 （AppShell / Header / Footer / SideNav / SubHeader / Toast / InteractiveTable / TabBar 等 19 件）
 が registry から欠落。catalog-integrity テストは「export 部品の registry 掲載」を検査しない
 ためすり抜ける。ランタイム影響なし（version 追跡メタデータのみ）。
@@ -68,7 +68,7 @@ extends していないため実効影響ゼロだが、名前統一の取りこ
 ## 検証（この Review 自体の）
 
 - [x] `git status --short` / `git diff` で全変更ファイルを列挙・確認
-- [x] barrel 4 本（atoms / molecules / organisms / templates）の export を目視し、DataTable subpath 分離・waoon 独自部品の export 維持を確認
+- [x] barrel 4 本（atoms / molecules / organisms / templates）の export を目視し、DataTable subpath 分離・wanonwan 独自部品の export 維持を確認
 - [x] 削除 exports（`./styles` `./calend/*`）の target 非存在をコマンド確認
 - [x] MarkdownPreview の DOMPurify サニタイズ経路を確認
 - [x] lucide-react が静的 import のみであることを grep 確認
@@ -81,7 +81,7 @@ extends していないため実効影響ゼロだが、名前統一の取りこ
 ## フォローアップ
 
 - [x] `parent-strict.cjs` の `@ai-education/ui` 6 箇所を `@ui-catalog/core` へ統一
-- [x] version registry / versions.json へ waoon 部品 20 件を復帰・再生成
+- [x] version registry / versions.json へ wanonwan 部品 20 件を復帰・再生成
 - [x] `SelectableList.tsx` の JSDoc を `LevelBadge` → `Badge` に置換
 - [x] `.gitignore` に `/ui.zip` を追加
 - [ ] dev スタックで主要画面の目視確認（Plan 末尾の未了チェック）

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { UpdateUserSchema } from "@waoon/domain";
-import { GoTrueError } from "@waoon/auth";
+import { UpdateUserSchema } from "@wanonwan/domain";
+import { GoTrueError } from "@wanonwan/auth";
 import { withActiveUser } from "@/lib/auth/route";
 import { gotrue } from "@/lib/auth/gotrue";
 import { withServiceRole } from "@/lib/auth/service-role";

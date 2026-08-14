@@ -1,6 +1,6 @@
 import "server-only";
 import { cookies } from "next/headers";
-import type { GoTrueSession } from "@waoon/auth";
+import type { GoTrueSession } from "@wanonwan/auth";
 import { ACCESS_COOKIE, REFRESH_COOKIE, ACTIVE_ROLE_COOKIE } from "./constants";
 
 export { ACCESS_COOKIE, REFRESH_COOKIE, ACTIVE_ROLE_COOKIE };

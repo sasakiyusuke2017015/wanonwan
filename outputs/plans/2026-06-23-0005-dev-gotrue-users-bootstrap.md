@@ -77,7 +77,7 @@ dev の GoTrue ユーザ作成を **決定的・冪等** にし、`dev:up` 一�
 
 ## 検証
 - [x] `compose:dev:down -v` → クリーン作り直し → migrate→seed:gotrue:dev→db:seed →
-      `admin@example.com`/`Admin1234!` で login 200 + `waoon-access`/`waoon-refresh` Cookie + `/me` `isAdmin:true`
+      `admin@example.com`/`Admin1234!` で login 200 + `wanonwan-access`/`wanonwan-refresh` Cookie + `/me` `isAdmin:true`
 - [x] 一般ユーザ alice でも login 200 / `/me` `isAdmin:false`
 - [x] `seed:gotrue:dev` 2 回実行で冪等（2 回目は created 0 / skipped 4）
 - [x] `seed/10_users.sql` の `gotrue_id` と GoTrue 側 id が **全 4 ユーザ一致**（手動同期不要）

@@ -118,7 +118,7 @@ body scroll lock の実装は `packages/ui` / `apps/web` のどこにも無い�
 
 → **反映済み**: 「撤去と移設」の手順に列挙。
 
-### [NICE-TO-HAVE] `SidebarAccountMenu` の `name` / `email` は必須 string、waoon の `me` は nullable
+### [NICE-TO-HAVE] `SidebarAccountMenu` の `name` / `email` は必須 string、wanonwan の `me` は nullable
 
 `/me` 取得前は `me === null`。`initial` は `name.charAt(0)` で導出されるため空文字だと `?` になる。
 

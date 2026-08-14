@@ -28,7 +28,7 @@
 
 - [x] B-1: 単一 `let JWT_SECRET` を逆ガード(93)と mintServiceRoleToken(117) が共有。`DEV_JWT_SECRET` は
       compose `${JWT_SECRET:-dev-only-change-me-...}` と一致 → 素の dev で **login 200 / isAdmin:true**
-- [x] B-2: `--dev` 無し dev compose → die / `--dev` + 非 dev compose → die / dev は network=waoon 強制
+- [x] B-2: `--dev` 無し dev compose → die / `--dev` + 非 dev compose → die / dev は network=wanonwan 強制
 - [x] dev 逆ガード(dev値以外 die) ⇔ stg/prod 正ガード(dev値 die) の分岐
 - [x] N-3: email/code を GoTrue 発行前に独立 die（既定 code=admin は seed と衝突 → 発行前中止）
 - [x] SQL injection: 入力は `sqlStr` / `::uuid` 経由。秘密情報: PW は一度だけ表示、ハードコードは dev 既定値のみ

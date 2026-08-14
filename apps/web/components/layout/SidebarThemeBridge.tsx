@@ -6,7 +6,7 @@ import type { ThemeConfig } from "@ui-catalog/core/constants";
 type ColorConfig = ThemeConfig["colors"];
 
 /**
- * ui-catalog の sidebar トークン（--sidebar-*）を waoon のテーマ 3 軸へ連動させる。
+ * ui-catalog の sidebar トークン（--sidebar-*）を wanonwan のテーマ 3 軸へ連動させる。
  *
  * catalog 側 tokens.css の既定は固定のダーク slate で、テーマを切り替えても sidebar だけ
  * 取り残される。ここで現在のテーマ色から同名トークンを上書きし、SidebarShell / SidebarNav /

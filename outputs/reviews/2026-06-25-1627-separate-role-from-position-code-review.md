@@ -48,7 +48,7 @@
 ## 検証
 
 - [x] `pnpm -r typecheck` green
-- [x] `pnpm --filter @waoon/web build` 成功
+- [x] `pnpm --filter @wanonwan/web build` 成功
 - [x] `pnpm test:db` all passed（7 files。rls_positions 書き換え + rls_role_admin 強化）
 - [x] API 実機: role 基準 is_admin（admin true/alice false）/ 管理者トグル昇格→isAdmin true / 最後の admin 降格 = 409 / 役職 995 作成 = 201（帯ガード撤去）
 - [x] クリーン投入: admin=role'admin'・position なし / 他=member / positions に 999 なし

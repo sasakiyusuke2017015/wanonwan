@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { GoTrueError } from "@waoon/auth";
+import { GoTrueError } from "@wanonwan/auth";
 import { gotrue } from "@/lib/auth/gotrue";
 import { clearSession, getRefreshToken, setSession } from "@/lib/auth/session";
 import { AUTH_RATE_LIMITS, checkRateLimit } from "@/lib/auth/rate-limit";

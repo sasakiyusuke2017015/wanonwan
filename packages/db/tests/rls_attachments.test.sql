@@ -11,11 +11,11 @@ SELECT 'interview',
        (SELECT a.id FROM public.answers a
           JOIN public.users u ON u.id = a.respondent_id
          WHERE u.gotrue_id = '00000000-0000-0000-0000-0000000a11ce' LIMIT 1),
-       'waoon', 'interviews/fixture/obj-1', 'memo.pdf', 'application/pdf', app.uid();
+       'wanonwan', 'interviews/fixture/obj-1', 'memo.pdf', 'application/pdf', app.uid();
 -- (2) survey 添付（説明資料）
 INSERT INTO public.attachments (entity_type, entity_id, bucket, object_key, filename, content_type, uploaded_by)
 SELECT 'survey', (SELECT id FROM public.surveys LIMIT 1),
-       'waoon', 'surveys/fixture/obj-1', 'guide.pdf', 'application/pdf', app.uid();
+       'wanonwan', 'surveys/fixture/obj-1', 'guide.pdf', 'application/pdf', app.uid();
 SELECT ok((SELECT count(*) FROM public.attachments) >= 2, 'admin は全添付を読める（admin write も成功）');
 
 -- member2: 無関係 → interview は見えない
@@ -39,7 +39,7 @@ SELECT ok(
 SET LOCAL app.user_id = '00000000-0000-0000-0000-0000000ca201';
 SELECT throws_ok($$
   INSERT INTO public.attachments (entity_type, entity_id, bucket, object_key, filename, content_type, uploaded_by)
-  VALUES ('interview', 1, 'waoon', 'interviews/evil/obj', 'evil.pdf', 'application/pdf', app.uid())
+  VALUES ('interview', 1, 'wanonwan', 'interviews/evil/obj', 'evil.pdf', 'application/pdf', app.uid())
 $$, '42501', NULL, 'member2 は他人の面談へ添付を作成できない（書込は面談者/admin 限定）');
 
 -- 未設定: fail-closed

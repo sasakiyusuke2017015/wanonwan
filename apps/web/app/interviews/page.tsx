@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { answerStatusLabel, healthLabel } from "@waoon/domain";
+import { answerStatusLabel, healthLabel } from "@wanonwan/domain";
 import type { Column } from "@ui-catalog/core/organisms/DataTable";
 import { Badge } from "@ui-catalog/core/atoms";
 import { apiGet } from "@/lib/api/client";

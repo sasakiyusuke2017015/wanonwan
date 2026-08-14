@@ -94,7 +94,7 @@ CLAUDE.md の "default to writing no comments" 原則と整合させる。
 ```markdown
 ## 1.1 旧 dev compose からの移行（一度だけ）        ← Don't
 以前 ... を起動していた場合は、新構成に切り替える前に古いスタックを止めてください
-docker compose -p waoon down -v
+docker compose -p wanonwan down -v
 ```
 
 → migration 手順は PR 本文と Plan の判断ログに書き、ドキュメント本体は現状のみ:

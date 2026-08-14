@@ -7,7 +7,7 @@ import { FormField, Input, Select } from "@ui-catalog/core/molecules";
 import { useConfirm } from "@ui-catalog/core/hooks/ui";
 import { useTheme } from "@ui-catalog/core/infra/theme";
 import { useAppToast } from "@ui-catalog/core/providers";
-import { PUBLICATION_STATUSES, publicationStatusLabel } from "@waoon/domain";
+import { PUBLICATION_STATUSES, publicationStatusLabel } from "@wanonwan/domain";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 import { formatJstDateTime, jstInputToUtcIso, utcIsoToJstInput } from "@/lib/datetime";
 import { isDirtyPayload } from "@/lib/forms/dirty";

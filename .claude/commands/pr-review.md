@@ -33,7 +33,7 @@ description: PR または現在 branch の実装差分をコードレビュー�
 /pr-review --staged                         # `git diff --staged` のみ
 ```
 
-PR 番号指定時は GitHub (`sasakiyusuke2017015/waoon`) を `gh` CLI で叩く
+PR 番号指定時は GitHub (`sasakiyusuke2017015/wanonwan`) を `gh` CLI で叩く
 (`gh pr diff <番号>` / `gh pr view <番号>`)。
 
 ## 出力先

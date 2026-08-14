@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ANSWER_STATUSES, EVAL_ITEMS, healthLabel } from "@waoon/domain";
+import { ANSWER_STATUSES, EVAL_ITEMS, healthLabel } from "@wanonwan/domain";
 import { RadarChart } from "@ui-catalog/core/organisms/RadarChart";
 import { NumberTicker, Badge } from "@ui-catalog/core/atoms";
 import { useTheme } from "@ui-catalog/core/infra/theme";

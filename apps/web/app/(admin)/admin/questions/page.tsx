@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { EVAL_ITEMS, QUESTION_TYPES, type AnswerType } from "@waoon/domain";
+import { EVAL_ITEMS, QUESTION_TYPES, type AnswerType } from "@wanonwan/domain";
 import type { Column } from "@ui-catalog/core/organisms/DataTable";
 import { apiGet } from "@/lib/api/client";
 import { AdminListTable } from "@/components/admin/AdminListTable";

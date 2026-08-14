@@ -1,6 +1,6 @@
-# CONTRIBUTING — waoon 開発ガイド
+# CONTRIBUTING — Wanonwan 開発ガイド
 
-waoon をローカルで動かし、変更を PR にするまでの手順。AI 駆動開発の流れ・ブランチ戦略の
+Wanonwan をローカルで動かし、変更を PR にするまでの手順。AI 駆動開発の流れ・ブランチ戦略の
 一次情報は [.claude/rules/git-workflow.md](../.claude/rules/git-workflow.md) と
 [.claude/rules/plan-review-workflow.md](../.claude/rules/plan-review-workflow.md)。
 

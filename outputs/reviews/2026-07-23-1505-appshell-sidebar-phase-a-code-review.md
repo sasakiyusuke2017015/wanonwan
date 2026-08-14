@@ -16,7 +16,7 @@
 `packages/ui` に限定した Phase A の差分（上流 16 ファイル置換 / 衝突 13 ファイルのマージ /
 AppShell・SidebarShell・SidebarAccountMenu・SegmentedRatioBar・hexColor の新規採用 /
 registry・subpath export 更新 / DataTable テスト絞り込みの修正）を実 diff とテスト実行で検証した。
-BLOCKER はゼロ。Plan の核心的な決定（`--topbar-h` のスコープ限定、DataTable の waoon 版統一）は
+BLOCKER はゼロ。Plan の核心的な決定（`--topbar-h` のスコープ限定、DataTable の wanonwan 版統一）は
 いずれも意図どおり実装されている。指摘 6 件はすべて `[NICE-TO-HAVE]` で、うち 5 件は反映済み。
 
 ## 判定スコープ
@@ -33,7 +33,7 @@ BLOCKER はゼロ。Plan の核心的な決定（`--topbar-h` のスコープ限
 | 観点 | 方法 | 結果 |
 |---|---|---|
 | `--topbar-h` の非漏出 | `apps/web` / `packages/ui/core` を grep | 参照は `DataTable.module.scss:37,391` と `SidebarShell.tsx:74` のみ。定義は `[data-sidebar-state]` に閉じており、`AppShellRoot` を持たない現行 apps/web では未定義のまま = 現行 sticky 挙動を維持 |
-| DataTable サブシステムの一貫性 | `git status --short` | 変更は `DataTable.test.tsx` のみ。実装 7 ファイルは HEAD のままで waoon 版に統一されている |
+| DataTable サブシステムの一貫性 | `git status --short` | 変更は `DataTable.test.tsx` のみ。実装 7 ファイルは HEAD のままで wanonwan 版に統一されている |
 | registry / versions.json 整合 | キー列を抽出して比較 | 140 / 140、**順序を含めて完全一致**。重複キーなし |
 | subpath export の実在 | `catalog-integrity.test.ts` | 2 passed |
 | 見送り部品への残参照 | 6 部品名を全 ts/tsx/json/scss で grep | 実コード参照ゼロ（JSDoc 内の言及のみで import なし） |
@@ -68,9 +68,9 @@ cookie が書けなくなるのを避けるため）。
 `Badge.tsx` は `isHexColor()` で守っているため実害は無いが、公開 util として前提が型に現れていない。
 → **反映済み**: 先頭で `isHexColor()` を通し、非 hex は `#1f2937` へ明示フォールバック。
 
-### [NICE-TO-HAVE] SidebarShell の story が waoon に存在しないアイコン名を使う
+### [NICE-TO-HAVE] SidebarShell の story が wanonwan に存在しないアイコン名を使う
 
-`layout-dashboard` / `file-check` が waoon の `ICON_PATHS` / `LUCIDE_ICONS` のいずれにも無く、
+`layout-dashboard` / `file-check` が wanonwan の `ICON_PATHS` / `LUCIDE_ICONS` のいずれにも無く、
 Storybook 上でアイコンだけが消える（ユニットテストは独自 `resolveIcon` を使うので影響しない）。
 → **反映済み**: `dashboard` / `clipboard-check` へ差し替え。story 内の全アイコン名が解決することを確認。
 
@@ -113,7 +113,7 @@ URL 切れ / 403 で壊れ画像アイコンが残る。`hexColor` 側は無効�
 
 ## 残課題（Phase B へ引き継ぎ）
 
-- `AppShellRoot` の `bg-background` は waoon に `--color-background` が無く utility が生成されない
+- `AppShellRoot` の `bg-background` は wanonwan に `--color-background` が無く utility が生成されない
   （Plan の残課題に既記載）
 - `SidebarShell` の brand 行は `h-[var(--topbar-h)]` を使うため、Phase B で必ず `AppShellRoot`
   配下に置くこと（外に出すと高さが auto に落ちる）

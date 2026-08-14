@@ -7,7 +7,7 @@ import {
   EVAL_ITEMS,
   QUESTION_TYPES,
   type AnswerType,
-} from "@waoon/domain";
+} from "@wanonwan/domain";
 import { FormField, Input, Select } from "@ui-catalog/core/molecules";
 import { TextArea, Checkbox } from "@ui-catalog/core/atoms";
 import { useTheme } from "@ui-catalog/core/infra/theme";

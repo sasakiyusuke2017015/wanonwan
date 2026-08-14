@@ -5,7 +5,7 @@
 | 概要 | packages/ui に長く放置されている 13 テスト失敗（6 スイート）を、原因を 3 分類に切り分けて解消する。CI ゲート外のため気付かれずに溜まっていたもの |
 | ステータス | ✅ 検証完了 |
 | 前提 Plan | なし |
-| PR | [#105](https://github.com/sasakiyusuke2017015/waoon/pull/105) |
+| PR | [#105](https://github.com/sasakiyusuke2017015/wanonwan/pull/105) |
 | Review | [コードレビュー](../reviews/2026-07-23-2045-ui-catalog-broken-tests-review.md) |
 
 ## 目的
@@ -29,7 +29,7 @@
   横断的な整合作業なので別タスクにする
 - `packages/ui` に `test` npm script を足して CI ゲートに入れること。
   本 Plan は「緑にする」までで、ゲート化の是非は別途判断する
-- 上流 ui-catalog 由来の部品仕様変更（今回は waoon 側のテスト / 環境のみ触る）
+- 上流 ui-catalog 由来の部品仕様変更（今回は wanonwan 側のテスト / 環境のみ触る）
 
 ## 現状コンテキスト（2026-07-23 時点）
 

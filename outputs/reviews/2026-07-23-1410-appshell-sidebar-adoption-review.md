@@ -36,10 +36,10 @@ apps/web の既存 DataTable 表示を壊す**点、および **スクロール�
 | Plan の主張 | 検証方法 | 結果 |
 |---|---|---|
 | 既存 `AppShell` は利用者ゼロの dead code | `grep -rn AppShell apps packages` | apps/web からの import ゼロ。参照は barrel export と自身の test/story、`registry.ts:160`、`FormPageShell.tsx:33` の JSDoc のみ — 正しい |
-| `SidebarNav` は上流と完全同一 | base / v2 / waoon の 3 者 diff | 差分は CRLF/LF のみ。base ≡ v2 でもあり上流でも未変更 — 正しい |
-| `panel-left-close` が waoon に存在 | `grep lucide-registry.ts` | `lucide-registry.ts:52,107` に存在 |
+| `SidebarNav` は上流と完全同一 | base / v2 / wanonwan の 3 者 diff | 差分は CRLF/LF のみ。base ≡ v2 でもあり上流でも未変更 — 正しい |
+| `panel-left-close` が wanonwan に存在 | `grep lucide-registry.ts` | `lucide-registry.ts:52,107` に存在 |
 | `SubHeaderPortal` は chrome 非依存 | `SubHeaderSlot.tsx` / `SubHeaderToolbar.tsx` | portal は container div への `createPortal` のみ。`SubHeaderToolbar` は `DataTable/Toolbar` 依存で `SubHeader` 非依存 — 正しい。利用は `AdminListTable.tsx:17` に集約 |
-| DropdownMenu portal 修正が ColumnPicker に効く | base→v2 diff | `createPortal(..., document.body)` 化 + 外側クリック判定に `menuRef` 追加を確認。waoon の DropdownMenu 利用は 3 箇所で **Modal 内での使用はゼロ**（focus-trap との干渉なし） |
+| DropdownMenu portal 修正が ColumnPicker に効く | base→v2 diff | `createPortal(..., document.body)` 化 + 外側クリック判定に `menuRef` 追加を確認。wanonwan の DropdownMenu 利用は 3 箇所で **Modal 内での使用はゼロ**（focus-trap との干渉なし） |
 | 前提部品は第 1 弾で導入済み | atoms / molecules 一覧 | `Animated` `ScrollArea` `SidebarNavGroup` `SidebarNavItem` すべて存在 — `SidebarShell` の依存は充足 |
 | Phase A は `packages/ui` 限定で低リスク | tokens.css の base→v2 diff | **不正確**。`:root` に `--topbar-h: 3.5rem` を定義し `globals.css:3` の `@import` 経由で全画面に流入（BLOCKER 1） |
 | E2E セレクタ依存の有無 | `playwright.config*` / `*.spec.ts` 検索 | apps/web / packages/ui に E2E は**未導入**。回帰検出は目視のみ |
@@ -49,7 +49,7 @@ apps/web の既存 DataTable 表示を壊す**点、および **スクロール�
 
 ### [BLOCKER] Phase A の `tokens.css` 取り込みだけで既存 DataTable の sticky が 56px ずれる
 
-上流 `tokens.css:412` は `:root` に `--topbar-h: 3.5rem` を定義する。一方 waoon の
+上流 `tokens.css:412` は `:root` に `--topbar-h: 3.5rem` を定義する。一方 wanonwan の
 `DataTable.module.scss:37,391` は `top: var(--topbar-h, 0)` で**未定義 = 0 を前提に**設計され、
 `AppLayout.tsx:222-225` には「設定すると二重適用でヘッダ行が下へずれる（Chromium 実測）」という
 Why コメントが残る。`globals.css:3` が tokens を `@import` するため、Phase A をマージした時点で
@@ -61,7 +61,7 @@ Phase A の検証に「sticky 位置が現行から変わっていない」目�
 ### [BLOCKER] スクロールモデル（ページスクロール / main 内部スクロール）の決定が無い
 
 上流 `AppShellRoot` は `min-h-screen`、`SidebarShell` は `fixed h-screen`、DataTable の sticky は
-`--topbar-h` 起点 — **ページスクロール前提**の設計。現行 waoon は `AppLayout.tsx:100` の
+`--topbar-h` 起点 — **ページスクロール前提**の設計。現行 wanonwan は `AppLayout.tsx:100` の
 `h-screen overflow-hidden` + `main` の `overflow-y-auto` で**本文だけが内部スクロール**する。
 どちらを採るかで TopBar の position、main の offset、sticky の基準、`--topbar-h` を設定してよいかが
 すべて変わる。Plan はこの分岐に触れていなかった。
@@ -97,9 +97,9 @@ Component から `parseSidebarState` を取るには `'use client'` 部品を多
 → **反映済み**: `./templates/AppShell` / `./organisms/SidebarShell` / `./organisms/SidebarAccountMenu`
 の subpath 追加を Phase A のスコープと実装計画に明記。`catalog-integrity.test.ts` が実在を検査する。
 
-### [NICE-TO-HAVE] `AppShellRoot` の `bg-background` が waoon では解決しない
+### [NICE-TO-HAVE] `AppShellRoot` の `bg-background` が wanonwan では解決しない
 
-`AppShellRoot.tsx` は `cn('min-h-screen bg-background', className)` を持つが、waoon の
+`AppShellRoot.tsx` は `cn('min-h-screen bg-background', className)` を持つが、wanonwan の
 `tokens.css` に `--color-background` は無く Tailwind v4 は `bg-background` を生成しない。
 背景は `globals.css` の `body` と `BackgroundTexture` が担うため実害は無いが、Phase B で
 `className` を明示するかトークンを足すかを決めておくとよい。
