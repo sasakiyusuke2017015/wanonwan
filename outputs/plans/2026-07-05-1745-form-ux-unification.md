@@ -5,7 +5,7 @@
 |---|---|
 | 概要 | UI/UX 改善テーマ4。3 本柱: (1) 未保存変更の離脱警告（目玉・`beforeunload` + apps の `NavigationGuardProvider`/`useGuardedNavigate` でプログラム遷移集約 + popstate。catalog は beforeunload+dirty のみ）、(2) 成功/エラーフィードバック統一（MasterForm・設問マスタ単体にトースト・エラーはフォーム=インライン/行アクション=トースト）、(3) 生 UI フォームのカタログ化（QuestionForm・PublicationForm・AnswerForm radio/checkbox・認証）。要判断 4 点確定・**計画レビューで 3→4 PR に再分割**・笹木さん承認済み |
 | ステータス | 🟢 マージ済み（検証中） |
-| PR | PR-A: [#71](https://github.com/sasakiyusuke2017015/waoon/pull/71) / PR-B: [#72](https://github.com/sasakiyusuke2017015/waoon/pull/72) / PR-C1: [#73](https://github.com/sasakiyusuke2017015/waoon/pull/73) / PR-C2: [#74](https://github.com/sasakiyusuke2017015/waoon/pull/74) / PR-D: [#75](https://github.com/sasakiyusuke2017015/waoon/pull/75) |
+| PR | PR-A: [#71](https://github.com/sasakiyusuke2017015/wanonwan/pull/71) / PR-B: [#72](https://github.com/sasakiyusuke2017015/wanonwan/pull/72) / PR-C1: [#73](https://github.com/sasakiyusuke2017015/wanonwan/pull/73) / PR-C2: [#74](https://github.com/sasakiyusuke2017015/wanonwan/pull/74) / PR-D: [#75](https://github.com/sasakiyusuke2017015/wanonwan/pull/75) |
 | Review | [計画レビュー](../reviews/2026-07-05-1810-form-ux-unification-review.md) |
 
 ## 目的
@@ -120,7 +120,7 @@ UI/UX 改善テーマ4「フォーム UX 統一」。監査（2026-07-05 チャ�
 2. **PR-B**（目玉）: catalog `useUnsavedGuard` → apps `NavigationGuardProvider`/`useGuardedNavigate` → ナビ 3 + Link + popstate 配線 → 各フォーム dirty 配線 + 成功時リセット → 手動確認を厚めに。
 3. **PR-C**: `QuestionForm` → catalog + `fieldErrorsOf`（効果大）→ `PublicationForm` → 生 select/button → AnswerForm radio/checkbox。
 4. **PR-D**: 認証ページのカード外殻統一 + login テーマ追従 + 成功トースト。
-5. 各 PR: `pnpm turbo run typecheck lint build` + `pnpm --filter @waoon/web test`。catalog 新フックは vitest（テーマ2 の ui スイート既存破損に触れない独立ファイルで）。
+5. 各 PR: `pnpm turbo run typecheck lint build` + `pnpm --filter @wanonwan/web test`。catalog 新フックは vitest（テーマ2 の ui スイート既存破損に触れない独立ファイルで）。
 
 ## 検証（マージ後の手動確認 = 各 PR 末尾）
 
@@ -181,17 +181,17 @@ PR-A / C / D:
 - [x] 要ユーザー判断 4 点の確定（2026-07-05）
 - [x] 計画レビュー（エージェント代行・NEEDS WORK）→ BLOCKER + NICE-TO-HAVE を Plan に反映（2026-07-05・[Review](../reviews/2026-07-05-1810-form-ux-unification-review.md)）
 - [x] Plan 再確認・承認（PR 数 3→4 の変更含む・笹木さん承認 2026-07-05）
-- [x] PR-A 実装完了（保存トースト 3 箇所）→ [#71](https://github.com/sasakiyusuke2017015/waoon/pull/71) merged
+- [x] PR-A 実装完了（保存トースト 3 箇所）→ [#71](https://github.com/sasakiyusuke2017015/wanonwan/pull/71) merged
 - [x] PR-B 実装完了（未保存ガード基盤・7 フォーム配線・typecheck/lint/build/test green・web test 71）
 - [x] PR-B コードレビュー（代行 code-reviewer + architect・BLOCKER 2 件反映・[Review](../reviews/2026-07-05-1852-form-ux-unification-review.md)）
-- [x] PR-B merge（[#72](https://github.com/sasakiyusuke2017015/waoon/pull/72)・develop 49289cb・CI green）
+- [x] PR-B merge（[#72](https://github.com/sasakiyusuke2017015/wanonwan/pull/72)・develop 49289cb・CI green）
 - [ ] PR-B マージ後の対話挙動を手動検証（サイドナビ離脱 / 戻る / 暴発なし / beforeunload・要 dev 起動）
 - [x] PR-C（C1/C2 に分割）
-  - [x] C1 実装完了（QuestionForm/PublicationForm カタログ化）→ [#73](https://github.com/sasakiyusuke2017015/waoon/pull/73) merged
+  - [x] C1 実装完了（QuestionForm/PublicationForm カタログ化）→ [#73](https://github.com/sasakiyusuke2017015/wanonwan/pull/73) merged
   - [x] C2 実装完了（AnswerForm radio/checkbox + QuestionsEditor マスタ追加 select/button・typecheck/lint/build/test green）
   - [x] C2 コードレビュー（代行 code-reviewer・APPROVE・NICE #1 反映・[Review](../reviews/2026-07-05-1930-form-ux-unification-review.md)）
-  - [x] C2 merge（[#74](https://github.com/sasakiyusuke2017015/waoon/pull/74)・2026-07-05）
-- [x] PR-D 実装完了（change-password 成功トースト・login は teal 固定据え置き）→ [#75](https://github.com/sasakiyusuke2017015/waoon/pull/75) merged
+  - [x] C2 merge（[#74](https://github.com/sasakiyusuke2017015/wanonwan/pull/74)・2026-07-05）
+- [x] PR-D 実装完了（change-password 成功トースト・login は teal 固定据え置き）→ [#75](https://github.com/sasakiyusuke2017015/wanonwan/pull/75) merged
 - [ ] マージ後の手動検証（下記まとめ）
 - [ ] 残課題: AttachmentsPanel の file input / QuestionsEditor の並べ替え・行アクションの catalog 化（別途）
 - [ ] マージ後検証（手動確認チェックを消化）

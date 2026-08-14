@@ -20,10 +20,10 @@
 
 ## 検証
 
-- [x] `pnpm install` で `@waoon/db` が workspace に認識（lockfile に `packages/db: {}`）
+- [x] `pnpm install` で `@wanonwan/db` が workspace に認識（lockfile に `packages/db: {}`）
 - [x] `compose:dev:down -v` → `up` で initdb（bootstrap 新パス）が効き **gotrue まで Healthy**（最重要）
 - [x] `db:migrate`(14) / `db:seed`(3) / `test:db`(pgTAP 5) すべて新パスで green
-- [x] turbo verify 10 タスク green（@waoon/db 追加の影響なし）
+- [x] turbo verify 10 タスク green（@wanonwan/db 追加の影響なし）
 - [x] 現役ファイルに `infra-data` 残存なし（残りは技術選定メモ=履歴）
 - [ ] CD: web/worker image に SQL 非混入（`.dockerignore` 追加済み。bootstrap は volume で image 非依存＝breakage でなく bloat 確認。CI/笹木さん）
 - [ ] CI green（PR 後）
@@ -39,8 +39,8 @@
 
 - **git mv で 100% rename**（履歴保持）。SQL 22 件は中身不変、適用順（ファイル名昇順）・内部配置を維持。SQL 間の `\i` 相互参照なしで副作用なし。
 - **パス更新**: スクリプト 4 本（先頭コメント含む）+ compose 3 本の bootstrap マウントを `packages/db` に統一。漏れなし。
-- **.dockerignore**: `packages/db/{schema,seed,tests}` を除外、`package.json` は残す → `infra/Dockerfile.web` の `COPY packages/ packages/` + `pnpm install --frozen-lockfile` が `@waoon/db` を解決でき、SQL は image に入らない。WHY コメント付きで evergreen 準拠。
-- **`@waoon/db`**: scripts なし private。turbo タスク未定義でスキップ、依存元なし → workspace/turbo に無影響。
+- **.dockerignore**: `packages/db/{schema,seed,tests}` を除外、`package.json` は残す → `infra/Dockerfile.web` の `COPY packages/ packages/` + `pnpm install --frozen-lockfile` が `@wanonwan/db` を解決でき、SQL は image に入らない。WHY コメント付きで evergreen 準拠。
+- **`@wanonwan/db`**: scripts なし private。turbo タスク未定義でスキップ、依存元なし → workspace/turbo に無影響。
 - **provision.mjs はホスト Node 実行**で SQL を読むため、.dockerignore（image build context 用）と矛盾しない。
 
 ## 運用 / インフラ影響

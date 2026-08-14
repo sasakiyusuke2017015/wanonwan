@@ -28,10 +28,10 @@ BLOCKER はありません。以下はすべて [NICE-TO-HAVE] で、差し戻�
 
 ## 妥当性レビュー
 
-- organism ごと移植する判断は妥当。現行 waoon の `DataTable` は string[][] 前提の簡易版で、apps/web からの参照は見当たらない。部分移植や独自再実装より、ai_edu で稼働済みの構成とテストを保ったまま持ち込む方が、今回の一覧 UX 改善には合っている。
+- organism ごと移植する判断は妥当。現行 wanonwan の `DataTable` は string[][] 前提の簡易版で、apps/web からの参照は見当たらない。部分移植や独自再実装より、ai_edu で稼働済みの構成とテストを保ったまま持ち込む方が、今回の一覧 UX 改善には合っている。
 - PR-A / PR-B の分割も妥当。PR-A は catalog の移植・exports・tokens・テスト green に閉じ、PR-B で AdminListTable adapter とアプリ画面移行に集中できる。5,600 行規模の移植とアプリ挙動変更を同一 PR に混ぜない判断はレビュー可能性の面で正しい。
 - 「一本化」をアプリ利用レベルで行い、InteractiveTable のセル選択・列リサイズ・仮想化を DataTable に吸収しない判断は妥当。現行 apps/web の InteractiveTable 依存は AdminListTable と型 import に集約されており、adapter 置換で目的は達成できる。表計算用の機能を一覧用 DataTable に足すと責務が太りすぎる。
-- テーマ供給経路の違いを最大リスクとして明示し、PR-A 完了条件にテーマ切替追従確認を置いている点は妥当。waoon は `useTheme()` で runtime props を渡す箇所が多く、DataTable が CSS 変数駆動なら、実機・Storybook で computed style まで見る価値がある。
+- テーマ供給経路の違いを最大リスクとして明示し、PR-A 完了条件にテーマ切替追従確認を置いている点は妥当。wanonwan は `useTheme()` で runtime props を渡す箇所が多く、DataTable が CSS 変数駆動なら、実機・Storybook で computed style まで見る価値がある。
 - ServerDataTable を移植しつつアプリ採用を見送る判断も妥当。現行の管理一覧は client-side TanStack Query で全件取得しており、API の limit/offset 化を今回に混ぜると PR-B の目的が膨らむ。upstream parity は保ち、採用判断だけ遅らせるのが現実的。
 
 ## 検証（この Review 自体の）

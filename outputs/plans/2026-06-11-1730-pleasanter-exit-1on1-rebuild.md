@@ -82,7 +82,7 @@
 - 現状: 自前 JWT（access15分 / refresh7日）+ **メモリ token-store** + bcrypt（初期平文混在）。認可は **役職コード→ロール→静的 config**。ルーター層では role 未活用、`canAccessAnswer()` 等で個別判定（IDOR 対策）。
 - 移行: 認証は **GoTrue**（token-store 廃止、refresh/recover を委譲）。ロールは下記 5 段階を **RLS + API 層**で表現。`users.gotrue_id` で GoTrue identity と業務 user を紐付け。
 
-旧ロール（組織階層ベース。技術メモの「受講者/制作者/審査者」は ai-education 用なので waoon では採用しない）:
+旧ロール（組織階層ベース。技術メモの「受講者/制作者/審査者」は ai-education 用なので wanonwan では採用しない）:
 
 | ロール | 役職コード | 閲覧範囲 |
 |---|---|---|
@@ -137,7 +137,7 @@ External (HTTPS)
 ### Phase 0 — モノレポ基盤 ⟦必須⟧
 
 1. pnpm workspace 初期化（`apps/web` / `packages/auth` / `packages/domain`）。`pnpm-workspace.yaml` / `turbo`（任意）/ ルート `tsconfig.base.json` / ESLint / Prettier。
-2. ui-catalog を **このリポジトリへ clone してベンダリング**（`packages/ui` = `@ui-catalog/core`、nested `.git` 除去、waoon 内で管理）。
+2. ui-catalog を **このリポジトリへ clone してベンダリング**（`packages/ui` = `@ui-catalog/core`、nested `.git` 除去、wanonwan 内で管理）。
    submodule は採用しない（判断ログ参照）。**本配線（Tailwind v4 対応 / SCSS=sass / peerDeps）は専用ステップ**で行い、
    それまでは pnpm workspace から除外（`!packages/ui`）して install を軽量に保つ。
 3. Next.js 16 App Router 雛形 + Tailwind v4（ui-catalog プリセット共有）+ ThemeRoot（テーマ 3 軸の踏襲）。
@@ -286,7 +286,7 @@ External (HTTPS)
 
 | 日付 | 決定 | 理由 |
 |---|---|---|
-| 2026-06-11 | waoon の対象ドメインは **旧 1on1（アンケート/面談）**。技術メモは **スタック/思想のみ**採用（コース/認定の例示ドメインは不採用） | タスク 1 の明示要件（Pleasanter 排除・アンケート管理画面・回答者フロー踏襲） |
+| 2026-06-11 | wanonwan の対象ドメインは **旧 1on1（アンケート/面談）**。技術メモは **スタック/思想のみ**採用（コース/認定の例示ドメインは不採用） | タスク 1 の明示要件（Pleasanter 排除・アンケート管理画面・回答者フロー踏襲） |
 | 2026-06-11 | MVP スコープ = **回答者主要フローまで含むフル移植 + 管理者2画面** | ユーザー回答 |
 | 2026-06-11 | **実データ移行は今回スコープ外**（schema + 再構築のみ、seed で開始） | ユーザー回答 |
 | 2026-06-11 | ui-catalog は **submodule + link:** で取り込み | ユーザー回答（技術メモ準拠） |
@@ -298,7 +298,7 @@ External (HTTPS)
 | 2026-06-11 | 回答本体は MVP で `answer_json`(jsonb) 保持。設問別集計要件が出たら明細テーブルへ正規化 | 計画レビュー NICE-TO-HAVE |
 | 2026-06-11 | ブランチ戦略は **3 層 `feature→develop→main`**（git-workflow.md）に統一。技術メモの GitHub Flow は不採用 | ユーザー決定 |
 | 2026-06-11 | git init 済（`main` / origin=GitHub）。`docs/99_archive/legacy-1on1/` は `.gitignore` | ユーザー決定 |
-| 2026-06-11 | ui-catalog は **submodule をやめ、`packages/ui` に clone してベンダリング**（waoon 内で管理） | ユーザー決定（「submodule はまわりくどい」） |
+| 2026-06-11 | ui-catalog は **submodule をやめ、`packages/ui` に clone してベンダリング**（wanonwan 内で管理） | ユーザー決定（「submodule はまわりくどい」） |
 | 2026-06-11 | Phase 0 のスタックを固定: Next.js 16.2.9 / React 19.2.7 / Tailwind 4.3 / TS 5.9 / pnpm 10.15。install/typecheck/build green | 実装時の registry 最新で確定 |
 | 2026-06-11 | ui-catalog 統合は Phase 0 から分離（**v3 preset⇔Tailwind v4 差・SCSS(sass)・peerDeps** の解消が必要なため専用ステップ化） | 統合リスク回避 |
 | 2026-06-11 | ui 本配線完了（`feature/ui-catalog-wiring`）。`tokens.css` は v4 `@theme` ネイティブ（v3 preset は未使用）、SCSS は `sass`、peer は旧 1on1 相当を導入、`transpilePackages` に `@ui-catalog/core`。`/ui-demo` で build green | 実装で確定 |

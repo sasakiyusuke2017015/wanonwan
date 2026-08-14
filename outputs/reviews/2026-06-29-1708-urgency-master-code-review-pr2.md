@@ -39,7 +39,7 @@ CRITICAL / HIGH（security）: **なし**
 
 ## 検証
 
-- 修正後 `pnpm --filter @waoon/web typecheck` / `lint` / `build` green。
+- 修正後 `pnpm --filter @wanonwan/web typecheck` / `lint` / `build` green。
 - 実装時点で `pnpm test:db` 全 8 ファイル pass、dev DB に surveys/answers の `urgency_id` 追加を確認。
 - 書き手 UI（SurveyForm / InterviewForm の緊急度セレクタ・null クリア・編集時保持）の runtime 実機確認は笹木さん dev で。
 

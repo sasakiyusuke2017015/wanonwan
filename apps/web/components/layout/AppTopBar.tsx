@@ -1,6 +1,6 @@
 "use client";
 
-import { ROLE_LABELS } from "@waoon/domain";
+import { ROLE_LABELS } from "@wanonwan/domain";
 import type { ThemeConfig } from "@ui-catalog/core/constants";
 import { DropdownMenu } from "@ui-catalog/core/organisms/DropdownMenu";
 import { MenuItemList } from "@ui-catalog/core/organisms/MenuItemList";

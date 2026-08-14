@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { UpdateUserSchema } from "@waoon/domain";
-import { GoTrueError } from "@waoon/auth";
+import { UpdateUserSchema } from "@wanonwan/domain";
+import { GoTrueError } from "@wanonwan/auth";
 import { withActiveUser } from "@/lib/auth/route";
 import { gotrue } from "@/lib/auth/gotrue";
 import { withServiceRole } from "@/lib/auth/service-role";
@@ -78,7 +78,7 @@ export const PUT = withActiveUser(async (req, claims, { params }: Ctx) => {
     }
     try {
       await withServiceRole((token) =>
-        gotrue.admin.updateUser(target.gotrueId!, { email: input.email, emailConfirm: true }, token),
+        gotrue().admin.updateUser(target.gotrueId!, { email: input.email, emailConfirm: true }, token),
       );
     } catch (e) {
       if (e instanceof GoTrueError && (e.status === 422 || e.status === 409)) {
@@ -154,7 +154,7 @@ export const PUT = withActiveUser(async (req, claims, { params }: Ctx) => {
 async function rollbackGotrueEmail(gotrueId: string, oldEmail: string): Promise<void> {
   try {
     await withServiceRole((token) =>
-      gotrue.admin.updateUser(gotrueId, { email: oldEmail, emailConfirm: true }, token),
+      gotrue().admin.updateUser(gotrueId, { email: oldEmail, emailConfirm: true }, token),
     );
   } catch (rollbackError) {
     console.error(`GoTrue email rollback failed: gotrue_id=${gotrueId}`, rollbackError);

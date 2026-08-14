@@ -37,7 +37,7 @@ export const POST = withActiveUser(async (_req, claims, { params }: Ctx) => {
   const initialPassword = generateInitialPassword();
   try {
     await withServiceRole((token) =>
-      gotrue.admin.updateUser(
+      gotrue().admin.updateUser(
         target.gotrueId!,
         { password: initialPassword, appMetadata: mustChangeAppMetadata(true) },
         token,

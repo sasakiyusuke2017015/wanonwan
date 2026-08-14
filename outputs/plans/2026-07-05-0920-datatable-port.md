@@ -5,7 +5,7 @@
 |---|---|
 | 概要 | UI/UX 改善テーマ3。ai_edu 実戦検証済みの DataTable（列ヘッダソート/ページネーション/フィルタ/ColumnPicker/行アクション、テスト 1,593 行）を catalog へ移植（PR-A・死蔵の旧 DataTable を置換）→ AdminListTable をアダプタ化して admin 4 一覧 + マスタ 5 画面を乗り換え、apps/web の InteractiveTable 参照をゼロに（PR-B・テーマ追従はアダプタ scoped 注入） |
 | ステータス | 🟢 マージ済み（検証中） |
-| PR | PR-A: [#68](https://github.com/sasakiyusuke2017015/waoon/pull/68)（merged）/ PR-B: [#70](https://github.com/sasakiyusuke2017015/waoon/pull/70)（merged） |
+| PR | PR-A: [#68](https://github.com/sasakiyusuke2017015/wanonwan/pull/68)（merged）/ PR-B: [#70](https://github.com/sasakiyusuke2017015/wanonwan/pull/70)（merged） |
 | Review | [計画レビュー](../reviews/2026-07-05-0925-datatable-port-review.md) / [PR-A コードレビュー](../reviews/2026-07-05-1510-datatable-port-code-review.md) |
 
 ## 目的
@@ -20,7 +20,7 @@ M-2 列ヘッダ非連動ソート・M-3 リトライ導線なし）を、ai_edu
   ai_edu 実アプリの 16 テーブルで稼働中。列ヘッダソート（多列）/ 内蔵ページネーション /
   全文検索 + select フィルタ / ColumnPicker（列表示切替・永続化）/ 行アクション（ConfirmDialog 内包）/
   安定キー行選択 / `aria-sort` / skeleton / 空状態出し分けを持つ。
-- waoon の同名 `DataTable` organism は **未使用の死蔵コード**（string[][] 簡易版）。置き換えても
+- wanonwan の同名 `DataTable` organism は **未使用の死蔵コード**（string[][] 簡易版）。置き換えても
   壊れる参照がない。
 - 実運用の [AdminListTable](../../apps/web/components/admin/AdminListTable.tsx) は表計算用
   `InteractiveTable`（657 行）の流用で、列ヘッダソート・フィルタ・ページネーション・行アクションが無い。
@@ -50,9 +50,9 @@ M-2 列ヘッダ非連動ソート・M-3 リトライ導線なし）を、ai_edu
 | `packages/ui/core/molecules/Pagination/`（新規） | ai_edu 版を移植（server モード・将来の一覧でも使う汎用部品） |
 | `packages/ui/core/molecules/Toggleable/`（新規） | ai_edu 版を移植（collapsible toolbar が依存） |
 | `packages/ui/core/utils/isModifiedClick`（新規） | 数行の util（href 行アクションが依存） |
-| tokens / Tailwind 定義 | ai_edu 特有トークン（`text-muted-foreground` / `bg-muted` / `--color-surface` 等）の waoon 側定義を確認し、未定義なら補完。**補完は additive（未定義の追加）のみ**とし、既存トークンの差し替えが必要になった場合は判断ログに記録して個別判断（レビュー N-3） |
+| tokens / Tailwind 定義 | ai_edu 特有トークン（`text-muted-foreground` / `bg-muted` / `--color-surface` 等）の wanonwan 側定義を確認し、未定義なら補完。**補完は additive（未定義の追加）のみ**とし、既存トークンの差し替えが必要になった場合は判断ログに記録して個別判断（レビュー N-3） |
 | barrel / exports | organisms・molecules の index 更新 + `./organisms/DataTable` subpath 追加 |
-| テスト / stories | `DataTable.test.tsx`（1,593 行）・`columnVisibility.test.ts`・`useDragAutoScroll.test.ts`・stories を移植。**移植分のテストが waoon の vitest で green になること**を PR-A の完了条件にする |
+| テスト / stories | `DataTable.test.tsx`（1,593 行）・`columnVisibility.test.ts`・`useDragAutoScroll.test.ts`・stories を移植。**移植分のテストが wanonwan の vitest で green になること**を PR-A の完了条件にする |
 
 ### PR-B: admin 一覧の乗り換え = **アプリのテーブル UI を DataTable に一本化**（`feature/datatable-adoption`）
 
@@ -78,7 +78,7 @@ AdminListTable のアダプタ化で、admin 4 一覧 + マスタ画面（org×3
    （少なくとも DataTable 系は green）/ web build。**テーマ切替（色/形/テクスチャ）で DataTable の
    CSS 変数が追従するか**を ui-demo か Storybook で確認（事前調査で唯一の実質リスクと判定した点）。
 3. **PR-B**: AdminListTable をアダプタ化 → 4 一覧の列定義移行 → リトライ導線 → 手動確認。
-4. **PR-B の検証**: 上記 + `pnpm --filter @waoon/web test`。手動確認は下記。
+4. **PR-B の検証**: 上記 + `pnpm --filter @wanonwan/web test`。手動確認は下記。
 
 ## 検証（PR-B の手動確認 = マージ後検証）
 
@@ -99,9 +99,9 @@ AdminListTable のアダプタ化で、admin 4 一覧 + マスタ画面（org×3
 
 | リスク | 対応 |
 |---|---|
-| **テーマ供給経路の違い**（ai_edu 版は CSS 変数任せ / waoon 現行は useTheme() の runtime props 注入） | PR-A の完了条件に「テーマ切替追従の確認」を含める。追従しない場合の CSS 変数注入は **catalog 側（infra/theme に theme→CSS 変数ブリッジ）で行うと事前に固定**（AdminListTable 側だと MasterListView 等の他利用者に効かないため。レビュー N-3、実施したら判断ログに記録） |
-| ai_edu 特有の Tailwind トークン未定義で色が出ない | 移植時に grep で全トークンを洗い出し、waoon の tokens/Tailwind preset に補完。フォールバック値（`var(--x, #fff)`）の有無も確認 |
-| 移植テストが ai_edu の `__tests__/helpers` に依存 | helpers ごと移植（waoon で欠けている既存問題の一部解消を兼ねる） |
+| **テーマ供給経路の違い**（ai_edu 版は CSS 変数任せ / wanonwan 現行は useTheme() の runtime props 注入） | PR-A の完了条件に「テーマ切替追従の確認」を含める。追従しない場合の CSS 変数注入は **catalog 側（infra/theme に theme→CSS 変数ブリッジ）で行うと事前に固定**（AdminListTable 側だと MasterListView 等の他利用者に効かないため。レビュー N-3、実施したら判断ログに記録） |
+| ai_edu 特有の Tailwind トークン未定義で色が出ない | 移植時に grep で全トークンを洗い出し、wanonwan の tokens/Tailwind preset に補完。フォールバック値（`var(--x, #fff)`）の有無も確認 |
+| 移植テストが ai_edu の `__tests__/helpers` に依存 | helpers ごと移植（wanonwan で欠けている既存問題の一部解消を兼ねる） |
 | 移植量が大きく PR レビューが重い | PR-A（catalog・アプリ影響ゼロ）と PR-B（アプリ乗り換え）に分割。PR-A は「移植そのまま + パス/トークン調整」を明記しレビュー観点を絞る |
 | AdminListTable の互換が崩れて 4 一覧の挙動が変わる | 既存 AdminListTable のテスト（filter-sort unit）相当の観点を PR-B で担保。手動確認 7 項目 |
 
@@ -109,13 +109,13 @@ AdminListTable のアダプタ化で、admin 4 一覧 + マスタ画面（org×3
 
 | 日付 | 判断 | 理由 |
 |---|---|---|
-| 2026-07-05 | ai_edu DataTable を organism ごと移植（部分移植・独自再実装は不採用） | waoon 側 DataTable は死蔵で置換リスクゼロ。依存一致・SCSS/CSS 変数基盤共通・16 テーブル + 1,593 行テストの実戦品質。InteractiveTable への機能追加は表計算と一覧の捻れを悪化させる |
+| 2026-07-05 | ai_edu DataTable を organism ごと移植（部分移植・独自再実装は不採用） | wanonwan 側 DataTable は死蔵で置換リスクゼロ。依存一致・SCSS/CSS 変数基盤共通・16 テーブル + 1,593 行テストの実戦品質。InteractiveTable への機能追加は表計算と一覧の捻れを悪化させる |
 | 2026-07-05 | 2 PR 分割（catalog 移植 → アプリ乗り換え） | 移植 5,600 行超を 1 PR にするとレビュー不能。PR-A はアプリ影響ゼロで安全に入れられる |
 | 2026-07-05 | server モードは移植するがアプリ採用は見送り | 現行データ規模では client で足りる。API の limit/offset 対応はデータ増加時の別 Plan |
 | 2026-07-05 | 「一本化」はアプリ利用レベルで実施（部品レベルの機能統合は不採用） | アプリの InteractiveTable 参照は AdminListTable/MasterListView 経由 + 型 import のみと確認。アダプタ置換で全一覧（admin 4 + マスタ 6 画面）が DataTable 化し参照ゼロになる。表計算機能を DataTable にオプション追加する統合は役割分担を壊すため不採用 |
 | 2026-07-05 | 計画レビュー APPROVE（[Review](../reviews/2026-07-05-0925-datatable-port-review.md)）。N-1〜N-3 を反映 | InteractiveTable 参照ゼロの機械確認 + マスタ画面の手動確認追加 / onRetry prop 明記 / トークン補完は additive 限定 + CSS 変数注入層は catalog 側と事前固定 |
 | 2026-07-05 | PR-A 実装で判明した catalog API 乖離への対応方針 | IconButton は fork 版を移植（href/shimmer/primary variant。spinOnClick のみ Icon 全面刷新を要するため除外し DataTable 側 2 箇所から外した）/ DropdownMenu は prop 上位互換のため fork 版に置換（MenuItemList テストの失敗は baseline 比較で既存 stale と確認）/ Select は emptyLabel を additive 追加 / 不足アイコン 5 種（plus/pencil/copy/ban/grip）は lucide-react 依存を持ち込まず手書き SVG で追加 / animations.ts は純増のため fork 版に更新 |
-| 2026-07-05 | 不足 CSS トークンは 7 種のみ additive 追加（hover-bg/selected-bg/bg-subtle/bg-surface/border-light/error/error-bg） | fork 設計では bg 系はフォールバック付きの任意トークン。--color-bg-surface はフォールバック無しで透明化するため waoon では #ffffff を定義。既存トークンの差し替えはゼロ |
+| 2026-07-05 | 不足 CSS トークンは 7 種のみ additive 追加（hover-bg/selected-bg/bg-subtle/bg-surface/border-light/error/error-bg） | fork 設計では bg 系はフォールバック付きの任意トークン。--color-bg-surface はフォールバック無しで透明化するため wanonwan では #ffffff を定義。既存トークンの差し替えはゼロ |
 | 2026-07-05 | PR-A コードレビュー APPROVE（[Review](../reviews/2026-07-05-1510-datatable-port-code-review.md)・エージェント代行）。NICE-TO-HAVE 2 件はコード変更せず残課題化 | N-1（DropdownMenu 既定アニメ変化）は移植の忠実性を優先し PR-B 手動確認へ / N-2（tableCells の `'use client'` 無し）は移植元と同一・実害ゼロのため将来の server import 時に対応 |
 | 2026-07-05 | PR-B: AdminListTable を DataTable（client）の薄いアダプタに置換し、admin 4 一覧 + マスタ 5 画面を `Column<TRow>` へ移行。`InteractiveTable` 参照は apps/web で 0 件化 | 参照は AdminListTable / MasterListView + 型 import のみだったため、アダプタ置換で全一覧が乗り換わり機械的ゴール（`rg InteractiveTable apps/web` = 0）を達成。列ヘッダソート・全文検索・内蔵ページネーション・件数表示・空状態出し分けを解放 |
 | 2026-07-05 | テーマ追従は **「アダプタに scoped 注入」方式を採用**（笹木さん選択。infra/theme グローバルブリッジ案は不採用） | アプリの DataTable 利用は全て AdminListTable 経由のため、ラッパ div への CSS 変数注入で全カバーでき、blast radius が最小。DataTable は CSS 変数駆動だがアプリのテーマは `useTheme()` の runtime prop 方式で、両者を繋ぐブリッジが無いことを実装前に確認した |
@@ -143,9 +143,9 @@ PR-B コードレビュー（代行）より:
 - [x] Plan 承認（計画レビュー APPROVE 2026-07-05）
 - [x] #66 マージ済み（実装着手の前提）
 - [x] PR-A 実装完了（typecheck / lint / 移植テスト 217 green・既存比の新規失敗ゼロ・web test 69 / build green）
-- [x] PR-A コードレビュー APPROVE（2026-07-05・エージェント代行）・[PR #68](https://github.com/sasakiyusuke2017015/waoon/pull/68) 提出
+- [x] PR-A コードレビュー APPROVE（2026-07-05・エージェント代行）・[PR #68](https://github.com/sasakiyusuke2017015/wanonwan/pull/68) 提出
 - [x] PR-A merge（笹木さん承認・2026-07-05・develop 53e8533）
 - [x] PR-B 実装完了（typecheck / lint / build green・web test 62・`InteractiveTable` 参照 0 件・self-review 済み）
 - [x] PR-B コードレビュー APPROVE（2026-07-05・エージェント代行・[Review](../reviews/2026-07-05-1720-datatable-port-code-review-prb.md)）
-- [x] PR-B merge（笹木さん承認・2026-07-05・[#70](https://github.com/sasakiyusuke2017015/waoon/pull/70)・develop ea6e139・CI green）
+- [x] PR-B merge（笹木さん承認・2026-07-05・[#70](https://github.com/sasakiyusuke2017015/wanonwan/pull/70)・develop ea6e139・CI green）
 - [ ] マージ後検証（手動確認チェックを消化）

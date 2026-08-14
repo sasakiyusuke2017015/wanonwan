@@ -6,7 +6,7 @@
 | 種別 | 計画レビュー |
 | 対象 | branch `refactor/rename-wanonwan`（未作成）/ 起点 `develop@eaa08b3` |
 | レビュアー | Claude Code |
-| verdict | **NEEDS WORK** |
+| verdict | **APPROVE** |
 
 ## サマリ
 
@@ -19,10 +19,14 @@
 
 | 軸 | 判定 |
 |---|---|
-| 最終判定 | NEEDS WORK |
-| Plan 判定 | NEEDS WORK |
+| 最終判定 | APPROVE |
+| Plan 判定 | APPROVE |
 | 実装判定 | N/A |
 | 記録整理 | OK |
+
+> **初回判定（2026-08-13 01:13 JST・履歴）**: `NEEDS WORK`（BLOCKER 1 + NICE-TO-HAVE 5）。
+> 2026-08-14 に Plan 側で全件反映されたため `APPROVE` に更新した。反映内容は末尾の
+> 「フォローアップ」を参照。
 
 ## Findings
 
@@ -193,12 +197,20 @@ Cookie 名を変えると、既にブラウザが持つ `waoon-access` / `waoon-
 
 ## フォローアップ
 
-Plan 側に反映してほしい修正:
+Plan 側への反映結果（2026-08-14 時点・全件完了）:
 
-- [ ] **[BLOCKER]** `check-secrets.mjs` の `WANONWAN_DOMAIN` 未設定エラー化をスコープに追加し、
-      Step 7 に「旧キーのままなら `compose:stg:up` が失敗すること」の確認を入れる
-- [ ] 検証表に snapshot drift 検査を追加
-- [ ] Step 4 に `node scripts/gen-outputs-readme.mjs` を追加
-- [ ] Step 5 に「`db:snapshot` は `compose:dev:build` の後」の順序制約を明記
-- [ ] リスク表に「旧 Cookie はブラウザに残存（実害なしと判断）」を追加
-- [ ] 検証に `node_modules/@waoon/` の残存確認を追加
+- [x] **[BLOCKER]** `check-secrets.mjs` の fail-closed 化を Plan の「やること」と Step 3 に追加。
+      Step 8 に「旧キーのままなら `compose:stg:up` が失敗すること」の実地確認を追加
+- [x] 検証表に snapshot drift 検査を追加
+- [x] Step 5 に `node scripts/gen-outputs-readme.mjs` を追加（生成結果を採用する旨も明記）
+- [x] Step 6 に「`db:snapshot` は `compose:dev:build` の後」の順序制約を明記
+- [x] リスク表に「旧 Cookie はブラウザに残存（実害なしと判断）」を追加
+- [x] 検証表に `node_modules/@waoon/` の残存確認を追加
+
+追加で Plan 側に反映された事項（本 Review の指摘外）:
+
+- 影響範囲を再計測し 197 ファイル / 788 箇所 → **203 ファイル / 910 箇所** に更新
+- 混在表記 `Waoon` が 1 件出現したため、sed に第 3 の変換規則を追加。
+  出所は本 Review 本文の「大小混在表記（`Waoon` 等）は無い」という記述そのもの
+- 着手条件（provision-steps のマージ）が [PR #112](https://github.com/sasakiyusuke2017015/waoon/pull/112) で達成
+- [PR #116](https://github.com/sasakiyusuke2017015/waoon/pull/116) との衝突をリスク表に追加

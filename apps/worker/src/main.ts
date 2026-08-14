@@ -2,7 +2,7 @@
 // 投入は DB トリガ（attachments の DELETE 時に bucket/object_key を enqueue）。
 // 失敗時は pgmq.delete しない → visibility timeout 後に再配信されるため at-least-once で安全。
 import postgres from "postgres";
-import { createInternalStorageClient, deleteObject, parseStorageEnv } from "@waoon/storage";
+import { createInternalStorageClient, deleteObject, parseStorageEnv } from "@wanonwan/storage";
 import { parseGcMessage } from "./gc.ts";
 import { config } from "./config.ts";
 

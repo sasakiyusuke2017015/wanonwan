@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { EVAL_ITEMS, HEALTH_STATUSES, INTERVIEW_METHODS } from "@waoon/domain";
+import { EVAL_ITEMS, HEALTH_STATUSES, INTERVIEW_METHODS } from "@wanonwan/domain";
 import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
 import { FormField, Input, Select } from "@ui-catalog/core/molecules";
 import { TextArea } from "@ui-catalog/core/atoms";

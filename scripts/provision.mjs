@@ -27,8 +27,8 @@ import {
   referenceConditions,
   residualDependents,
 } from "./lib/deprovision.mjs";
-import { parseEnvFile } from "./lib/env.mjs";
-import { createGoTrueClient, DEV_JWT_SECRET } from "./lib/gotrue.mjs";
+import { loadEnv, requireEnv } from "./lib/env.mjs";
+import { createGoTrueClient } from "./lib/gotrue.mjs";
 import { createPsql } from "./lib/psql.mjs";
 import * as master from "./provision/master.mjs";
 import * as user from "./provision/user.mjs";
@@ -58,7 +58,8 @@ const ORDER = ["master", "user", "demo", "fixture"];
 const ENVS = {
   dev: {
     composeFile: "infra/docker-compose.yml",
-    network: "waoon",
+    envFile: "infra/.env",
+    network: "wanonwan",
     allowed: ["master", "user", "demo", "fixture"],
     bundle: ["master", "user", "demo", "fixture"],
     removable: ["master", "user", "demo"],
@@ -70,7 +71,7 @@ const ENVS = {
   stg: {
     composeFile: "infra/docker-compose.stg.yml",
     envFile: "infra/.env.stg",
-    network: "waoon-stg",
+    network: "wanonwan-stg",
     allowed: ["master", "user", "demo"],
     bundle: ["master", "user"],
     // stg/prod の user は実メール・実在人物の GoTrue identity と機微情報（健康状態・面談メモ）を
@@ -81,7 +82,7 @@ const ENVS = {
   prod: {
     composeFile: "infra/docker-compose.prod.yml",
     envFile: "infra/.env.prod",
-    network: "waoon-prod",
+    network: "wanonwan-prod",
     allowed: ["master", "user"],
     bundle: ["master"],
     removable: ["master"],
@@ -134,31 +135,24 @@ for (const step of plan) {
   }
 }
 
-// 接続情報と JWT_SECRET。
-//   dev     : env ファイルを secret に使わない。process.env ?? dev 既定。psql も --env-file 無し。
-//   stg/prod: env ファイル必須。
-let envFile, pgSuperuser, pgDatabase, jwtSecret;
+// 接続情報と JWT_SECRET。env ファイル必須（dev は infra/.env）。
+// 既定値へのフォールバックは持たない: 接続先を取り違えたまま別環境に seed を流す事故を防ぐ。
+const envFile = resolvePath(flag("env-file") ?? envDef.envFile);
+if (!existsSync(envFile)) {
+  die(`env ファイルがありません: ${envFile}（${envName} サーバ上で実行していますか）`);
+}
+const env = loadEnv(envFile);
+const pgSuperuser = requireEnv(env, "PG_SUPERUSER");
+const pgDatabase = requireEnv(env, "PG_DATABASE");
+const jwtSecret = requireEnv(env, "JWT_SECRET");
 if (isDev) {
-  pgSuperuser = process.env.PG_SUPERUSER || "postgres";
-  pgDatabase = process.env.PG_DATABASE || "waoon";
-  jwtSecret = process.env.JWT_SECRET ?? DEV_JWT_SECRET;
   // dev 逆ガード: dev 値でなければ die（本番 secret での誤実行を防ぐ）。dev 値でない secret で
   // 署名すると、dev 既定で検証する GoTrue に弾かれ login 不能な orphan になる。
   if (!jwtSecret.includes("dev-only-change-me")) {
     die("dev は dev 既定の JWT_SECRET でのみ使えます（stg/prod は provision:stg / provision:prod）");
   }
-} else {
-  envFile = resolvePath(flag("env-file") ?? envDef.envFile);
-  if (!existsSync(envFile)) {
-    die(`env ファイルがありません: ${envFile}（${envName} サーバ上で実行していますか）`);
-  }
-  const env = parseEnvFile(envFile);
-  pgSuperuser = env.PG_SUPERUSER || "postgres";
-  pgDatabase = env.PG_DATABASE || "waoon";
-  jwtSecret = env.JWT_SECRET;
-  if (!jwtSecret || jwtSecret.includes("dev-only-change-me")) {
-    die("JWT_SECRET が未設定か dev 値です。先に check:secrets を通してください");
-  }
+} else if (jwtSecret.includes("dev-only-change-me")) {
+  die("JWT_SECRET が dev 値です。先に check:secrets を通してください");
 }
 
 // 人員 CSV。dev はリポジトリ同梱の CSV、stg/prod は実メールを含むため --users-csv を必須にする。

@@ -1,5 +1,5 @@
-// @waoon/domain — エンティティ型 / valibot バリデータ / 共通ロジック。
-export const DOMAIN_PACKAGE = "@waoon/domain";
+// @wanonwan/domain — エンティティ型 / valibot バリデータ / 共通ロジック。
+export const DOMAIN_PACKAGE = "@wanonwan/domain";
 export * from "./user";
 export * from "./survey";
 export * from "./question";

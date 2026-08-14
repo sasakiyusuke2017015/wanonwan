@@ -40,7 +40,7 @@ CRITICAL / HIGH / MEDIUM / BLOCKER: **なし**
 
 ## 検証
 
-- `pnpm -r typecheck` / `pnpm --filter @waoon/web build`（`/admin/urgencies{,/new,/[id]/edit}`・`/api/v1/urgencies{,/[id]}` 生成）/ `pnpm --filter @waoon/web lint` すべて green。
+- `pnpm -r typecheck` / `pnpm --filter @wanonwan/web build`（`/admin/urgencies{,/new,/[id]/edit}`・`/api/v1/urgencies{,/[id]}` 生成）/ `pnpm --filter @wanonwan/web lint` すべて green。
 - `pnpm test:db`: **クリーン DB で全 8 ファイル pass**、`rls_urgency_levels`（plan 4: admin CRUD / 認証 select / 非 admin write 42501）pass。レビュー反映の seed 非依存化後も green。
 
 ## verdict

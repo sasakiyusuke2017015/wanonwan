@@ -4,7 +4,7 @@
 |---|---|
 | 概要 | 設問を `/admin/questions` のマスタに昇格＋アンケート編集はマスタ設問を「呼ぶ／外す」形へ（link/unlink API・eval_item 入力追加）。radio seed を同意度 5 段階で文言化。緊急度マスタは Phase2/別 Plan に分離（値域 code+label 確定） |
 | ステータス | 🟢 マージ済み（検証中） |
-| PR | PR-A: [#60](https://github.com/sasakiyusuke2017015/waoon/pull/60) / PR-B: [#61](https://github.com/sasakiyusuke2017015/waoon/pull/61) |
+| PR | PR-A: [#60](https://github.com/sasakiyusuke2017015/wanonwan/pull/60) / PR-B: [#61](https://github.com/sasakiyusuke2017015/wanonwan/pull/61) |
 | Review | [計画(Claude)](../reviews/2026-06-29-1352-survey-question-master-review.md) / [計画(Codex)](../reviews/2026-06-29-1400-survey-question-master-review.md) / [再計画(Codex)](../reviews/2026-06-29-1410-survey-question-master-review.md) / [コード PR-A(Codex)](../reviews/2026-06-29-1438-survey-question-master-code-review.md) / [コード PR-B(agent)](../reviews/2026-06-29-1512-survey-question-master-code-review-prb.md) |
 
 ---
@@ -12,7 +12,7 @@
 ## 目的
 
 旧 1on1 では設問・選択肢を **マスタ（設問バンク）** で持ち、複数アンケートから
-使い回していた。waoon は DB レベルでは `questions`（マスタ）+ `survey_questions`（M:N）で
+使い回していた。wanonwan は DB レベルでは `questions`（マスタ）+ `survey_questions`（M:N）で
 その構造を持つが、**UI が「アンケート編集内で毎回新規設問を作る」運用しかない**ため、
 実質マスタとして機能していない。
 
@@ -127,7 +127,7 @@ PR 分割: **PR-A = seed 文言（即出し可・独立）** / **PR-B = 設問�
 
 ## 検証
 
-- `pnpm -r typecheck` / `pnpm --filter @waoon/web build`。
+- `pnpm -r typecheck` / `pnpm --filter @wanonwan/web build`。
 - `pnpm test:db`（pgTAP）: 既存 questions/survey_questions RLS の回帰のみ（新テーブルなし）。
 - API 振る舞い（手動 or integration）:
   - `GET /api/v1/questions` は認証済みで 200 / `POST /api/v1/questions` は **非 admin で拒否**。
@@ -200,11 +200,11 @@ PR 分割: **PR-A = seed 文言（即出し可・独立）** / **PR-B = 設問�
 - [x] 計画レビュー 2 件（Claude / Codex）の指摘を反映
 - [x] 再計画レビュー（Codex）APPROVE
 - [x] 笹木さん着手承認（app-shell #59 先行マージ → develop 同期済み）
-- [x] PR-A: seed の choices 文言化（同意度 5 段階）→ コードレビュー APPROVE → [#60](https://github.com/sasakiyusuke2017015/waoon/pull/60)
+- [x] PR-A: seed の choices 文言化（同意度 5 段階）→ コードレビュー APPROVE → [#60](https://github.com/sasakiyusuke2017015/wanonwan/pull/60)
 - [x] PR-B: 設問マスタ UI（QuestionForm 切り出し + eval_item + 画面 + ナビ）
 - [x] PR-B: API（questions 一覧・作成 / link / unlink）
 - [x] PR-B: アンケート編集の「マスタから呼ぶ／外す」導線
-- [x] PR-B: コードレビュー（code-reviewer / security-reviewer）APPROVE → [#61](https://github.com/sasakiyusuke2017015/waoon/pull/61)
+- [x] PR-B: コードレビュー（code-reviewer / security-reviewer）APPROVE → [#61](https://github.com/sasakiyusuke2017015/wanonwan/pull/61)
 - [x] 検証（typecheck / build / lint green）
 - [x] 笹木さん #60 / #61 マージ承認（develop へマージ済み）
 - [ ] マージ後検証（dev 実機）

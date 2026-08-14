@@ -5,7 +5,7 @@ import { withActiveUser } from "@/lib/auth/route";
 import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";
 import { mapDbError } from "@/lib/db/errors";
-import { ensureBucket, isAllowedContentType, objectKeyFor, presignPut } from "@waoon/storage";
+import { ensureBucket, isAllowedContentType, objectKeyFor, presignPut } from "@wanonwan/storage";
 import { storageBucket, storageContext } from "@/lib/storage";
 
 const ENTITY_TYPES = ["interview", "answer", "survey", "user_avatar"] as const;

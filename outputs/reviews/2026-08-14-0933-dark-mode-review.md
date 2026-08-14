@@ -52,7 +52,7 @@
 - [x] `pnpm lint` green
 - [x] catalog vitest 1490 passed / 2 skipped
 - [x] web / worker vitest green
-- [x] `pnpm --filter @waoon/web build` green
+- [x] `pnpm --filter @wanonwan/web build` green
 - [x] ビルド出力に dark 上書き 16 トークンが出る（`[data-theme-mode=dark]{…}`）
 - [x] light 値が従来どおり（`--color-bg-primary:#fff` / `--color-surface:#fff` / `--color-border:#e2e8f0`）
 - [x] **配信 HTML から pre-paint script を抽出して 7 ケース実行 → 7/7**（修正後は vitest で固定）

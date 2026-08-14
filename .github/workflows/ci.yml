@@ -34,6 +34,10 @@ jobs:
         run: pnpm turbo run typecheck lint build test
 
       # --- DB スタックを立てて pgTAP（RLS）を実行 ---
+      # compose も scripts も env に既定値を持たないため、dev 用 env を実体化してから起動する。
+      - name: Materialize dev env
+        run: cp infra/.env.example infra/.env
+
       - name: Build DB image
         run: pnpm compose:dev:build
 
@@ -45,18 +49,9 @@ jobs:
           git diff --exit-code -- packages/db/snapshot/schema.sql \
             || { echo "::error::snapshot が migrations と不一致。pnpm db:snapshot を実行してコミットしてください"; exit 1; }
 
+      # --wait が postgres の healthcheck（pg_isready）成功まで待つ。
       - name: Start DB stack
-        run: docker compose -f infra/docker-compose.yml up -d --wait
-
-      - name: Wait for Postgres
-        run: |
-          for i in $(seq 1 30); do
-            if docker compose -f infra/docker-compose.yml exec -T postgres pg_isready -U postgres -d waoon; then
-              echo "postgres ready"; exit 0
-            fi
-            sleep 2
-          done
-          echo "postgres not ready"; exit 1
+        run: docker compose --env-file infra/.env -f infra/docker-compose.yml up -d --wait
 
       - name: Migrate
         run: pnpm db:migrate

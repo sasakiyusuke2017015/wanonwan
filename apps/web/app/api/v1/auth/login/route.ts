@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import * as v from "valibot";
-import { GoTrueError } from "@waoon/auth";
+import { GoTrueError } from "@wanonwan/auth";
 import { gotrue } from "@/lib/auth/gotrue";
 import { setSession } from "@/lib/auth/session";
 import { parseBody } from "@/lib/api/request";
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   const input = parsed;
 
   try {
-    const session = await gotrue.signInWithPassword(input.email, input.password);
+    const session = await gotrue().signInWithPassword(input.email, input.password);
     await setSession(session);
     return NextResponse.json({
       user: { id: session.user.id, email: session.user.email, role: session.user.role },

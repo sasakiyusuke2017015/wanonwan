@@ -48,6 +48,6 @@ BLOCKER はありません。以下は [NICE-TO-HAVE] のみで、差し戻し�
 - [x] `global-error.tsx` / `error.tsx` / `not-found.tsx` / loading files を確認
 - [x] Questions / Publications / Attachments の ConfirmDialog と削除 mutation を確認
 - [x] Survey / User / Interview / Answer の保存 toast を確認
-- [ ] `pnpm -r typecheck` / `pnpm lint` / `pnpm --filter @waoon/web test` / build は未実行（ユーザー申告では green）
+- [ ] `pnpm -r typecheck` / `pnpm lint` / `pnpm --filter @wanonwan/web test` / build は未実行（ユーザー申告では green）
 
 verdict: APPROVE

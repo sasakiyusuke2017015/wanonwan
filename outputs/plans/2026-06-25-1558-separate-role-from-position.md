@@ -4,7 +4,7 @@
 |---|---|
 | 概要 | admin 判定を positions.code 990-999 → `users.role='admin'` へ移行。positions は純粋 HR マスタ化（999 廃止・#56 の昇格ガード撤去）。最後の admin を 0 人にする操作を DB トリガーで拒否。多層防御（RLS + valibot picklist + DB CHECK + トリガー）を pgTAP で担保 |
 | ステータス | 🟢 マージ済み（検証中） |
-| PR | [#57](https://github.com/sasakiyusuke2017015/waoon/pull/57) merged |
+| PR | [#57](https://github.com/sasakiyusuke2017015/wanonwan/pull/57) merged |
 | Review | [コードレビュー](../reviews/2026-06-25-1627-separate-role-from-position-code-review.md) |
 
 ## 目的
@@ -102,7 +102,7 @@
 - 既存 RLS テスト（answers/attachments/users 書込）が is_admin 差し替え後も緑（回帰なし）。
 - provision: 単一 admin / bulk（role 列）/ 最後の admin 降格が拒否される。
 - API 実機: admin がユーザーの role を切替可 / 非 admin は 403 / 最後の admin 降格は 4xx。
-- `pnpm -r typecheck` / `pnpm --filter @waoon/web build` 通過。
+- `pnpm -r typecheck` / `pnpm --filter @wanonwan/web build` 通過。
 
 ## リスク
 
@@ -132,7 +132,7 @@
 - [x] Phase 3: UI 管理者トグル + pgTAP 更新
 - [x] ローカル検証（pgTAP 7 / typecheck / build / API 実機: 昇格・最後のadmin保護409・帯ガード撤去）
 - [x] コードレビュー（[2026-06-25-1627](../reviews/2026-06-25-1627-separate-role-from-position-code-review.md)・**APPROVE**）→ 安価な指摘を反映済み
-- [x] PR 作成・マージ（[#57](https://github.com/sasakiyusuke2017015/waoon/pull/57) merged）
+- [x] PR 作成・マージ（[#57](https://github.com/sasakiyusuke2017015/wanonwan/pull/57) merged）
 - [x] マージ後検証（develop で再確認）
   - [x] develop クリーン投入 + pgTAP all passed（7 files。role 基準 is_admin + 最後の admin 保護）
   - [x] DB 確認: admin=role'admin'・position なし / 他=member / positions に 999 なし

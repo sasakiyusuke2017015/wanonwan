@@ -68,7 +68,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   const { colors, shapes } = mounted ? liveTheme : DEFAULT_THEME;
   const background = mounted ? liveBackground : DEFAULT_BACKGROUND;
-  const activeLabel = items.find((i) => i.active)?.label ?? "waoon";
+  const activeLabel = items.find((i) => i.active)?.label ?? "Wanonwan";
   // 認証ページ全体のタブタイトルを現在セクション名に（"use client" のため document.title 直設定）。
   useDocumentTitle(activeLabel);
 

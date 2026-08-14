@@ -6,6 +6,7 @@ const base = {
   STORAGE_ENDPOINT: "https://storage.example.com",
   STORAGE_ACCESS_KEY: "key",
   STORAGE_SECRET_KEY: "secret",
+  STORAGE_BUCKET: "attachments",
 };
 
 async function endpointOf(client: { config: { endpoint?: () => Promise<{ hostname: string }> } }) {

@@ -49,7 +49,7 @@ security-reviewer / code-reviewer とも独立に **APPROVE**。CRITICAL/HIGH �
 ## 検証
 
 - [x] `pnpm -r typecheck` green
-- [x] `pnpm --filter @waoon/web build` green
+- [x] `pnpm --filter @wanonwan/web build` green
 - [x] dev fresh init（snapshot fast path 1.1s / seed OK / pgTAP 9 通過）
 - [x] 増分適用（ダミー 0002・`down -v` なし）
 - [x] baseline 採用（tracker なし + 既存テーブル）

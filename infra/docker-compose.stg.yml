@@ -2,7 +2,7 @@
 # dev (docker-compose.yml) と同型だが web/nginx を載せ、secrets の dev フォールバックを撤去。
 # 起動: pnpm compose:stg:up（先に scripts/check-secrets.mjs が走る）
 # 値は --env-file infra/.env.stg 由来。未設定 secret は ${VAR:?...} で起動失敗する（B-2）。
-name: waoon-stg
+name: wanonwan-stg
 
 services:
   # PostgreSQL 15 + 拡張同梱。ネットワーク非公開（ports を出さない＝compose 内部のみ）。
@@ -10,8 +10,8 @@ services:
     build:
       context: ./data
       dockerfile: Dockerfile.db
-    image: waoon-postgres:15
-    container_name: waoon-stg-postgres
+    image: wanonwan-postgres:15
+    container_name: wanonwan-stg-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${PG_SUPERUSER:?PG_SUPERUSER required}
@@ -29,12 +29,12 @@ services:
       interval: 5s
       timeout: 5s
       retries: 12
-    networks: [waoon]
+    networks: [wanonwan]
 
   # GoTrue（認証エンジン）。直接公開せず nginx 経由でのみ到達。
   gotrue:
     image: supabase/auth:v2.189.0
-    container_name: waoon-stg-gotrue
+    container_name: wanonwan-stg-gotrue
     restart: unless-stopped
     depends_on:
       postgres:
@@ -58,12 +58,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 12
-    networks: [waoon]
+    networks: [wanonwan]
 
   # apps/web（Next.js standalone）。GHCR の image を pull。
   web:
     image: ${WEB_IMAGE:?WEB_IMAGE required}:${WEB_IMAGE_TAG:?WEB_IMAGE_TAG required}
-    container_name: waoon-stg-web
+    container_name: wanonwan-stg-web
     restart: unless-stopped
     depends_on:
       postgres:
@@ -84,13 +84,13 @@ services:
       STORAGE_INTERNAL_ENDPOINT: http://minio:9000
       STORAGE_ACCESS_KEY: ${MINIO_ROOT_USER:?MINIO_ROOT_USER required}
       STORAGE_SECRET_KEY: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD required}
-      STORAGE_BUCKET: ${STORAGE_BUCKET:-waoon}
-    networks: [waoon]
+      STORAGE_BUCKET: ${STORAGE_BUCKET:?STORAGE_BUCKET required}
+    networks: [wanonwan]
 
   # MinIO（添付のオブジェクトストレージ）。直接公開せず nginx(storage サブドメイン)経由のみ。
   minio:
     image: minio/minio:latest
-    container_name: waoon-stg-minio
+    container_name: wanonwan-stg-minio
     restart: unless-stopped
     command: server /data
     environment:
@@ -98,12 +98,12 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD required}
     volumes:
       - minio-data:/data
-    networks: [waoon]
+    networks: [wanonwan]
 
   # 添付 GC worker。pgmq の attachment_gc をドレインして MinIO 本体を削除する。公開ポートなし。
   worker:
     image: ${WORKER_IMAGE:?WORKER_IMAGE required}:${WORKER_IMAGE_TAG:?WORKER_IMAGE_TAG required}
-    container_name: waoon-stg-worker
+    container_name: wanonwan-stg-worker
     restart: unless-stopped
     depends_on:
       postgres:
@@ -118,12 +118,12 @@ services:
       STORAGE_ENDPOINT: http://minio:9000
       STORAGE_ACCESS_KEY: ${MINIO_ROOT_USER:?MINIO_ROOT_USER required}
       STORAGE_SECRET_KEY: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD required}
-    networks: [waoon]
+    networks: [wanonwan]
 
   # nginx（TLS 終端・ルーティング・XFF 注入・一次レートリミット）。設定は ./nginx を参照。
   nginx:
     image: nginx:1.27-alpine
-    container_name: waoon-stg-nginx
+    container_name: wanonwan-stg-nginx
     restart: unless-stopped
     depends_on:
       - web
@@ -133,20 +133,20 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      WAOON_DOMAIN: ${WAOON_DOMAIN:?WAOON_DOMAIN required}
+      WANONWAN_DOMAIN: ${WANONWAN_DOMAIN:?WANONWAN_DOMAIN required}
       # 添付の storage サブドメイン（既定 storage.<domain>）。cert の SAN に含めること。
-      WAOON_STORAGE_DOMAIN: ${WAOON_STORAGE_DOMAIN:?WAOON_STORAGE_DOMAIN required}
+      WANONWAN_STORAGE_DOMAIN: ${WANONWAN_STORAGE_DOMAIN:?WANONWAN_STORAGE_DOMAIN required}
     volumes:
       - ./nginx/templates:/etc/nginx/templates:ro
       - ./nginx/conf.d/10-limits.conf:/etc/nginx/conf.d/10-limits.conf:ro
       - certbot-conf:/etc/letsencrypt:ro
       - certbot-www:/var/www/certbot
-    networks: [waoon]
+    networks: [wanonwan]
 
   # certbot（Let's Encrypt 自動更新）。初回発行は infra/nginx/README.md の手順を参照。
   certbot:
     image: certbot/certbot:latest
-    container_name: waoon-stg-certbot
+    container_name: wanonwan-stg-certbot
     restart: unless-stopped
     volumes:
       - certbot-conf:/etc/letsencrypt
@@ -161,5 +161,5 @@ volumes:
   minio-data:
 
 networks:
-  waoon:
-    name: waoon-stg
+  wanonwan:
+    name: wanonwan-stg

@@ -6,7 +6,7 @@
 
 ## 現在地
 
-**完了: [PR #80](https://github.com/sasakiyusuke2017015/waoon/pull/80) で develop へマージ済み。**
+**完了: [PR #80](https://github.com/sasakiyusuke2017015/wanonwan/pull/80) で develop へマージ済み。**
 現行設計の一次は [06-final-design](06-final-design.md)。検証済み現状は [01-current](01-current.md)（D10）。
 02〜04 は superseded（検討履歴）。残: 既存 Plan の現状コンテキスト凍結印（任意・新規から徹底）。
 Step 1: [01-current](01-current.md)/[01a](01a-by-document.md)/[01b](01b-by-information.md)。Step 2: [02-target](02-target.md)。

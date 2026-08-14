@@ -6,7 +6,7 @@
 | レビュアー | Claude Code |
 | 対象 Plan | [`plans/2026-07-07-1412-provision-steps.md`](../plans/2026-07-07-1412-provision-steps.md) |
 | ブランチ | `feature/provision-steps`（`dd9475c` / `fbc2967`） |
-| 関連 PR | [#112](https://github.com/sasakiyusuke2017015/waoon/pull/112) |
+| 関連 PR | [#112](https://github.com/sasakiyusuke2017015/wanonwan/pull/112) |
 | レビュー種別 | 実装（初回） |
 
 ## 判定
@@ -19,7 +19,7 @@
 | 記録整理 | FOLLOW-UP | Plan の「ファイル構成」「ステップの契約」が実装と乖離。実装安全性には影響しない |
 
 > **本ファイルは初回レビューであり、上表の判定は履歴**。指摘はすべて
-> [`da86d70`](https://github.com/sasakiyusuke2017015/waoon/pull/112/commits/da86d70) で対応済みで、
+> [`da86d70`](https://github.com/sasakiyusuke2017015/wanonwan/pull/112/commits/da86d70) で対応済みで、
 > 現在の判定は [コードレビュー v2](2026-08-13-0926-provision-steps-code-review-v2.md)（`APPROVE`）が持つ。
 
 ## 指摘事項

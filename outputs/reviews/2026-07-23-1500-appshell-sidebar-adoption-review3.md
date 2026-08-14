@@ -13,7 +13,7 @@
 ## サマリ
 
 2 回目レビュー（[`2026-07-23-1435`](2026-07-23-1435-appshell-sidebar-adoption-review2.md)）の新規
-BLOCKER 4 件と NICE-TO-HAVE 6 件の反映状況を、上流 zip と waoon 実ファイルの両方をコマンドで
+BLOCKER 4 件と NICE-TO-HAVE 6 件の反映状況を、上流 zip と wanonwan 実ファイルの両方をコマンドで
 突き合わせて検証した。**BLOCKER 4 件はすべて実装計画・検証・リスク・判断ログの 4 箇所に一貫して
 反映済み**で、反映された技術方針（`--chrome-subheader-h` / `[data-sidebar-state]` スコープ /
 media query 上書き / `HeaderUserMenu` の `md:hidden` / `showCheck` による視点切替）は

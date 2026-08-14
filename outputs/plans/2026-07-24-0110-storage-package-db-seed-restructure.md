@@ -1,16 +1,16 @@
-# Plan: @waoon/storage 切り出しと packages/db/seed の用途別再編
+# Plan: @wanonwan/storage 切り出しと packages/db/seed の用途別再編
 
 | 項目 | 値 |
 |---|---|
-| 概要 | web/worker で重複する S3Client を `@waoon/storage` へ集約し env を必須検証化。あわせて `packages/db/seed/` を master/users/demo に再編 |
+| 概要 | web/worker で重複する S3Client を `@wanonwan/storage` へ集約し env を必須検証化。あわせて `packages/db/seed/` を master/users/demo に再編 |
 | ステータス | 🟢 マージ済み（検証中） |
 | 前提 Plan | なし |
-| PR | [#107](https://github.com/sasakiyusuke2017015/waoon/pull/107)（storage） / [#108](https://github.com/sasakiyusuke2017015/waoon/pull/108)（db-seed） |
+| PR | [#107](https://github.com/sasakiyusuke2017015/wanonwan/pull/107)（storage） / [#108](https://github.com/sasakiyusuke2017015/wanonwan/pull/108)（db-seed） |
 | Review | [storage コードレビュー](../reviews/2026-07-24-1531-storage-package-review.md)（APPROVE） / [db-seed コードレビュー](../reviews/2026-07-24-1531-db-seed-layout-review.md)（APPROVE） |
 
 ## 目的
 
-別プロジェクト（ai-education）の `packages/{db,storage}` 構成を参照し、waoon に有効な部分だけを取り込む。
+別プロジェクト（ai-education）の `packages/{db,storage}` 構成を参照し、wanonwan に有効な部分だけを取り込む。
 具体的には (1) web と worker に二重定義されている MinIO クライアントの集約と env の FailFast 化、
 (2) フラットな seed CSV の用途別再編と「投入経路の明文化」を行う。
 
@@ -18,7 +18,7 @@
 
 ### やること
 
-**A. `packages/storage`（`@waoon/storage`）の新設**
+**A. `packages/storage`（`@wanonwan/storage`）の新設**
 
 - `apps/web/lib/storage/client.ts` と `apps/worker/src/storage.ts` の S3Client 定義を 1 箇所へ集約
 - env を valibot スキーマで検証し、認証情報のハードコード既定値（`minioadmin`）を撤廃（FailFast）
@@ -36,7 +36,7 @@
 
 - **`packages/db` への migrations 方式導入**（snapshot + 増分 SQL）。stg/prod にデータが乗る前に別 Plan で判断する
 - **`queries/*.sql` + `queries.ts` の二重管理**。同一 SQL の手動同期は evergreen.md に反するため採用しない
-- **複数 bucket 化（`BUCKETS` 定数）**。waoon は `STORAGE_BUCKET` 単一運用のまま
+- **複数 bucket 化（`BUCKETS` 定数）**。wanonwan は `STORAGE_BUCKET` 単一運用のまま
 - **`db:seed` と `provision:*` の投入経路一本化**。再編とは別軸の変更なので分離する（下記「未確定事項」）
 - `packages/db/Dockerfile` への image 定義移動（現状 `infra/data/Dockerfile.db` のままでよい）
 - `packages/db` の実パッケージ化（`main`/`types` 付与）。SQL 置き場のままとする
@@ -80,14 +80,14 @@ stg/prod は compose が注入。worker には `.env.example` が無く、dev �
 
 ## 実装計画
 
-**PR 1: `@waoon/storage` の切り出し**（branch: `refactor/storage-package`）
+**PR 1: `@wanonwan/storage` の切り出し**（branch: `refactor/storage-package`）
 
-1. `packages/storage` を新設。`package.json` は `@waoon/auth` に倣う（`type: module` / `main` / `types` / `exports` / `typecheck`）。
+1. `packages/storage` を新設。`package.json` は `@wanonwan/auth` に倣う（`type: module` / `main` / `types` / `exports` / `typecheck`）。
    依存は `@aws-sdk/client-s3` `@aws-sdk/s3-request-presigner` `valibot`、dev 依存に `vitest` `typescript` `@types/node`。
 2. `src/env.ts`: valibot で `StorageEnv` を検証する `parseStorageEnv(env)` を実装。
    - `STORAGE_ENDPOINT`（必須・URL）/ `STORAGE_INTERNAL_ENDPOINT`（任意・URL。省略時は `STORAGE_ENDPOINT` へフォールバック）
    - `STORAGE_ACCESS_KEY` / `STORAGE_SECRET_KEY`（**必須・1 文字以上**。既定値なし）
-   - `STORAGE_REGION`（既定 `us-east-1`）/ `STORAGE_BUCKET`（既定 `waoon`）
+   - `STORAGE_REGION`（既定 `us-east-1`）/ `STORAGE_BUCKET`（既定 `wanonwan`）
 3. `src/client.ts`: `createStorageClient(env)`（署名用・public endpoint）と
    `createInternalStorageClient(env)`（server 実通信用・internal endpoint）を実装。`forcePathStyle: true` は据え置き。
 4. `src/presign.ts` / `src/keys.ts` / `src/policy.ts` を既存実装から移設（`ensureBucket` の promise キャッシュもそのまま維持）。
@@ -97,13 +97,13 @@ stg/prod は compose が注入。worker には `.env.example` が無く、dev �
 6. `apps/web/lib/storage/index.ts` を薄いアダプタとして残す: `import "server-only"` + `parseStorageEnv(process.env)` を
    1 度だけ評価し、設定済み client を export（Next.js の server-only 規律をアプリ側に留めるため。package 自体は
    framework 非依存に保つ）。`client.ts` / `presign.ts` / `keys.ts` / `policy.ts` は削除し、呼び出し元 2 ファイルの import を差し替える。
-7. `apps/worker/src/storage.ts` を削除し、`@waoon/storage` の internal client を使う。`main.ts` の import を差し替える。
+7. `apps/worker/src/storage.ts` を削除し、`@wanonwan/storage` の internal client を使う。`main.ts` の import を差し替える。
 8. env サンプル・compose を追随:
    - `apps/web/.env.example` に `STORAGE_INTERNAL_ENDPOINT` を追記
    - `apps/worker/.env.example` を新規作成（dev で worker を動かすのに必要な env を明示）
    - `infra/docker-compose.{stg,prod}.yml` の web に `STORAGE_INTERNAL_ENDPOINT: http://minio:9000` を追加
    - `infra/.env.{stg,prod}.example` のコメントを追随
-9. `pnpm -r typecheck` / `pnpm test` / `pnpm --filter @waoon/web build` を通す。
+9. `pnpm -r typecheck` / `pnpm test` / `pnpm --filter @wanonwan/web build` を通す。
 
 **PR 2: `packages/db/seed` の再編**（branch: `refactor/db-seed-layout`）
 
@@ -127,10 +127,10 @@ stg/prod は compose が注入。worker には `.env.example` が無く、dev �
 ```bash
 pnpm -r typecheck
 pnpm test
-pnpm --filter @waoon/web build
+pnpm --filter @wanonwan/web build
 
 # storage: 単体
-pnpm --filter @waoon/storage test
+pnpm --filter @wanonwan/storage test
 
 # storage: 手動（dev）— 添付の presign → upload → download → 削除
 pnpm compose:dev:up
@@ -159,10 +159,10 @@ pnpm test:db
 
 | 日付 | 判断 | 理由 |
 |---|---|---|
-| 2026-07-24 | env 検証は zod ではなく **valibot** を使う | 参照元は zod だが、waoon は `@waoon/domain` / `apps/web` ですでに valibot を採用済み。バリデータを 2 種持たない |
+| 2026-07-24 | env 検証は zod ではなく **valibot** を使う | 参照元は zod だが、wanonwan は `@wanonwan/domain` / `apps/web` ですでに valibot を採用済み。バリデータを 2 種持たない |
 | 2026-07-24 | `queries/*.sql` + `queries.ts` の二重管理は**採用しない** | 同一 SQL を 2 ファイルで手動同期する構成。参照元 README 自身が「CI で diff できたら」と書いており未解決。evergreen.md の二重持ち禁止に反する |
 | 2026-07-24 | migrations 方式の導入は**別 Plan へ分離** | 参照元の `migrations/` は `002` `004` `007` `033` が番号衝突しており、そのまま模倣すると適用順が壊れる。導入するなら単調増加連番 + `schema_migrations` 記録を設計してから |
-| 2026-07-24 | 複数 bucket 化（`BUCKETS` 定数）は見送り | waoon は単一 bucket + key prefix（`objectKeyFor`）で分離済み。用途が増えていない段階で分ける理由がない |
+| 2026-07-24 | 複数 bucket 化（`BUCKETS` 定数）は見送り | wanonwan は単一 bucket + key prefix（`objectKeyFor`）で分離済み。用途が増えていない段階で分ける理由がない |
 | 2026-07-24 | `server-only` は package に入れず apps/web 側のアダプタに残す | worker は Next.js ではないため `server-only` を import できない。package は framework 非依存に保つ |
 | 2026-07-24 | 認証情報の既定値（`minioadmin`）を撤廃する | prod で env を取り違えても既定値で「動いてしまう」状態は CLAUDE.md の FailFast 方針に反する |
 | 2026-07-24 | package 内の相対 import は**拡張子付き**（`./env.ts`）にし、`allowImportingTsExtensions` を packages/storage と apps/web の tsconfig に追加 | worker は Next のバンドルを介さず node が直接 `.ts` を実行するため、ESM の完全指定子が要る。web の型チェックは package のソースも辿るので web 側にも許可が要る |
@@ -175,7 +175,7 @@ pnpm test:db
 
 - `packages/db/seed/20_sample.sql`（RLS テスト兼デモの SQL フィクスチャ）の扱い。CSV 側へ寄せるか、pgTAP 用フィクスチャとして
   `seed/fixtures/` に残すか。今回は現状維持（`seed/` 直下）とし、投入経路の一本化とあわせて判断する
-- `db:seed` と `provision:*` の 2 経路を 1 本にするか。参照元は provision 一系統に統一しているが、waoon は
+- `db:seed` と `provision:*` の 2 経路を 1 本にするか。参照元は provision 一系統に統一しているが、wanonwan は
   dev（gotrue_id 固定 CSV）と stg/prod（GoTrue 発行）で前提が異なるため、統合可否は別途検討
 
 ## 残課題（任意）

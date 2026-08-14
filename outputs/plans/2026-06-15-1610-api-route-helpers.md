@@ -172,7 +172,7 @@ auth ルートは「同じ allowlist でも前提が違う」ため **1 種類�
 - [x] Step 1〜5 実装（refactor/api-route-helpers・5 コミット）
 - [x] 検証: typecheck green / build green（挙動不変は静的精査で確認）
 - [x] **コードレビュー（Agent: code+security）** → [APPROVE](../reviews/2026-06-15-1710-api-route-helpers-code-review.md)
-- [x] PR 作成（develop 向け）→ **[PR #26](https://github.com/sasakiyusuke2017015/waoon/pull/26) merged**
+- [x] PR 作成（develop 向け）→ **[PR #26](https://github.com/sasakiyusuke2017015/wanonwan/pull/26) merged**
 - [ ] **マージ後 runtime スモーク**（Docker・#25 の B-0 受け入れと同セッションで可）: login / users CRUD / change-password / 任意の業務 GET が従来どおり動く（401/403/429 含む挙動不変）
 - [ ] （後続・別タスク）挙動不変の軽い integration test（429→401→400 順 / me の 2 種 401 / admin 403 等）
 - [ ] （後続・別タスク）新規 route のガード強制: `no-restricted-imports` で認証プリミティブ直 import を禁止（allowlist override）

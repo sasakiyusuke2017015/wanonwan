@@ -1,5 +1,5 @@
 {
-  "name": "@waoon/worker",
+  "name": "@wanonwan/worker",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,7 +9,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@waoon/storage": "workspace:*",
+    "@wanonwan/storage": "workspace:*",
     "postgres": "^3.4.9"
   },
   "devDependencies": {

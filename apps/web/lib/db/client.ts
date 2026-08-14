@@ -1,11 +1,15 @@
 import "server-only";
 import postgres from "postgres";
-import { DATABASE_URL } from "./env";
+import { getDatabaseUrl } from "./env";
 
 // app_user 接続。業務テーブルは RLS 対象。
-const sql = postgres(DATABASE_URL, { max: 10 });
+// 接続プールは初回アクセス時に作る（module 評価時に env を要求すると `next build` が落ちる）。
+let pool: postgres.Sql | null = null;
+function sql(): postgres.Sql {
+  return (pool ??= postgres(getDatabaseUrl(), { max: 10 }));
+}
 
-export type Sql = typeof sql;
+export type Sql = postgres.Sql;
 
 // RLS ユーザーコンテキスト注入（計画レビュー BLOCKER① の実コード化）:
 // トランザクション内で set_config('app.user_id', <gotrue sub>, is_local=true) を実行し、
@@ -15,10 +19,8 @@ export async function withUser<T>(
   gotrueSub: string | null,
   fn: (tx: Sql) => Promise<T>,
 ): Promise<T> {
-  return sql.begin(async (tx) => {
+  return sql().begin(async (tx) => {
     await tx`select set_config('app.user_id', ${gotrueSub ?? ""}, true)`;
     return fn(tx as unknown as Sql);
   }) as Promise<T>;
 }
-
-export { sql };

@@ -42,8 +42,8 @@ CRITICAL / HIGH / MEDIUM / BLOCKER: **なし**
 ## 検証
 
 - `pnpm -r typecheck` green（レビュー反映後も）
-- `pnpm --filter @waoon/web build` green（新ルート `/admin/questions{,/new,/[id]/edit}`・`/api/v1/questions{,/[id]}`・`/surveys/[id]/questions/{link,[questionId]}` 生成確認）
-- `pnpm --filter @waoon/web lint` green
+- `pnpm --filter @wanonwan/web build` green（新ルート `/admin/questions{,/new,/[id]/edit}`・`/api/v1/questions{,/[id]}`・`/surveys/[id]/questions/{link,[questionId]}` 生成確認）
+- `pnpm --filter @wanonwan/web lint` green
 - DB 振る舞い（非 admin write 拒否 / 重複 link 409 / unlink 局所性）は RLS + ルート実装で担保。runtime 実機確認は笹木さん dev 環境で。
 
 ## verdict

@@ -5,7 +5,7 @@
 |---|---|
 | 概要 | UI/UX 改善テーマ2。MarkdownPreview の無サニタイズ `dangerouslySetInnerHTML` を DOMPurify で封じ（アプリ未使用の潜在 XSS を catalog 層で無効化）、Modal/Dialog/EventModal に focus-trap + `role="dialog"`/`aria-modal` を付与。ConfirmDialog/AlertDialog はラッパのため自動で恩恵 |
 | ステータス | 🟢 マージ済み（検証中） |
-| PR | [#66](https://github.com/sasakiyusuke2017015/waoon/pull/66) |
+| PR | [#66](https://github.com/sasakiyusuke2017015/wanonwan/pull/66) |
 | Review | [計画レビュー](../reviews/2026-07-05-0840-ui-catalog-hardening-review.md) / [コードレビュー](../reviews/2026-07-05-0904-ui-catalog-hardening-code-review.md) |
 
 ## 目的
@@ -51,7 +51,7 @@ UI/UX 改善テーマ2。catalog（`@ui-catalog/core`）に残る **セキュリ
   - Dialog / Modal / EventModal: `<FocusTrap>` で包み、`role="dialog"` + `aria-modal` +
     `aria-labelledby / aria-describedby`、`fallbackFocus`、閉じた後の trigger への復帰、
     バックドロップの `role="button"` 削除（クリックで閉じる挙動は維持）。
-- waoon の catalog は #50 で eslint 整備済み・Storybook + a11y addon あり。
+- wanonwan の catalog は #50 で eslint 整備済み・Storybook + a11y addon あり。
 - 依存追加は packages/ui の `dependencies`（`@measured/puck` と同じ扱い。
   peerDependencies にしないのは、利用側 app に導入判断を漏らさないため）。
 
@@ -90,7 +90,7 @@ ConfirmDialog / AlertDialog は Dialog の薄いラッパのため自動的に�
 
 ## 検証
 
-- `pnpm -r typecheck` / `pnpm lint`（turbo: web + ui）/ `pnpm --filter @waoon/web test` / `pnpm --filter @waoon/web build`
+- `pnpm -r typecheck` / `pnpm lint`（turbo: web + ui）/ `pnpm --filter @wanonwan/web test` / `pnpm --filter @wanonwan/web build`
 - **packages/ui のユニットテスト実行**（レビュー N-1）: `pnpm --filter @ui-catalog/core exec vitest run`
   を検証コマンドに含める。ui の scripts が `test:storybook` しか無いため、`test: "vitest run"` 相当の
   script 追加も本 PR で行う（storybook プロジェクトと分離できる形は実装時に config を見て確定）
@@ -145,5 +145,5 @@ ConfirmDialog / AlertDialog は Dialog の薄いラッパのため自動的に�
 - [x] Plan 承認（計画レビュー APPROVE 2026-07-05）
 - [x] 実装完了（typecheck / lint web+ui / web test 69 / build green・MarkdownPreview テスト 5 件追加）
 - [x] コードレビュー完了（APPROVE 2026-07-05・NICE-TO-HAVE 2 件反映済み）
-- [x] PR 作成・merge 済み（[#66](https://github.com/sasakiyusuke2017015/waoon/pull/66)）
+- [x] PR 作成・merge 済み（[#66](https://github.com/sasakiyusuke2017015/wanonwan/pull/66)）
 - [ ] マージ後検証（手動確認チェックを消化）

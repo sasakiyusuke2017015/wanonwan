@@ -1,5 +1,5 @@
 ---
-description: レビューのディスパッチャ。引数や現在の git 状態を見て /plan-review (計画レビュー) or /pr-review (コードレビュー) に振り分ける。waoon は GitHub (`gh` を使う) で運用。
+description: レビューのディスパッチャ。引数や現在の git 状態を見て /plan-review (計画レビュー) or /pr-review (コードレビュー) に振り分ける。Wanonwan は GitHub (`gh` を使う) で運用。
 ---
 
 # /review コマンド (ディスパッチャ)
@@ -44,9 +44,9 @@ description: レビューのディスパッチャ。引数や現在の git 状�
 明示的に振り分け先を指定したい場合は `--plan` / `--code` または直接
 `/plan-review` / `/pr-review` を呼ぶ。
 
-## waoon 固有の前提
+## Wanonwan 固有の前提
 
-- **GitHub プロジェクト** (`sasakiyusuke2017015/waoon`)。
+- **GitHub プロジェクト** (`sasakiyusuke2017015/wanonwan`)。
   PR 番号取得・差分取得は `gh` CLI を使う (**`gh pr list`** / **`gh pr diff <番号>`**)
 - **`develop` ベース**。`main` への直接 PR は禁止
 - レビュアー Agent 起動時は `.claude/rules/agent-orchestration.md` §4 の

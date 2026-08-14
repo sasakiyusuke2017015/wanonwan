@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CreateSurveySchema, SURVEY_STATUSES, UpdateSurveySchema } from "@waoon/domain";
+import { CreateSurveySchema, SURVEY_STATUSES, UpdateSurveySchema } from "@wanonwan/domain";
 import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
 import { FormField, Input, Select } from "@ui-catalog/core/molecules";
 import { Checkbox } from "@ui-catalog/core/atoms";

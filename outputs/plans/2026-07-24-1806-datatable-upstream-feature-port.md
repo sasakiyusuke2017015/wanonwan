@@ -1,20 +1,20 @@
-# Plan: DataTable 上流機能の選択的手移植（見た目は waoon 版を保持）
+# Plan: DataTable 上流機能の選択的手移植（見た目は wanonwan 版を保持）
 
 | 項目 | 値 |
 |---|---|
-| 概要 | ui-catalog 上流 DataTable の**機能**（テキスト/数値範囲/日付フィルタ・FilterField UI・`Column.sortValue`・`ClientQueryState.defaultSort`・行削除 disabled・`filterDefs.ts`）を waoon 版 DataTable へ手移植。SubHeaderToolbar 連携・DataCountDisplay/Pagination の catalog 化など waoon 独自の見た目は保持する |
+| 概要 | ui-catalog 上流 DataTable の**機能**（テキスト/数値範囲/日付フィルタ・FilterField UI・`Column.sortValue`・`ClientQueryState.defaultSort`・行削除 disabled・`filterDefs.ts`）を wanonwan 版 DataTable へ手移植。SubHeaderToolbar 連携・DataCountDisplay/Pagination の catalog 化など wanonwan 独自の見た目は保持する |
 | ステータス | 🟣 マージ承認待ち |
-| 前提 Plan | [ui-catalog 上流最新版の選択的マージ](2026-07-16-2354-ui-catalog-upstream-sync.md)（#97。DataTable は waoon 版優先と判断。本 Plan は機能面のみ上流へ寄せる後追い） |
-| PR | [#110](https://github.com/sasakiyusuke2017015/waoon/pull/110) |
+| 前提 Plan | [ui-catalog 上流最新版の選択的マージ](2026-07-16-2354-ui-catalog-upstream-sync.md)（#97。DataTable は wanonwan 版優先と判断。本 Plan は機能面のみ上流へ寄せる後追い） |
+| PR | [#110](https://github.com/sasakiyusuke2017015/wanonwan/pull/110) |
 | Review | [コードレビュー](../reviews/2026-07-24-1848-datatable-upstream-feature-port-review.md) |
 
 ブランチ: `feature/datatable-upstream-feature-port`（develop 起点・未作成）
 
 ## 目的
 
-#97 で DataTable は「waoon 版優先」とし上流差分を取り込まなかった。その後 ai-education 上流
+#97 で DataTable は「wanonwan 版優先」とし上流差分を取り込まなかった。その後 ai-education 上流
 （`ui.zip`）で DataTable に有用な**機能**が入ったため、**丸ごと置換ではなく選択マージ**で機能だけを
-waoon 版へ手移植する。方針は「見た目は大きく変えず、機能は上流をメインにする」。
+wanonwan 版へ手移植する。方針は「見た目は大きく変えず、機能は上流をメインにする」。
 
 ## スコープ
 
@@ -30,25 +30,25 @@ waoon 版へ手移植する。方針は「見た目は大きく変えず、機�
   単一ソートへ切替える `handleSortClick` の分岐込み
 - **行削除の `disabled` / `disabledReason`**: 「使用中で消せない」行の削除ボタンを無効化し確認を出さない
 - **`filterDefs.ts`（新規）**: `filterHasValue()` を上流からコピー。Toolbar / Client / Server で共有
-- **`CollapsibleOptions.title` / `borderColor`（deprecated）を削除**: 上流で削除済み・waoon 消費者なし
+- **`CollapsibleOptions.title` / `borderColor`（deprecated）を削除**: 上流で削除済み・wanonwan 消費者なし
 - 上記に必要な scss 追加（`.toolbarFilterCard` / `.toolbarSearchCard`、`.toolbarInputs` を
   `align-items: stretch` へ）と、新機能の**テスト追加**
 
-### やらないこと（waoon 版を保持・上流差分を不採用）
+### やらないこと（wanonwan 版を保持・上流差分を不採用）
 
 - **SubHeaderToolbar 連携の中核**: `toolbar?: 'internal' | 'external'` prop と
-  `onFilteredCountChange` は**維持**（上流は削除しているが waoon の AdminListTable が依存）
+  `onFilteredCountChange` は**維持**（上流は削除しているが wanonwan の AdminListTable が依存）
 - **DataCountDisplay / Pagination の catalog 化を維持**: 上流はプレーン文字列＋素の `<button>` ページャに
-  戻しているが、waoon は `DataCountDisplay`（NumberTicker 付き）と catalog `Pagination` を保持
+  戻しているが、wanonwan は `DataCountDisplay`（NumberTicker 付き）と catalog `Pagination` を保持
 - **Toolbar の `leading` prop を維持**: SubHeaderToolbar が画面タイトルを差し込むスロット。
   上流は削除しているが両分岐（collapsible summary / 非 collapsible toolbarLeft）で残す
 - **collapsible 機構は `Toggleable` のまま**: 上流は `Collapse` + `useState` + `useOperationLog` へ
-  リファクタしているが、`leading` 維持と見た目・低リスクを優先し waoon の `Toggleable` を保持
+  リファクタしているが、`leading` 維持と見た目・低リスクを優先し wanonwan の `Toggleable` を保持
   （FilterField カードは `Toggleable` の children としてそのまま描画可能）
-- **チップの `Animated` ラッパを維持**: 上流は撤去しているが waoon の scale アニメを残す
+- **チップの `Animated` ラッパを維持**: 上流は撤去しているが wanonwan の scale アニメを残す
 - **ColumnPicker の見た目**: 上流の `gear→columns-3` アイコン化・`Toggle→Switch` 化は不採用
   （機能要求外の見た目変更）
-- **`--dt-header-bg/text` テーマ注入・`--chrome-subheader-h` sticky 追従**: waoon の scss を保持
+- **`--dt-header-bg/text` テーマ注入・`--chrome-subheader-h` sticky 追従**: wanonwan の scss を保持
   （上流は素トークンへ戻している）
 - **ai-education 専用の scss**（`.td { height }`・`.tablePlain .td { height: auto }`）は不採用
 - admin ページ側への新フィルタ**配線はしない**（機能を*利用可能*にするだけ。現状どのページも
@@ -64,7 +64,7 @@ waoon 版へ手移植する。方針は「見た目は大きく変えず、機�
 
 ## 変更ファイル（packages/ui/core/organisms/DataTable/）
 
-| ファイル | 変更内容 | 保持する waoon 要素 |
+| ファイル | 変更内容 | 保持する wanonwan 要素 |
 |---|---|---|
 | `filterDefs.ts` | **新規**（上流コピー） | — |
 | `types.ts` | Text/NumberRange/Date FilterDef 追加・`SelectFilterDefBase` 分離・`sortValue`・`defaultSort`・delete `disabled`/`disabledReason` 追加・deprecated `CollapsibleOptions.title/borderColor` 削除 | `toolbar`・`onFilteredCountChange` |
@@ -96,14 +96,14 @@ waoon 版へ手移植する。方針は「見た目は大きく変えず、機�
 前提とするため**丸ごとコピー不可**。
 
 - **推奨**: 新機能（text/number/date フィルタの絞り込み・`sortValue`・`defaultSort`・delete disabled）の
-  テストケースだけを waoon の DOM（FilterField・DataCountDisplay・catalog Pagination）に合わせて**新規追加**。
+  テストケースだけを wanonwan の DOM（FilterField・DataCountDisplay・catalog Pagination）に合わせて**新規追加**。
   既存テストは維持。
 
 ## 実装計画
 
 1. **ブランチ作成**（要確認）: develop 起点で `feature/datatable-upstream-feature-port`
 2. `filterDefs.ts` を新規作成（上流コピー）
-3. `types.ts` を手マージ（追加 6 項目・deprecated 削除・waoon 2 項目保持）→ typecheck
+3. `types.ts` を手マージ（追加 6 項目・deprecated 削除・wanonwan 2 項目保持）→ typecheck
 4. `Toolbar.tsx` を手マージ（FilterField 化 + leading/Toggleable/Animated 保持）→ typecheck
 5. `ClientDataTable.tsx` / `ServerDataTable.tsx` を手マージ → typecheck
 6. `RowActions.tsx`（判断 A の結論に従う）→ typecheck
@@ -116,7 +116,7 @@ waoon 版へ手移植する。方針は「見た目は大きく変えず、機�
 ## 検証
 
 - `pnpm -r typecheck`（apps/web 消費者の無破壊確認。特に `Column` 型 import）
-- `pnpm --filter @waoon/web build`
+- `pnpm --filter @wanonwan/web build`
 - `pnpm --filter @ui-catalog/core exec vitest run -- DataTable`（新機能テストと既存 DataTable テストの green）
   - packages/ui の vitest は CI ゲート外（#97 判断ログ）。DataTable スイートは #97 ベースラインの
     失敗 6 スイートに含まれず green のはずなので、追加後も green を維持する
@@ -136,14 +136,14 @@ waoon 版へ手移植する。方針は「見た目は大きく変えず、機�
 
 | 日時 | 判断 | 理由 |
 |---|---|---|
-| 2026-07-24 | 丸ごと置換ではなく機能のみ手移植 | #97 で DataTable は waoon 版優先と確定済み。上流 Toolbar は leading 削除・DataCountDisplay/Pagination を撤去しており、置換すると SubHeader 連携が壊れる |
+| 2026-07-24 | 丸ごと置換ではなく機能のみ手移植 | #97 で DataTable は wanonwan 版優先と確定済み。上流 Toolbar は leading 削除・DataCountDisplay/Pagination を撤去しており、置換すると SubHeader 連携が壊れる |
 | 2026-07-24 | collapsible は Toggleable のまま（Collapse 化しない） | leading 維持・見た目温存・低リスク。FilterField は Toggleable children として描画可能で Collapse 化は不要 |
 | 2026-07-24 | ColumnPicker の gear→columns-3 / Toggle→Switch は不採用 | 機能要求外の見た目変更。「見た目を保つ」方針 |
 | 2026-07-24 | 新フィルタは packages/ui で*利用可能*にするだけで admin ページには配線しない | 現状どのページも filters を渡していない。配線は別タスク |
 | 2026-07-24 | 判断 A: RowActions は上流を丸ごと採用（Tooltip atom 化 + overflow/z-index 改修 = AnimatedDataTableContent / tableMotion も連動採用） | 笹木さん選択。機能を上流メインへ寄せる方針。3 ファイルは overflow/tooltip hunk 以外は上流と同一のため wholesale コピー可 |
-| 2026-07-24 | 判断 B: テストは新機能ケースのみ waoon DOM に合わせて新規追加（上流 test は丸ごとコピーせず） | 笹木さん選択（推奨どおり）。上流 test は Collapse/プレーンページャ/文字列件数前提で waoon 版と非互換 |
+| 2026-07-24 | 判断 B: テストは新機能ケースのみ wanonwan DOM に合わせて新規追加（上流 test は丸ごとコピーせず） | 笹木さん選択（推奨どおり）。上流 test は Collapse/プレーンページャ/文字列件数前提で wanonwan 版と非互換 |
 | 2026-07-24 | 既存 test 1 件（列非表示時に filter が残る）を FilterField DOM 前提へ更新 | Select の `selectedLabel`「ステータス絞込: 1件」は FilterField 化で消えるため、ラベル存在で「入力が残る」を確認する形へ |
-| 2026-07-24 | ColumnPicker の "gear" 文言は据え置き | waoon は上流の columns-3 化を採用せず gear アイコンのままのため、コメントも正 |
+| 2026-07-24 | ColumnPicker の "gear" 文言は据え置き | wanonwan は上流の columns-3 化を採用せず gear アイコンのままのため、コメントも正 |
 
 ## ステータス
 
@@ -151,7 +151,7 @@ waoon 版へ手移植する。方針は「見た目は大きく変えず、機�
 - [x] 判断ポイント A / B の確定（A: 上流丸ごと採用 / B: 新機能テストのみ追加）
 - [x] ブランチ作成（`feature/datatable-upstream-feature-port`）
 - [x] filterDefs.ts 新規（上流コピー）
-- [x] types.ts 手マージ（新 6 項目追加・deprecated 削除・waoon 2 項目保持）
+- [x] types.ts 手マージ（新 6 項目追加・deprecated 削除・wanonwan 2 項目保持）
 - [x] Toolbar.tsx 手マージ（FilterField 化 + leading/Toggleable/Animated 保持）
 - [x] Client/ServerDataTable.tsx 手マージ（新機能移植 + DataCountDisplay/Pagination/gating 保持）
 - [x] RowActions.tsx（判断 A: 上流丸ごと + Animated/tableMotion 連動）
@@ -159,13 +159,13 @@ waoon 版へ手移植する。方針は「見た目は大きく変えず、機�
 - [x] テスト追加（判断 B: filter 3 種 / sortValue / defaultSort / delete disabled = 11 ケース）
 - [x] 検証（ローカル）
   - [x] `pnpm -r typecheck`（全 workspace green）
-  - [x] `pnpm --filter @waoon/web build`（Compiled successfully）
+  - [x] `pnpm --filter @wanonwan/web build`（Compiled successfully）
   - [x] `pnpm --filter @ui-catalog/core lint`（クリーン）
   - [x] `pnpm --filter @ui-catalog/core exec vitest run`（**168 スイート / 1490 test 全 pass**。
         #97 ベースラインの 13 失敗は解消済みで、本変更は新規失敗ゼロ。DataTable は 143 = 132 既存 + 11 新規）
   - [ ] dev スタックで admin 一覧の目視確認（未実施）
 - [x] コードレビュー（`/pr-review` → APPROVE。BLOCKER なし / NICE-TO-HAVE 3 件は下記残課題）
-- [x] PR 作成（[#110](https://github.com/sasakiyusuke2017015/waoon/pull/110)）
+- [x] PR 作成（[#110](https://github.com/sasakiyusuke2017015/wanonwan/pull/110)）
 - [ ] 笹木さんマージ承認
 
 ## 残課題（NICE-TO-HAVE・後続タスク）

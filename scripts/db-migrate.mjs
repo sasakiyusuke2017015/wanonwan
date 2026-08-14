@@ -8,6 +8,8 @@
 // ロール/スキーマ/拡張(vector/pgtap/pgmq)は 00_bootstrap.sql（initdb.d）が先に作る前提。
 // pg_cron は 0001_initial 内で作成する。
 //
+// 接続先（DB 名 / superuser）は env ファイル必須。dev も infra/.env を読む。
+//
 // dev:        pnpm db:migrate
 // stg/prod:   node scripts/db-migrate.mjs --compose-file infra/docker-compose.stg.yml --env-file infra/.env.stg
 //             （CD は COMPOSE_FILE / ENV_FILE / PG_SERVICE 環境変数でも上書きできる）
@@ -15,7 +17,7 @@ import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { dirname, join, isAbsolute } from "node:path";
 import { fileURLToPath } from "node:url";
-import { parseEnvFile } from "./lib/env.mjs";
+import { loadEnv, requireEnv } from "./lib/env.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -30,20 +32,19 @@ function resolvePath(p) {
 const composeFile = resolvePath(
   flag("compose-file") ?? process.env.COMPOSE_FILE ?? join("infra", "docker-compose.yml"),
 );
-const envFile = flag("env-file") ?? process.env.ENV_FILE; // 未指定なら --env-file を付けない
+const envFile = resolvePath(flag("env-file") ?? process.env.ENV_FILE ?? join("infra", ".env"));
 const service = flag("service") ?? process.env.PG_SERVICE ?? "postgres";
 
-const fileEnv = envFile ? parseEnvFile(resolvePath(envFile)) : {};
+const env = loadEnv(envFile);
 const migrationsDir = join(root, "packages", "db", "migrations");
 const snapshotFile = join(root, "packages", "db", "snapshot", "schema.sql");
-const db = process.env.PG_DATABASE ?? fileEnv.PG_DATABASE ?? "waoon";
-const user = process.env.PG_SUPERUSER ?? fileEnv.PG_SUPERUSER ?? "postgres";
+const db = requireEnv(env, "PG_DATABASE");
+const user = requireEnv(env, "PG_SUPERUSER");
 
-// docker compose [--env-file X] -f compose exec -T <service> psql ...
-// stg/prod compose は secrets を ${VAR:?required} で参照するため、exec でも env-file が要る。
+// docker compose --env-file X -f compose exec -T <service> psql ...
+// compose は secrets を ${VAR:?required} で参照するため、exec でも env-file が要る。
 function psqlArgs(extra = []) {
-  const args = ["compose"];
-  if (envFile) args.push("--env-file", resolvePath(envFile));
+  const args = ["compose", "--env-file", envFile];
   args.push("-f", composeFile, "exec", "-T", service, "psql", "-v", "ON_ERROR_STOP=1", "-U", user, "-d", db);
   return args.concat(extra);
 }

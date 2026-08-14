@@ -1,5 +1,5 @@
 {
-  "name": "@waoon/db",
+  "name": "@wanonwan/db",
   "version": "0.1.0",
   "private": true,
   "description": "PostgreSQL の DDL / RLS / seed / pgTAP。DDL は migrations(真実)+snapshot(生成物) を db:migrate、seed は provision:{env}[:{step}]、tests は test:db で適用する（いずれもルートの scripts/ 経由）。DDL の運用は README.md、seed の構成は seed/README.md を参照。"

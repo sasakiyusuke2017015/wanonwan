@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Select } from "@ui-catalog/core/molecules";
 import { useTheme } from "@ui-catalog/core/infra/theme";
 import { useAppToast } from "@ui-catalog/core/providers";
-import type { ElevatedRole } from "@waoon/domain";
+import type { ElevatedRole } from "@wanonwan/domain";
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 
 type UserRow = { id: string; name: string; roles: ElevatedRole[] };

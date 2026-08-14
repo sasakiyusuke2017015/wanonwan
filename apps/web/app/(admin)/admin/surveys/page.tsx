@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { SURVEY_STATUSES } from "@waoon/domain";
+import { SURVEY_STATUSES } from "@wanonwan/domain";
 import type { Column } from "@ui-catalog/core/organisms/DataTable";
 import { StatisticList } from "@ui-catalog/core/molecules";
 import { Badge } from "@ui-catalog/core/atoms";

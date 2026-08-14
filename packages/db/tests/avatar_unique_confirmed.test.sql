@@ -15,7 +15,7 @@ INSERT INTO public.attachments
   (entity_type, entity_id, bucket, object_key, filename, content_type, uploaded_by, status)
 SELECT 'user_avatar',
        (SELECT id FROM public.users WHERE gotrue_id = 'cb427b54-eaef-47df-916b-626321d23dc9'),
-       'waoon', 'avatars/fixture/confirmed', 'a.png', 'image/png', app.uid(), 200;
+       'wanonwan', 'avatars/fixture/confirmed', 'a.png', 'image/png', app.uid(), 200;
 SELECT ok(true, '確定済み avatar(200) を作成できる');
 
 -- 同じユーザーに pending(100) を追加 → index は status=200 のみ対象なので共存できる。
@@ -24,7 +24,7 @@ SELECT lives_ok($$
     (entity_type, entity_id, bucket, object_key, filename, content_type, uploaded_by, status)
   SELECT 'user_avatar',
          (SELECT id FROM public.users WHERE gotrue_id = 'cb427b54-eaef-47df-916b-626321d23dc9'),
-         'waoon', 'avatars/fixture/pending', 'b.png', 'image/png', app.uid(), 100
+         'wanonwan', 'avatars/fixture/pending', 'b.png', 'image/png', app.uid(), 100
 $$, 'pending(100) は confirmed と共存できる');
 
 -- 2 枚目の確定済み(200) → unique 違反(23505)。
@@ -33,7 +33,7 @@ SELECT throws_ok($$
     (entity_type, entity_id, bucket, object_key, filename, content_type, uploaded_by, status)
   SELECT 'user_avatar',
          (SELECT id FROM public.users WHERE gotrue_id = 'cb427b54-eaef-47df-916b-626321d23dc9'),
-         'waoon', 'avatars/fixture/confirmed2', 'c.png', 'image/png', app.uid(), 200
+         'wanonwan', 'avatars/fixture/confirmed2', 'c.png', 'image/png', app.uid(), 200
 $$, '23505', NULL, '確定済み(200) は 1 ユーザー 1 枚（2 枚目は unique 違反）');
 
 SELECT * FROM finish();

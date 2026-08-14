@@ -1,4 +1,4 @@
-# /ui-apply — 既存の @waoon/ui コンポーネントを apps に適用
+# /ui-apply — 既存の @wanonwan/ui コンポーネントを apps に適用
 
 apps 内の生 HTML/JSX マークアップを、既に catalog にあるコンポーネントに置き換える。**新規吸収ではなく既存資産の利用徹底**を目的とする。
 
@@ -35,16 +35,16 @@ apps 内の生 HTML/JSX マークアップを、既に catalog にあるコン�
 
 3. **置換実行**
    - `Edit` で行単位置換（`old_string` / `new_string` 厳密一致）
-   - import を追加（既存の `@waoon/ui` import に merge）
+   - import を追加（既存の `@wanonwan/ui` import に merge）
    - 不要になった Tailwind utility は削除（catalog 側で内包されるため）
 
 4. **検証**
-   - `pnpm --filter @waoon/web typecheck`
+   - `pnpm --filter @wanonwan/web typecheck`
    - dev サーバ稼働中なら HMR、停止中なら起動して該当ルートを HTTP プローブ
    - スクリーンショット差分まではこのコマンド単体ではやらない（必要なら `/e2e` で）
 
 5. **コミット候補**
-   - `refactor(ui): apply @waoon/ui to <scope>` メッセージ案を提示
+   - `refactor(ui): apply @wanonwan/ui to <scope>` メッセージ案を提示
 
 ## 適用パターン例
 
@@ -62,7 +62,7 @@ before:
 
 after:
 ```tsx
-import { Card, CardHeader, CardBody } from '@waoon/ui/molecules'
+import { Card, CardHeader, CardBody } from '@wanonwan/ui/molecules'
 
 <Card>
   <CardHeader><h2>タイトル</h2></CardHeader>
@@ -81,7 +81,7 @@ before:
 
 after:
 ```tsx
-import { Badge } from '@waoon/ui/atoms'
+import { Badge } from '@wanonwan/ui/atoms'
 
 <Badge tone="success">合格</Badge>
 ```
@@ -100,14 +100,14 @@ before:
 
 after:
 ```tsx
-import { ComingSoon } from '@waoon/ui/organisms'
+import { ComingSoon } from '@wanonwan/ui/organisms'
 
 <ComingSoon title="機能名" description="説明" />
 ```
 
 ## サブパス import 規約
 
-apps からは **必ずレイヤ単位のサブパス** (`@waoon/ui/atoms` / `/molecules` / `/organisms` / `/templates` / `/utils`) を使う。ルート (`@waoon/ui`) や深いパス (`@waoon/ui/core/...`) は禁止。
+apps からは **必ずレイヤ単位のサブパス** (`@wanonwan/ui/atoms` / `/molecules` / `/organisms` / `/templates` / `/utils`) を使う。ルート (`@wanonwan/ui`) や深いパス (`@wanonwan/ui/core/...`) は禁止。
 
 ## 注意
 

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { heldRoles, resolveActiveRole, type ElevatedRole } from "@waoon/domain";
+import { heldRoles, resolveActiveRole, type ElevatedRole } from "@wanonwan/domain";
 import { verifyAccessToken } from "@/lib/auth/jwt";
 import { getAccessToken, getActiveRoleCookie } from "@/lib/auth/session";
 import { withUser } from "@/lib/db/client";

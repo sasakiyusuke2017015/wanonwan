@@ -16,7 +16,7 @@
 - ページ h1 除去で admin/users から heading 要素が消える (SR の見出しナビ低下)
 - `subHeader.createHref` 単独指定でボタンが出ない footgun (union 型化の提案)
 - subHeader モードでは columnPicker / 内蔵リセットのスコープが内蔵 toolbar と異なる
-- SubHeaderToolbar JSDoc の「--topbar-h に反映」が waoon 実装方針と乖離
+- SubHeaderToolbar JSDoc の「--topbar-h に反映」が wanonwan 実装方針と乖離
 
 確認済みの良い点: `subHeader` 未指定時の後方互換は完全維持 / controlled `queryState` の
 setter は安定でループなし / `onCreate` + `createHref` 二重指定は IconButton の

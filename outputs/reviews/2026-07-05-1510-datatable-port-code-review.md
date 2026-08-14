@@ -22,7 +22,7 @@
 
 - `git diff origin/develop...feature/datatable-port --stat -- apps/web` → **0 件（apps/web 変更ゼロを確定）**
 - `pnpm --filter @ui-catalog/core typecheck` → exit 0
-- `pnpm --filter @waoon/web typecheck` → exit 0（新 catalog に対し既存 apps/web が型破壊なし）
+- `pnpm --filter @wanonwan/web typecheck` → exit 0（新 catalog に対し既存 apps/web が型破壊なし）
 - 新規ロジックテスト（columnVisibility / useDragAutoScroll / calculatePosition / isModifiedClick）→ 54 passed
 - 移植コンポーネントテスト（DataTable / DropdownMenu / Pagination / Toggleable）→ 163 passed
 
@@ -45,7 +45,7 @@
 
 ### 2. DropdownMenu 置換の互換性
 
-既存利用（MenuItemList / AppLayout / HeaderUserMenu + 新 ColumnPicker）。新 `DropdownMenuProps` は旧 props を全保持し、新規はすべて optional。**prop 上位互換**。`@waoon/web` typecheck exit 0 で AppLayout/HeaderUserMenu の破壊なしを確定。
+既存利用（MenuItemList / AppLayout / HeaderUserMenu + 新 ColumnPicker）。新 `DropdownMenuProps` は旧 props を全保持し、新規はすべて optional。**prop 上位互換**。`@wanonwan/web` typecheck exit 0 で AppLayout/HeaderUserMenu の破壊なしを確定。
 
 ### 3. Select emptyLabel 追加
 

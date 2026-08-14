@@ -23,7 +23,7 @@
 
 レビュアー Agent を起動するときは、依頼プロンプトに以下を必ず含める:
 
-- **現行スタックは所与の前提**として受け入れる（Next.js 16 / React 19 / Postgres / `@waoon/ui` / Jotai 等）。代替ライブラリやフレームワーク変更の提案はしない。
+- **現行スタックは所与の前提**として受け入れる（Next.js 16 / React 19 / Postgres / `@wanonwan/ui` / Jotai 等）。代替ライブラリやフレームワーク変更の提案はしない。
 - **Plan の Scope 外への大規模リファクタ提案はしない**。当該 PR で変更されていない既存コードの "bad practice" は指摘しない（必要なら別 Issue / 別 Plan に分ける）。
 - Review file 末尾の verdict は `APPROVE` / `NEEDS WORK` / `BLOCKED` の **いずれか 1 つ** を明示する。これが次フェーズに進むかどうかの機械的な判定材料になる。
 
@@ -60,7 +60,7 @@ Codex / `code-reviewer` Agent を起動する際は、依頼文に以下のブ�
 レビュー方針:
 - 指摘は [BLOCKER] / [NICE-TO-HAVE] にラベル分けすること。
 - [BLOCKER] がなければ verdict は APPROVE。[NICE-TO-HAVE] のみで差し戻さない。
-- 現行スタック（Next.js 16 / React 19 / Postgres / @waoon/ui / Jotai）は所与の前提。
+- 現行スタック（Next.js 16 / React 19 / Postgres / @wanonwan/ui / Jotai）は所与の前提。
   代替ライブラリやアーキテクチャ全面見直しは指摘しない。
 - 当 PR で変更されていない既存コードの bad practice は指摘しない。
 - Review file 末尾に verdict (APPROVE / NEEDS WORK / BLOCKED) を 1 行で明示すること。

@@ -45,8 +45,13 @@ requireSecret("APP_DB_PASSWORD", "app"); //            app_user（00_bootstrap.s
 requireSecret("MINIO_ROOT_PASSWORD", "minioadmin"); // MinIO root（dev 既定 minioadmin は本番不可）
 
 // プレースホルダのまま起動していないか（テンプレートの example ドメインが残っている）。
-if ((env.WAOON_DOMAIN ?? "").endsWith(".example.com")) {
-  errors.push("WAOON_DOMAIN が example.com のプレースホルダのままです");
+// 未設定も拒否する: キー名を取り違えると undefined が「プレースホルダでない」と誤判定され、
+// nginx server_name が空のまま起動してしまうため（fail-open を塞ぐ）。
+const domain = env.WANONWAN_DOMAIN ?? "";
+if (!domain) {
+  errors.push("WANONWAN_DOMAIN が未設定です（必須）");
+} else if (domain.endsWith(".example.com")) {
+  errors.push("WANONWAN_DOMAIN が example.com のプレースホルダのままです");
 }
 
 // AI 外部送信は二重 gate。key があるのに承認フラグが無い stg/prod を fail-closed で拒否する

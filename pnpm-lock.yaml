@@ -53,13 +53,13 @@ importers:
       '@ui-catalog/core':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@waoon/auth':
+      '@wanonwan/auth':
         specifier: workspace:*
         version: link:../../packages/auth
-      '@waoon/domain':
+      '@wanonwan/domain':
         specifier: workspace:*
         version: link:../../packages/domain
-      '@waoon/storage':
+      '@wanonwan/storage':
         specifier: workspace:*
         version: link:../../packages/storage
       clsx:
@@ -141,7 +141,7 @@ importers:
 
   apps/worker:
     dependencies:
-      '@waoon/storage':
+      '@wanonwan/storage':
         specifier: workspace:*
         version: link:../../packages/storage
       postgres:

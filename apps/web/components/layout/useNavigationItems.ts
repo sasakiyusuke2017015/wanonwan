@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import type { UserRole } from "@waoon/domain";
+import type { UserRole } from "@wanonwan/domain";
 import { apiGet } from "@/lib/api/client";
 import { NAV_ITEMS, isNavItemActive, type NavItemDef } from "./navItems";
 

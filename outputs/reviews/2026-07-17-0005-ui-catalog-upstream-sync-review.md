@@ -31,10 +31,10 @@
 | Plan の主張 | 検証方法 | 結果 |
 |---|---|---|
 | apps/web の import 119 箇所 | grep 実測 | 119 occurrences / 39 files — 一致 |
-| waoon 追加 5 アイコン plus/pencil/copy/ban/grip | 現行 `icons.ts` を grep | 5 種すべて waoon 側に存在 — 確認 |
+| wanonwan 追加 5 アイコン plus/pencil/copy/ban/grip | 現行 `icons.ts` を grep | 5 種すべて wanonwan 側に存在 — 確認 |
 | その 5 種が上流にも存在する「見込み」 | 上流 `icons.ts` / lucide-registry を grep | plus/pencil/copy/grip は上流に存在。**`ban` は上流 registry に standalone で見当たらず**（Plan の「無ければ追補」が的中） |
-| lucide-react / react-easy-crop の追加が必要 | 両 package.json 比較 | 上流 deps にあり waoon deps に無し — 追加は正当 |
-| DataTable / Toast は waoon 版が中核 | apps/web を grep | DataTable 6 files / ToastProvider・useToast 3 files で実使用 — waoon 版優先は妥当 |
+| lucide-react / react-easy-crop の追加が必要 | 両 package.json 比較 | 上流 deps にあり wanonwan deps に無し — 追加は正当 |
+| DataTable / Toast は wanonwan 版が中核 | apps/web を grep | DataTable 6 files / ToastProvider・useToast 3 files で実使用 — wanonwan 版優先は妥当 |
 | packages/ui の vitest は CI 除外中 | `.github/workflows/ci.yml` + packages/ui `scripts` | CI は `turbo run typecheck lint build test`。packages/ui に `test` script が無いため turbo が skip → 実質 CI 除外は事実 |
 | tokens.css がテーマに影響 | `apps/web/app/globals.css` | `@import "@ui-catalog/core/styles/tokens"` + `@source packages/ui/core` で apps/web に流入 — テーマ崩れリスクは実在 |
 | apps/worker への影響 | grep | worker は ui を import せず — Plan が worker を対象外にしているのは正しい |
@@ -70,7 +70,7 @@
 |---|---|---|---|
 | NICE-TO-HAVE | `## 検証` | 検証コマンドが CI 実体（`pnpm turbo run typecheck lint build test`）と非対称。local green が CI green を保証しない | 検証節に CI と同一コマンドを 1 行追加 |
 | NICE-TO-HAVE | `## 検証`（vitest 行） | packages/ui には `test` npm script が無く、`*.test.{ts,tsx}`（Phase 3 でコピーする上流テスト含む）は CI で走らない。「packages/ui の vitest」を回す具体コマンドが未定義 | `pnpm --filter @ui-catalog/core exec vitest run` を明記し、「新規コピーしたテストは CI ゲート外」である事実と `test` script 追加の要否を判断ログに |
-| NICE-TO-HAVE | `## リスク`（Icon 行） | `ban` が上流 registry に standalone で見当たらない。「無ければ追補」で拾える設計だが、既知欠落として名指ししておくと取りこぼしを防げる | Icon マージ手順に「`ban` は上流に無い前提で waoon 定義を再追補」と具体化 |
+| NICE-TO-HAVE | `## リスク`（Icon 行） | `ban` が上流 registry に standalone で見当たらない。「無ければ追補」で拾える設計だが、既知欠落として名指ししておくと取りこぼしを防げる | Icon マージ手順に「`ban` は上流に無い前提で wanonwan 定義を再追補」と具体化 |
 | NICE-TO-HAVE | `## スコープ`（package.json exports） | 採用新規部品が root barrel 経由で到達可能であることの確認手順が無い。subpath import が必要な部品があれば `exports` 追記が要る | Phase 3 後に「採用部品が `@ui-catalog/core` から解決できる」ことを typecheck 用 import で確認する一文を追加 |
 | NICE-TO-HAVE（記録整理） | ヘッダ表 | `_template.md` が要求する `概要`（dashboard 1 行）/ `ステータス` enum / `前提 Plan` 行が欠落。`gen-outputs-readme.mjs` は Plan ヘッダ不備で fail する | ヘッダを template 形式に修正し dashboard 再生成 |
 
@@ -81,7 +81,7 @@
 - [x] CI（ci.yml）/ CD（cd.yml）/ worker への影響をコマンドで確認
 - [x] tailwind（globals.css `@source` / `@import tokens`）・tsconfig（transpilePackages）・lockfile 経路を確認
 - [x] 上流 zip と現行 packages/ui の package.json deps 差分（lucide-react / react-easy-crop）を確認
-- [x] waoon / 上流双方の icons.ts で 5 アイコンの存否を照合（`ban` の欠落を検出）
+- [x] wanonwan / 上流双方の icons.ts で 5 アイコンの存否を照合（`ban` の欠落を検出）
 - [x] 過去 UI 系 Plan / 撤回 Plan との重複・矛盾を確認
 - 検証ギャップ: 上流 115 ファイルの中身レビューは未実施（三方向比較の集計値を所与とした）。
   個々のファイル内容の正当性は実装後の `/pr-review` で担保する前提。

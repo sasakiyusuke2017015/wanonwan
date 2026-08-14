@@ -7,7 +7,7 @@ export async function POST() {
   if (token) {
     // GoTrue 側の失効は best-effort（失敗してもクッキーは消す）
     try {
-      await gotrue.signOut(token);
+      await gotrue().signOut(token);
     } catch {
       // ignore
     }

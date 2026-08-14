@@ -162,7 +162,7 @@ export const VERSION_REGISTRY = {
   SidebarAccountMenu: '1.0.0',
   SegmentedRatioBar: '1.0.0',
 
-  // waoon 独自部品 (上流 catalog には無い)
+  // wanonwan 独自部品 (上流 catalog には無い)
   AlertDialog: '1.0.0',
   ContentBlock: '1.0.0',
   ContextMenu: '1.0.0',

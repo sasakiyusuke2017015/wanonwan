@@ -1,6 +1,6 @@
-# CONTRIBUTING — waoon 開発ガイド
+# CONTRIBUTING — Wanonwan 開発ガイド
 
-waoon をローカルで動かし、変更を PR にするまでの手順。AI 駆動開発の流れ・ブランチ戦略の
+Wanonwan をローカルで動かし、変更を PR にするまでの手順。AI 駆動開発の流れ・ブランチ戦略の
 一次情報は [.claude/rules/git-workflow.md](../.claude/rules/git-workflow.md) と
 [.claude/rules/plan-review-workflow.md](../.claude/rules/plan-review-workflow.md)。
 
@@ -22,9 +22,21 @@ Linux（stg サーバ）/ macOS は補助的。ドキュメントのコマンド
 pnpm install
 ```
 
-env は未設定でも既定値で dev 動作する（[apps/web/.env.example](../apps/web/.env.example) /
-[infra/.env.example](../infra/.env.example)）。上書きしたいときだけ
-`apps/web/.env.local` / `infra/.env` を作る。
+env ファイルを 2 つ作る。**既定値へのフォールバックは無いため、これが無いと compose も
+`db:migrate` も起動時に落ちる**（接続先や DB 名を取り違えたまま別環境に繋がるのを防ぐため）。
+
+```powershell
+Copy-Item infra/.env.example infra/.env
+Copy-Item apps/web/.env.example apps/web/.env.local
+```
+
+| ファイル | 使う場所 | 主な値 |
+|---|---|---|
+| [infra/.env](../infra/.env.example) | docker compose / `db:migrate` / `test:db` / `provision:dev` | `PG_*` / `APP_DB_PASSWORD` / `AUTH_ADMIN_PASSWORD` / `JWT_SECRET` / `MINIO_*` |
+| [apps/web/.env.local](../apps/web/.env.example) | apps/web（host 起動） | `DATABASE_URL` / `GOTRUE_*` / `STORAGE_*` |
+
+`.env.example` の値は dev 用に揃えてあるので、コピーしたままで動く。`JWT_SECRET` と
+`GOTRUE_JWT_SECRET` は必ず同じ値にする（ズレると login が 401 になる）。
 
 ## 2. 起動（2 コマンド）
 

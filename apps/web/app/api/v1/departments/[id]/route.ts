@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { UpdateDepartmentSchema } from "@waoon/domain";
+import { UpdateDepartmentSchema } from "@wanonwan/domain";
 import { withActiveUser } from "@/lib/auth/route";
 import { withUser } from "@/lib/db/client";
 import { mapDbError, mapDeleteError } from "@/lib/db/errors";

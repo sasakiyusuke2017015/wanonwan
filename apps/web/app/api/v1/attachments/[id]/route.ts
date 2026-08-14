@@ -8,7 +8,7 @@ import {
   isAllowedContentType,
   isWithinMaxSize,
   presignGet,
-} from "@waoon/storage";
+} from "@wanonwan/storage";
 import { storageBucket, storageContext } from "@/lib/storage";
 
 type Ctx = { params: Promise<{ id: string }> };

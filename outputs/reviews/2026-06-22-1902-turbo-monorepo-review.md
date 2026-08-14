@@ -46,7 +46,7 @@
 
 ## 運用 / インフラ影響
 
-- **CD 無変更で安全**: `infra/Dockerfile.web` は `pnpm --filter @waoon/web build` のまま（image に turbo を入れない）。`.dockerignore` に `**/.turbo` 既存で混入なし。
+- **CD 無変更で安全**: `infra/Dockerfile.web` は `pnpm --filter @wanonwan/web build` のまま（image に turbo を入れない）。`.dockerignore` に `**/.turbo` 既存で混入なし。
 - env / migration / compose / volume への影響なし。devDependency 追加（turbo / rimraf）と lockfile 更新のみ。
 - envMode strict（turbo 既定）で環境変数が明示宣言に限定される点はセキュリティ上好ましい。
 

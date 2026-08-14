@@ -5,7 +5,7 @@
 | 概要 | seed/provision 3 スクリプトを「環境 × ステップ + 依存グラフ + deprovision」の単一体系へ再編 |
 | ステータス | 🟣 マージ承認待ち |
 | 前提 Plan | [provision-dev](2026-06-25-0101-provision-dev.md) / [seed-csv-master-admin](2026-06-25-1025-seed-csv-master-admin.md) |
-| PR | [#112](https://github.com/sasakiyusuke2017015/waoon/pull/112) |
+| PR | [#112](https://github.com/sasakiyusuke2017015/wanonwan/pull/112) |
 | Review | [計画レビュー](../reviews/2026-07-07-1424-provision-steps-review.md) / [コードレビュー](../reviews/2026-08-13-0120-provision-steps-review.md) / [コードレビュー v2](../reviews/2026-08-13-0926-provision-steps-code-review-v2.md) |
 
 ## 目的
@@ -287,7 +287,7 @@ pnpm test:db                                          # pgTAP（CI 相当）
 | 2026-07-07 | stg で demo ステップを許可 — [app-shell-legacy-look](2026-06-28-2212-app-shell-legacy-look.md) の「provision:stg に --demo を渡さない」決定を反転 | 旧決定の意図は「本番にデモを入れない」。新体系では demo は stg の既定 bundle に含まれず明示ステップ opt-in で、prod では引き続き禁止のため意図は維持される（計画レビュー B-5） |
 | 2026-07-07 | 1 PR で出す（Phase 分割 PR にしない）。commit を「provision 再編（挙動同等）」→「deprovision 新規」の順に分離 | alias 体系が中間状態になる期間を作らない。commit 分離でリファクタと新規機能をレビュー上分離できる（計画レビュー N-6） |
 | 2026-07-07 | `docs/技術選定/_techmemo-decoded.md` の `db:seed` 言及は更新しない | 技術選定メモの decode 原本 = 歴史文書で evergreen の対象外（計画レビュー N-8） |
-| 2026-08-13 | 現状コンテキストを再取得し、Plan の前提 5 点を訂正 | 起票（2026-07-07）以降に #101/#102（dev アカウントを 36 人マトリクス化・PW を `Password1!` に統一）/ #107〜#109（`@waoon/storage` 切り出し・`seed/{master,users,demo}` 再編・migrations+snapshot 導入）が入り、(a) 廃止対象としていた `provision-users.example.csv` が dev ログインの一次ソースに昇格、(b) 統一 PW は `Admin1234!` ではなく `Password1!`、(c) seed CSV パスが `seed/csv/` から変更、(d)「MinIO 未採用」は誤り（#40〜#44 で採用済み）、(e) demo の番兵化は `demo_users` のみ実装済み、と食い違っていた |
+| 2026-08-13 | 現状コンテキストを再取得し、Plan の前提 5 点を訂正 | 起票（2026-07-07）以降に #101/#102（dev アカウントを 36 人マトリクス化・PW を `Password1!` に統一）/ #107〜#109（`@wanonwan/storage` 切り出し・`seed/{master,users,demo}` 再編・migrations+snapshot 導入）が入り、(a) 廃止対象としていた `provision-users.example.csv` が dev ログインの一次ソースに昇格、(b) 統一 PW は `Admin1234!` ではなく `Password1!`、(c) seed CSV パスが `seed/csv/` から変更、(d)「MinIO 未採用」は誤り（#40〜#44 で採用済み）、(e) demo の番兵化は `demo_users` のみ実装済み、と食い違っていた |
 | 2026-08-13 | dev ユーザーは **36 人マトリクスへ一本化**し、`users.csv` の 5 人は識別子ごと吸収する（笹木さん選択） | 二重管理の解消。pgTAP が依存する固定 UUID 4 件は `admin1` / `member1` / `interviewer1` / `member2` へ引き継ぐため、`SET LOCAL app.user_id` のリテラルは変更不要で RLS テストの意味は保たれる |
 | 2026-08-13 | `rls_role_admin.test.sql` の「admin ロール行は 1 行」前提を、**tx 内で admin 行を 1 名に絞ってから検証する**方式へ変更 | マトリクスは `admin1-9` + `multi1-9` で admin ロール行を 18 持ち、前提アサートが即座に落ちる。トリガー（`prevent_last_admin_removal`）は FOR EACH ROW で「自分以外の admin 行が 0 か」を見るため、`admin1` を残した一括 DELETE は通る。seed の admin 人数から独立するぶんテスト自体も堅牢になる |
 | 2026-08-13 | CI の Seed を `provision:dev`（GoTrue 発行経路）へ差し替える方針は維持（笹木さん選択） | 経路一本化を優先。ただし発行数が 5 → 36 に増え「軽微」の前提は崩れるため、CI の Seed 所要時間を検証項目として計測・記録する |

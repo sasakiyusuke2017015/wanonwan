@@ -3,7 +3,7 @@
 import { use } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type AnswerType } from "@waoon/domain";
+import { type AnswerType } from "@wanonwan/domain";
 import { useAppToast } from "@ui-catalog/core/providers";
 import { apiGet, apiSend } from "@/lib/api/client";
 import {

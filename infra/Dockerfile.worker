@@ -1,6 +1,6 @@
 # apps/worker（添付 GC worker）の本番 image。Next standalone と違い plain Node。
 # build context はリポジトリ root（pnpm モノレポ）。
-#   docker build -f infra/Dockerfile.worker -t waoon-worker .
+#   docker build -f infra/Dockerfile.worker -t wanonwan-worker .
 
 # ---- base: pnpm を有効化した node ----
 FROM node:24-alpine AS base
@@ -16,11 +16,11 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/web/package.json apps/web/
 COPY apps/worker/package.json apps/worker/
 COPY packages/ packages/
-RUN pnpm install --frozen-lockfile --prod --filter "@waoon/worker..."
+RUN pnpm install --frozen-lockfile --prod --filter "@wanonwan/worker..."
 COPY apps/worker apps/worker
 
 # ---- runner: workspace 構造をそのまま載せた最小イメージ ----
-# `pnpm deploy` で自己完結ディレクトリへ畳まない: workspace package (@waoon/storage) が
+# `pnpm deploy` で自己完結ディレクトリへ畳まない: workspace package (@wanonwan/storage) が
 # node_modules 配下の実体としてコピーされると、Node が type-stripping を拒否する
 # (ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING)。symlink のまま運ぶと realpath が
 # packages/ 側に解決されるため、dev と同じく TS を直接実行できる。

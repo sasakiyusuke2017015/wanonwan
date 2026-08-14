@@ -100,7 +100,7 @@ pnpm worker:start        # apps/worker（pgmq.read → MinIO DeleteObject → pg
 - [x] 認証必須 API に未ログインでアクセス → 401（`/v1/users`・`/v1/surveys` とも 401。`withActiveUser` 合成）
 - [x] admin 専用 API に一般ユーザー(alice) → 403（POST `/v1/surveys`・POST `/v1/users` とも 403。GET `/v1/users` は 200＝read は許可で対比確認）
 - [x] login レートリミット → 10 回目で 429 + `Retry-After: 45`（loginPerIp=10/60s）。refresh も同機構（refreshPerIp=30）
-- [x] `pnpm --filter @waoon/web lint` green。no-restricted-imports が `app/api/**/route.ts` に対し認証プリミティブ直 import を禁止する設定を確認
+- [x] `pnpm --filter @wanonwan/web lint` green。no-restricted-imports が `app/api/**/route.ts` に対し認証プリミティブ直 import を禁止する設定を確認
 
 ---
 
@@ -137,7 +137,7 @@ pnpm provision:stg              # 組織マスタ seed + admin 1 名を GoTrue p
 
 ### B-4. worker（stg/prod デプロイ）
 
-- [ ] CD で `waoon-worker` image が build/push される
+- [ ] CD で `wanonwan-worker` image が build/push される
 - [ ] `dc up -d web worker nginx`（migration 後）で worker が起動・superuser 接続で pgmq を消化
 - [ ] 添付削除 → enqueue → worker が MinIO 本体削除（実環境）
 

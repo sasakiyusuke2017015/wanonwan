@@ -1,4 +1,4 @@
-# nginx:alpine が起動時に envsubst で ${WAOON_DOMAIN} / ${WAOON_STORAGE_DOMAIN} を展開し
+# nginx:alpine が起動時に envsubst で ${WANONWAN_DOMAIN} / ${WANONWAN_STORAGE_DOMAIN} を展開し
 # /etc/nginx/conf.d/default.conf を生成する。
 # nginx 変数（$host / $remote_addr 等）は env に無いので置換されず温存される。
 
@@ -7,7 +7,7 @@
 server {
     listen 80;
     listen [::]:80;
-    server_name ${WAOON_DOMAIN} ${WAOON_STORAGE_DOMAIN};
+    server_name ${WANONWAN_DOMAIN} ${WANONWAN_STORAGE_DOMAIN};
 
     # Let's Encrypt webroot challenge（certbot と共有する volume）。
     location /.well-known/acme-challenge/ {
@@ -24,10 +24,10 @@ server {
     listen 443 ssl;
     listen [::]:443 ssl;
     http2 on;
-    server_name ${WAOON_DOMAIN};
+    server_name ${WANONWAN_DOMAIN};
 
-    ssl_certificate     /etc/letsencrypt/live/${WAOON_DOMAIN}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/${WAOON_DOMAIN}/privkey.pem;
+    ssl_certificate     /etc/letsencrypt/live/${WANONWAN_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${WANONWAN_DOMAIN}/privkey.pem;
     ssl_protocols       TLSv1.2 TLSv1.3;
     ssl_prefer_server_ciphers off;
 
@@ -54,15 +54,15 @@ server {
 
 # :443（storage サブドメイン）— MinIO へ proxy。ブラウザが presigned URL で直接 up/down する。
 # presigned(SigV4) はパスを署名対象にするため、MinIO はサブドメイン直下(path-style)で受ける
-# （サブパス書き換えは署名が壊れる）。cert は ${WAOON_DOMAIN} の SAN に storage 名を含めること。
+# （サブパス書き換えは署名が壊れる）。cert は ${WANONWAN_DOMAIN} の SAN に storage 名を含めること。
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
     http2 on;
-    server_name ${WAOON_STORAGE_DOMAIN};
+    server_name ${WANONWAN_STORAGE_DOMAIN};
 
-    ssl_certificate     /etc/letsencrypt/live/${WAOON_DOMAIN}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/${WAOON_DOMAIN}/privkey.pem;
+    ssl_certificate     /etc/letsencrypt/live/${WANONWAN_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${WANONWAN_DOMAIN}/privkey.pem;
     ssl_protocols       TLSv1.2 TLSv1.3;
     ssl_prefer_server_ciphers off;
 

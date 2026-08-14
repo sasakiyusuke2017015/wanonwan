@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import * as v from "valibot";
-import { GoTrueError } from "@waoon/auth";
+import { GoTrueError } from "@wanonwan/auth";
 import { getCurrentClaims } from "@/lib/auth/current-user";
 import { gotrue } from "@/lib/auth/gotrue";
 import { withServiceRole } from "@/lib/auth/service-role";
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
 
   // 1) current PW 確認（本人確認）。失敗は 401（汎用）。
   try {
-    await gotrue.signInWithPassword(email, input.currentPassword);
+    await gotrue().signInWithPassword(email, input.currentPassword);
   } catch (e) {
     if (e instanceof GoTrueError) {
       return NextResponse.json({ error: "現在のパスワードが違います" }, { status: 401 });
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
   // 2) PW 更新 + フラグ解除（service_role）。ここで変更は確定。
   try {
     await withServiceRole((token) =>
-      gotrue.admin.updateUser(
+      gotrue().admin.updateUser(
         claims.sub,
         { password: input.newPassword, appMetadata: mustChangeAppMetadata(false) },
         token,
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
   // 3) 新 PW で再ログインしてフラグ無しの新セッションへ差し替える（best-effort）。
   //    ここで失敗しても PW は既に変わっているので「変更完了・再ログイン要」を返す。
   try {
-    const session = await gotrue.signInWithPassword(email, input.newPassword);
+    const session = await gotrue().signInWithPassword(email, input.newPassword);
     await setSession(session);
   } catch (e) {
     console.error(`change-password re-login failed: sub=${claims.sub}`, e instanceof GoTrueError ? e.status : e);

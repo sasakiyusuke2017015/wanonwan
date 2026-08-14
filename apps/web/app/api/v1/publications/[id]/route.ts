@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { UpdatePublicationSchema } from "@waoon/domain";
+import { UpdatePublicationSchema } from "@wanonwan/domain";
 import { withActiveUser } from "@/lib/auth/route";
 import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";

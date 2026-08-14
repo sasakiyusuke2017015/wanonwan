@@ -5,7 +5,7 @@
 | 概要 | DDL を「migrations が真実・snapshot は生成物」体制へ。本番を止めずに更新でき、空 DB は snapshot で高速初期化 |
 | ステータス | 🟢 マージ済み（検証中） |
 | 前提 Plan | [storage/db-seed 再編](2026-07-24-0110-storage-package-db-seed-restructure.md)（スコープ外に切り出した migrations 方式の本体） |
-| PR | [#109](https://github.com/sasakiyusuke2017015/waoon/pull/109) |
+| PR | [#109](https://github.com/sasakiyusuke2017015/wanonwan/pull/109) |
 | Review | [2026-07-24-1146-...-review.md](../reviews/2026-07-24-1146-db-migrations-snapshot-review.md)（APPROVE） |
 
 ## 目的
@@ -138,7 +138,7 @@ pnpm db:snapshot && git diff --exit-code packages/db/snapshot/schema.sql
 | 2026-07-24 | `00_bootstrap.sql` は migration 化せず現状維持 | ロール/スキーマ/拡張は initdb.d で app_user 生成前に superuser 実行が要る「空環境の前提」。migration（app 層 DDL）とは責務が別。compose マウント経路も壊さない |
 | 2026-07-24 | down migration は作らない | FailFast 方針。切り戻しは snapshot 復元 or 前進 migration で対応 |
 | 2026-07-24 | migration 番号は 4 桁連番（`0001_`）で衝突禁止 | 参照元 ai-education は `002/004/007/033` が重複し適用順が壊れていた。単調増加を規約化する |
-| 2026-07-24 | snapshot 生成は使い捨てコンテナで行う | pg_cron は `cron.database_name='waoon'`（Dockerfile.db で固定）の DB でしか CREATE できず、0001 が `cron.schedule()` を呼ぶ。scratch DB 名では失敗するため、`waoon` 名の使い捨てコンテナで生成する（dev の DB を壊さない） |
+| 2026-07-24 | snapshot 生成は使い捨てコンテナで行う | pg_cron は `cron.database_name='wanonwan'`（Dockerfile.db で固定）の DB でしか CREATE できず、0001 が `cron.schedule()` を呼ぶ。scratch DB 名では失敗するため、`wanonwan` 名の使い捨てコンテナで生成する（dev の DB を壊さない） |
 | 2026-07-24 | pg_dump は `--no-privileges` を付けない | app_user への GRANT（テーブル権限）が落ち、pgTAP が permission denied で全滅した。privileges を含める |
 | 2026-07-24 | pgmq キューは dump から除外し `pgmq.create()` で再現 | pgmq は queue 実体を `pg_extension_config_dump` 登録するため、pg_dump が data/ACL は出すが structure を出さず replay で壊れる。`--exclude-schema=pgmq` + 残留 ACL 行を正規化で除去し、実在キューを読んで冪等 `pgmq.create()` を末尾に付与 |
 | 2026-07-24 | 正規化で `\restrict` 行と版情報行を除去 | pg_dump は `\restrict <ランダムトークン>` を出力し毎回変わる。除去しないと「再生成して diff」の drift 検査が常に落ちる。`CREATE SCHEMA`→IF NOT EXISTS、関数→OR REPLACE も付与し bootstrap 済み DB へ再適用可能にする |

@@ -6,7 +6,7 @@
 |---|---|
 | 概要 | 見た目磨き込み #2。送信時の入力エラーを各 `FormField` 下に日本語表示。`fieldErrorsOf`（静的: safeParse+flatten）+ `requiredFieldErrors`（動的: 設問駆動）+ domain 日本語メッセージ。User/Survey/Answer 全フォーム対応（InterviewForm は全 optional で対象外） |
 | ステータス | 🟢 マージ済み（検証中） |
-| PR | Phase1+2: [#33](https://github.com/sasakiyusuke2017015/waoon/pull/33)（merged） / Phase3: [#35](https://github.com/sasakiyusuke2017015/waoon/pull/35)（merged） |
+| PR | Phase1+2: [#33](https://github.com/sasakiyusuke2017015/wanonwan/pull/33)（merged） / Phase3: [#35](https://github.com/sasakiyusuke2017015/wanonwan/pull/35)（merged） |
 
 ---
 
@@ -57,7 +57,7 @@
 
 ## 4. 検証
 
-- `pnpm --filter @waoon/web test` green（helper unit test 追加）。
+- `pnpm --filter @wanonwan/web test` green（helper unit test 追加）。
 - `pnpm -r typecheck` green。
 - 手動確認（Docker 起動不要の範囲）: 各フォームで空 submit → 該当フィールド下に日本語エラー、妥当入力でエラー消失。
   - ※実 API 保存まで通す確認は Docker 起動が要るため範囲外（フィールド検証はクライアント完結なので起動なしで目視可能なら可）。

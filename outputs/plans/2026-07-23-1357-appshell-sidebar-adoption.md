@@ -5,14 +5,14 @@
 | 概要 | ui-catalog 上流の AppShell / Sidebar 基盤（Cookie 永続 + Cmd+B + SSR 対応）を取り込み、apps/web のシェルを Sidebar + TopBar 構成へ全面刷新する。あわせて上流の 46 ファイル修正（DropdownMenu の portal バグ修正含む）を同期 |
 | ステータス | ✅ 検証完了 |
 | 前提 Plan | [ui-catalog 上流同期 第 1 弾](2026-07-16-2354-ui-catalog-upstream-sync.md) |
-| PR | [#103](https://github.com/sasakiyusuke2017015/waoon/pull/103)（Phase A）/ [#104](https://github.com/sasakiyusuke2017015/waoon/pull/104)（Phase B） |
+| PR | [#103](https://github.com/sasakiyusuke2017015/wanonwan/pull/103)（Phase A）/ [#104](https://github.com/sasakiyusuke2017015/wanonwan/pull/104)（Phase B） |
 | Review | [計画レビュー 1](../reviews/2026-07-23-1410-appshell-sidebar-adoption-review.md) / [計画レビュー 2](../reviews/2026-07-23-1435-appshell-sidebar-adoption-review2.md) / [計画レビュー 3](../reviews/2026-07-23-1500-appshell-sidebar-adoption-review3.md) / [コードレビュー Phase A](../reviews/2026-07-23-1505-appshell-sidebar-phase-a-code-review.md) / [コードレビュー Phase B](../reviews/2026-07-23-1540-appshell-sidebar-phase-b-code-review.md) |
 
 
 ## 目的
 
 ui-catalog 上流の新リリース（`ui (1).zip`）が持ち込んだ **AppShell / Sidebar 基盤**を
-waoon へ導入し、apps/web のアプリシェルを左 Sidebar + TopBar 構成へ刷新する。
+wanonwan へ導入し、apps/web のアプリシェルを左 Sidebar + TopBar 構成へ刷新する。
 折りたたみ状態は Cookie で永続化し、SSR 初期描画から正しい幅で出す。
 副次的に、上流の 46 ファイル修正（**DropdownMenu の z-index バグ修正**を含む）も同期する。
 
@@ -23,7 +23,7 @@ waoon へ導入し、apps/web のアプリシェルを左 Sidebar + TopBar 構�
 **Phase A — カタログ同期（`packages/ui` のみ）**
 
 - 上流のみ変更の **16 ファイル**を上流版で置換
-- 両側変更の **13 ファイル**を個別マージ（DataTable 7 は waoon 版維持 / barrel 4 は union / tokens.css / SelectableList story）
+- 両側変更の **13 ファイル**を個別マージ（DataTable 7 は wanonwan 版維持 / barrel 4 は union / tokens.css / SelectableList story）
 - 上流新規のうち **AppShell / Sidebar 系 + 汎用部品**を採用（下記「採用リスト」）
 - `tokens.css` の sidebar 配色トークンと `@theme inline` ブリッジを取り込む。
   ただし **`--topbar-h` は `:root` ではなく `[data-sidebar-state]` にスコープして**取り込む
@@ -47,13 +47,13 @@ waoon へ導入し、apps/web のアプリシェルを左 Sidebar + TopBar 構�
   （パンくず + 通知ベル。高さは `--topbar-h`）
 - `SubHeader` テンプレート利用を廃し、TopBar 直下の **slot 帯**に置換
   （`SubHeaderPortal` の container を移すだけ。`SubHeaderToolbar` 自体は無改修）
-- Sidebar 配色を **waoon テーマ 3 軸に連動**させる（`--sidebar-*` をテーマ色から driveする）
+- Sidebar 配色を **wanonwan テーマ 3 軸に連動**させる（`--sidebar-*` をテーマ色から driveする）
 - モバイルは **現行の下部タブバーを維持**（Sidebar はデスクトップのみ）
 - 未保存ガード（`useGuardedNavigate`）を `SidebarNav` の `linkComponent` 経由で維持
 
 ### やらないこと（スコープ外）
 
-- **DataTable / Toast の上流版採用**（第 1 弾と同方針。waoon 版を維持）
+- **DataTable / Toast の上流版採用**（第 1 弾と同方針。wanonwan 版を維持）
 - ai-education ドメイン専用部品の取り込み（下記「見送りリスト」）
 - モバイル UI の作り替え（下部タブバーは現行のまま）
 - ナビゲーション**項目とロール出し分けロジック**の変更（`NAV_ITEMS` の中身と
@@ -64,16 +64,16 @@ waoon へ導入し、apps/web のアプリシェルを左 Sidebar + TopBar 構�
 
 ### 上流差分の規模
 
-第 1 弾（PR [#97](https://github.com/sasakiyusuke2017015/waoon/pull/97)）で取り込んだ `ui.zip` が
-正確な共通祖先になるため、三方向比較は前回より精密。**マージ以降 waoon は `packages/ui` を
-一切変更しておらず、上流追随ファイルでの waoon 側改変はゼロ**。
+第 1 弾（PR [#97](https://github.com/sasakiyusuke2017015/wanonwan/pull/97)）で取り込んだ `ui.zip` が
+正確な共通祖先になるため、三方向比較は前回より精密。**マージ以降 wanonwan は `packages/ui` を
+一切変更しておらず、上流追随ファイルでの wanonwan 側改変はゼロ**。
 
 | 分類 | 件数 | 対応 |
 |---|---|---|
 | そのまま採用可 | 16 | 上流版で置換 |
-| waoon 側で改変 | **0** | — |
+| wanonwan 側で改変 | **0** | — |
 | 両側変更（要マージ） | 13 | DataTable 7 / barrel 4 / tokens.css / story 1 |
-| waoon に無い（見送り部品） | 17 | 対象外 |
+| wanonwan に無い（見送り部品） | 17 | 対象外 |
 | 上流の新規 | 28（7 部品 + hexColor util） | 下記の採否 |
 
 component の `versions.json` は前回と完全同一。zip が 21MB→34MB に増えたのは
@@ -92,7 +92,7 @@ component の `versions.json` は前回と完全同一。zip が 21MB→34MB に
 - **`DropdownMenu`（バグ修正・実利用あり）**: メニューを `body` へ portal するようになった。
   祖先の stacking context に閉じ込められて実効 z-index が頭打ちになる問題の修正で、
   上流コメントが名指しする症状（DataTable の sticky toolbar で列並べ替え中のヘッダセルが
-  メニューの上にせり出す）は **waoon の `ColumnPicker` がそのまま該当する**
+  メニューの上にせり出す）は **wanonwan の `ColumnPicker` がそのまま該当する**
 - **`Badge`**: 任意 hex 背景色（文字色は YIQ でコントラスト自動導出）+ 丸ロゴ画像に対応
 - **`Icon`**: `link` / `scroll-text` の 2 種を追加
 - `SectionHeading` / `LoadingZone` / `FormPageShell` / `Tabs` / `SegmentedControl` の改善
@@ -111,7 +111,7 @@ component の `versions.json` は前回と完全同一。zip が 21MB→34MB に
 
 前提部品は **すべて第 1 弾で導入済み**（`SidebarNav` / `SidebarNavGroup` / `SidebarNavItem` /
 `ScrollArea` / `Collapse` / `DropdownMenu`）。`SidebarNav` は上流と完全同一。
-`SidebarShell` が使う `panel-left-close` アイコンも waoon の lucide-registry に存在する。
+`SidebarShell` が使う `panel-left-close` アイコンも wanonwan の lucide-registry に存在する。
 
 ### apps/web の現行シェル
 
@@ -128,7 +128,7 @@ container div へ `createPortal` するだけの **chrome 非依存**の仕組�
 
 ### `--topbar-h` の罠（Phase 分割に影響）
 
-上流 `tokens.css:412` は `:root` に `--topbar-h: 3.5rem` を定義する。一方 waoon の
+上流 `tokens.css:412` は `:root` に `--topbar-h: 3.5rem` を定義する。一方 wanonwan の
 [`DataTable.module.scss:37,391`](../../packages/ui/core/organisms/DataTable/DataTable.module.scss) は
 `top: var(--topbar-h, 0)` と `calc(var(--topbar-h, 0px) + var(--dt-toolbar-h, 0px))` で
 **「未定義 = 0」を前提に** sticky を組んでおり、
@@ -163,7 +163,7 @@ sidebar の幅系トークン（`--sidebar-w*`）と `[data-sidebar-state]` ル�
 祖先から帯高を継承させることもできない）。結果、ヘッダは TopBar 直下（`3.5rem`）に停まり、
 その上に重なる SubHeader 帯（44px〜、funnel 展開で可変）の裏に隠れる。
 
-よって **DataTable に chrome 帯の項を足す**。DataTable は waoon 版を維持している
+よって **DataTable に chrome 帯の項を足す**。DataTable は wanonwan 版を維持している
 （＝改修してよい）ため、停留基準に `--chrome-subheader-h` を加える:
 
 ```scss
@@ -177,7 +177,7 @@ sidebar の幅系トークン（`--sidebar-w*`）と `[data-sidebar-state]` ル�
 ### スクロールモデルの決定
 
 上流 DataTable の sticky は「ページスクロール時、TopBar（fixed, 高さ `--topbar-h`）の直下へ
-吸着させる」と明記された **ページスクロール前提**の設計。対して現行 waoon は
+吸着させる」と明記された **ページスクロール前提**の設計。対して現行 wanonwan は
 `AppLayout.tsx:100` の `flex h-screen flex-col overflow-hidden` + `main` の `overflow-y-auto` で
 **本文だけが内部スクロール**し、`--topbar-h` を未定義に保つことで sticky の二重適用を回避している。
 SubHeader 実高を ResizeObserver で測って `main` の `paddingTop` に足す仕組みもこの前提に依存する。
@@ -253,7 +253,7 @@ admin / interviewer のナビへ到達できなくなる（PR #99 の機能後�
 
 | 論点 | 決定 |
 |---|---|
-| Sidebar 配色 | **waoon テーマ 3 軸に連動**（上流の固定ダーク slate は不採用） |
+| Sidebar 配色 | **wanonwan テーマ 3 軸に連動**（上流の固定ダーク slate は不採用） |
 | 既存 chrome | **シェル全体を上流型へ刷新**（Header / SubHeader / Footer テンプレートの利用を廃止） |
 | モバイル | **下部タブバーを維持**（Sidebar はデスクトップのみ） |
 
@@ -264,13 +264,13 @@ admin / interviewer のナビへ到達できなくなる（PR #99 の機能後�
 1. `develop` 起点で `feature/ui-catalog-sync-2` を作成
 2. 上流のみ変更 16 ファイルを置換（各ファイルの現行改行コードを維持）
 3. 両側変更 13 ファイルを `git merge-file` で三方向マージ
-   - DataTable 7 ファイル: waoon 版維持（第 1 弾と同方針）
+   - DataTable 7 ファイル: wanonwan 版維持（第 1 弾と同方針）
    - barrel 4 本: union マージ + 見送り部品の export 除外
    - `tokens.css`: 上流の sidebar 配色トークン + `[data-sidebar-state]` ルール +
      `@theme inline` ブリッジを取り込む。**`--topbar-h: 3.5rem` は `:root` ではなく
      `[data-sidebar-state]` にスコープ**して書く（apps/web は Phase A では未定義のまま）
 4. 採用新規部品をコピーし、barrel と `package.json` の subpath export を追加
-   - `AppShell` は **waoon 既存の `core/templates/AppShell` と衝突**するため、
+   - `AppShell` は **wanonwan 既存の `core/templates/AppShell` と衝突**するため、
      既存（`AppShell` を export・利用者ゼロの dead code）を削除して上流版に置き換える。
      付随する `AppShell.module.scss`（上流に無く残留する）も削除し、
      `FormPageShell.tsx:33` の JSDoc が参照する旧 `AppShell` の padding 仕様も更新する
@@ -292,7 +292,7 @@ admin / interviewer のナビへ到達できなくなる（PR #99 の機能後�
    `AppShellRoot` に同変数として書く（現行の ResizeObserver は撤去せず出力先を変える）
 10. **モバイル無効化ルール**: `tokens.css` の `[data-sidebar-state]` 基底ルールより後ろに
     `@media (max-width: 767px)` の `--sidebar-w: 0px` 上書きを追加する
-11. **テーマブリッジ**: waoon テーマ色から `--sidebar-*` を driveする層を追加。写像は
+11. **テーマブリッジ**: wanonwan テーマ色から `--sidebar-*` を driveする層を追加。写像は
     `sidebar`←`primaryBgColor` / `sidebar-foreground`←`primaryContrastText` /
     `sidebar-border`←`primaryBorderColor` / `sidebar-accent`←`navHoverBgColor` /
     `sidebar-accent-foreground`←`navActiveTextColor` / `sidebar-primary`←`accentBgColor` /
@@ -304,8 +304,8 @@ admin / interviewer のナビへ到達できなくなる（PR #99 の機能後�
 13. **ナビのグループ定義**: `NAV_GROUPS`（一般 / 管理）を `navItems.ts` に新設し、
     `useNavigationItems` の絞り込み結果をグループへ写像する。`/me` 未取得中は
     **nav とアカウント行の両方をスケルトン表示**にして、空 → 生えるのちらつきを避ける
-    （`SidebarAccountMenu` の `name` / `email` は必須 string だが waoon の `me` は nullable）
-14. **Sidebar 構築**: `SidebarShell` に brand（waoon → `/dashboard`）、groups、
+    （`SidebarAccountMenu` の `name` / `email` は必須 string だが wanonwan の `me` は nullable）
+14. **Sidebar 構築**: `SidebarShell` に brand（wanonwan → `/dashboard`）、groups、
     footer に `SidebarAccountMenu` を差す。`linkComponent` に未保存ガード付き Link を注入し、
     `resolveIcon` は既存 `Icon` に委譲。`onAction` には
     **視点切替（`showCheck` セクション + 失敗時 `section.error`）/ テーマ設定 / PW 変更 /
@@ -410,7 +410,7 @@ NixOS のため `nixpkgs` の `playwright-driver.browsers` を `PLAYWRIGHT_BROWS
 検証中に判明した既存仕様（本 Plan 起因ではない）:
 
 - admin 一覧のフィルタ行は funnel 折りたたみが既定（`collapse--closed` / `height: 0`）
-- **列ピッカー（gear）は waoon の admin 一覧では未使用**（`AdminListTable` が `onColumnsChange` を
+- **列ピッカー（gear）は wanonwan の admin 一覧では未使用**（`AdminListTable` が `onColumnsChange` を
   渡していないため `ColumnPicker` が描画されない）。DropdownMenu の portal 修正は
   TopBar の通知ベル / アカウントメニューで検証した
 
@@ -440,24 +440,24 @@ NixOS のため `nixpkgs` の `playwright-driver.browsers` を `PLAYWRIGHT_BROWS
 
 | 日時 | 判断 | 理由 |
 |---|---|---|
-| 2026-07-23 | Sidebar 配色は waoon テーマ 3 軸に連動させる | 上流の固定ダーク slate では、テーマを切り替えても sidebar だけ取り残される。既存画面との一体感を優先（ユーザー決定） |
+| 2026-07-23 | Sidebar 配色は wanonwan テーマ 3 軸に連動させる | 上流の固定ダーク slate では、テーマを切り替えても sidebar だけ取り残される。既存画面との一体感を優先（ユーザー決定） |
 | 2026-07-23 | シェル全体を上流型へ刷新する（左ペインだけの置換に留めない） | AppShell / Sidebar の採用がこのプロジェクトの主目的であるため（ユーザー決定） |
 | 2026-07-23 | モバイルは下部タブバーを維持 | 狭い画面で本文が圧迫されるのを避ける。既存コードをそのまま使えて差分も小さい（ユーザー決定） |
 | 2026-07-23 | Phase A / B を別 PR に分ける | A は `packages/ui` 限定で低リスク、B は apps/web の広範な差分。分けることで切り戻し単位を小さくする |
-| 2026-07-23 | 上流 `AppShell` で waoon 既存 `AppShell` を置き換える | 既存は barrel export のみで利用者ゼロの dead code。ディレクトリ名も衝突するため温存する理由がない |
-| 2026-07-23 | `CertTypeLevelBadge` / `RelatedSection` は見送り | それぞれ見送り済みの `LevelBadge` / `RelatedList` に依存し、waoon に使途がない（第 1 弾の方針を踏襲） |
+| 2026-07-23 | 上流 `AppShell` で wanonwan 既存 `AppShell` を置き換える | 既存は barrel export のみで利用者ゼロの dead code。ディレクトリ名も衝突するため温存する理由がない |
+| 2026-07-23 | `CertTypeLevelBadge` / `RelatedSection` は見送り | それぞれ見送り済みの `LevelBadge` / `RelatedList` に依存し、wanonwan に使途がない（第 1 弾の方針を踏襲） |
 | 2026-07-23 | vitest は develop 時点のベースラインを採取してから比較する | 第 1 弾で既存破損スイートの存在が判明済み。絶対数ではなく差分で新規失敗を判定する |
 | 2026-07-23 | 上流 `tokens.css` の `--topbar-h: 3.5rem` を `:root` ではなく `[data-sidebar-state]` にスコープする（計画レビュー 1・2 回目） | DataTable の sticky が「未定義 = 0」前提のため `:root` だと Phase A で admin 一覧が 56px ずれる。属性を付けるのは `AppShellRoot` だけなので、スコープを絞れば Phase A は無影響のまま Phase B で自動的に有効化でき、Storybook の brand 行も壊れない（「1 行を除外して後で戻す」案より副作用が少ない） |
 | 2026-07-23 | スクロールモデルをページスクロールへ移行する（計画レビュー指摘で決定） | 上流 DataTable の sticky はページスクロール前提の設計で、全面刷新の方針とも整合する。当初「ResizeObserver → `paddingTop` の回避策を畳める」としたが、2 回目レビューで **SubHeader 帯の実高は sticky 基準に必要**と判明したため撤回し、ResizeObserver は出力先を CSS 変数へ変えて残す |
-| 2026-07-23 | sticky の停留基準に `--chrome-subheader-h` を新設する（計画レビュー 2 回目） | admin 一覧は external toolbar 構成で `--dt-toolbar-h` が `0px` 固定になるため、`--topbar-h` だけでは帯の裏にヘッダが潜る。DataTable は waoon 版を維持しており改修してよい |
+| 2026-07-23 | sticky の停留基準に `--chrome-subheader-h` を新設する（計画レビュー 2 回目） | admin 一覧は external toolbar 構成で `--dt-toolbar-h` が `0px` 固定になるため、`--topbar-h` だけでは帯の裏にヘッダが潜る。DataTable は wanonwan 版を維持しており改修してよい |
 | 2026-07-23 | モバイルの `--sidebar-w: 0px` は `[data-sidebar-state]` セレクタで上書きする（計画レビュー 2 回目） | カスタムプロパティは要素上の宣言が祖先からの継承に優先するため、`:root` への media query では `AppShellRoot` 配下に届かない |
 | 2026-07-23 | モバイルのアカウント導線は `HeaderUserMenu` を TopBar に残して確保する（計画レビュー 2 回目） | Header 廃止 + Sidebar デスクトップ限定を重ねるとモバイルでログアウト / PW 変更 / テーマ / 視点切替が到達不能になる。`SidebarAccountMenu` は sidebar 幅前提の配置なので流用しない |
 | 2026-07-23 | 視点切替を `SidebarAccountMenu` の `showCheck` セクションで引き継ぐ（計画レビュー 2 回目） | 移設漏れは PR #99 の機能後退。`SidebarAccountMenu` は `showCheck` / `section.error` / `badge` を備え追加改修は不要 |
 | 2026-07-23 | `/me` 取得中のスケルトンは**アカウント行のみ**にする（当初「nav も」としていたのを実装時に変更） | nav はロール非依存の 3 項目を即描画でき、空欄は出ない。全体をスケルトンにすると逆に描画が遅く見えるため |
 | 2026-07-23 | `EventModal` にも body scroll lock を配線（コードレビュー Phase B の BLOCKER） | `Modal` を経由しない自前オーバーレイのため対象外だった。パネルが viewport 基準の絶対配置なので、背景がスクロールするとアンカー元からずれる |
 | 2026-07-23 | 未使用化した catalog テンプレート（`Header` / `SubHeader` / `Footer` / `SideNav` / `FloatingMenuButton`）は削除せず残す | 上流同期で追随している資産で、削除すると次回同期の差分が増える。`SubHeaderToolbar` は継続利用中 |
-| 2026-07-23 | `AppShellRoot` の `bg-background` は対処しない | waoon の `tokens.css` に `--color-background` が無く Tailwind が utility を生成しないため、実害がない（背景は `body` と `BackgroundTexture` が担う） |
-| 2026-07-23 | モバイルのアカウント導線を `SidebarAccountMenu` の `placement` オプションへ吸収し、`HeaderUserMenu`（154 行）を削除 | popover 本体（sections / showCheck / error）は元々配置非依存で、分岐が要るのは trigger と展開方向のみ。catalog へ吸収すると視点切替 / ログアウトの二重実装が解消し、エラー表示の非対称も消える（CLAUDE.md「新規 UI 部品は原則 ui-catalog に吸収」）。上流との差分は増えるが、`placement` は waoon 固有の業務ロジックではない汎用オプションなので還元可能 |
+| 2026-07-23 | `AppShellRoot` の `bg-background` は対処しない | wanonwan の `tokens.css` に `--color-background` が無く Tailwind が utility を生成しないため、実害がない（背景は `body` と `BackgroundTexture` が担う） |
+| 2026-07-23 | モバイルのアカウント導線を `SidebarAccountMenu` の `placement` オプションへ吸収し、`HeaderUserMenu`（154 行）を削除 | popover 本体（sections / showCheck / error）は元々配置非依存で、分岐が要るのは trigger と展開方向のみ。catalog へ吸収すると視点切替 / ログアウトの二重実装が解消し、エラー表示の非対称も消える（CLAUDE.md「新規 UI 部品は原則 ui-catalog に吸収」）。上流との差分は増えるが、`placement` は wanonwan 固有の業務ロジックではない汎用オプションなので還元可能 |
 | 2026-07-23 | アカウントメニューの `sections` / `onAction` を `useAccountMenu()` へ抽出 | Sidebar（デスクトップ）と TopBar（モバイル）が同じ部品を使うため、視点切替 / テーマ / PW 変更 / ログアウトの実装を 1 本にする |
 | 2026-07-23 | `AppShellProvider` / `AppShellRoot` は `AppFrame` の非 BARE 経路にのみ適用する（計画レビュー指摘） | root layout に無条件で置くと `/login` `/change-password` にもシェルのラッパが被る。`/change-password` は「他へ遷移させない」ための bare 化なので Sidebar を出してはいけない |
 | 2026-07-23 | root layout の dynamic rendering 化を許容する | `cookies()` を読むと全ルートが dynamic に落ちるが、`middleware.ts` が全ページを認証ゲートしており静的化の利得は元々小さい |

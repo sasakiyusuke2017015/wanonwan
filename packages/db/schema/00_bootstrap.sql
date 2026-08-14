@@ -1,5 +1,5 @@
--- waoon DB ブートストラップ（dev）。
--- initdb.d で初回起動時に postgres(superuser) として waoon DB に対して実行される。
+-- wanonwan DB ブートストラップ（dev）。
+-- initdb.d で初回起動時に postgres(superuser) として wanonwan DB に対して実行される。
 -- これにより GoTrue が接続できる状態（auth スキーマ + supabase_auth_admin ロール）を先に作る。
 -- 本番(stg/prod)のパスワードは env 由来へ差し替える（Phase 6）。dev 専用の固定値。
 

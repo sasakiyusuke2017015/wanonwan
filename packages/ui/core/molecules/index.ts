@@ -102,7 +102,7 @@ export * from './SearchBar'
 // Behavior primitives
 export * from './Collapse'
 
-// waoon: 独自 molecules (上流には無い)
+// wanonwan: 独自 molecules (上流には無い)
 export * from './ContextMenu'
 export * from './Dropdown'
 export * from './NavItem'

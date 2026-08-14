@@ -1,6 +1,6 @@
-# /ui-absorb — アプリ内パーツを @waoon/ui へ吸収
+# /ui-absorb — アプリ内パーツを @wanonwan/ui へ吸収
 
-apps 配下に書かれた汎用 UI パーツを `packages/ui/core/{atoms,molecules,organisms,templates}/` へ昇格させ、apps 側を `@waoon/ui/*` のサブパス import に書き換える。
+apps 配下に書かれた汎用 UI パーツを `packages/ui/core/{atoms,molecules,organisms,templates}/` へ昇格させ、apps 側を `@wanonwan/ui/*` のサブパス import に書き換える。
 
 ## 使い方
 
@@ -40,7 +40,7 @@ apps 配下に書かれた汎用 UI パーツを `packages/ui/core/{atoms,molecu
 3. **ファイル移動**
    - `packages/ui/core/{layer}/<Name>/<Name>.tsx` に配置
    - `packages/ui/core/{layer}/<Name>/index.ts` を生成（`export { Name, default } from './Name'`）
-   - import 文の `@waoon/ui/*` → 相対パス（catalog 内は相対）に書き換え
+   - import 文の `@wanonwan/ui/*` → 相対パス（catalog 内は相対）に書き換え
    - React hooks を使う場合は `'use client'` を明記する
 
 4. **barrel 更新**
@@ -48,17 +48,17 @@ apps 配下に書かれた汎用 UI パーツを `packages/ui/core/{atoms,molecu
 
 5. **apps 側 import の置換**
    - `grep -rln "@/components/<Name>" apps/` で全参照を検出
-   - `sed` で `import { <Name> } from '@/components/<Name>'` → `import { <Name> } from '@waoon/ui/{layer}'` に置換
+   - `sed` で `import { <Name> } from '@/components/<Name>'` → `import { <Name> } from '@wanonwan/ui/{layer}'` に置換
    - 元ファイル `apps/web/src/components/<Name>.tsx` を `rm`
 
 6. **検証**
-   - `pnpm --filter @waoon/ui typecheck`
-   - `pnpm --filter @waoon/web typecheck`
+   - `pnpm --filter @wanonwan/ui typecheck`
+   - `pnpm --filter @wanonwan/web typecheck`
    - dev サーバが起動中なら HMR 経由、停止中なら起動して影響を受けるルートを HTTP プローブ
    - キャッシュ起因のビルドエラーが残る場合: `docker compose -f infra/docker-compose.yml restart web` + `.next/cache` クリア
 
 7. **コミット候補**
-   - 差分サマリを表示し、`feat(ui): absorb <Name> into @waoon/ui (<layer>)` のメッセージ案を提示
+   - 差分サマリを表示し、`feat(ui): absorb <Name> into @wanonwan/ui (<layer>)` のメッセージ案を提示
 
 ## レイヤ判定の指針
 
@@ -77,16 +77,16 @@ apps からの import は **必ずレイヤ単位のサブパス**を使う:
 
 ```ts
 // 良い
-import { Badge } from '@waoon/ui/atoms'
-import { Card, CardBody, Button } from '@waoon/ui/molecules'
-import { ComingSoon } from '@waoon/ui/organisms'
-import { cn } from '@waoon/ui/utils'
+import { Badge } from '@wanonwan/ui/atoms'
+import { Card, CardBody, Button } from '@wanonwan/ui/molecules'
+import { ComingSoon } from '@wanonwan/ui/organisms'
+import { cn } from '@wanonwan/ui/utils'
 
 // 悪い（ルートからの import は重い deps まで bundle されやすい）
-import { Badge, Card, ComingSoon } from '@waoon/ui'
+import { Badge, Card, ComingSoon } from '@wanonwan/ui'
 
 // 悪い（深い内部パス禁止）
-import { Badge } from '@waoon/ui/core/atoms/Badge/Badge'
+import { Badge } from '@wanonwan/ui/core/atoms/Badge/Badge'
 ```
 
 サブパス定義は `packages/ui/package.json` の `exports` を参照。
@@ -95,7 +95,7 @@ import { Badge } from '@waoon/ui/core/atoms/Badge/Badge'
 
 - **アプリ固有ロジック（fetch・router）は持ち込まない**。`LogoutButton` のように `/api/auth/logout` を叩くものは、まず props で onClick を受け取る presentational に書き直してから吸収する。
 - **'use client' の伝播**: hooks を使うコンポーネントはファイル先頭に `'use client'` を必ず明記する（barrel 経由でも安全）。
-- **import 経路は @waoon/ui の公開 surface のみ**: apps から `packages/ui/core/...` の生パスへの直接 import は禁止。
+- **import 経路は @wanonwan/ui の公開 surface のみ**: apps から `packages/ui/core/...` の生パスへの直接 import は禁止。
 
 ## 判定フロー（吸収可否）
 
@@ -123,14 +123,14 @@ import { Badge } from '@waoon/ui/core/atoms/Badge/Badge'
 
 - 依存: Card / CardContent のみ（catalog 内）
 - app 固有ロジック: なし
-- 結果: `packages/ui/core/organisms/ComingSoon/` に配置、apps の 6 ルートで `@waoon/ui/organisms` 経由 import に変更
+- 結果: `packages/ui/core/organisms/ComingSoon/` に配置、apps の 6 ルートで `@wanonwan/ui/organisms` 経由 import に変更
 - PR: #27
 
 ### 事例2: AsyncActionButton — 単独吸収（成功例）
 
 - 依存: Button のみ（catalog 内）
 - app 固有ロジック: なし（fetch / router は呼び出し側で `onAction` に注入）
-- 結果: `packages/ui/core/molecules/AsyncActionButton/` に配置、apps の 3 ファイルで `@waoon/ui/molecules` 経由 import に変更
+- 結果: `packages/ui/core/molecules/AsyncActionButton/` に配置、apps の 3 ファイルで `@wanonwan/ui/molecules` 経由 import に変更
 - PR: #27
 
 ### 事例3: AppShell 配下 3 ファイル — slot 構造に統合（成功例、応用）

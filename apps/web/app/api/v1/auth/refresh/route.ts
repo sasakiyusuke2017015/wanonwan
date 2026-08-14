@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { GoTrueError } from "@waoon/auth";
+import { GoTrueError } from "@wanonwan/auth";
 import { gotrue } from "@/lib/auth/gotrue";
 import { clearSession, getRefreshToken, setSession } from "@/lib/auth/session";
 import { AUTH_RATE_LIMITS, checkRateLimit } from "@/lib/auth/rate-limit";
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
   }
   try {
-    const session = await gotrue.refresh(refreshToken);
+    const session = await gotrue().refresh(refreshToken);
     await setSession(session);
     return NextResponse.json({
       user: { id: session.user.id, email: session.user.email, role: session.user.role },

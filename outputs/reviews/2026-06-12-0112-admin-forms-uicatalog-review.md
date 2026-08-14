@@ -229,7 +229,7 @@ HTML `required` 撤去の代替として onSubmit 冒頭で `code/name/email`（
 
 ## 検証ステータス
 
-- `pnpm --filter @waoon/web typecheck`: green（再現確認済み）
+- `pnpm --filter @wanonwan/web typecheck`: green（再現確認済み）
 - 実機スモーク（各画面 200 / SSR 非クラッシュ）: 申告どおり。ただし B-1 は保存値の
   問題で 200 スモークでは表面化しない。**B-1 修正後に保存ペイロードの実値検証が必要。**
 

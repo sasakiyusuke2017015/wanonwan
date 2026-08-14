@@ -11,7 +11,7 @@ import {
   UpdatePositionSchema,
   CreateUrgencySchema,
   UpdateUrgencySchema,
-} from "@waoon/domain";
+} from "@wanonwan/domain";
 
 // マスタ管理画面（本部/部/課/役職）の共通設定。MasterListView / MasterForm が参照する。
 export type MasterField = {

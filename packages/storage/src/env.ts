@@ -16,7 +16,8 @@ export const StorageEnvSchema = v.object({
   STORAGE_REGION: v.optional(NonEmpty, "us-east-1"),
   STORAGE_ACCESS_KEY: NonEmpty,
   STORAGE_SECRET_KEY: NonEmpty,
-  STORAGE_BUCKET: v.optional(NonEmpty, "waoon"),
+  // バケット名に既定値は持たない（env 未設定のまま別環境のバケットを掴むのを防ぐ）。
+  STORAGE_BUCKET: NonEmpty,
 });
 
 export type StorageEnv = v.InferOutput<typeof StorageEnvSchema>;

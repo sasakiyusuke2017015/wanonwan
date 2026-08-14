@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { AnswerType } from "@waoon/domain";
+import type { AnswerType } from "@wanonwan/domain";
 import { ContentBlock } from "@ui-catalog/core/organisms/ContentBlock";
 import { FormField, Input, Select } from "@ui-catalog/core/molecules";
 import { TextArea, Radio, Checkbox } from "@ui-catalog/core/atoms";

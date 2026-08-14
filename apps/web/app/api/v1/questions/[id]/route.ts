@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { CreateQuestionSchema } from "@waoon/domain";
+import { CreateQuestionSchema } from "@wanonwan/domain";
 import { withActiveUser } from "@/lib/auth/route";
 import { parseBody } from "@/lib/api/request";
 import { withUser } from "@/lib/db/client";

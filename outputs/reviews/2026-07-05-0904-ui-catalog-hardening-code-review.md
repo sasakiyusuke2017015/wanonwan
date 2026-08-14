@@ -47,7 +47,7 @@
 
 - `git diff develop --` では `docs/99_archive/1on1-main.zip` の削除が作業ツリーに含まれている。今回の UI catalog hardening とは無関係に見えるため、PR に含める意図がなければ分離確認を推奨する。実装品質上の BLOCKER ではない。
 - `develop...HEAD` のコミット済み差分は空だったため、本レビューは現在の作業ツリー差分を対象にした。
-- ユーザー申告の検証: `pnpm -r typecheck` / `pnpm lint`（web+ui）/ `pnpm --filter @waoon/web test`（69件）/ `pnpm --filter @waoon/web build` / MarkdownPreview 新規テスト 4 件 green。本レビューでは追加実行していない。
+- ユーザー申告の検証: `pnpm -r typecheck` / `pnpm lint`（web+ui）/ `pnpm --filter @wanonwan/web test`（69件）/ `pnpm --filter @wanonwan/web build` / MarkdownPreview 新規テスト 4 件 green。本レビューでは追加実行していない。
 - 既知事項の ui テストスイート既存破損は、本レビューの指摘対象外として扱った。
 
 verdict: APPROVE

@@ -96,7 +96,7 @@
   リフレッシュトークン取得・成功・`clearSession` を伴う失敗系は同一。
 - middleware は `matcher` で `/api` を除外しており、auth ルートは自前防御。レートリミットを
   ルート内に置く配置は正しい（middleware に置くと edge runtime でモジュール状態が共有されない）。
-- `pnpm --filter @waoon/web typecheck` 通過。実機検証（200→401×2→429+Retry-After:60、
+- `pnpm --filter @wanonwan/web typecheck` 通過。実機検証（200→401×2→429+Retry-After:60、
   refresh 初回 401、サーバエラーなし）とも一致。
 
 ---
