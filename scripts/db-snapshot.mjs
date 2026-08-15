@@ -95,14 +95,31 @@ try {
     .split(/\r?\n/)
     .filter(Boolean);
 
-  writeFileSync(outFile, normalize(raw, migrations, queues));
+  // cron.job も pg_dump の対象外（cron スキーマは拡張所有）。キューと同じく実在ジョブを読み、
+  // snapshot 適用時に cron.schedule で再登録する。これが無いと snapshot 経路で作った DB は
+  // 定期ジョブを 1 つも持たない状態になる。
+  // command は任意の SQL でクォートを含みうるため、エスケープは psql の format(%L) に任せ、
+  // 実行可能な 1 行として受け取る（JS 側でセパレータ分割しない）。
+  const cronJobs = docker(
+    ["exec", "-i", CONTAINER, "psql", "-tA", "-U", "postgres", "-d", "wanonwan"],
+    {
+      input:
+        "SELECT format('SELECT cron.schedule(%L, %L, %L);', jobname, schedule, command)" +
+        " FROM cron.job ORDER BY jobname;",
+    },
+  )
+    .trim()
+    .split(/\r?\n/)
+    .filter(Boolean);
+
+  writeFileSync(outFile, normalize(raw, migrations, queues, cronJobs));
   console.log(`done: ${outFile} を再生成（${migrations.length} migration(s)）`);
 } finally {
   cleanup();
 }
 
 // pg_dump 出力を決定的にし、bootstrap 済み DB へも再適用できる形へ正規化する。
-function normalize(dump, migrations, queues) {
+function normalize(dump, migrations, queues, cronJobs) {
   const lines = dump.split(/\r?\n/).filter((line) => {
     // \restrict / \unrestrict はランダムトークン付きで毎回変わる（決定性を壊す）。
     if (/^\\(un)?restrict\b/.test(line)) return false;
@@ -145,6 +162,12 @@ function normalize(dump, migrations, queues) {
         .join("\n")
     : "";
 
+  // pg_cron ジョブの再登録（pg_dump 対象外）。cron.schedule は jobname が同じなら更新なので冪等。
+  const cronSql = cronJobs.length
+    ? "\n\n-- pg_cron ジョブ（pg_dump 対象外。jobname 一致で更新されるため冪等）\n" +
+      cronJobs.join("\n")
+    : "";
+
   // schema_migrations の data を末尾に付与（適用済み version を snapshot 適用で自動記入）。
   const inserts =
     "\n\n-- 適用済み migration の記録（snapshot 適用で schema_migrations を埋める）\n" +
@@ -153,5 +176,5 @@ function normalize(dump, migrations, queues) {
       .join("\n") +
     "\n";
 
-  return `${header}${body}\n${queueSql}${inserts}`;
+  return `${header}${body}\n${queueSql}${cronSql}${inserts}`;
 }
