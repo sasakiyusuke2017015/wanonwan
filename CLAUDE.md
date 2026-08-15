@@ -80,7 +80,6 @@ nginx (TLS終端・ルーティング)
 | [agents/](.claude/agents/) | サブエージェント（planner / architect / tdd-guide / code-reviewer / security-reviewer 等） |
 | [skills/](.claude/skills/) | スキル |
 | [contexts/](.claude/contexts/) | dev / review / research コンテキスト |
-| [hooks/](.claude/hooks/) | フック用スクリプト（settings.json への配線は未実施。有効化は別途） |
 | [mcp-configs/](.claude/mcp-configs/) | MCP サーバ設定の参照テンプレート |
 
 > この .claude 設定は別プロジェクト（ai-education）から汲み取り、wanonwan 向けに汎用化したもの。
