@@ -1,6 +1,5 @@
 /**
  * シャドウトークン
- * SCSS: _shadows.scss と同期
  */
 
 export const shadows = {

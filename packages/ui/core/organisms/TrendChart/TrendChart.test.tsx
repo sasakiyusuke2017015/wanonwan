@@ -3,7 +3,7 @@ import { render } from '@testing-library/react';
 
 import { TrendChart } from './TrendChart';
 
-// ResizeObserverはsetup.tsでグローバルにモックされている
+// ResizeObserver は vitest.setup.ts でグローバルにモックされている
 
 describe('TrendChart', () => {
   const mockData = {

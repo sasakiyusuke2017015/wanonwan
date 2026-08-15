@@ -1,6 +1,5 @@
 /**
  * タイポグラフィトークン
- * SCSS: _typography.scss と同期
  */
 
 export const fontFamily = {

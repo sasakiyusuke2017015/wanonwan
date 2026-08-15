@@ -1,6 +1,5 @@
 /**
  * スペーシングトークン
- * SCSS: _spacing.scss と同期
  */
 
 export const spacing = {

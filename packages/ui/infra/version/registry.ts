@@ -208,7 +208,7 @@ export interface VersionCheckResult {
  *
  * @example
  * ```tsx
- * // apps/web/src/main.tsx
+ * // アプリのエントリポイント
  * import { checkVersions } from '@ui-catalog/core'
  * import versions from '../ui-catalog.versions.json'
  *
@@ -322,7 +322,7 @@ export function exportVersionsAsJson(): string {
  *
  * @example
  * ```tsx
- * // apps/web/src/main.tsx
+ * // アプリのエントリポイント
  * import { initUICatalog } from '@ui-catalog/core'
  * import versions from '../ui-catalog.versions.json'
  *

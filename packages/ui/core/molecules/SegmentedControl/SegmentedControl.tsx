@@ -28,7 +28,7 @@ export interface SegmentedControlProps<T extends string = string> {
  * SegmentedControl - 常時展開・単一選択のセグメントコントロール (正準)
  *
  * N 択から 1 つ選ぶ横並びボタン群。選択位置へスライダーが滑らかに移動する。
- * 同一操作モデルの実装を増やさないこと (ui-architecture.md §3)。
+ * 同一操作モデルの実装を増やさないこと。
  *
  * @example
  * ```tsx

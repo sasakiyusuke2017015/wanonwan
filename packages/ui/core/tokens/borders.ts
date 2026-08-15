@@ -1,6 +1,5 @@
 /**
  * ボーダートークン
- * SCSS: _borders.scss と同期
  */
 
 export const borderRadius = {
