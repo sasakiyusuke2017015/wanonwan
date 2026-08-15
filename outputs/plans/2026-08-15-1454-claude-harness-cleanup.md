@@ -3,9 +3,9 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | `.claude/` に「存在するが繋がっていない設定」（settings.json の allow 75 件・未配線 hooks 14 個・無関係 skills / MCP テンプレ）が溜まっており、配線した瞬間に運用と衝突する状態を解消する。あわせて `gen-outputs-readme.mjs --check` を CI に足し、ダッシュボードの drift を機械検知にする |
-| ステータス | ⚪ 実装待ち |
+| ステータス | 🟡 実装中 |
 | 前提 Plan | なし |
-| PR | |
+| PR | [step 1](https://github.com/sasakiyusuke2017015/waoon/pull/126) |
 | Review | [計画レビュー](../reviews/2026-08-15-1500-claude-harness-cleanup-review.md) |
 
 ## 目的
@@ -152,7 +152,7 @@ hook は `outputs/plans/**` 運用を止める）。[evergreen.md](../../.claude
 ## ステータス
 
 - [x] 計画確定（[計画レビュー](../reviews/2026-08-15-1500-claude-harness-cleanup-review.md)）
-- [ ] 1. settings.json の allow 全削除
+- [x] 1. settings.json の allow 全削除（[#126](https://github.com/sasakiyusuke2017015/waoon/pull/126) マージ済み）
 - [ ] 2. hooks の全削除 + docs 更新
 - [ ] 3. skills / MCP テンプレの整理（2 の後）
 - [ ] 4. `gen-outputs-readme --check` + CI 配線
