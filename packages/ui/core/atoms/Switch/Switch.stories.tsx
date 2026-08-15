@@ -17,7 +17,7 @@ export default {
     docs: {
       description: {
         component: `
-Switchコンポーネント。boolean トグルの正準実装 (ui-architecture.md §3)。以下の機能をサポート:
+Switchコンポーネント。boolean トグルの正準実装。以下の機能をサポート:
 
 - **3つのバリアント**: default (blue/red), primary (teal/red), neutral (green/gray)
 - **3つのサイズ**: small, medium, large

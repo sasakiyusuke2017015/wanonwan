@@ -87,12 +87,12 @@ ui-catalog/
 │   │   ├── useRemountKey.ts
 │   │   ├── router/          #     ルーター抽象化
 │   │   ├── ui/              #     UI系フック（useDisclosure等）
-│   │   └── calend/          #     カレンダー系フック + state
+│   │   └── calendar/          #     カレンダー系フック + state
 │   │
 │   ├── tokens/              #   デザイントークン（SCSS変数）
 │   ├── constants/           #   定数定義
-│   ├── types/               #   共通型定義（calend.ts 含む）
-│   ├── utils/               #   ユーティリティ（calend/ 含む）
+│   ├── types/               #   共通型定義（calendar.ts 含む）
+│   ├── utils/               #   ユーティリティ（calendar/ 含む）
 │   ├── styles/              #   グローバルスタイル
 │   └── index.ts             #   core/ バレルエクスポート
 │
@@ -165,7 +165,7 @@ atoms ← molecules ← organisms ← templates
 | **core/types** | 共通型定義 | ❌ 禁止 | なし |
 | **core/utils** | ユーティリティ関数 | ❌ 禁止 | なし |
 | **core/styles** | グローバルCSS | ❌ 禁止 | なし |
-| **core/hooks/calend/** | カレンダードメインフック | ❌ 禁止 | core/types, core/utils |
+| **core/hooks/calendar/** | カレンダードメインフック | ❌ 禁止 | core/types, core/utils |
 | **infra/** | 観測・バージョン管理 | N/A | 環境依存OK |
 
 ---
@@ -186,7 +186,7 @@ core/atoms → core/molecules → core/organisms → core/templates
 
 **ルール:**
 - 下から上への依存は禁止（atoms → molecules は ❌）
-- ドメイン支援（hooks/calend/, types/calend.ts, utils/calend/）はコンポーネントから参照可能
+- ドメイン支援（hooks/calendar/, types/calendar.ts, utils/calendar/）はコンポーネントから参照可能
 
 ---
 
@@ -231,9 +231,9 @@ pnpm storybook:localhost
 カレンダーのように複数コンポーネントが型・hooks・utils を共有する場合:
 
 ```
-core/hooks/calend/      ← ドメインフックと state
-core/types/calend.ts    ← ドメイン型定義
-core/utils/calend/      ← ドメインユーティリティ
+core/hooks/calendar/      ← ドメインフックと state
+core/types/calendar.ts  ← ドメイン型定義
+core/utils/calendar/      ← ドメインユーティリティ
 ```
 
 ### 禁止操作
