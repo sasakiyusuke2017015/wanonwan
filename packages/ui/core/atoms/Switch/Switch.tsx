@@ -31,7 +31,7 @@ export interface SwitchProps
 
 /**
  * boolean トグルスイッチの正準 atom (input[type=checkbox] + role="switch")。
- * 同一操作モデルの実装を増やさないこと (ui-architecture.md §3)。
+ * 同一操作モデルの実装を増やさないこと。
  */
 export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
   (

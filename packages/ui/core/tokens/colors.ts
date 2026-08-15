@@ -1,6 +1,5 @@
 /**
  * カラートークン
- * SCSS: _colors.scss と同期
  */
 
 export const colors = {

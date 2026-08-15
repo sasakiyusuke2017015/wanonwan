@@ -5,7 +5,7 @@ import type { TableAnimationVariant } from './tableMotion'
 /**
  * rowActions から自動生成される操作列の安定キー。
  * 列順の保存 (URL `cols` allowlist / localStorage known-set) で操作列の位置を
- * 通すために、app 側の `allKeys` / `extraValidKeys` でも参照する。
+ * 通すために、`useColumnVisibilityState` の `extraValidKeys` へ渡す。
  */
 export const ROW_ACTIONS_KEY = '__rowActions'
 
@@ -405,9 +405,9 @@ export type { TableAnimationVariant }
  * 状態オブジェクト。`ClientDataTableProps.queryState` に丸ごと渡す。
  *
  * - 未指定 (undefined) のとき、ClientDataTable は内部 `useState` で従来どおり
- *   uncontrolled に動く (後方互換)。CompaniesClient や Storybook はこの経路。
+ *   uncontrolled に動く (後方互換)。Storybook はこの経路。
  * - 指定したときは **all-or-nothing で fully controlled**。値の保持と URL 同期は
- *   呼び出し側 (`useClientTableUrlState` 等) が担い、絞り込み / ソート / ページングの
+ *   呼び出し側が担い、絞り込み / ソート / ページングの
  *   計算自体は引き続き ClientDataTable が in-memory で行う。
  *
  * `page` は内部実装に合わせ **0-based**。`onSortItemsChange` は配列をまるごと

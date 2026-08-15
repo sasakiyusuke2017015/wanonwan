@@ -32,7 +32,7 @@ interface OperationLogConfig {
 }
 
 /**
- * DevTools設定（main.tsxからの呼び出し用）
+ * DevTools 設定（アプリの初期化時に呼び出す）
  */
 export interface DevToolsConfig {
   /** 有効化 */
@@ -70,7 +70,7 @@ export function configureOperationLog(config: Partial<OperationLogConfig>) {
 }
 
 /**
- * DevTools設定（main.tsxからの呼び出し用）
+ * DevTools 設定（アプリの初期化時に呼び出す）
  * configureOperationLogのエイリアス + 追加設定
  */
 export function configureDevTools(config: DevToolsConfig) {

@@ -3,7 +3,7 @@
 /**
  * Dialog — 定型メッセージ型のオーバーレイ (`message: string` + ボタン)。
  *
- * 棲み分け (同じオーバーレイでもコンテンツ契約が別なら別 component — ui-architecture.md §3):
+ * 棲み分け (同じオーバーレイでもコンテンツ契約が別なら別 component):
  * - 確認 (確定/キャンセル) は `ConfirmDialog` 経由で使う (正準 API)
  * - 通知のみは `<Dialog variant="alert">` を直接使う
  * - 自由コンテンツ (children) の枠が必要なら `Modal` を使う

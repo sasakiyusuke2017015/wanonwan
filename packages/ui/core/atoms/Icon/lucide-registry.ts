@@ -9,8 +9,6 @@
 // `check-circle` / `chevron-down|left|right` / `folder` 等）は既に
 // `constants/icons.ts` の `ICON_PATHS`（独自 SVG）にあり、`Icon` は独自を優先する。
 // よって衝突名はここに **登録しない**（1 アプリ 1 アイコンに統一）。
-//
-// 詳細: outputs/plans/2026-06-19-2030-icon-unify-lucide-backed.md
 
 import {
   Activity,

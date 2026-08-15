@@ -1,6 +1,5 @@
 /**
  * トランジショントークン
- * SCSS: _transitions.scss と同期
  */
 
 export const duration = {
