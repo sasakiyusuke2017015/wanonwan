@@ -13,6 +13,7 @@
     "start": "pnpm --filter @wanonwan/web start",
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
+    "check:merges": "node scripts/check-merge-targets.mjs",
     "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md,css}\"",
     "clean": "rimraf -g node_modules \"apps/*/node_modules\" \"packages/*/node_modules\" .turbo \"apps/*/.next\" \"apps/*/.turbo\" \"packages/*/.turbo\" packages/ui/storybook-static",
