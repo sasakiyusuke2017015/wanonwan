@@ -186,7 +186,7 @@ pnpm storybook:localhost   # http://localhost:6006
 | `/ui-catalog absorb <path>` | 別途参照可能な複製先プロジェクトの src/ui/ から手で取り込む |
 | `/ui-catalog clean` | 整合性チェック・修正・未使用コード削除 |
 
-詳細は [.claude/commands/ui-catalog.md](./.claude/commands/ui-catalog.md) を参照。
+詳細は [docs/DEVELOPMENT.md](./docs/DEVELOPMENT.md) を参照。
 
 ---
 

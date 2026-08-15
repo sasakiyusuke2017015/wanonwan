@@ -272,7 +272,7 @@ pnpm export-versions
 ### 初期化
 
 ```tsx
-// src/main.tsx
+// アプリのエントリポイント
 import { initUICatalog } from '@ui-catalog/core'
 import versions from './ui-catalog.versions.json'
 
@@ -288,7 +288,7 @@ initUICatalog(versions)
 ### 設定
 
 ```tsx
-// apps/web/src/main.tsx
+// アプリのエントリポイント
 import { configureDevTools } from '@ui-catalog/core'
 
 if (import.meta.env.DEV) {
