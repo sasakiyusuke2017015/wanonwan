@@ -91,7 +91,7 @@ Markdown 表のセル内では `\n` で改行できない (HTML `<br>` は使え
 
 ## 5. CLAUDE.md 本体は 200 行以下を維持
 
-[`plans/2026-05-22-1140-claude-md-slimming-and-rules-paths-scope.md`](../../outputs/plans/2026-05-22-1140-claude-md-slimming-and-rules-paths-scope.md) と PR #97 で確立した目標。CLAUDE.md は **毎セッション無条件投入** されるため、詳細は CONTRIBUTING / docs 側に集約し、CLAUDE.md には要約 + リンクのみ残す。
+CLAUDE.md は **毎セッション無条件投入** されるため、詳細は CONTRIBUTING / docs 側に集約し、CLAUDE.md には要約 + リンクのみ残す。
 
 200 行を超えそうなときは:
 
