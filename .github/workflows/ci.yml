@@ -33,6 +33,12 @@ jobs:
       - name: Verify (turbo)
         run: pnpm turbo run typecheck lint build test
 
+      # dashboard drift 検査: outputs/README.md == Plan ヘッダから生成した内容。
+      # Plan ヘッダを更新して README 再生成を忘れると落ちる（README は生成物）。
+      # node だけで済むので、DB スタックを立てる前に早く失敗させる。
+      - name: Dashboard drift check
+        run: node scripts/gen-outputs-readme.mjs --check
+
       # --- DB スタックを立てて pgTAP（RLS）を実行 ---
       # compose も scripts も env に既定値を持たないため、dev 用 env を実体化してから起動する。
       - name: Materialize dev env
