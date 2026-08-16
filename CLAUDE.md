@@ -78,9 +78,8 @@ nginx (TLS終端・ルーティング)
 | [rules/](.claude/rules/) | コーディング規約・Git / セキュリティ / テスト・Plan/Review 運用。`paths:` で条件付き読込のものと常時読込のものがある |
 | [commands/](.claude/commands/) | スラッシュコマンド（/plan・/review・/pr-review・/tdd・/cleanup 等） |
 | [agents/](.claude/agents/) | サブエージェント（planner / architect / tdd-guide / code-reviewer / security-reviewer 等） |
-| [skills/](.claude/skills/) | スキル |
+| [skills/](.claude/skills/) | スキル（tdd-workflow / security-review / verification-loop / eval-harness） |
 | [contexts/](.claude/contexts/) | dev / review / research コンテキスト |
-| [mcp-configs/](.claude/mcp-configs/) | MCP サーバ設定の参照テンプレート |
 
 > この .claude 設定は別プロジェクト（ai-education）から汲み取り、wanonwan 向けに汎用化したもの。
 > wanonwan 固有の前提が固まり次第、各 rules / commands を実態に合わせて更新する。
