@@ -1,0 +1,106 @@
+# AI 自動コードレビュー（opt-in）。`ai-review` ラベルを付けた非 draft PR にだけ発火する。
+#
+# 認証はサブスクリプション（CLAUDE_CODE_OAUTH_TOKEN = `claude setup-token` で発行、有効 1 年）。
+# 失効すると review job が認証エラーで落ちる。復旧: `claude setup-token` を再実行し
+# `gh secret set CLAUDE_CODE_OAUTH_TOKEN` で上書きする。
+#
+# BLOCKER の機械可読化はラベルで行う:
+#   review job … BLOCKER 有なら `review:blocked` を付与、無なら剥がす
+#   gate job   … `review:blocked` が付いていれば exit 1（CI 赤 = マージ不可に接続）
+# human override は `ai-review` ラベルを外す（review / gate とも skip になる）。
+# `review:blocked` を手で剥がさない（次の push で review job が再付与して往復になる）。
+name: PR AI Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, labeled, unlabeled]
+
+# 同一 PR の旧 run はキャンセル。旧 run の gate が未実行で終わっても、
+# キャンセルの原因になった新 run の gate が必ず判定し直すので結果は正しい。
+concurrency:
+  group: pr-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  # ラベル操作は Issues API。無いと `review:blocked` の付与が 403 になり gate が fail-open する
+  issues: write
+  id-token: write
+
+jobs:
+  review:
+    # labeled イベントは `ai-review` が付いたときだけレビューする。
+    # ボット自身の `review:blocked` 付与は App トークン経由のため GITHUB_TOKEN の
+    # 再発火抑止が効かず、このガードが無いと同じレビューが二重に走る。
+    if: >-
+      !github.event.pull_request.draft &&
+      contains(github.event.pull_request.labels.*.name, 'ai-review') &&
+      github.event.action != 'unlabeled' &&
+      (github.event.action != 'labeled' || github.event.label.name == 'ai-review')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            この PR の実装差分をコードレビューしてください。PR ブランチは checkout 済みです。
+            リポジトリのレビュー規約（.claude/rules/agent-orchestration.md）に従うこと:
+
+            - 指摘は [BLOCKER] / [NICE-TO-HAVE] にラベル分けする。
+              [BLOCKER] = セキュリティ脆弱性・ランタイムバグ・要件未達のみ。
+            - 現行スタック（Next.js 16 / React 19 / Postgres + RLS / GoTrue / MinIO /
+              @wanonwan/ui / Jotai / pnpm + Turborepo）は所与の前提。
+              代替ライブラリやアーキテクチャ全面見直しは提案しない。
+            - 当 PR で変更されていない既存コードの bad practice は指摘しない。
+            - CLAUDE.md の絶対方針（DB アクセスは API 経由のみ / 認可は API 層 + RLS /
+              env にフォールバック既定値を持たせない）への違反は [BLOCKER]。
+            - レビューコメントは日本語で書く。
+
+            手順:
+            1. `gh pr diff` で差分を取得し、必要なら関連ファイルを読む
+            2. 行単位の指摘は mcp__github_inline_comment__create_inline_comment
+               （confirmed: true）で付ける
+            3. 総評を `gh pr comment` で 1 件投稿する。末尾に必ず
+               `verdict: APPROVE` または `verdict: NEEDS WORK` を 1 行で書く
+            4. [BLOCKER] が 1 件以上あれば
+               `gh pr edit ${{ github.event.pull_request.number }} --add-label "review:blocked"`、
+               0 件なら
+               `gh pr edit ${{ github.event.pull_request.number }} --remove-label "review:blocked"`
+               を実行する（付いていない状態で remove してもエラーにしない）
+
+            GitHub へのコメント投稿以外の場所にレビュー本文を出力しないこと。
+          claude_args: |
+            --model claude-sonnet-5
+            --max-turns 30
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr edit:*)"
+
+  # `review:blocked` が付いている限り CI を赤にする（「CI 赤はマージ不可」への接続点）。
+  # ai-review が無い PR では skip = 既存フローに影響しない。
+  gate:
+    needs: [review]
+    # needs の review が skip でも gate 自体は評価する（labeled/unlabeled 単独発火のため）
+    if: >-
+      always() &&
+      contains(github.event.pull_request.labels.*.name, 'ai-review')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check review:blocked label
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          labels=$(gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels" --jq '.[].name')
+          if echo "$labels" | grep -qx "review:blocked"; then
+            echo "::error::AI レビューが BLOCKER を検出しています（review:blocked）。指摘を解消して push するか、AI レビューを外すなら ai-review ラベルを外してください"
+            exit 1
+          fi
+          echo "review:blocked なし → pass"
