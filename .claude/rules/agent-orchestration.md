@@ -27,6 +27,21 @@
 - **Plan の Scope 外への大規模リファクタ提案はしない**。当該 PR で変更されていない既存コードの "bad practice" は指摘しない（必要なら別 Issue / 別 Plan に分ける）。
 - Review file 末尾の verdict は `APPROVE` / `NEEDS WORK` / `BLOCKED` の **いずれか 1 つ** を明示する。これが次フェーズに進むかどうかの機械的な判定材料になる。
 
+## 1.5 CI 自動レビュー（`ai-review` ラベル）
+
+[`pr-review.yml`](../../.github/workflows/pr-review.yml) が、`ai-review` ラベルの付いた非 draft PR に AI コードレビューを自動実行する（認証はサブスクの `CLAUDE_CODE_OAUTH_TOKEN`）。レビュー規約は本ファイル §1 / §4 と同一（`[BLOCKER]` / `[NICE-TO-HAVE]` トリアージ・現行スタック所与・変更外コードは指摘しない）。
+
+| 操作 | 意味 |
+|---|---|
+| PR に `ai-review` を付ける | opt-in。以降の push ごとに自動レビュー |
+| `review:blocked` が付く | AI が BLOCKER を検出。gate job が CI を赤にする（マージ不可） |
+| BLOCKER を解消して push | 再レビューで `review:blocked` が自動で外れ、CI が緑に戻る |
+| `ai-review` を外す | override。review / gate とも skip（既存フローに戻る） |
+
+- **`review:blocked` を手で剥がさない**。次の push で review job が再付与し、人間とボットの往復になる。AI の判定に不服なら `ai-review` を外す
+- CI レビューは**チャット内レビュー相当**。saved Review file が必要な作業（[plan-review-workflow.md](./plan-review-workflow.md) の保存基準に該当）は従来どおり `/pr-review` を使う
+- quota はサブスクリプション共有。レビューが不要な機械的 PR（rename・生成物のみ等）にはラベルを付けない
+
 ## 2. 並列稼働の制限
 
 ### 既定は直列
