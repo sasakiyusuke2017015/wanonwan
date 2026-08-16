@@ -217,5 +217,3 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 
 - [ ] マージ後検証
   - [ ] stg: snapshot 初回 → 増分 migration の本番相当フロー実証
-
-<!-- drift 検証用の手編集。次の commit で戻す。 -->
