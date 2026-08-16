@@ -55,7 +55,7 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 | ⚪ 実装待ち | [VRT（reg-suit + 撮影層 + CI）](plans/2026-08-14-0020-vrt.md) | 仕上げ Phase 4 のサブ Plan。reg-suit + 撮影層（catalog 171 stories + app ページ）で light baseline を敷き、ダークの 143 箇所トークン置換の差分を検出できる状態にする。compare はローカル baseline で成立させ、リモート共有と CI 自動化のみ stg MinIO 待ち | — | [計画レビュー](reviews/2026-08-14-0043-vrt-review.md) |
 | 🟡 実装中 | [ダークモード（semantic トークン反転 + colorScheme 軸）](plans/2026-08-14-0025-dark-mode.md) | 仕上げ Phase 3 のサブ Plan。反転境界を semantic トークン層に引き、`colorScheme` 軸（light/dark/system）+ FOUC 対策を追加。背景テーマ 9 軸とは直交させ、app の 167 箇所のハードコード色を semantic トークンへ repoint する | — | [計画レビュー](reviews/2026-08-14-0043-dark-mode-review.md) / [コードレビュー 3a-3c](reviews/2026-08-14-0933-dark-mode-review.md) |
 | 🟢 マージ済み（検証中） | [.claude ハーネス層の未配線設定を片付ける + ダッシュボード drift 検知](plans/2026-08-15-1454-claude-harness-cleanup.md) | `.claude/` に「存在するが繋がっていない設定」（settings.json の allow 75 件・未配線 hooks 14 個・無関係 skills / MCP テンプレ）が溜まっており、配線した瞬間に運用と衝突する状態を解消する。あわせて `gen-outputs-readme.mjs --check` を CI に足し、ダッシュボードの drift を機械検知にする | [step 1](https://github.com/sasakiyusuke2017015/waoon/pull/126) / [step 2](https://github.com/sasakiyusuke2017015/waoon/pull/127) / [step 3](https://github.com/sasakiyusuke2017015/waoon/pull/128) / [step 4](https://github.com/sasakiyusuke2017015/waoon/pull/129) | [計画レビュー](reviews/2026-08-15-1500-claude-harness-cleanup-review.md) |
-| 🟡 実装中 | [PR への AI レビュー自動化（claude-code-action + サブスク認証）](plans/2026-08-17-0351-pr-ai-review.md) | ループエンジニアリング Phase L1。`claude-code-action@v1` をサブスク認証（`claude setup-token` → `CLAUDE_CODE_OAUTH_TOKEN`）で CI に配線し、opt-in ラベル付き PR に自動コードレビュー（[BLOCKER]/[NICE-TO-HAVE]）を付ける。BLOCKER はラベル + ゲート job で CI を赤にし、既存の「CI 赤はマージ不可」ルールに合流させる | — | [計画レビュー](reviews/2026-08-17-0405-pr-ai-review-review.md) |
+| 🟢 マージ済み（検証中） | [PR への AI レビュー自動化（claude-code-action + サブスク認証）](plans/2026-08-17-0351-pr-ai-review.md) | ループエンジニアリング Phase L1。`claude-code-action@v1` をサブスク認証（`claude setup-token` → `CLAUDE_CODE_OAUTH_TOKEN`）で CI に配線し、opt-in ラベル付き PR に自動コードレビュー（[BLOCKER]/[NICE-TO-HAVE]）を付ける。BLOCKER はラベル + ゲート job で CI を赤にし、既存の「CI 赤はマージ不可」ルールに合流させる | [#130](https://github.com/sasakiyusuke2017015/waoon/pull/130) | [計画レビュー](reviews/2026-08-17-0405-pr-ai-review-review.md) |
 
 ## 残検証
 
@@ -223,3 +223,11 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 
 - [ ] マージ後検証
   - [ ] allow 全削除後に頻出した prompt を記録し、積み直す対象を決めた
+
+### [PR への AI レビュー自動化（claude-code-action + サブスク認証）](plans/2026-08-17-0351-pr-ai-review.md)
+
+- [ ] マージ後検証
+  - [ ] `ai-review` 付き PR にコメントが付く
+  - [ ] BLOCKER 仕込み commit で gate が fail → 解消 commit で pass
+  - [ ] `ai-review` を外すと skip（既存フロー無影響）
+  - [ ] quota 消費と実行時間を記録（L2 / 既定 ON の判断材料）
