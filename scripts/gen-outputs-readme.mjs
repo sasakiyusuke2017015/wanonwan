@@ -2,7 +2,9 @@
 // 設計: outputs/plans/2026-07-06-plan-doc-model/06-final-design.md
 // 使い方: node scripts/gen-outputs-readme.mjs        … outputs/README.md を書き換え
 //         node scripts/gen-outputs-readme.mjs --stdout … 標準出力のみ（検証用）
-import { readFileSync, writeFileSync, readdirSync } from "node:fs";
+//         node scripts/gen-outputs-readme.mjs --check  … 再生成せず drift だけ検査
+// 終了コード: 0 = 正常 / 1 = Plan ヘッダの不備 / 2 = --check で drift 検出
+import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -10,6 +12,10 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const plansDir = join(root, "outputs", "plans");
 const readmePath = join(root, "outputs", "README.md");
 const toStdout = process.argv.includes("--stdout");
+const toCheck = process.argv.includes("--check");
+
+// GitHub Actions のログにアノテーションとして出す。ローカルでは素の 1 行。
+const ciPrefix = process.env.GITHUB_ACTIONS ? "::error::" : "";
 
 const VERIFYING = "🟢 マージ済み（検証中）";
 const DONE = "✅ 検証完了";
@@ -68,7 +74,7 @@ for (const f of files) {
 }
 
 if (problems.length) {
-  console.error("生成中止（Plan ヘッダの不備）:");
+  console.error(`${ciPrefix}生成中止（Plan ヘッダの不備）。対象 Plan のヘッダを直してください:`);
   for (const p of problems) console.error("  - " + p);
   process.exit(1);
 }
@@ -114,7 +120,44 @@ if (warnings.length) {
   for (const w of warnings) console.error("  - " + w);
 }
 
-if (toStdout) process.stdout.write(out);
+// 共通の接頭辞・接尾辞を除いた「食い違っている範囲」だけを出す。
+function driftReport(current, generated, maxLines = 40) {
+  const a = current.split("\n");
+  const b = generated.split("\n");
+  let head = 0;
+  while (head < a.length && head < b.length && a[head] === b[head]) head++;
+  let tail = 0;
+  while (
+    tail < a.length - head &&
+    tail < b.length - head &&
+    a[a.length - 1 - tail] === b[b.length - 1 - tail]
+  )
+    tail++;
+  const clip = (lines, from) =>
+    lines.slice(0, maxLines).map((l, i) => `${from + i + 1}: ${l}`);
+  const cur = clip(a.slice(head, a.length - tail), head);
+  const gen = clip(b.slice(head, b.length - tail), head);
+  return [
+    `--- コミット済み outputs/README.md (${cur.length} 行)`,
+    ...cur,
+    `+++ Plan ヘッダから生成した内容 (${gen.length} 行)`,
+    ...gen,
+  ].join("\n");
+}
+
+if (toCheck) {
+  const current = existsSync(readmePath) ? readFileSync(readmePath, "utf8") : "";
+  if (current === out) {
+    console.log(`outputs/README.md は最新（${rows.length} Plan）`);
+  } else {
+    console.error(
+      `${ciPrefix}outputs/README.md が Plan ヘッダと一致しません。` +
+        `node scripts/gen-outputs-readme.mjs を実行してコミットしてください`,
+    );
+    console.error(driftReport(current, out));
+    process.exit(2);
+  }
+} else if (toStdout) process.stdout.write(out);
 else {
   writeFileSync(readmePath, out);
   console.log(
