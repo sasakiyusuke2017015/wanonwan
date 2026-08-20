@@ -16,6 +16,11 @@
 | refactor-cleaner | dead code 削除 | コードメンテナンス |
 | doc-updater | ドキュメント更新 | docs を更新するとき |
 
+## モデル選択
+
+各 agent が使うモデルは `.claude/agents/*.md` frontmatter の `model:` を単一の真実とする。
+モデル名・ティア比較表を rules に複製しない（モデル世代の更新のたびに陳腐化するため）。
+
 ## 即座に Agent を使う場面
 
 ユーザー指示なしで自動的に使う:
