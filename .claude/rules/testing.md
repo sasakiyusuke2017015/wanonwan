@@ -14,31 +14,25 @@ paths:
 
 # テスト要件
 
-## 最低カバレッジ: 80%
+## 実行コマンド
 
-テスト種別（**すべて必須**）:
-1. **Unit テスト** — 個別の関数、ユーティリティ、コンポーネント
-2. **Integration テスト** — API エンドポイント、DB 操作
-3. **E2E テスト** — クリティカルなユーザーフロー（Playwright）
+| コマンド | 対象 |
+|---|---|
+| `pnpm turbo run test` | Vitest（apps/web / apps/worker / packages/storage / packages/ui） |
+| `pnpm test:db` | pgTAP（RLS・SQL。DB スタックが必要） |
 
-## テスト駆動開発（TDD）
+CI（[ci.yml](../../.github/workflows/ci.yml)）は両方を実行する。E2E（Playwright）は
+採用方針にあるが**現時点では未整備**（playwright.config なし。導入は別 Plan）。
 
-**必須** ワークフロー:
-1. 最初にテストを書く (RED)
-2. テスト実行 → **失敗** することを確認
-3. 最小限の実装を書く (GREEN)
-4. テスト実行 → **成功** することを確認
-5. リファクタ (IMPROVE)
-6. カバレッジを確認 (80%+)
+## 書き方
+
+- テストは実装と同じ package に置く（`*.test.ts` を実装ファイルの隣に）
+- 新機能・バグ修正はテスト先行を推奨（[/tdd](../commands/tdd.md) がワークフローを提供）
+- RLS を追加・変更したら pgTAP テストを同じ PR に含める
 
 ## テスト失敗のトラブルシュート
 
-1. **tdd-guide** Agent を使う
-2. テストの isolation を確認
-3. mock が正しいか検証
-4. テストではなく実装を直す（テスト自体が間違っているケースを除く）
-
-## Agent サポート
-
-- **tdd-guide** — 新機能では PROACTIVELY 使用。テスト先行を強制
-- **e2e-runner** — Playwright による E2E テスト専門
+1. テストの isolation を確認（他テストの状態に依存していないか）
+2. mock が正しいか検証
+3. テストではなく実装を直す（テスト自体が間違っているケースを除く）
+4. 行き詰まったら **tdd-guide** Agent を使う
