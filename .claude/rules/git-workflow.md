@@ -108,6 +108,10 @@ merged PR のうち **マージコミットが `origin/develop` の履歴に無�
 つまり「**outputs/** だけが変更ファイルの commit**」だけが直 push 対象。
 他ファイルが混ざる場合は通常通り feature/* ブランチ + PR で出す。
 
+この規定は機械化済み: ローカルは PreToolUse hook（[outputs-push-guard.mjs](../hooks/outputs-push-guard.mjs)）が
+push 前にブロックし、CI は Direct push guard（[check-direct-push.mjs](../../scripts/check-direct-push.mjs)）が
+develop への push を事後検査する。
+
 #### Claude Code の挙動
 
 Claude Code が `outputs/**` のみの commit を develop に直 push する場合も、

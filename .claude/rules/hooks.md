@@ -1,7 +1,10 @@
 # Hooks システム
 
-本リポジトリは hook を **1 つも定義していない**。フォーマットと型チェックは
-`turbo run lint typecheck` と CI が担保しており、hook で二重化していない。
+本リポジトリの hook は **1 つ**: [outputs 直 push ガード](../hooks/outputs-push-guard.mjs)
+（PreToolUse / Bash。develop 上の `git push` に outputs/** 例外規定外の変更が含まれて
+いたらブロックする。CI の Direct push guard が事後検知の対）。
+フォーマットと型チェックは `turbo run lint typecheck` と CI が担保しており、
+hook で二重化していない。
 
 ## Hook 種別
 
