@@ -1,10 +1,9 @@
 ---
 paths:
-  - "apps/web/src/app/api/**"
-  - "apps/web/src/lib/auth/**"
-  - "apps/web/src/lib/db/**"
-  - "packages/db/sql/**"
-  - "packages/db/src/**"
+  - "apps/web/app/api/**"
+  - "apps/web/lib/auth/**"
+  - "apps/web/lib/db/**"
+  - "packages/db/**"
   - "infra/**"
   - "scripts/**"
 ---
@@ -26,6 +25,8 @@ paths:
 - [ ] ユーザー入力を valibot でバリデーションしている
 - [ ] SQL がパラメータ化されている（[data-access.md](./data-access.md)）
 - [ ] 新規業務テーブルに RLS ポリシーがある（pgTAP でテスト。`pnpm test:db`）
+- [ ] 未認証で叩ける auth 系エンドポイント（login / refresh / change-password）に
+      `checkRateLimit`（[lib/auth/rate-limit](../../apps/web/lib/auth/rate-limit.ts)）を掛けている
 - [ ] エラーメッセージ・ログから秘密情報が漏れていない
 
 ## 秘密情報の管理
