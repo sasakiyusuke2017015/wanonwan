@@ -3,9 +3,9 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | ハーネス育成の第 2 弾。実測で「参照ゼロ・実態と乖離」が確認された rules 4 本と tdd-workflow skill の他プロジェクト残骸を整理し、`outputs/**` 直 push 例外（現在は prose のみ）を CI + hook で機械化する |
-| ステータス | ⚪ 実装待ち |
+| ステータス | 🟡 実装中 |
 | 前提 Plan | [claude-harness-cleanup](2026-08-15-1454-claude-harness-cleanup.md) |
-| PR | |
+| PR | [step 1](https://github.com/sasakiyusuke2017015/waoon/pull/131) |
 | Review | [計画レビュー](../reviews/2026-08-20-2030-rules-inventory-and-push-guard-review.md) |
 
 ## 目的
@@ -144,12 +144,11 @@
 | 2026-08-20 | 直 push 判定は committer ではなく first-parent + 親数 | PR 経由の feature commit も committer はユーザーであることを実測確認（41c0743）。committer 判定は誤検知する |
 | 2026-08-20 | CI ガードの違反系は実地確認しない | develop の CI を意図的に赤くする必要がある。スクリプトのローカルテスト（合成 range）+ hook の dry-run 確認で代替する |
 | 2026-08-20 | testing.md は削除でなく書き直し | paths: 条件読込によりテストファイル編集時だけ載る枠は有用。嘘（80% ゲート）を消し、実在するコマンドだけ書けば評価枠 (b) を満たせる |
+| 2026-08-20 | security.md は独立ファイルのまま実態化（auth-patterns への統合はしない） | auth-patterns からの参照が生きており、統合はリンク付け替えのコストが増えるだけで発火性は変わらない |
 | 2026-08-20 | 計画レビューを受け、merge commit の skip 条件に committer 判定を追加 | 親数だけの判定では、ローカル `git merge` の直 push が PR マージと区別できず検知をすり抜ける。GitHub UI マージは committer が `noreply@github.com` になることを実測確認済み |
 
 ## 未確定事項
 
-- security.md の書き直し粒度: auth-patterns.md への統合（ファイル削除）まで踏み込むか、
-  独立ファイルのまま実態化に留めるか → 計画レビューで決着
 - hook のブロック時メッセージに `pnpm check:merges` 等の関連導線をどこまで載せるか（軽微）
 
 ## ステータス
