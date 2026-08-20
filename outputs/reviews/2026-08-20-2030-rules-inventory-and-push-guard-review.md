@@ -32,6 +32,16 @@ first-parent 判定の根拠）を全て再現確認した。棚卸しの判定�
 初回判定の BLOCKER 1 件・NICE-TO-HAVE 4 件は同日 Plan へ反映済み。以下の Findings は
 初回判定時点の記録。
 
+## 訂正（2026-08-20・レビュー後の実装中に発覚）
+
+本 Review の「乖離 3 件をすべてコマンドで確認。誤りなし」は**一部誤り**だった。
+security.md の「レートリミット未実装（grep 0 件）」は、探索先を実在しない
+`apps/web/src/` にした grep の誤測定（実装は `lib/auth/rate-limit.ts` が auth 系
+3 エンドポイントで使用中）。レビュー自身も Plan と同じ死んだ paths を物差しに
+流用しており、検証が汚染されていた。訂正は #131 の追記 commit と Plan の
+判断ログ（2026-08-20）に記録。ApiResponse / カバレッジゲート / playwright.config の
+不在は実パスでの再測定でも確認され、判定は維持。
+
 ## Findings
 
 ### [BLOCKER] merge commit を「親 2 つ以上」だけで skip すると、ローカル merge が検知をすり抜ける

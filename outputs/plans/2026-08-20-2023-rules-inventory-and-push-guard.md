@@ -29,12 +29,15 @@
   - [ci.yml](../../.github/workflows/ci.yml) への配線（develop への push イベント時のみ）
   - PreToolUse hook（`git push` の事前ブロック。**新造 hook 第 1 号**、導入時点で settings.json に配線）
 - 上記に伴う [CLAUDE.md](../../CLAUDE.md) / [hooks.md](../../.claude/rules/hooks.md) の記述更新
+- **step 4（実装中に発見・追加）**: [auth-patterns.md](../../.claude/rules/auth-patterns.md) /
+  [data-access.md](../../.claude/rules/data-access.md) の paths と本文の全面実態化
 
 ### やらないこと（スコープ外）
 
 - `.claude/commands/` 21 本・`.claude/agents/` 9 本・`.claude/contexts/` 3 本の棚卸し（別軸のまま）
-- 高固有語の rules（git-workflow / plan-review-workflow / auth-patterns / data-access /
-  evergreen / docs-style / agents / agent-orchestration / hooks）の変更
+- 高固有語の rules（git-workflow / plan-review-workflow / evergreen / docs-style /
+  agents / agent-orchestration / hooks）の変更（auth-patterns / data-access は当初ここに
+  含めていたが、step 4 としてスコープ入り。判断ログ 2026-08-20 参照）
 - レートリミット・カバレッジゲート等、**乖離が見つかった機構の実装**（docs を実態に合わせるのが本 Plan。
   機構を実装して docs に追いつかせるなら別 Plan）
 - GitHub Rulesets の push 制限（Enterprise 向け機能の可能性が高い。CI + hook で足りる）
@@ -50,7 +53,7 @@
 | [performance.md](../../.claude/rules/performance.md) | 35 | **ゼロ** | 輸入記事の残骸（ultrathink / "rev the engine" / build-error-resolver 誘導）。固有情報は「モデルは agents frontmatter が真実」の 1 点のみ。**`paths:` frontmatter が無く毎セッション常時読込**（35 行 × 全セッションのノイズ） | **削除**（1 点は [agents.md](../../.claude/rules/agents.md) へ 1 行移設） |
 | [patterns.md](../../.claude/rules/patterns.md) | 65 | **ゼロ** | `interface ApiResponse` は **実装に存在しない**（`apps/web/src` grep 0 件）。Repository パターンは data-access.md に「集約済み」と自認。スケルトン節は輸入フロー | **削除** |
 | [testing.md](../../.claude/rules/testing.md) | 44 | **ゼロ** | 「最低カバレッジ 80%（すべて必須）」だが **カバレッジゲートはどこにも実在しない**（vitest.config / turbo.json に coverage 設定なし） | **実態に書き直し**（実際のテスト実行コマンドと配置。paths: 条件読込は維持） |
-| [security.md](../../.claude/rules/security.md) | 47 | 1（auth-patterns） | 「全エンドポイントにレートリミット」だが **レートリミットは未実装**（grep 0 件） | **実態化**（RLS / GoTrue / presigned URL 前提のチェックリストに寄せ、未実装機構の「必須」を除去） |
+| [security.md](../../.claude/rules/security.md) | 47 | 1（auth-patterns） | 「全エンドポイントにレートリミット」は過大。**実装は auth 系 3 エンドポイントのみ**（`lib/auth/rate-limit.ts`。～~当初「未実装」と誤測定 → 判断ログ 2026-08-20 訂正~） | **実態化**（実装済みの範囲を正確に記述） |
 | [coding-style.md](../../.claude/rules/coding-style.md) | 81 | 2（pr-review / auth-patterns） | valibot 例は **実採用と一致**（apps/web + packages/storage の package.json で確認） | **存置** |
 | [skills/tdd-workflow/SKILL.md](../../.claude/skills/tdd-workflow/SKILL.md) | 409 | commands/tdd.md | 31 行が他プロジェクトのドメイン（`searchMarkets` / `GET /api/markets` 等）。TDD 手順自体は本プロジェクトの実践と一致 | **例示のみ書換**（surveys / answers ドメインへ。構成は維持） |
 
@@ -107,6 +110,13 @@
      outputs 許可パス外の変更があれば block（メッセージで feature ブランチ + PR を案内）
    - [git-workflow.md](../../.claude/rules/git-workflow.md) の例外節と [hooks.md](../../.claude/rules/hooks.md) に
      機械化済みの旨を 1-2 行追記
+4. **auth-patterns / data-access の全面実態化**（`refactor/rules-stale-paths`）
+   - 両ファイルの paths: を実構造（`apps/web/app/**` / `apps/web/lib/**` / `packages/db/**`）に修正
+   - auth-patterns.md 本文: 実在しない helper 4 つ（getSessionUser / requireSessionUser /
+     requireActiveRoleApi / requireActiveRolePage）を、実在する認可機構（getCurrentClaims /
+     forceChangeGuard / session.ts、「認可は API + RLS、画面ガードは表示のみ」の実パターン）に書換
+   - data-access.md 本文: src 参照 12 箇所と packages/db の旧構造参照を実構造に突合して書換
+   - **paths の修正と本文の書換は同一 commit で行う**（paths だけ直すと stale 本文が配信され始める）
 
 ## 検証
 
@@ -123,6 +133,9 @@
 - **3-CI**: マージ後、次回の通常の outputs 直 push（ダッシュボード更新）が緑のまま = 正常系の実地確認。
   **違反系の実地確認は行わない**（develop の CI を意図的に赤くする必要があり、正常系 + ローカル/hook の
   検証で代替。判断ログ参照）
+- **4**: 両ファイルが挙げる helper 名・パス・コマンドを 1 つずつ `grep -rn "export.*<名前>"` /
+  `ls -d` で実在確認（**探索パス自体の実在を先に確認する**。今回の誤測定の再発防止）。
+  paths: の全 glob に実ファイルがマッチすることを確認
 - 共通: `pnpm turbo run typecheck lint build test`
 
 ## リスク
@@ -146,6 +159,10 @@
 | 2026-08-20 | testing.md は削除でなく書き直し | paths: 条件読込によりテストファイル編集時だけ載る枠は有用。嘘（80% ゲート）を消し、実在するコマンドだけ書けば評価枠 (b) を満たせる |
 | 2026-08-20 | security.md は独立ファイルのまま実態化（auth-patterns への統合はしない） | auth-patterns からの参照が生きており、統合はリンク付け替えのコストが増えるだけで発火性は変わらない |
 | 2026-08-20 | 計画レビューを受け、merge commit の skip 条件に committer 判定を追加 | 親数だけの判定では、ローカル `git merge` の直 push が PR マージと区別できず検知をすり抜ける。GitHub UI マージは committer が `noreply@github.com` になることを実測確認済み |
+
+| 2026-08-20 | **実測の訂正**: security.md の「レートリミット未実装」は誤り。実装は auth 系 3 エンドポイント（login / refresh / change-password）に存在する | grep の探索先を rules の paths から流用した `apps/web/src/`（実在しない）にしており、静かに 0 件が返っていた。#131 に訂正 commit 済み。探索パスの実在確認を検証手順に明文化 |
+| 2026-08-20 | step 4 を追加: auth-patterns / data-access の全面実態化（当初は「高固有語なので対象外」） | 両ファイルの paths が旧構造（apps/web/src / packages/db/sql）を指し条件読込が死んでいた。さらに auth-patterns の helper 4 つは repo に存在しない。固有語の多さは実態一致を保証しない。paths だけの修正は stale 本文の配信を始めるため、本文書換とセットで 1 PR にする |
+| 2026-08-20 | step 2 のスコープを「例示 31 行」から「実態と矛盾する節を含む書換（構成は維持）」に拡大 | 着手時の精査で、Supabase / Redis / OpenAI の mock 節・jest 記法（実際は Vitest）・80% カバレッジ閾値・pre-commit hook 記述も実態と矛盾していると判明。例示だけ直しても嘘が残る |
 
 ## 未確定事項
 
