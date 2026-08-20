@@ -5,7 +5,7 @@
 | 概要 | ハーネス育成の第 2 弾。実測で「参照ゼロ・実態と乖離」が確認された rules 4 本と tdd-workflow skill の他プロジェクト残骸を整理し、`outputs/**` 直 push 例外（現在は prose のみ）を CI + hook で機械化する |
 | ステータス | 🟡 実装中 |
 | 前提 Plan | [claude-harness-cleanup](2026-08-15-1454-claude-harness-cleanup.md) |
-| PR | [step 1](https://github.com/sasakiyusuke2017015/waoon/pull/131) / [step 2](https://github.com/sasakiyusuke2017015/waoon/pull/132) |
+| PR | [step 1](https://github.com/sasakiyusuke2017015/waoon/pull/131) / [step 2](https://github.com/sasakiyusuke2017015/waoon/pull/132) / [step 3](https://github.com/sasakiyusuke2017015/waoon/pull/133) |
 | Review | [計画レビュー](../reviews/2026-08-20-2030-rules-inventory-and-push-guard-review.md) |
 
 ## 目的
@@ -171,9 +171,9 @@
 ## ステータス
 
 - [x] 計画確定（[計画レビュー](../reviews/2026-08-20-2030-rules-inventory-and-push-guard-review.md)）
-- [ ] 1. rules 棚卸し（performance / patterns 削除、testing / security 書き直し）
-- [ ] 2. tdd-workflow の例示書換
-- [ ] 3. outputs 直 push ガード（script + CI + hook）
+- [x] 1. rules 棚卸し（[#131](https://github.com/sasakiyusuke2017015/waoon/pull/131) マージ済み。security.md の測定誤り訂正 commit 込み）
+- [x] 2. tdd-workflow の例示書換（[#132](https://github.com/sasakiyusuke2017015/waoon/pull/132) マージ済み。スコープ拡大は判断ログ参照）
+- [ ] 3. outputs 直 push ガード（script + CI + hook）（[#133](https://github.com/sasakiyusuke2017015/waoon/pull/133) レビュー中）
 - [ ] マージ後検証
   - [ ] 削除した rules への残存参照ゼロ
   - [ ] testing / security の全記述が実在の機構を指す
