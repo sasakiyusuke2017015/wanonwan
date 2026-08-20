@@ -1,409 +1,126 @@
 ---
 name: tdd-workflow
-description: Use this skill when writing new features, fixing bugs, or refactoring code. Enforces test-driven development with 80%+ coverage including unit, integration, and E2E tests.
+description: Use this skill when writing new features, fixing bugs, or refactoring code. Enforces test-first development (RED-GREEN-REFACTOR) with Vitest (unit / API route) and pgTAP (RLS / SQL).
 ---
 
 # Test-Driven Development Workflow
 
-This skill ensures all code development follows TDD principles with comprehensive test coverage.
+テスト先行（RED → GREEN → REFACTOR）を徹底するワークフロー。[/tdd](../../commands/tdd.md) から参照される。
 
-## When to Activate
+## いつ使うか
 
-- Writing new features or functionality
-- Fixing bugs or issues
-- Refactoring existing code
-- Adding API endpoints
-- Creating new components
+- 新機能の実装
+- バグ修正（まず再現テストを書いて RED を確認する）
+- リファクタリング（挙動を固定してから変更する）
 
-## Core Principles
+## テストの種類（このリポジトリに実在するもの）
 
-### 1. Tests BEFORE Code
-ALWAYS write tests first, then implement code to make tests pass.
+| 種類 | ツール | 実行 | 置き場所 |
+|---|---|---|---|
+| Unit | Vitest | `pnpm turbo run test`（単体 package は `pnpm --filter @wanonwan/web test`） | 実装ファイルの隣（例: [apps/web/lib/datetime.test.ts](../../../apps/web/lib/datetime.test.ts)） |
+| API route | Vitest | 同上 | `route.ts` の隣（例: [change-password/route.test.ts](../../../apps/web/app/api/v1/auth/change-password/route.test.ts)） |
+| RLS・SQL | pgTAP | `pnpm test:db`（DB スタック起動が必要） | `packages/db/tests/*.test.sql` |
 
-### 2. Coverage Requirements
-- Minimum 80% coverage (unit + integration + E2E)
-- All edge cases covered
-- Error scenarios tested
-- Boundary conditions verified
+E2E（Playwright）は採用方針にあるが**現時点では未整備**（playwright.config なし。導入は別 Plan）。
 
-### 3. Test Types
+## ワークフロー
 
-#### Unit Tests
-- Individual functions and utilities
-- Component logic
-- Pure functions
-- Helpers and utilities
+1. **ユーザーストーリーを書く**
 
-#### Integration Tests
-- API endpoints
-- Database operations
-- Service interactions
-- External API calls
+   ```text
+   管理者として、アンケートを部署に公開したい。
+   メンバーが面談期間中に回答できるようにするため。
+   ```
 
-#### E2E Tests (Playwright)
-- Critical user flows
-- Complete workflows
-- Browser automation
-- UI interactions
+2. **テストを先に書く**（期待する挙動を固定する）
+3. **失敗を確認する（RED）** — `pnpm --filter @wanonwan/web test`
+4. **最小限の実装を書く**
+5. **成功を確認する（GREEN）**
+6. **リファクタする**（テストは触らない）
+7. **RLS・スキーマを触ったら pgTAP テストを同じ PR に含める**（`pnpm test:db` で確認）
 
-## TDD Workflow Steps
+## テストパターン（実例ベース）
 
-### Step 1: Write User Journeys
-```
-As a [role], I want to [action], so that [benefit]
+### Unit テスト — 純関数は入出力表で
 
-Example:
-As a user, I want to search for markets semantically,
-so that I can find relevant markets even without exact keywords.
-```
-
-### Step 2: Generate Test Cases
-For each user journey, create comprehensive test cases:
+[apps/web/lib/datetime.test.ts](../../../apps/web/lib/datetime.test.ts) の実例:
 
 ```typescript
-describe('Semantic Search', () => {
-  it('returns relevant markets for query', async () => {
-    // Test implementation
-  })
+import { describe, it, expect } from "vitest";
+import { jstInputToUtcIso } from "./datetime";
 
-  it('handles empty query gracefully', async () => {
-    // Test edge case
-  })
-
-  it('falls back to substring search when Redis unavailable', async () => {
-    // Test fallback behavior
-  })
-
-  it('sorts results by similarity score', async () => {
-    // Test sorting logic
-  })
-})
+describe("jstInputToUtcIso", () => {
+  it("JST 壁時計を UTC ISO に変換する（9 時間引く）", () => {
+    expect(jstInputToUtcIso("2026-06-18T09:00")).toBe("2026-06-18T00:00:00.000Z");
+  });
+  it("空・無効は null", () => {
+    expect(jstInputToUtcIso("not-a-date")).toBeNull();
+  });
+});
 ```
 
-### Step 3: Run Tests (They Should Fail)
-```bash
-npm test
-# Tests should fail - we haven't implemented yet
-```
+### API route テスト — 境界を vi.mock で断ち、ゲート順序を固定する
 
-### Step 4: Implement Code
-Write minimal code to make tests pass:
+[change-password/route.test.ts](../../../apps/web/app/api/v1/auth/change-password/route.test.ts) の実例（抜粋）:
 
 ```typescript
-// Implementation guided by tests
-export async function searchMarkets(query: string) {
-  // Implementation here
-}
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { NextResponse } from "next/server";
+
+// 到達しない外部依存はスタブ化して import 時副作用を断つ
+vi.mock("@/lib/auth/rate-limit", async (imp) => {
+  const actual = await imp<typeof import("@/lib/auth/rate-limit")>();
+  return { ...actual, checkRateLimit: vi.fn() };
+});
+vi.mock("@/lib/auth/current-user", async (imp) => {
+  const actual = await imp<typeof import("@/lib/auth/current-user")>();
+  return { ...actual, getCurrentClaims: vi.fn() };
+});
+
+import { POST } from "./route";
+import { checkRateLimit } from "@/lib/auth/rate-limit";
+import { getCurrentClaims } from "@/lib/auth/current-user";
+
+beforeEach(() => {
+  vi.mocked(checkRateLimit).mockReset();
+  vi.mocked(getCurrentClaims).mockReset();
+});
+
+describe("POST /api/v1/auth/change-password ゲート順序", () => {
+  it("rate-limit 超過は最外で 429。認証も検証も行わない", async () => {
+    vi.mocked(checkRateLimit).mockReturnValue(
+      NextResponse.json({ error: "too many" }, { status: 429 }),
+    );
+    const res = await POST(post({ currentPassword: "x", newPassword: "y".repeat(12) }));
+    expect(res.status).toBe(429);
+    expect(getCurrentClaims).not.toHaveBeenCalled();
+  });
+});
 ```
 
-### Step 5: Run Tests Again
-```bash
-npm test
-# Tests should now pass
-```
+この実例が示す規約:
 
-### Step 6: Refactor
-Improve code quality while keeping tests green:
-- Remove duplication
-- Improve naming
-- Optimize performance
-- Enhance readability
+- **mock するのは自分の境界**（`@/lib/auth/*` / `@/lib/db/*`）。外部サービスの SDK を
+  直接 mock しない（GoTrue は `@/lib/auth/gotrue` の薄ラッパ越しに差し替える）
+- **ゲートの順序をテストで固定する**（429 → 401 → 400。後続ゲートが呼ばれないことまで assert）
+- `vi.mocked(fn).mockReset()` を `beforeEach` で行い、テスト間の状態共有を断つ
 
-### Step 7: Verify Coverage
-```bash
-npm run test:coverage
-# Verify 80%+ coverage achieved
-```
+### pgTAP — RLS はロールごとの可視性を SQL で検証
 
-## Testing Patterns
+`packages/db/tests/rls_answers.test.sql` 等。RLS 6 分類の各テーブルについて
+「このロールで何行見えるか」を assert する。実行は `pnpm test:db`。
 
-### Unit Test Pattern (Jest/Vitest)
-```typescript
-import { render, screen, fireEvent } from '@testing-library/react'
-import { Button } from './Button'
+## カバレッジ
 
-describe('Button Component', () => {
-  it('renders with correct text', () => {
-    render(<Button>Click me</Button>)
-    expect(screen.getByText('Click me')).toBeInTheDocument()
-  })
+数値ゲートは**存在しない**（CI は `turbo run test` + pgTAP の成否のみ）。
+手元で確認したいときは `pnpm --filter <pkg> exec vitest run --coverage`。
+カバレッジの数字より「ゲート順序・境界条件・RLS の可視性」が担保されていることを優先する。
 
-  it('calls onClick when clicked', () => {
-    const handleClick = jest.fn()
-    render(<Button onClick={handleClick}>Click</Button>)
+## よくある間違い
 
-    fireEvent.click(screen.getByRole('button'))
-
-    expect(handleClick).toHaveBeenCalledTimes(1)
-  })
-
-  it('is disabled when disabled prop is true', () => {
-    render(<Button disabled>Click</Button>)
-    expect(screen.getByRole('button')).toBeDisabled()
-  })
-})
-```
-
-### API Integration Test Pattern
-```typescript
-import { NextRequest } from 'next/server'
-import { GET } from './route'
-
-describe('GET /api/markets', () => {
-  it('returns markets successfully', async () => {
-    const request = new NextRequest('http://localhost/api/markets')
-    const response = await GET(request)
-    const data = await response.json()
-
-    expect(response.status).toBe(200)
-    expect(data.success).toBe(true)
-    expect(Array.isArray(data.data)).toBe(true)
-  })
-
-  it('validates query parameters', async () => {
-    const request = new NextRequest('http://localhost/api/markets?limit=invalid')
-    const response = await GET(request)
-
-    expect(response.status).toBe(400)
-  })
-
-  it('handles database errors gracefully', async () => {
-    // Mock database failure
-    const request = new NextRequest('http://localhost/api/markets')
-    // Test error handling
-  })
-})
-```
-
-### E2E Test Pattern (Playwright)
-```typescript
-import { test, expect } from '@playwright/test'
-
-test('user can search and filter markets', async ({ page }) => {
-  // Navigate to markets page
-  await page.goto('/')
-  await page.click('a[href="/markets"]')
-
-  // Verify page loaded
-  await expect(page.locator('h1')).toContainText('Markets')
-
-  // Search for markets
-  await page.fill('input[placeholder="Search markets"]', 'election')
-
-  // Wait for debounce and results
-  await page.waitForTimeout(600)
-
-  // Verify search results displayed
-  const results = page.locator('[data-testid="market-card"]')
-  await expect(results).toHaveCount(5, { timeout: 5000 })
-
-  // Verify results contain search term
-  const firstResult = results.first()
-  await expect(firstResult).toContainText('election', { ignoreCase: true })
-
-  // Filter by status
-  await page.click('button:has-text("Active")')
-
-  // Verify filtered results
-  await expect(results).toHaveCount(3)
-})
-
-test('user can create a new market', async ({ page }) => {
-  // Login first
-  await page.goto('/creator-dashboard')
-
-  // Fill market creation form
-  await page.fill('input[name="name"]', 'Test Market')
-  await page.fill('textarea[name="description"]', 'Test description')
-  await page.fill('input[name="endDate"]', '2025-12-31')
-
-  // Submit form
-  await page.click('button[type="submit"]')
-
-  // Verify success message
-  await expect(page.locator('text=Market created successfully')).toBeVisible()
-
-  // Verify redirect to market page
-  await expect(page).toHaveURL(/\/markets\/test-market/)
-})
-```
-
-## Test File Organization
-
-```
-src/
-├── components/
-│   ├── Button/
-│   │   ├── Button.tsx
-│   │   ├── Button.test.tsx          # Unit tests
-│   │   └── Button.stories.tsx       # Storybook
-│   └── MarketCard/
-│       ├── MarketCard.tsx
-│       └── MarketCard.test.tsx
-├── app/
-│   └── api/
-│       └── markets/
-│           ├── route.ts
-│           └── route.test.ts         # Integration tests
-└── e2e/
-    ├── markets.spec.ts               # E2E tests
-    ├── trading.spec.ts
-    └── auth.spec.ts
-```
-
-## Mocking External Services
-
-### Supabase Mock
-```typescript
-jest.mock('@/lib/supabase', () => ({
-  supabase: {
-    from: jest.fn(() => ({
-      select: jest.fn(() => ({
-        eq: jest.fn(() => Promise.resolve({
-          data: [{ id: 1, name: 'Test Market' }],
-          error: null
-        }))
-      }))
-    }))
-  }
-}))
-```
-
-### Redis Mock
-```typescript
-jest.mock('@/lib/redis', () => ({
-  searchMarketsByVector: jest.fn(() => Promise.resolve([
-    { slug: 'test-market', similarity_score: 0.95 }
-  ])),
-  checkRedisHealth: jest.fn(() => Promise.resolve({ connected: true }))
-}))
-```
-
-### OpenAI Mock
-```typescript
-jest.mock('@/lib/openai', () => ({
-  generateEmbedding: jest.fn(() => Promise.resolve(
-    new Array(1536).fill(0.1) // Mock 1536-dim embedding
-  ))
-}))
-```
-
-## Test Coverage Verification
-
-### Run Coverage Report
-```bash
-npm run test:coverage
-```
-
-### Coverage Thresholds
-```json
-{
-  "jest": {
-    "coverageThresholds": {
-      "global": {
-        "branches": 80,
-        "functions": 80,
-        "lines": 80,
-        "statements": 80
-      }
-    }
-  }
-}
-```
-
-## Common Testing Mistakes to Avoid
-
-### ❌ WRONG: Testing Implementation Details
-```typescript
-// Don't test internal state
-expect(component.state.count).toBe(5)
-```
-
-### ✅ CORRECT: Test User-Visible Behavior
-```typescript
-// Test what users see
-expect(screen.getByText('Count: 5')).toBeInTheDocument()
-```
-
-### ❌ WRONG: Brittle Selectors
-```typescript
-// Breaks easily
-await page.click('.css-class-xyz')
-```
-
-### ✅ CORRECT: Semantic Selectors
-```typescript
-// Resilient to changes
-await page.click('button:has-text("Submit")')
-await page.click('[data-testid="submit-button"]')
-```
-
-### ❌ WRONG: No Test Isolation
-```typescript
-// Tests depend on each other
-test('creates user', () => { /* ... */ })
-test('updates same user', () => { /* depends on previous test */ })
-```
-
-### ✅ CORRECT: Independent Tests
-```typescript
-// Each test sets up its own data
-test('creates user', () => {
-  const user = createTestUser()
-  // Test logic
-})
-
-test('updates user', () => {
-  const user = createTestUser()
-  // Update logic
-})
-```
-
-## Continuous Testing
-
-### Watch Mode During Development
-```bash
-npm test -- --watch
-# Tests run automatically on file changes
-```
-
-### Pre-Commit Hook
-```bash
-# Runs before every commit
-npm test && npm run lint
-```
-
-### CI/CD Integration
-```yaml
-# GitHub Actions
-- name: Run Tests
-  run: npm test -- --coverage
-- name: Upload Coverage
-  uses: codecov/codecov-action@v3
-```
-
-## Best Practices
-
-1. **Write Tests First** - Always TDD
-2. **One Assert Per Test** - Focus on single behavior
-3. **Descriptive Test Names** - Explain what's tested
-4. **Arrange-Act-Assert** - Clear test structure
-5. **Mock External Dependencies** - Isolate unit tests
-6. **Test Edge Cases** - Null, undefined, empty, large
-7. **Test Error Paths** - Not just happy paths
-8. **Keep Tests Fast** - Unit tests < 50ms each
-9. **Clean Up After Tests** - No side effects
-10. **Review Coverage Reports** - Identify gaps
-
-## Success Metrics
-
-- 80%+ code coverage achieved
-- All tests passing (green)
-- No skipped or disabled tests
-- Fast test execution (< 30s for unit tests)
-- E2E tests cover critical user flows
-- Tests catch bugs before production
-
----
-
-**Remember**: Tests are not optional. They are the safety net that enables confident refactoring, rapid development, and production reliability.
+- ❌ 実装詳細（内部関数の呼び出し回数など）を assert する
+  → ✅ ユーザー可視の挙動（status code / レスポンス / 画面表示）を assert する
+- ❌ テストを実装に合わせて直す
+  → ✅ 実装をテストに合わせて直す（テスト自体が間違っているケースを除く）
+- ❌ RLS を変えたのに pgTAP を触らない
+  → ✅ ポリシー変更と同じ PR に `packages/db/tests` の更新を含める
