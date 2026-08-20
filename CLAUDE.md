@@ -80,6 +80,7 @@ nginx (TLS終端・ルーティング)
 | [agents/](.claude/agents/) | サブエージェント（planner / architect / tdd-guide / code-reviewer / security-reviewer 等） |
 | [skills/](.claude/skills/) | スキル（tdd-workflow / security-review / verification-loop / eval-harness） |
 | [contexts/](.claude/contexts/) | dev / review / research コンテキスト |
+| [hooks/](.claude/hooks/) | outputs 直 push ガード（settings.json に配線済み） |
 
 > この .claude 設定は別プロジェクト（ai-education）から汲み取り、wanonwan 向けに汎用化したもの。
 > wanonwan 固有の前提が固まり次第、各 rules / commands を実態に合わせて更新する。

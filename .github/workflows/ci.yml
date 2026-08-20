@@ -16,7 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
+      # fetch-depth: 0 は直 push ガード（push 範囲の履歴 walk）が必要とする
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # pnpm のバージョンは package.json の packageManager から取る（重複指定しない）
       - uses: pnpm/action-setup@v4
@@ -38,6 +41,12 @@ jobs:
       # node だけで済むので、DB スタックを立てる前に早く失敗させる。
       - name: Dashboard drift check
         run: node scripts/gen-outputs-readme.mjs --check
+
+      # 直 push ガード: develop への直 push が outputs/** の例外規定内かを検査。
+      # PR マージ（GitHub committer の merge commit）は対象外。判定の詳細は script 冒頭。
+      - name: Direct push guard
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        run: node scripts/check-direct-push.mjs "${{ github.event.before }}" "${{ github.event.after }}"
 
       # --- DB スタックを立てて pgTAP（RLS）を実行 ---
       # compose も scripts も env に既定値を持たないため、dev 用 env を実体化してから起動する。
