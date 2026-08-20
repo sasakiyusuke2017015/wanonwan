@@ -5,7 +5,7 @@
 | 概要 | ハーネス育成の第 2 弾。実測で「参照ゼロ・実態と乖離」が確認された rules 4 本と tdd-workflow skill の他プロジェクト残骸を整理し、`outputs/**` 直 push 例外（現在は prose のみ）を CI + hook で機械化する |
 | ステータス | 🟡 実装中 |
 | 前提 Plan | [claude-harness-cleanup](2026-08-15-1454-claude-harness-cleanup.md) |
-| PR | [step 1](https://github.com/sasakiyusuke2017015/waoon/pull/131) |
+| PR | [step 1](https://github.com/sasakiyusuke2017015/waoon/pull/131) / [step 2](https://github.com/sasakiyusuke2017015/waoon/pull/132) |
 | Review | [計画レビュー](../reviews/2026-08-20-2030-rules-inventory-and-push-guard-review.md) |
 
 ## 目的
