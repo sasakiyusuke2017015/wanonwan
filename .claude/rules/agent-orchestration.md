@@ -57,7 +57,7 @@
 1. **明示的な許可**: 笹木さん / 当該タスクの依頼者が「並列で進めて」と明示している。
 2. **スコープ宣言**: 並列稼働するエージェントごとに「触ってよいディレクトリ / パス」を事前に宣言し、**ファイルが絶対に競合しないことを確認する**。
 
-例: 「Agent A は `apps/web/src/components/dashboard/` のみ」「Agent B は `packages/db/sql/` のみ」のように、ディレクトリ単位で完全分離できる場合に限る。`apps/web/src/lib/` のような共通ユーティリティを複数 Agent が同時に触ることは禁止。
+例: 「Agent A は `apps/web/components/admin/` のみ」「Agent B は `packages/db/migrations/` のみ」のように、ディレクトリ単位で完全分離できる場合に限る。`apps/web/lib/` のような共通ユーティリティを複数 Agent が同時に触ることは禁止。
 
 ### 探索系の例外
 
