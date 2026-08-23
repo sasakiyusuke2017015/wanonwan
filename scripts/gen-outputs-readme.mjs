@@ -20,6 +20,11 @@ const ciPrefix = process.env.GITHUB_ACTIONS ? "::error::" : "";
 const VERIFYING = "🟢 マージ済み（検証中）";
 const DONE = "✅ 検証完了";
 
+// core.autocrlf=true の Windows ではワーキングツリーが CRLF になる。行末に残る CR は
+// 行頭・行末アンカーの正規表現をすり抜けて「未チェック項目ゼロ」の誤判定を招くため、
+// 読み込み時に LF へ正規化して以降の処理を OS 非依存にする。
+const readText = (p) => readFileSync(p, "utf8").replaceAll("\r\n", "\n");
+
 // Plan 内のリンクは plans/ 起点（`../reviews/x.md` / `2026-...-plan.md`）。README は outputs/ 起点。
 function rebaseLinks(s) {
   return s.replaceAll("](../", "](").replace(/\]\((?=\d{4}-)/g, "](plans/");
@@ -52,7 +57,7 @@ const pending = [];
 const problems = [];
 const warnings = [];
 for (const f of files) {
-  const src = readFileSync(join(plansDir, f), "utf8");
+  const src = readText(join(plansDir, f));
   const title = (src.match(/^#\s+(?:Plan:\s*)?(.+)$/m)?.[1] ?? f).trim();
   const gaiyo = cell(src, "概要");
   const status = cell(src, "ステータス");
@@ -146,7 +151,7 @@ function driftReport(current, generated, maxLines = 40) {
 }
 
 if (toCheck) {
-  const current = existsSync(readmePath) ? readFileSync(readmePath, "utf8") : "";
+  const current = existsSync(readmePath) ? readText(readmePath) : "";
   if (current === out) {
     console.log(`outputs/README.md は最新（${rows.length} Plan）`);
   } else {
