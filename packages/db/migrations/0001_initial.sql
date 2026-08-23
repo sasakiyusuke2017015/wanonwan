@@ -10,7 +10,6 @@
 CREATE EXTENSION IF NOT EXISTS pg_cron;
 
 -- ===== 組織マスタ（本部 / 部 / 課 / 役職） =====
--- 組織マスタ（本部 / 部 / 課 / 役職）。Pleasanter 区分マスタ(Wikis)由来。
 -- 純粋な HR マスタ。権限ロールとは別軸で、認可は user_roles が源（本ファイルの「ユーザー / 権限ロール」節）。
 
 CREATE TABLE IF NOT EXISTS public.divisions (
@@ -40,7 +39,6 @@ CREATE TABLE IF NOT EXISTS public.positions (
 );
 
 -- ===== ユーザー / 権限ロール =====
--- ユーザー（Pleasanter ユーザーマスタ 27924 由来）。
 -- 認証は GoTrue。業務ユーザーと GoTrue identity を gotrue_id で紐付ける（provisioning は管理画面で）。
 -- パスワード/ロック/失敗回数は GoTrue 側が持つため列に持たない。
 

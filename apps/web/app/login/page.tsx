@@ -11,9 +11,7 @@ import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 const REMEMBER_KEY = "wanonwan.rememberedEmail";
 
-// 旧 1on1 の LoginLayout をそのまま踏襲（2カラム: 左ブランディング teal / 右フォーム）。
-// 旧はテーマに依らずログインだけ teal 固定。画像アセット（ロゴ/キャラ）は wanonwan に無いので省略。
-// 認証は wanonwan の email/password（/api/v1/auth/login）に合わせる。
+// 2カラム構成（左ブランディング teal / 右フォーム）。ログイン画面だけはテーマに依らず teal 固定。
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();

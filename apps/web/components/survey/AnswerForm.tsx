@@ -60,7 +60,7 @@ export function AnswerForm({
     const strVal = typeof val === "string" ? val : "";
     switch (q.answerType) {
       case "radio":
-        // 旧 1on1 踏襲: 選択タイルのグリッド（選択時にテーマ色で塗る）。
+        // 選択タイルのグリッド（選択時にテーマ色で塗る）。
         return (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {q.choices.map((c) => {
@@ -101,7 +101,7 @@ export function AnswerForm({
           />
         );
       case "checkbox":
-        // 旧 1on1 踏襲: 選択タイルのグリッド（複数選択、選択時にテーマ色で塗る）。
+        // 選択タイルのグリッド（複数選択、選択時にテーマ色で塗る）。
         return (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {q.choices.map((c) => {
