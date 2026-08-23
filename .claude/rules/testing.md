@@ -18,11 +18,15 @@ paths:
 
 | コマンド | 対象 |
 |---|---|
-| `pnpm turbo run test` | Vitest（apps/web / apps/worker / packages/storage / packages/ui） |
+| `pnpm turbo run test` | Vitest（apps/web / apps/worker / packages/storage） |
 | `pnpm test:db` | pgTAP（RLS・SQL。DB スタックが必要） |
 
 CI（[ci.yml](../../.github/workflows/ci.yml)）は両方を実行する。E2E（Playwright）は
 採用方針にあるが**現時点では未整備**（playwright.config なし。導入は別 Plan）。
+
+`packages/ui` はテストを持つが `test` script を置いていないため `turbo run test` の
+対象外（Storybook 経由の `test:storybook` のみ）。script を足すと turbo が
+ベンダリング由来のスイート全体を回すため、CI に載せるのはスイート修復後にする。
 
 ## 書き方
 
