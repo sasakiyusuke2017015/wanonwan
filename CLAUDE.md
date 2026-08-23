@@ -5,17 +5,15 @@
 
 ## プロジェクト概要
 
-Wanonwan は、旧 **1on1（アンケート／面談）アプリ**を下記の採用スタックで **再構築**する
-プロジェクト。旧アプリがデータストア兼管理 UI に使っていた **Pleasanter を完全排除**し、
-**Docker + PostgreSQL + GoTrue + RLS + API 一本化**へ移行する。
+Wanonwan は、**アンケートと面談**を通じて組織の 1on1 を支援するアプリケーション。
+**Docker + PostgreSQL + GoTrue + RLS + API 一本化**で構築する。
 
-- 対象ドメイン（ユーザー / アンケート / 回答 / 面談）は旧 1on1 由来。
+- 対象ドメイン: ユーザー / アンケート / 回答 / 面談。
 - 基盤（認証 / DB + RLS / API / 管理・回答・面談・ダッシュボード・スケジュール）は実装・マージ済み。
-  デプロイ基盤と一部認証フローを検証中（[詳細 Plan](outputs/plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md) / [進捗ダッシュボード](outputs/README.md)）。
+  デプロイ基盤と一部認証フローを検証中（[進捗ダッシュボード](outputs/README.md)）。
 
 | 一次情報 | 場所 |
 |---|---|
-| 旧 1on1 ソース（**参照のみ・流用しない**） | ローカルの `docs/99_archive/legacy-1on1/`（`.gitignore`・リポジトリ非同梱） |
 | 実装 Plan | [outputs/plans/](outputs/plans/) |
 
 ## 採用スタック
@@ -24,7 +22,7 @@ Wanonwan は、旧 **1on1（アンケート／面談）アプリ**を下記の�
 |------|------|
 | 言語 / FW | TypeScript / **Next.js 16 (App Router)** / React 19 |
 | スタイル | Tailwind CSS v4 |
-| 状態・データ取得 | TanStack Query（+ 旧踏襲で Jotai） |
+| 状態・データ取得 | TanStack Query + Jotai |
 | UI | ui-catalog（`packages/ui` にベンダリング = `@ui-catalog/core`、Atomic Design / SCSS Modules 内部実装） |
 | 認証 | GoTrue（JWT + Cookie、自前薄ラッパ） |
 | DB | PostgreSQL 15 + 拡張（pgmq / pg_cron / pgvector / pgtap）。**RLS で認可** |
@@ -63,13 +61,12 @@ nginx (TLS終端・ルーティング)
   チューニング値のみ（`GC_BATCH` / `AI_MODEL` 等）。
 - **新規 UI 部品は原則 ui-catalog に吸収**（使い捨てコンポーネントを作らない）。
 
-## ドメイン（旧 1on1 由来）
+## ドメイン
 
 主要エンティティ: `users` + `user_roles` / `surveys` + `questions` / `survey_publications` /
 `answers` / `schedules` / 組織マスタ（本部・部・課・役職）。権限ロールは 3 種
 （admin / interviewer / member）のマルチロール。member は全員が暗黙保有し、`user_roles` には
 上位ロールのみ格納。認可は保有ロールの union で判定（役職 = HR 肩書きとは別軸）。
-詳細・Pleasanter SiteId 対応は [Plan §3.2](outputs/plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md)。
 
 ## .claude 構成
 
@@ -85,9 +82,3 @@ nginx (TLS終端・ルーティング)
 > この .claude 設定は別プロジェクト（ai-education）から汲み取り、wanonwan 向けに汎用化したもの。
 > wanonwan 固有の前提が固まり次第、各 rules / commands を実態に合わせて更新する。
 
-## Git 運用（確定事項）
-
-- **ホスト**: GitHub（`origin = https://github.com/sasakiyusuke2017015/wanonwan.git`）。CI は `.github/workflows/`。
-- **ブランチ戦略**: [git-workflow.md](.claude/rules/git-workflow.md) の **3 層 `feature→develop→main`** に統一
-  （GitHub Flow は不採用）。
-- **旧 1on1 ソース（`docs/99_archive/`）はリポジトリ非同梱**（`.gitignore`。ローカル参照のみ・流用しない）。

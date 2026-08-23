@@ -22,10 +22,6 @@ provision-credentials-*.txt
 staff*.csv
 *-staff.csv
 
-# アーカイブ（旧 1on1 ソース・参照用 zip）は参照のみ・リポジトリには含めない
-docs/99_archive/legacy-1on1/
-docs/99_archive/*.zip
-
 # Next.js / TypeScript 生成物
 next-env.d.ts
 *.tsbuildinfo

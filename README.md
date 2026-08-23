@@ -1,13 +1,11 @@
 # Wanonwan
 
-旧 **1on1（アンケート／面談）アプリ**を、セルフホスト OSS スタックで再構築するプロジェクト。
-旧アプリの **Pleasanter 依存（データストア兼管理 UI）を完全排除**し、
-**Next.js 16 + PostgreSQL + GoTrue + RLS** へ移行する。
+**アンケートと面談**を通じて組織の 1on1 を支援するアプリケーション。
+セルフホスト OSS スタック（**Next.js 16 + PostgreSQL + GoTrue + RLS**）で構築する。
 
 主要機能（認証 / データモデル + RLS / API / 管理・回答・面談画面 / ダッシュボード /
 スケジュール）は実装・マージ済み。デプロイ基盤と一部認証フローを検証中。進行状況は
-[outputs ダッシュボード](outputs/README.md)、設計の一次情報は
-[実装 Plan](outputs/plans/2026-06-11-1730-pleasanter-exit-1on1-rebuild.md)。
+[outputs ダッシュボード](outputs/README.md)。
 
 ローカル起動・テスト・PR の手順は [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)。
 
@@ -37,8 +35,7 @@ wanonwan/
 ├── scripts/             db-migrate / provision（+ provision/ ステップ）/ check-secrets 等
 ├── docs/                ドキュメント全般
 │   ├── CONTRIBUTING.md        開発者ガイド（起動・テスト・PR）
-│   ├── troubleshooting.md     ローカル開発のトラブルシュート
-│   └── （99_archive/          旧 1on1 ソース。リポジトリ非同梱・ローカル参照のみ）
+│   └── troubleshooting.md     ローカル開発のトラブルシュート
 ├── .claude/             Claude Code 用ルール・コマンド・エージェント・スキル
 └── outputs/
     ├── README.md        Plan / Review ステータスダッシュボード
