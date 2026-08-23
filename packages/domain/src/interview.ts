@@ -1,6 +1,6 @@
 import * as v from "valibot";
 
-// 面談（answers の面談系カラム）。旧 1on1 由来。
+// 面談（answers の面談系カラム）。
 
 // 面談方式
 export const INTERVIEW_METHODS = [

@@ -16,7 +16,7 @@ type Dashboard = {
   evaluation: Record<string, number | null>;
 };
 
-// 旧 1on1 Dashboard 踏襲: 番号付きセクションの白カードを縦に積む。
+// 番号付きセクションの白カードを縦に積む。
 const SECTION_BADGE: Record<number, string> = {
   1: "bg-gradient-to-r from-rose-500 to-pink-500",
   2: "bg-gradient-to-r from-violet-500 to-purple-500",
