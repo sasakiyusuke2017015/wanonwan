@@ -1,3 +1,10 @@
 packages:
   - apps/*
   - packages/*
+# pnpm 11 は postinstall を既定でブロックする。ネイティブバイナリを用意する
+# 依存だけ明示的に許可する（sharp = next の画像最適化、esbuild = vite/storybook、
+# @parcel/watcher = storybook の file watch）。
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  sharp: true
