@@ -50,8 +50,8 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 | ✅ 検証完了 | [packages/ui の既存テスト 13 失敗を解消する](plans/2026-07-23-2023-ui-catalog-broken-tests.md) | packages/ui に長く放置されている 13 テスト失敗（6 スイート）を、原因を 3 分類に切り分けて解消する。CI ゲート外のため気付かれずに溜まっていたもの | [#105](https://github.com/sasakiyusuke2017015/wanonwan/pull/105) | [コードレビュー](reviews/2026-07-23-2045-ui-catalog-broken-tests-review.md) |
 | 🟢 マージ済み（検証中） | [@wanonwan/storage 切り出しと packages/db/seed の用途別再編](plans/2026-07-24-0110-storage-package-db-seed-restructure.md) | web/worker で重複する S3Client を `@wanonwan/storage` へ集約し env を必須検証化。あわせて `packages/db/seed/` を master/users/demo に再編 | [#107](https://github.com/sasakiyusuke2017015/wanonwan/pull/107)（storage） / [#108](https://github.com/sasakiyusuke2017015/wanonwan/pull/108)（db-seed） | [storage コードレビュー](reviews/2026-07-24-1531-storage-package-review.md)（APPROVE） / [db-seed コードレビュー](reviews/2026-07-24-1531-db-seed-layout-review.md)（APPROVE） |
 | 🟢 マージ済み（検証中） | [packages/db に migrations/ + snapshot/ を導入](plans/2026-07-24-0210-db-migrations-snapshot.md) | DDL を「migrations が真実・snapshot は生成物」体制へ。本番を止めずに更新でき、空 DB は snapshot で高速初期化 | [#109](https://github.com/sasakiyusuke2017015/wanonwan/pull/109) | [2026-07-24-1146-...-review.md](reviews/2026-07-24-1146-db-migrations-snapshot-review.md)（APPROVE） |
-| 🟣 マージ承認待ち | [DataTable 上流機能の選択的手移植（見た目は wanonwan 版を保持）](plans/2026-07-24-1806-datatable-upstream-feature-port.md) | ui-catalog 上流 DataTable の**機能**（テキスト/数値範囲/日付フィルタ・FilterField UI・`Column.sortValue`・`ClientQueryState.defaultSort`・行削除 disabled・`filterDefs.ts`）を wanonwan 版 DataTable へ手移植。SubHeaderToolbar 連携・DataCountDisplay/Pagination の catalog 化など wanonwan 独自の見た目は保持する | [#110](https://github.com/sasakiyusuke2017015/wanonwan/pull/110) | [コードレビュー](reviews/2026-07-24-1848-datatable-upstream-feature-port-review.md) |
-| 🟣 マージ承認待ち | [プロジェクト名を waoon → wanonwan に全面改称](plans/2026-08-13-0107-rename-wanonwan.md) | プロジェクト名 waoon を **Wanonwan** へ全面改称。npm パッケージ名 / env 変数 / DB 名 / MinIO バケット / compose project / Cookie / コンテナイメージ / 全ドキュメント（`outputs/` 履歴含む）を一括置換し、env キー改名で fail-open する `check-secrets.mjs` を fail-closed 化する | [#117](https://github.com/sasakiyusuke2017015/wanonwan/pull/117) | [計画レビュー](reviews/2026-08-13-0113-rename-wanonwan-review.md) / [コードレビュー](reviews/2026-08-14-1125-rename-wanonwan-code-review.md) |
+| 🟢 マージ済み（検証中） | [DataTable 上流機能の選択的手移植（見た目は wanonwan 版を保持）](plans/2026-07-24-1806-datatable-upstream-feature-port.md) | ui-catalog 上流 DataTable の**機能**（テキスト/数値範囲/日付フィルタ・FilterField UI・`Column.sortValue`・`ClientQueryState.defaultSort`・行削除 disabled・`filterDefs.ts`）を wanonwan 版 DataTable へ手移植。SubHeaderToolbar 連携・DataCountDisplay/Pagination の catalog 化など wanonwan 独自の見た目は保持する | [#110](https://github.com/sasakiyusuke2017015/wanonwan/pull/110) | [コードレビュー](reviews/2026-07-24-1848-datatable-upstream-feature-port-review.md) |
+| 🟢 マージ済み（検証中） | [プロジェクト名を waoon → wanonwan に全面改称](plans/2026-08-13-0107-rename-wanonwan.md) | プロジェクト名 waoon を **Wanonwan** へ全面改称。npm パッケージ名 / env 変数 / DB 名 / MinIO バケット / compose project / Cookie / コンテナイメージ / 全ドキュメント（`outputs/` 履歴含む）を一括置換し、env キー改名で fail-open する `check-secrets.mjs` を fail-closed 化する | [#117](https://github.com/sasakiyusuke2017015/wanonwan/pull/117) | [計画レビュー](reviews/2026-08-13-0113-rename-wanonwan-review.md) / [コードレビュー](reviews/2026-08-14-1125-rename-wanonwan-code-review.md) |
 | ⚪ 実装待ち | [VRT（reg-suit + 撮影層 + CI）](plans/2026-08-14-0020-vrt.md) | 仕上げ Phase 4 のサブ Plan。reg-suit + 撮影層（catalog 171 stories + app ページ）で light baseline を敷き、ダークの 143 箇所トークン置換の差分を検出できる状態にする。compare はローカル baseline で成立させ、リモート共有と CI 自動化のみ stg MinIO 待ち | — | [計画レビュー](reviews/2026-08-14-0043-vrt-review.md) |
 | 🟡 実装中 | [ダークモード（semantic トークン反転 + colorScheme 軸）](plans/2026-08-14-0025-dark-mode.md) | 仕上げ Phase 3 のサブ Plan。反転境界を semantic トークン層に引き、`colorScheme` 軸（light/dark/system）+ FOUC 対策を追加。背景テーマ 9 軸とは直交させ、app の 167 箇所のハードコード色を semantic トークンへ repoint する | — | [計画レビュー](reviews/2026-08-14-0043-dark-mode-review.md) / [コードレビュー 3a-3c](reviews/2026-08-14-0933-dark-mode-review.md) |
 | 🟢 マージ済み（検証中） | [.claude ハーネス層の未配線設定を片付ける + ダッシュボード drift 検知](plans/2026-08-15-1454-claude-harness-cleanup.md) | `.claude/` に「存在するが繋がっていない設定」（settings.json の allow 75 件・未配線 hooks 14 個・無関係 skills / MCP テンプレ）が溜まっており、配線した瞬間に運用と衝突する状態を解消する。あわせて `gen-outputs-readme.mjs --check` を CI に足し、ダッシュボードの drift を機械検知にする | [step 1](https://github.com/sasakiyusuke2017015/wanonwan/pull/126) / [step 2](https://github.com/sasakiyusuke2017015/wanonwan/pull/127) / [step 3](https://github.com/sasakiyusuke2017015/wanonwan/pull/128) / [step 4](https://github.com/sasakiyusuke2017015/wanonwan/pull/129) | [計画レビュー](reviews/2026-08-15-1500-claude-harness-cleanup-review.md) |
@@ -219,6 +219,16 @@ Plan は [`plans/`](plans/)、Review は [`reviews/`](reviews/) に保存する�
 
 - [ ] マージ後検証
   - [ ] stg: snapshot 初回 → 増分 migration の本番相当フロー実証
+
+### [DataTable 上流機能の選択的手移植（見た目は wanonwan 版を保持）](plans/2026-07-24-1806-datatable-upstream-feature-port.md)
+
+  - [ ] dev スタックで admin 一覧の目視確認（未実施）
+
+### [プロジェクト名を waoon → wanonwan に全面改称](plans/2026-08-13-0107-rename-wanonwan.md)
+
+- [ ] マージ後検証
+  - [ ] GHCR 旧パッケージ削除 + 新名で image push 成功（笹木さん）
+  - [ ] stg 再構築 + `provision:stg`（笹木さん）
 
 ### [.claude ハーネス層の未配線設定を片付ける + ダッシュボード drift 検知](plans/2026-08-15-1454-claude-harness-cleanup.md)
 

@@ -3,7 +3,7 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | ui-catalog 上流 DataTable の**機能**（テキスト/数値範囲/日付フィルタ・FilterField UI・`Column.sortValue`・`ClientQueryState.defaultSort`・行削除 disabled・`filterDefs.ts`）を wanonwan 版 DataTable へ手移植。SubHeaderToolbar 連携・DataCountDisplay/Pagination の catalog 化など wanonwan 独自の見た目は保持する |
-| ステータス | 🟣 マージ承認待ち |
+| ステータス | 🟢 マージ済み（検証中） |
 | 前提 Plan | [ui-catalog 上流最新版の選択的マージ](2026-07-16-2354-ui-catalog-upstream-sync.md)（#97。DataTable は wanonwan 版優先と判断。本 Plan は機能面のみ上流へ寄せる後追い） |
 | PR | [#110](https://github.com/sasakiyusuke2017015/wanonwan/pull/110) |
 | Review | [コードレビュー](../reviews/2026-07-24-1848-datatable-upstream-feature-port-review.md) |
@@ -166,7 +166,7 @@ wanonwan 版へ手移植する。方針は「見た目は大きく変えず、�
   - [ ] dev スタックで admin 一覧の目視確認（未実施）
 - [x] コードレビュー（`/pr-review` → APPROVE。BLOCKER なし / NICE-TO-HAVE 3 件は下記残課題）
 - [x] PR 作成（[#110](https://github.com/sasakiyusuke2017015/wanonwan/pull/110)）
-- [ ] 笹木さんマージ承認
+- [x] 笹木さんマージ承認（#110 Squash Merge 済み）
 
 ## 残課題（NICE-TO-HAVE・後続タスク）
 

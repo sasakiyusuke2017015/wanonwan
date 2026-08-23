@@ -3,7 +3,7 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | プロジェクト名 waoon を **Wanonwan** へ全面改称。npm パッケージ名 / env 変数 / DB 名 / MinIO バケット / compose project / Cookie / コンテナイメージ / 全ドキュメント（`outputs/` 履歴含む）を一括置換し、env キー改名で fail-open する `check-secrets.mjs` を fail-closed 化する |
-| ステータス | 🟣 マージ承認待ち |
+| ステータス | 🟢 マージ済み（検証中） |
 | 前提 Plan | [provision-steps](2026-07-07-1412-provision-steps.md)（マージ済み） |
 | PR | [#117](https://github.com/sasakiyusuke2017015/wanonwan/pull/117) |
 | Review | [計画レビュー](../reviews/2026-08-13-0113-rename-wanonwan-review.md) / [コードレビュー](../reviews/2026-08-14-1125-rename-wanonwan-code-review.md) |
@@ -261,7 +261,9 @@ pnpm provision:dev
 - [x] コードレビュー完了（BLOCKER 1 件を同ブランチで修正）
 - [x] PR 作成 … [#117](https://github.com/sasakiyusuke2017015/wanonwan/pull/117)
 - [ ] マージ後検証
-  - [ ] CI green
-  - [ ] GitHub リポジトリ rename + `git remote set-url`（笹木さん）
+  - [x] CI green（#117 merge 後の develop で verify pass）
+  - [x] GitHub リポジトリ rename + `git remote set-url`（2026-08-23 実施。
+        `sasakiyusuke2017015/wanonwan` へ改称し、origin を新 URL へ更新。fetch / push とも疎通確認済み。
+        `outputs/` に残っていた旧 URL の PR リンクも新名へ追随）
   - [ ] GHCR 旧パッケージ削除 + 新名で image push 成功（笹木さん）
   - [ ] stg 再構築 + `provision:stg`（笹木さん）
