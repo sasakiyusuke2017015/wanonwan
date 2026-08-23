@@ -5,7 +5,7 @@
 | 概要 | `.claude/` に「存在するが繋がっていない設定」（settings.json の allow 75 件・未配線 hooks 14 個・無関係 skills / MCP テンプレ）が溜まっており、配線した瞬間に運用と衝突する状態を解消する。あわせて `gen-outputs-readme.mjs --check` を CI に足し、ダッシュボードの drift を機械検知にする |
 | ステータス | 🟢 マージ済み（検証中） |
 | 前提 Plan | なし |
-| PR | [step 1](https://github.com/sasakiyusuke2017015/waoon/pull/126) / [step 2](https://github.com/sasakiyusuke2017015/waoon/pull/127) / [step 3](https://github.com/sasakiyusuke2017015/waoon/pull/128) / [step 4](https://github.com/sasakiyusuke2017015/waoon/pull/129) |
+| PR | [step 1](https://github.com/sasakiyusuke2017015/wanonwan/pull/126) / [step 2](https://github.com/sasakiyusuke2017015/wanonwan/pull/127) / [step 3](https://github.com/sasakiyusuke2017015/wanonwan/pull/128) / [step 4](https://github.com/sasakiyusuke2017015/wanonwan/pull/129) |
 | Review | [計画レビュー](../reviews/2026-08-15-1500-claude-harness-cleanup-review.md) |
 
 ## 目的
@@ -152,17 +152,17 @@ hook は `outputs/plans/**` 運用を止める）。[evergreen.md](../../.claude
 ## ステータス
 
 - [x] 計画確定（[計画レビュー](../reviews/2026-08-15-1500-claude-harness-cleanup-review.md)）
-- [x] 1. settings.json の allow 全削除（[#126](https://github.com/sasakiyusuke2017015/waoon/pull/126) マージ済み）
-- [x] 2. hooks の全削除 + docs 更新（[#127](https://github.com/sasakiyusuke2017015/waoon/pull/127) マージ済み）
-- [x] 3. skills / MCP テンプレの整理（2 の後）（[#128](https://github.com/sasakiyusuke2017015/waoon/pull/128) マージ済み）
-- [x] 4. `gen-outputs-readme --check` + CI 配線（[#129](https://github.com/sasakiyusuke2017015/waoon/pull/129) マージ済み）
+- [x] 1. settings.json の allow 全削除（[#126](https://github.com/sasakiyusuke2017015/wanonwan/pull/126) マージ済み）
+- [x] 2. hooks の全削除 + docs 更新（[#127](https://github.com/sasakiyusuke2017015/wanonwan/pull/127) マージ済み）
+- [x] 3. skills / MCP テンプレの整理（2 の後）（[#128](https://github.com/sasakiyusuke2017015/wanonwan/pull/128) マージ済み）
+- [x] 4. `gen-outputs-readme --check` + CI 配線（[#129](https://github.com/sasakiyusuke2017015/wanonwan/pull/129) マージ済み）
 - [ ] マージ後検証
   - [x] 2026-08-16 permission 3 層（project / local / user）に `git push` / `gh pr` / `git commit` の allow が
         無いことをコマンドで確認。本セッションの push / PR 作成はすべて明示確認を経て実行した
   - [x] 2026-08-16 `outputs/plans/**` `outputs/reviews/**` への Write が本セッション中に多数成功
   - [x] 2026-08-16 削除した skill / MCP への参照を `CLAUDE.md` `.claude/` `docs/` `.github/` `scripts/` で
         grep → 0 件
-  - [x] 2026-08-16 [#129](https://github.com/sasakiyusuke2017015/waoon/pull/129) 上で実測。README を手編集した
+  - [x] 2026-08-16 [#129](https://github.com/sasakiyusuke2017015/wanonwan/pull/129) 上で実測。README を手編集した
         commit で `Dashboard drift check` が `exit 2` + `::error::` 付きで fail（1m17s、DB スタック前）、
         再生成した次の commit で pass（2m40s）
   - [ ] allow 全削除後に頻出した prompt を記録し、積み直す対象を決めた

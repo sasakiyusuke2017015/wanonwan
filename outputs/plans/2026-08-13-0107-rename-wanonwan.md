@@ -5,7 +5,7 @@
 | 概要 | プロジェクト名 waoon を **Wanonwan** へ全面改称。npm パッケージ名 / env 変数 / DB 名 / MinIO バケット / compose project / Cookie / コンテナイメージ / 全ドキュメント（`outputs/` 履歴含む）を一括置換し、env キー改名で fail-open する `check-secrets.mjs` を fail-closed 化する |
 | ステータス | 🟣 マージ承認待ち |
 | 前提 Plan | [provision-steps](2026-07-07-1412-provision-steps.md)（マージ済み） |
-| PR | [#117](https://github.com/sasakiyusuke2017015/waoon/pull/117) |
+| PR | [#117](https://github.com/sasakiyusuke2017015/wanonwan/pull/117) |
 | Review | [計画レビュー](../reviews/2026-08-13-0113-rename-wanonwan-review.md) / [コードレビュー](../reviews/2026-08-14-1125-rename-wanonwan-code-review.md) |
 
 ## 目的
@@ -91,7 +91,7 @@
 
 ### Step 0: 着手条件（達成済み）
 
-- [x] `feature/provision-steps` が develop にマージ済み（[PR #112](https://github.com/sasakiyusuke2017015/waoon/pull/112)）
+- [x] `feature/provision-steps` が develop にマージ済み（[PR #112](https://github.com/sasakiyusuke2017015/wanonwan/pull/112)）
 - [x] `git switch develop && git pull` でクリーンな状態
 
 ### Step 1: 破壊的インフラの事前撤去（**rename コミットより先に実行**）
@@ -209,7 +209,7 @@ pnpm provision:dev
 | 全セッション無効化 | dev / stg の利用者が要再ログイン | dev は provision で再作成、stg は検証用途のみ。事前周知不要と判断 |
 | localStorage キー `waoon.rememberedEmail` の改名 | ログイン画面の「メールを記憶」が初回アクセスで空になる。旧キーは expiry を持たずブラウザに残り続ける | 再入力のみで実害は軽微と判断（コードレビューの NICE-TO-HAVE） |
 | 旧 Cookie がブラウザに残存 | `waoon-access` 等は新コードのログアウト処理では削除されず expiry まで送られ続ける | dev（localhost）/ stg（検証用途）のため実害なしと判断。再調査を防ぐため記録のみ残す |
-| [PR #116](https://github.com/sasakiyusuke2017015/waoon/pull/116)（docs 撤去）と衝突 | `CLAUDE.md` / `README.md` で軽微なコンフリクト | #116 のマージ後に着手するか、develop 起点で切って後で rebase する |
+| [PR #116](https://github.com/sasakiyusuke2017015/wanonwan/pull/116)（docs 撤去）と衝突 | `CLAUDE.md` / `README.md` で軽微なコンフリクト | #116 のマージ後に着手するか、develop 起点で切って後で rebase する |
 | 機械置換の巻き込み事故 | 意図しない文字列破壊 | `waoon` は他語の部分文字列にならない固有語。Step 5 で `git diff` 全読み + 残存ゼロ検証 |
 | `outputs/` 履歴の書き換え | 当時存在しなかった名称で過去記録が記述される | ユーザー判断で受容（判断ログ）。旧 PR URL は GitHub の rename リダイレクトで解決 |
 
@@ -259,7 +259,7 @@ pnpm provision:dev
   - [x] ログインが `wanonwan-access` / `wanonwan-refresh` を発行
   - [x] check-secrets が旧キーで exit 1・新キーで exit 0
 - [x] コードレビュー完了（BLOCKER 1 件を同ブランチで修正）
-- [x] PR 作成 … [#117](https://github.com/sasakiyusuke2017015/waoon/pull/117)
+- [x] PR 作成 … [#117](https://github.com/sasakiyusuke2017015/wanonwan/pull/117)
 - [ ] マージ後検証
   - [ ] CI green
   - [ ] GitHub リポジトリ rename + `git remote set-url`（笹木さん）

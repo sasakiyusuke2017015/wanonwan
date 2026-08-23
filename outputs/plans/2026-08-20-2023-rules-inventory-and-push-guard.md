@@ -5,7 +5,7 @@
 | 概要 | ハーネス育成の第 2 弾。実測で「参照ゼロ・実態と乖離」が確認された rules 4 本と tdd-workflow skill の他プロジェクト残骸を整理し、`outputs/**` 直 push 例外（現在は prose のみ）を CI + hook で機械化する |
 | ステータス | 🟡 実装中 |
 | 前提 Plan | [claude-harness-cleanup](2026-08-15-1454-claude-harness-cleanup.md) |
-| PR | [step 1](https://github.com/sasakiyusuke2017015/waoon/pull/131) / [step 2](https://github.com/sasakiyusuke2017015/waoon/pull/132) / [step 3](https://github.com/sasakiyusuke2017015/waoon/pull/133) / [step 4](https://github.com/sasakiyusuke2017015/waoon/pull/134) |
+| PR | [step 1](https://github.com/sasakiyusuke2017015/wanonwan/pull/131) / [step 2](https://github.com/sasakiyusuke2017015/wanonwan/pull/132) / [step 3](https://github.com/sasakiyusuke2017015/wanonwan/pull/133) / [step 4](https://github.com/sasakiyusuke2017015/wanonwan/pull/134) |
 | Review | [計画レビュー](../reviews/2026-08-20-2030-rules-inventory-and-push-guard-review.md) |
 
 ## 目的
@@ -163,7 +163,7 @@
 | 2026-08-20 | **実測の訂正**: security.md の「レートリミット未実装」は誤り。実装は auth 系 3 エンドポイント（login / refresh / change-password）に存在する | grep の探索先を rules の paths から流用した `apps/web/src/`（実在しない）にしており、静かに 0 件が返っていた。#131 に訂正 commit 済み。探索パスの実在確認を検証手順に明文化 |
 | 2026-08-20 | step 4 を追加: auth-patterns / data-access の全面実態化（当初は「高固有語なので対象外」） | 両ファイルの paths が旧構造（apps/web/src / packages/db/sql）を指し条件読込が死んでいた。さらに auth-patterns の helper 4 つは repo に存在しない。固有語の多さは実態一致を保証しない。paths だけの修正は stale 本文の配信を始めるため、本文書換とセットで 1 PR にする |
 | 2026-08-20 | step 2 のスコープを「例示 31 行」から「実態と矛盾する節を含む書換（構成は維持）」に拡大 | 着手時の精査で、Supabase / Redis / OpenAI の mock 節・jest 記法（実際は Vitest）・80% カバレッジ閾値・pre-commit hook 記述も実態と矛盾していると判明。例示だけ直しても嘘が残る |
-| 2026-08-21 | security.md の訂正 commit は #131 マージ後の push だったため、step 4 の [#134](https://github.com/sasakiyusuke2017015/waoon/pull/134) で回収 | #131 には訂正が入らなかった。訂正済みの `security.md` を step 4 の実態化と同じ PR に含め、取り残しを解消した |
+| 2026-08-21 | security.md の訂正 commit は #131 マージ後の push だったため、step 4 の [#134](https://github.com/sasakiyusuke2017015/wanonwan/pull/134) で回収 | #131 には訂正が入らなかった。訂正済みの `security.md` を step 4 の実態化と同じ PR に含め、取り残しを解消した |
 
 ## 未確定事項
 
@@ -172,10 +172,10 @@
 ## ステータス
 
 - [x] 計画確定（[計画レビュー](../reviews/2026-08-20-2030-rules-inventory-and-push-guard-review.md)）
-- [x] 1. rules 棚卸し（[#131](https://github.com/sasakiyusuke2017015/waoon/pull/131) マージ済み。security.md の訂正はマージ後 push となったため step 4 の #134 で回収）
-- [x] 2. tdd-workflow の例示書換（[#132](https://github.com/sasakiyusuke2017015/waoon/pull/132) マージ済み。スコープ拡大は判断ログ参照）
-- [x] 3. outputs 直 push ガード（script + CI + hook）（[#133](https://github.com/sasakiyusuke2017015/waoon/pull/133) マージ済み）
-- [x] 4. auth-patterns / data-access の全面実態化（[#134](https://github.com/sasakiyusuke2017015/waoon/pull/134) マージ済み。#131 マージ後 push の security.md 訂正も回収）
+- [x] 1. rules 棚卸し（[#131](https://github.com/sasakiyusuke2017015/wanonwan/pull/131) マージ済み。security.md の訂正はマージ後 push となったため step 4 の #134 で回収）
+- [x] 2. tdd-workflow の例示書換（[#132](https://github.com/sasakiyusuke2017015/wanonwan/pull/132) マージ済み。スコープ拡大は判断ログ参照）
+- [x] 3. outputs 直 push ガード（script + CI + hook）（[#133](https://github.com/sasakiyusuke2017015/wanonwan/pull/133) マージ済み）
+- [x] 4. auth-patterns / data-access の全面実態化（[#134](https://github.com/sasakiyusuke2017015/wanonwan/pull/134) マージ済み。#131 マージ後 push の security.md 訂正も回収）
 - [ ] マージ後検証
   - [ ] 削除した rules への残存参照ゼロ
   - [ ] testing / security の全記述が実在の機構を指す

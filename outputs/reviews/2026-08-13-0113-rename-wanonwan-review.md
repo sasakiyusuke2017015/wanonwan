@@ -212,5 +212,5 @@ Plan 側への反映結果（2026-08-14 時点・全件完了）:
 - 影響範囲を再計測し 197 ファイル / 788 箇所 → **203 ファイル / 910 箇所** に更新
 - 混在表記 `Waoon` が 1 件出現したため、sed に第 3 の変換規則を追加。
   出所は本 Review 本文の「大小混在表記（`Waoon` 等）は無い」という記述そのもの
-- 着手条件（provision-steps のマージ）が [PR #112](https://github.com/sasakiyusuke2017015/waoon/pull/112) で達成
-- [PR #116](https://github.com/sasakiyusuke2017015/waoon/pull/116) との衝突をリスク表に追加
+- 着手条件（provision-steps のマージ）が [PR #112](https://github.com/sasakiyusuke2017015/wanonwan/pull/112) で達成
+- [PR #116](https://github.com/sasakiyusuke2017015/wanonwan/pull/116) との衝突をリスク表に追加
