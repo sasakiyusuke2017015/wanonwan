@@ -3,9 +3,9 @@
 | 項目 | 値 |
 |---|---|
 | 概要 | ハーネス育成の第 2 弾。実測で「参照ゼロ・実態と乖離」が確認された rules 4 本と tdd-workflow skill の他プロジェクト残骸を整理し、`outputs/**` 直 push 例外（現在は prose のみ）を CI + hook で機械化する |
-| ステータス | 🟡 実装中 |
+| ステータス | ✅ 検証完了 |
 | 前提 Plan | [claude-harness-cleanup](2026-08-15-1454-claude-harness-cleanup.md) |
-| PR | [step 1](https://github.com/sasakiyusuke2017015/wanonwan/pull/131) / [step 2](https://github.com/sasakiyusuke2017015/wanonwan/pull/132) / [step 3](https://github.com/sasakiyusuke2017015/wanonwan/pull/133) / [step 4](https://github.com/sasakiyusuke2017015/wanonwan/pull/134) |
+| PR | [step 1](https://github.com/sasakiyusuke2017015/wanonwan/pull/131) / [step 2](https://github.com/sasakiyusuke2017015/wanonwan/pull/132) / [step 3](https://github.com/sasakiyusuke2017015/wanonwan/pull/133) / [step 4](https://github.com/sasakiyusuke2017015/wanonwan/pull/134) / [検証時の訂正](https://github.com/sasakiyusuke2017015/wanonwan/pull/138) |
 | Review | [計画レビュー](../reviews/2026-08-20-2030-rules-inventory-and-push-guard-review.md) |
 
 ## 目的
@@ -164,6 +164,7 @@
 | 2026-08-20 | step 4 を追加: auth-patterns / data-access の全面実態化（当初は「高固有語なので対象外」） | 両ファイルの paths が旧構造（apps/web/src / packages/db/sql）を指し条件読込が死んでいた。さらに auth-patterns の helper 4 つは repo に存在しない。固有語の多さは実態一致を保証しない。paths だけの修正は stale 本文の配信を始めるため、本文書換とセットで 1 PR にする |
 | 2026-08-20 | step 2 のスコープを「例示 31 行」から「実態と矛盾する節を含む書換（構成は維持）」に拡大 | 着手時の精査で、Supabase / Redis / OpenAI の mock 節・jest 記法（実際は Vitest）・80% カバレッジ閾値・pre-commit hook 記述も実態と矛盾していると判明。例示だけ直しても嘘が残る |
 | 2026-08-21 | security.md の訂正 commit は #131 マージ後の push だったため、step 4 の [#134](https://github.com/sasakiyusuke2017015/wanonwan/pull/134) で回収 | #131 には訂正が入らなかった。訂正済みの `security.md` を step 4 の実態化と同じ PR に含め、取り残しを解消した |
+| 2026-08-23 | マージ後検証で testing.md の乖離を検出し [#138](https://github.com/sasakiyusuke2017015/wanonwan/pull/138) で訂正 | step 1 で書き直した testing.md 自身が `turbo run test` の対象に `packages/ui` を挙げていたが、`turbo run test --dry` の実測では web / worker / storage の 3 つ。ui はテスト 168 ファイルを持つが `test` script を置いていないため走らない。**「実在するコマンドだけ書く」方針で書いたファイルにも乖離が入りうる**ため、検証は grep ではなく実行で突合する必要がある |
 
 ## 未確定事項
 
@@ -176,8 +177,17 @@
 - [x] 2. tdd-workflow の例示書換（[#132](https://github.com/sasakiyusuke2017015/wanonwan/pull/132) マージ済み。スコープ拡大は判断ログ参照）
 - [x] 3. outputs 直 push ガード（script + CI + hook）（[#133](https://github.com/sasakiyusuke2017015/wanonwan/pull/133) マージ済み）
 - [x] 4. auth-patterns / data-access の全面実態化（[#134](https://github.com/sasakiyusuke2017015/wanonwan/pull/134) マージ済み。#131 マージ後 push の security.md 訂正も回収）
-- [ ] マージ後検証
-  - [ ] 削除した rules への残存参照ゼロ
-  - [ ] testing / security の全記述が実在の機構を指す
-  - [ ] hook が develop 上の outputs 外 push を block し、feature ブランチの push を素通しする
-  - [ ] マージ後最初の outputs 直 push で CI ガードが緑
+- [x] **マージ後検証**（2026-08-23 実施）
+  - [x] 削除した rules への残存参照ゼロ（`git grep performance.md|patterns.md` は
+        auth-patterns.md への部分一致のみ。両ファイルとも不在を確認。
+        performance.md から agents.md への 1 行移設も存置を確認）
+  - [x] testing / security の全記述が実在の機構を指す（security.md の
+        レートリミット 3 エンドポイントは実装と一致。**testing.md は
+        `turbo run test` の対象に packages/ui を挙げていたが `--dry` 実測では
+        web / worker / storage の 3 つで乖離**。除外理由とともに訂正 →
+        [#138](https://github.com/sasakiyusuke2017015/wanonwan/pull/138)）
+  - [x] hook が develop 上の outputs 外 push を block し、feature ブランチの push を素通しする
+        （同一の non-outputs commit で、develop = exit 2 でブロック・
+        feature ブランチ = exit 0 で素通しを実測。push 以外の Bash も素通し）
+  - [x] マージ後最初の outputs 直 push で CI ガードが緑（`d803e53` / `cdc35d8` の
+        outputs のみ直 push が 2 回とも verify success）
