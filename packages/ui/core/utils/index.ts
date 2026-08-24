@@ -4,6 +4,7 @@
 
 // Core Utils
 export { cn } from './cn'
+export { isCaptureMode } from './captureMode'
 export { isModifiedClick } from './isModifiedClick'
 export { isNullish } from './isNullish'
 export { isHexColor, hexReadableTextColor } from './hexColor'

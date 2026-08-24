@@ -10,7 +10,7 @@ import {
   Tooltip,
 } from 'recharts';
 
-import { isNullish } from '../../utils';
+import { isCaptureMode, isNullish } from '../../utils';
 
 interface PieChartDataItem {
   name: string;
@@ -117,7 +117,7 @@ const PieChartInner: React.FC<PieChartProps> = ({
             dataKey="value"
             startAngle={90}
             endAngle={-270}
-            isAnimationActive={true}
+            isAnimationActive={!isCaptureMode()}
             animationDuration={800}
             animationBegin={0}
           >
@@ -163,7 +163,7 @@ const PieChartInner: React.FC<PieChartProps> = ({
                   endAngle={endAngle}
                   stroke="none"
                   fill={data[hoveredIndex].color}
-                  isAnimationActive={true}
+                  isAnimationActive={!isCaptureMode()}
                   animationDuration={200}
                   style={{
                     filter: 'drop-shadow(0 0 8px rgba(0,0,0,0.3))',
@@ -176,7 +176,7 @@ const PieChartInner: React.FC<PieChartProps> = ({
           <Tooltip
             content={<CustomTooltip />}
             wrapperStyle={{ zIndex: 1000 }}
-            isAnimationActive={true}
+            isAnimationActive={!isCaptureMode()}
             animationDuration={200}
             cursor={false}
             position={{ x: !isNullish(hoveredIndex) ? getTooltipXPosition(hoveredIndex) : size / 2, y: size }}

@@ -137,3 +137,33 @@ body {
 .recharts-surface * {
   outline: none !important;
 }
+
+/* ------------------------------------------------------------------
+ * VRT 撮影モード
+ *
+ * 撮影層が <html data-vrt-capture="true"> を立てたときだけ有効。
+ * 無限ループするアニメーション（スピナー・シマー等）は撮影タイミングで
+ * 任意のフレームに止まるため、VRT で恒常的な偽陽性 diff の原因になる。
+ * 進行を止めて先頭フレームに固定し、撮影を決定的にする。
+ *
+ * 対象は story 本体（#storybook-root）と、app ページ撮影時の body[data-vrt-scope='page']
+ * に限定する。Storybook 自身のローダー（.sb-loader 等）まで止めると、story の
+ * マウント完了前にローダーが静止して逆に非決定になる。
+ * ------------------------------------------------------------------ */
+[data-vrt-capture='true'] #storybook-root *,
+[data-vrt-capture='true'] #storybook-root *::before,
+[data-vrt-capture='true'] #storybook-root *::after,
+[data-vrt-capture='true'] body[data-vrt-scope='page'] *,
+[data-vrt-capture='true'] body[data-vrt-scope='page'] *::before,
+[data-vrt-capture='true'] body[data-vrt-scope='page'] *::after {
+  /* 負の delay で「開始済み」にしたうえで停止すると、要素ごとにズラされた
+     animation-delay（例: LoadingZone の 0/200/400ms）に関係なく同じフレームで止まる。
+     delay: 0 のままだと、止まる位置が撮影タイミング依存になり非決定になる。
+     値は最長のアニメーション（SpaceBackground の starDrift 520s）より大きく取り、
+     どれも「1 周し終えた位置」で確実に停止させる。 */
+  animation-play-state: paused !important;
+  animation-delay: -600s !important;
+  transition: none !important;
+  transition-duration: 0s !important;
+  caret-color: transparent !important;
+}
