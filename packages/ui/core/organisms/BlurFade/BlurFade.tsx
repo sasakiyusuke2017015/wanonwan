@@ -12,6 +12,7 @@ import { useRef, type ReactNode } from 'react'
 import { motion, useInView } from 'framer-motion'
 
 import { cn } from '../../utils/cn'
+import { isCaptureMode } from '../../utils/captureMode'
 
 interface BlurFadeProps {
   children: ReactNode
@@ -41,7 +42,9 @@ export function BlurFade({
 }: BlurFadeProps) {
   const ref = useRef<HTMLDivElement>(null)
   const inViewResult = useInView(ref, { once: true, margin: inViewMargin as `${number}px` })
-  const isInView = !inView || inViewResult
+  // VRT 撮影中は in-view 判定と delay を飛ばし、最初から visible で静止させる
+  const capture = isCaptureMode()
+  const isInView = capture || !inView || inViewResult
   const defaultVariants = {
     hidden: { y: yOffset, opacity: 0, filter: `blur(${blur})` },
     visible: { y: -yOffset, opacity: 1, filter: 'blur(0px)' },
@@ -54,11 +57,15 @@ export function BlurFade({
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
       variants={combinedVariants}
-      transition={{
-        delay: 0.04 + delay,
-        duration,
-        ease: 'easeOut',
-      }}
+      transition={
+        capture
+          ? { duration: 0, delay: 0 }
+          : {
+              delay: 0.04 + delay,
+              duration,
+              ease: 'easeOut',
+            }
+      }
       className={cn(className)}
       data-component="blur-fade"
     >

@@ -14,6 +14,9 @@ test-results/
 playwright-report/
 playwright/.cache/
 
+# VRT（撮影結果・baseline は成果物。リポジトリには置かない）
+.vrt/
+
 # Logs
 *.log
 

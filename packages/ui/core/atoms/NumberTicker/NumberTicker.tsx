@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, useInView, useSpring, useTransform } from 'framer-motion'
 
 import { cn } from '../../utils/cn'
+import { isCaptureMode } from '../../utils/captureMode'
 
 interface NumberTickerProps {
   value: number
@@ -47,6 +48,12 @@ export function NumberTicker({
 
   // 初回表示時のアニメーション
   useEffect(() => {
+    // VRT 撮影中はカウントアップを行わず最終値で静止させる
+    if (isCaptureMode()) {
+      spring.jump(direction === 'down' ? 0 : value)
+      setHasStarted(true)
+      return
+    }
     if (isInView && !hasStarted) {
       const timer = setTimeout(() => {
         setHasStarted(true)

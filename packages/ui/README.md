@@ -196,25 +196,8 @@ pnpm storybook:localhost   # http://localhost:6006
 
 ```bash
 pnpm storybook:localhost            # ローカル（http://localhost:6006）
-pnpm storybook:deploy               # Chromatic にデプロイ（手動）
 pnpm storybook:deploy:ghpages       # GitHub Pages にデプロイ
 ```
-
-### Chromatic 自動デプロイ（雛形 repo のみ）
-
-雛形 repo では `.github/workflows/chromatic.yml` により、main への push と PR で Chromatic に自動デプロイされる。
-
-このワークフローは `if: github.repository == 'sasakiyusuke2017015/ui-catalog'` で雛形 repo に限定されており、**複製先プロジェクトでは何もせず skip される**（GitHub Actions のログにエラーは出ない）。
-
-**複製先で Chromatic を有効化したい場合:**
-1. https://www.chromatic.com で自プロジェクトを作成し Project Token を取得
-2. 自リポジトリの GitHub Settings → Secrets → Actions に `CHROMATIC_PROJECT_TOKEN` として登録
-3. `.github/workflows/chromatic.yml` の `if:` 行を削除するか、自リポジトリ名（`owner/repo` 形式）に書き換える
-
-**複製先で Chromatic を使わない場合:**
-何もしなくてよい。`.github/workflows/chromatic.yml` を残しても skip されるだけ。気になるなら削除可。
-
----
 
 ## 各層の責務
 

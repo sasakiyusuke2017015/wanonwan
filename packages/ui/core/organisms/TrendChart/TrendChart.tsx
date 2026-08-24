@@ -16,6 +16,8 @@ import {
 // recharts の onClick 型（v2.15+ では CategoricalChartFunc が廃止）
 type ChartClickHandler = (data: { activeLabel?: string | number } | null) => void;
 
+import { isCaptureMode } from '../../utils';
+
 import type { TrendChartProps, DatasetState, DataPointClickData } from './types';
 import styles from './TrendChart.module.scss';
 
@@ -117,7 +119,8 @@ const TrendChartInner: FC<TrendChartProps> = ({
 
   // Canvas animation loop
   useEffect(() => {
-    if (!showParticles) return;
+    // VRT 撮影中はパーティクルの時間を進めず、t=0 の一枚で静止させる
+    if (!showParticles || isCaptureMode()) return;
 
     const animate = () => {
       setAnimationTime((prev) => prev + 0.02);
@@ -542,7 +545,7 @@ const TrendChartInner: FC<TrendChartProps> = ({
                 }}
                 connectNulls={true}
                 animationDuration={animationDuration}
-                isAnimationActive={shouldAnimate}
+                isAnimationActive={shouldAnimate && !isCaptureMode()}
                 hide={isHidden}
               />
             );

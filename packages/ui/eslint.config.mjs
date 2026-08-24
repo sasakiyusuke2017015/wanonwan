@@ -15,6 +15,20 @@ export default tseslint.config(
   js.configs.recommended,
   tseslint.configs.recommended,
   {
+    // VRT 撮影スクリプトは Node で動くが、page.evaluate / addInitScript に渡す関数は
+    // ブラウザ側で実行されるため、両方のグローバルを持つ。
+    files: ["infra/vrt/**/*.mjs"],
+    languageOptions: {
+      globals: {
+        process: "readonly",
+        console: "readonly",
+        window: "readonly",
+        document: "readonly",
+        MutationObserver: "readonly",
+      },
+    },
+  },
+  {
     rules: {
       // `_` プレフィックスは「意図的に未使用」の慣習（placeholder の props/引数/catch）
       "@typescript-eslint/no-unused-vars": [
